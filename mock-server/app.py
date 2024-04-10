@@ -52,6 +52,7 @@ def completions(deployment_name):
         response = make_response(completion.model_dump_json())
     elif response_status_code == 429:
         response = make_response({'error': {'code': '429', 'message': 'Rate limit is exceeded. Try again in 5 seconds.'}})
+        response.headers["retry_after_ms"] = "5000"
     elif response_status_code == 500:
         response = make_response({'error': {'code': '500', 'message': 'Internal server error'}})
     elif response_status_code == 503:
