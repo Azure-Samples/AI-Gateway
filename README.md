@@ -1,4 +1,7 @@
-# Project Name
+# APIM ❤️ OpenAI
+
+### AI Gateway
+![AI-Gateway flow](images/ai-gateway.gif)
 
 (short, 1-3 sentenced, description of the project)
 

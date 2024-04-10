@@ -1,0 +1,52 @@
+### Set config
+### OpenAI API Error Codes
+### 401 - Invalid Authentication	Cause: Invalid Authentication
+### 401 - Incorrect API key provided	Cause: The requesting API key is not correct.
+### 401 - You must be a member of an organization to use the API	Cause: Your account is not part of an organization.
+### 403 - Country, region, or territory not supported	Cause: You are accessing the API from an unsupported country, region, or territory.
+### 429 - Rate limit reached for requests	Cause: You are sending requests too quickly.
+### 500 - The server had an error while processing your request	Cause: Issue on our servers.
+### 503 - The engine is currently overloaded, please try again later	Cause: Our servers are experiencing high traffic.
+
+## Local test to get the root endpoint
+GET http://localhost:5000/
+
+### Local test to get the completion result
+POST http://localhost:5000/openai/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-01
+Content-Type: application/json
+
+{
+    "messages": [
+        {
+            "role": "system", 
+            "content": {
+                "simulation": {
+                    "default": {"response_status_code": 200, "wait_time_ms": 0},
+                    "localhost": {"response_status_code": 429}
+                }
+            }
+        }
+    ]
+}
+
+### Test to get the root endpoint
+GET https://openaimock.azurewebsites.net/
+
+
+### Test to get the completion result
+POST https://openaimock1.azurewebsites.net/openai/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-01
+Content-Type: application/json
+
+{
+    "messages": [
+        {
+            "role": "system", 
+            "content": {
+                "simulation": {
+                    "default": {"response_status_code": 200, "wait_time_ms": 0},
+                    "openaimock1.azurewebsites.net": {"response_status_code": 429}
+                }
+            }
+        }
+    ]
+}
