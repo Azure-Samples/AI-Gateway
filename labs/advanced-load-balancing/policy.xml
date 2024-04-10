@@ -12,7 +12,7 @@
                     // -------------------------------------------------
                     // ------- Explanation of backend properties -------
                     // -------------------------------------------------
-                    // "url":          Your backend url
+                    // "name":         Name of the backend
                     // "priority":     Lower value means higher priority over other backends. 
                     //                 If you have more one or more Priority 1 backends, they will always be used instead
                     //                 of Priority 2 or higher. Higher values backends will only be used if your lower values (top priority) are all throttling.
