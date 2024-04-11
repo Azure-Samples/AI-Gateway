@@ -66,5 +66,6 @@ Numerous reference architectures, best practices and starter kits are available 
 - [Azure OpenAI Using PTUs/TPMs With API Management - Using the Scaling Special Sauce](https://github.com/Azure/aoai-apim)
 - [Manage Azure OpenAI using APIM](https://github.com/microsoft/AzureOpenAI-with-APIM) 
 - [Setting up Azure OpenAI as a central capability with Azure API Management](https://github.com/Azure/enterprise-azureai)
+- [Introduction to Building AI Apps](https://github.com/Azure/intro-to-intelligent-apps)
 
 We believe that there may be valuable content that we are currently unaware of. We would greatly appreciate any suggestions or recommendations to enhance this list.
