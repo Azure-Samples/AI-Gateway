@@ -19,18 +19,28 @@
 		}
 	},
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
+	// Features to add to the dev container. More info: https://containers.dev/features.  
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user -r mock-server/requirements.txt"
+	"postCreateCommand": "pip3 install --user -r mock-server/requirements.txt",
 
 	// Configure tool-specific properties.
-	// "customizations": {},
+	"customizations": {
+		"codespaces": {
+		  "openFiles": []
+		},
+		"vscode": {
+		  "extensions": [
+			"ms-toolsai.jupyter",
+			"ms-python.python"
+		  ]
+		}
+	  },
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	"remoteUser": "vscode"
 }
