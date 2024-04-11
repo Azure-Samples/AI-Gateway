@@ -1,0 +1,26 @@
+# APIM ❤️ OpenAI
+
+## Response streaming lab
+![flow](../../images/response-streaming.gif)
+
+Playground to try response streaming with APIM and Azure OpenAI endpoints and bust the myth that APIM doesn't support streaming. To get responses sooner, you can 'stream' the completion as it's being generated. This allows you to start printing or processing the beginning of the completion before the full completion is finished. 
+
+Follow the [APIM guidelines for SSE](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse) to guarantee that your APIM configuration is compatible with streaming.
+
+This lab reuses the [Cookbook - How to stream completions](https://cookbook.openai.com/examples/how_to_stream_completions) published by OpenAI.
+
+### Notes
+- To stream completions, set stream=True when calling the chat completions or completions endpoints. This will return an object that streams back the response as data-only server-sent events. Extract chunks from the delta field rather than the message field. 
+- Streaming responses doesn't includes the usage field to tell how many tokens were consumed.
+- Streaming in a production application makes it more difficult to moderate the content of the completions, as partial completions may be more difficult to evaluate.
+
+### Prerequisites
+- [Python 3.8 or later version](https://www.python.org/) installed
+- [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed
+- [An Azure Subscription](https://azure.microsoft.com/en-us/free/) with Contributor permissions
+- [Access granted to Azure OpenAI](https://aka.ms/oai/access) or just enable the mock service
+- [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
+
+### Get started
+Proceed by opening the [Jupyter notebook](response-streaming.ipynb), and follow the steps provided.

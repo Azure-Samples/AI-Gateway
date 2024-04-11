@@ -1,0 +1,34 @@
+<policies>
+    <inbound>
+        <base />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
+        </set-header>
+        <set-backend-service backend-id="{backend-id}" />
+        <!-- Reused the following policy: https://github.com/Azure/enterprise-azureai/blob/main/infra/modules/apim/policies/api_policy_openai.xml --> 
+        <choose>
+            <when condition="@(context.Request.Body.As<JObject>(true)["stream"] != null && context.Request.Body.As<JObject>(true)["stream"].Type != JTokenType.Null)">
+                <set-variable name="isStream" value="@{
+                    var content = (context.Request.Body?.As<JObject>(true));
+                    string streamValue = content["stream"].ToString();
+                    return streamValue;
+                }" />
+            </when>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+        <set-header name="x-ms-stream" exists-action="override">
+            <value>@{
+                    return context.Variables.GetValueOrDefault<string>("isStream","false").Equals("true", StringComparison.OrdinalIgnoreCase).ToString();
+                }</value>
+        </set-header>
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

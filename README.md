@@ -21,9 +21,10 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [Backend circuit breaking](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb)     | ![flow](images/backend-circuit-breaking.gif) | Playground to try the built-in [backend circuit breaker functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either an Azure OpenAI endpoints or a mock server. |
 | [Backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | ![flow](images/backend-pool-load-balancing.gif) | Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers. |
 | [Advanced load balancing](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | ![flow](images/advanced-load-balancing.gif) | Playground to try the advanced load balancing (based on a custom [APIM policy](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers. |
+| [Response streaming](labs/response-streaming/response-streaming.ipynb) | ![flow](images/response-streaming.gif) | Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse). |
+
 
 ### Backlog of experiments
-* Response streaming
 * Vector searching
 * Performance testing
 * Token counting
@@ -44,7 +45,7 @@ The [app.py](app.py) can be customized to tailor the Mock server to specific use
 
 ## Getting Started
 
-### Prerequisites
+### Prerequisites (for local environment)
 - [Python 3.8 or later version](https://www.python.org/) installed
 - [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed
@@ -54,9 +55,10 @@ The [app.py](app.py) can be customized to tailor the Mock server to specific use
 
 ### Quickstart
 
-1. Navigate through the available labs and select one that best suits your needs. For starters we recommend the [request forwarding](labs/request-forwarding/request-forwarding.ipynb) with just the Azure CLI or the [backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) with Bicep.
-2. Open the notebook, ensure that you meet the prerequisites and run the steps.
-3. Tailor the experiment according to your requirements. If you wish to contribute to our collective work, we would appreciate your [submission of a pull request](CONTRIBUTING.MD).
+1. Configure your local machine with the prerequisites or just create a [GitHub Codespace](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main) and run it on the browser or in VS Code.
+2. Navigate through the available labs and select one that best suits your needs. For starters we recommend the [request forwarding](labs/request-forwarding/request-forwarding.ipynb) with just the Azure CLI or the [backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) with Bicep.
+3. Open the notebook and run the provided steps.
+4. Tailor the experiment according to your requirements. If you wish to contribute to our collective work, we would appreciate your [submission of a pull request](CONTRIBUTING.MD).
 
 ## Resources
 

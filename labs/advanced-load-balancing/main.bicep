@@ -246,7 +246,7 @@ resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-previe
   }
 }]
 
-resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) > 0) {
+resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) > 1) {
   name: openAIBackendPoolName
   parent: apimService
   properties: {
@@ -263,7 +263,7 @@ resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-
   }
 }
 
-resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) == 0 && length(mockWebApps) > 0) {
+resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) == 0 && length(mockWebApps) > 1) {
   name: mockBackendPoolName
   parent: apimService
   properties: {
