@@ -1,7 +1,7 @@
 # APIM ❤️ OpenAI
 
-## Request Forwarding lab
-![flow](../../images/request-forwarding.gif)
+## [Request Forwarding lab](request-forwarding.ipynb)
+[![flow](../../images/request-forwarding.gif)](request-forwarding.ipynb)
 
 Playground to try forwarding requests to either an Azure OpenAI endpoint or a mock server using the APIM manage identity to authenticate on Azure OpenAI service.
 

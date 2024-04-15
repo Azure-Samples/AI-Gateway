@@ -1,7 +1,7 @@
 # APIM ❤️ OpenAI
 
-## Backend pool Load Balancing lab
-![flow](../../images/backend-pool-load-balancing.gif)
+## [Backend pool Load Balancing lab)](backend-circuit-breaking.ipynb)
+[![flow](../../images/backend-pool-load-balancing.gif)](backend-pool-load-balancing.ipynb)
 
 Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers.
 
