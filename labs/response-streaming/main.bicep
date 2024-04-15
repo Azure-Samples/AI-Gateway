@@ -70,7 +70,10 @@ param openAIAPIPath string = 'openai'
 param openAIAPIDisplayName string = 'OpenAI'
 
 @description('The description of the APIM API for OpenAI API')
-param openAIAPIDescription string = 'openai'
+param openAIAPIDescription string = 'Azure OpenAI API inferencing API'
+
+@description('Full URL for the OpenAI API spec')
+param openAIAPISpecURL string = 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.json'
 
 @description('The name of the APIM Subscription for OpenAI API')
 param openAISubscriptionName string = 'openai-subscription'
@@ -84,7 +87,7 @@ param openAIBackendPoolName string = 'openai-backend-pool'
 @description('The description of the OpenAI backend pool')
 param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
 
-var resourceSuffix = uniqueString(subscription().id)
+var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 
 resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig: if(length(openAIConfig) > 0) {
   name: '${config.name}-${resourceSuffix}'
@@ -151,7 +154,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
       apiType: 'http'
       description: openAIAPIDescription
       displayName: openAIAPIDisplayName
-      format: 'openapi+json'
+      format: 'openapi-link'
       path: openAIAPIPath
       protocols: [
         'https'
@@ -162,7 +165,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
       }
       subscriptionRequired: true
       type: 'http'
-      value: loadTextContent('openai.json')
+      value: openAIAPISpecURL
     }
   }
 

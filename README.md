@@ -17,35 +17,31 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 
 |  |  | |
 | ---- | ----- | ----------- |
-| [Request forwarding](labs/request-forwarding/request-forwarding.ipynb) | ![flow](images/request-forwarding.gif) | Playground to try forwarding requests to either an Azure OpenAI endpoint or a mock server. APIM uses the system managed identity to authenticate into the Azure OpenAI service. |
-| [Backend circuit breaking](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb)     | ![flow](images/backend-circuit-breaking.gif) | Playground to try the built-in [backend circuit breaker functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either an Azure OpenAI endpoints or a mock server. |
-| [Backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | ![flow](images/backend-pool-load-balancing.gif) | Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers. |
-| [Advanced load balancing](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | ![flow](images/advanced-load-balancing.gif) | Playground to try the advanced load balancing (based on a custom [APIM policy](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers. |
-| [Response streaming](labs/response-streaming/response-streaming.ipynb) | ![flow](images/response-streaming.gif) | Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse). |
+| [Request forwarding](labs/request-forwarding/request-forwarding.ipynb) | [![flow](images/request-forwarding.gif)](labs/request-forwarding/request-forwarding.ipynb) | Playground to try forwarding requests to either an Azure OpenAI endpoint or a mock server. APIM uses the system [managed identity](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-use-managed-service-identity) to authenticate into the Azure OpenAI service. |
+| [Backend circuit breaking](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb)     | [![flow](images/backend-circuit-breaking.gif)](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb) | Playground to try the built-in [backend circuit breaker functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either an Azure OpenAI endpoints or a mock server. |
+| [Backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | [![flow](images/backend-pool-load-balancing.gif)](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers. |
+| [Advanced load balancing](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | [![flow](images/advanced-load-balancing.gif)](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | Playground to try the advanced load balancing (based on a custom [APIM policy](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers. |
+| [Response streaming](labs/response-streaming/response-streaming.ipynb) | [![flow](images/response-streaming.gif)](labs/response-streaming/response-streaming.ipynb) | Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse). |
+| [Vector searching](labs/vector-searching/vector-searching.ipynb) | [![flow](images/vector-searching.gif)](labs/vector-searching/vector-searching.ipynb) | Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions. All the endpoints are managed via APIM. |
+
 
 
 ### Backlog of experiments
-* Vector searching
-* Performance testing
+* Built-in logging
+* SLM self-hosting
 * Token counting
 * Semantic caching
 * Cost tracking
 * Content filtering
-* Prompt logging
+* Prompt storing
 * Token throttling
 * Function calling
 * Prompt guarding
-
-## Mock Server
-
-The AI-Gateway Mock server is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with APIM and other use cases.
-The [app.py](app.py) can be customized to tailor the Mock server to specific use cases.
-
-* [Run locally or deploy to Azure](mock-server/mock-server.ipynb)
+* Prompt model routing
 
 ## Getting Started
 
-### Prerequisites (for local environment)
+### Prerequisites
 - [Python 3.8 or later version](https://www.python.org/) installed
 - [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed
@@ -54,11 +50,17 @@ The [app.py](app.py) can be customized to tailor the Mock server to specific use
 - [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
 
 ### Quickstart
-
-1. Configure your local machine with the prerequisites or just create a [GitHub Codespace](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main) and run it on the browser or in VS Code.
+1. Clone this repo and configure your local machine with the prerequisites or just create a [GitHub Codespace](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main) and run it on the browser or in VS Code.
 2. Navigate through the available labs and select one that best suits your needs. For starters we recommend the [request forwarding](labs/request-forwarding/request-forwarding.ipynb) with just the Azure CLI or the [backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) with Bicep.
 3. Open the notebook and run the provided steps.
 4. Tailor the experiment according to your requirements. If you wish to contribute to our collective work, we would appreciate your [submission of a pull request](CONTRIBUTING.MD).
+
+## Mock Server
+
+The AI-Gateway Mock server is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with APIM and other use cases.
+The [app.py](app.py) can be customized to tailor the Mock server to specific use cases.
+
+* [Run locally or deploy to Azure](mock-server/mock-server.ipynb)
 
 ## Resources
 
@@ -70,4 +72,11 @@ Numerous reference architectures, best practices and starter kits are available 
 - [Setting up Azure OpenAI as a central capability with Azure API Management](https://github.com/Azure/enterprise-azureai)
 - [Introduction to Building AI Apps](https://github.com/Azure/intro-to-intelligent-apps)
 
-We believe that there may be valuable content that we are currently unaware of. We would greatly appreciate any suggestions or recommendations to enhance this list.
+> We believe that there may be valuable content that we are currently unaware of. We would greatly appreciate any suggestions or recommendations to enhance this list.
+
+## Contributors
+
+
+## Disclaimer
+> [!IMPORTANT]
+> This software is provided for demonstration purposes only. It is not intended to be relied upon for any purpose. The creators of this software make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability or availability with respect to the software or the information, products, services, or related graphics contained in the software for any purpose. Any reliance you place on such information is therefore strictly at your own risk.

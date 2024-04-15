@@ -87,13 +87,75 @@ param openAIBackendPoolName string = 'openai-backend-pool'
 @description('The description of the OpenAI backend pool')
 param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
 
-// advance-load-balancing: added parameter
-@description('The name of the named value for the load balancing configuration')
-param openAILoadBalancingConfigName string = 'openai-lb-config'
+// vector-searching: additions BEGIN
 
-// advance-load-balancing: added parameter
-@description('The value of the named value for the load balancing configuration')
-param openAILoadBalancingConfigValue string
+@description('Embeddings Model Name')
+param openAIEmbeddingsDeploymentName string = 'text-embedding-ada-002'
+
+@description('Embeddings Model Name')
+param openAIEmbeddingsModelName string = 'text-embedding-ada-002'
+
+@description('Embeddings Model Version')
+param openAIEmbeddingsModelVersion string = '2'
+
+@description('AI Search service name')
+@minLength(2)
+@maxLength(60)
+param searchServiceName string = 'search'
+
+@description('AI Search service location')
+param searchServiceLocation string = resourceGroup().location
+
+@description('AI Search service SKU')
+param searchServiceSku string = 'standard'
+
+@description('Replicas distribute search workloads across the service. You need at least two replicas to support high availability of query workloads (not applicable to the free tier).')
+@minValue(1)
+@maxValue(12)
+param searchServiceReplicaCount int = 1
+
+@description('Partitions allow for scaling of document count as well as faster indexing by sharding your index over multiple search units.')
+@allowed([
+  1
+  2
+  3
+  4
+  6
+  12
+])
+param searchServicePartitionCount int = 1
+
+@description('Search Service API Name')
+param searchServiceAPIName string = 'searchservice'
+
+@description('Search Service API Display Name')
+param searchServiceAPIDisplayName string = 'AISearchService'
+
+@description('Search Service API Description')
+param searchServiceAPIDescription string = 'Azure AI Search Service API'
+
+@description('Search Service API Path')
+param searchServiceAPIPath string = 'searchservice'
+
+@description('Search Service Backend Name')
+param searchServiceBackendName string = 'search'
+
+@description('Search Service Backend Description')
+param searchServiceBackendDescription string = 'Azure AI Search Service Backend'
+
+@description('Search Index API Name')
+param searchIndexAPIName string = 'searchindex'
+
+@description('Search Index API Display Name')
+param searchIndexAPIDisplayName string = 'AISearchIndex'
+
+@description('Search Index API Description')
+param searchIndexAPIDescription string = 'Azure AI Search Index API'
+
+@description('Search Index API Path')
+param searchIndexAPIPath string = 'searchindex'
+
+// vector-searching: additions END
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 
@@ -144,7 +206,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   } 
 }
 
-var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
+var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd') // Cognitive Services OpenAI User
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
     scope: cognitiveServices[i]
     name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
@@ -288,22 +350,142 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
   properties: {
     allowTracing: true
     displayName: openAISubscriptionDescription
-    scope: '/apis/${api.id}'
+    scope: '/apis'
     state: 'active'
   }
 }
 
-// advance-load-balancing: added a naned value resource
-resource namedValue 'Microsoft.ApiManagement/service/namedValues@2023-05-01-preview' = {
-  name: openAILoadBalancingConfigName
-  parent: apimService
+// vector-searching: additions BEGIN
+
+resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+  name: openAIEmbeddingsDeploymentName
+  parent: cognitiveServices[i]
   properties: {
-    displayName: openAILoadBalancingConfigName
-    secret: false
-    value: openAILoadBalancingConfigValue
+    model: {
+      format: 'OpenAI'
+      name: openAIEmbeddingsModelName
+      version: openAIEmbeddingsModelVersion
+    }
+  }
+  sku: {
+      name: 'Standard'
+      capacity: openAIModelCapacity
+  }
+}]
+
+resource searchService 'Microsoft.Search/searchServices@2023-11-01' = {
+  name: '${searchServiceName}-${resourceSuffix}'
+  location: searchServiceLocation
+  sku: {
+    name: searchServiceSku
+  }
+  properties: {
+    authOptions: {
+      aadOrApiKey: {
+        aadAuthFailureMode: 'http401WithBearerChallenge'
+      }
+    }    
+    replicaCount: searchServiceReplicaCount
+    partitionCount: searchServicePartitionCount
   }
 }
 
+var roleDefinitionIDAISearchService = resourceId('Microsoft.Authorization/roleDefinitions', '7ca78c08-252a-4471-8644-bb5ff32d4ba0') // Search Service Contributor
+resource roleAssignmentAISearchService 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: searchService
+  name: guid(subscription().id, resourceGroup().id, searchService.name, roleDefinitionIDAISearchService)
+  properties: {
+      roleDefinitionId: roleDefinitionIDAISearchService
+      principalId: apimService.identity.principalId
+      principalType: 'ServicePrincipal'
+  }
+}
+
+var roleDefinitionIDAISearchIndex = resourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7') // Search Index Data Contributor
+resource roleAssignmentAISearchIndex 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: searchService
+  name: guid(subscription().id, resourceGroup().id, searchService.name, roleDefinitionIDAISearchIndex)
+  properties: {
+      roleDefinitionId: roleDefinitionIDAISearchIndex
+      principalId: apimService.identity.principalId
+      principalType: 'ServicePrincipal'
+  }
+}
+
+resource searchServiceApi 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
+  name: searchServiceAPIName
+  parent: apimService
+  properties: {
+    apiType: 'http'
+    description: searchServiceAPIDescription
+    displayName: searchServiceAPIDisplayName
+    format: 'openapi+json'
+    path: searchServiceAPIPath
+    protocols: [
+      'https'
+    ]
+    subscriptionKeyParameterNames: {
+      header: 'api-key'
+      query: 'api-key'
+    }
+    subscriptionRequired: true
+    type: 'http'
+    value: loadJsonContent('searchservice.json')
+  }
+}
+
+resource searchIndexApi 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
+  name: searchIndexAPIName
+  parent: apimService
+  properties: {
+    apiType: 'http'
+    description: searchIndexAPIDescription
+    displayName: searchIndexAPIDisplayName
+    format: 'openapi+json'
+    path: searchIndexAPIPath
+    protocols: [
+      'https'
+    ]
+    subscriptionKeyParameterNames: {
+      header: 'api-key'
+      query: 'api-key'
+    }
+    subscriptionRequired: true
+    type: 'http'
+    value: loadJsonContent('searchindex.json')
+  }
+}
+
+
+resource searchServiceAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-preview' = {
+name: 'policy'
+parent: searchServiceApi
+properties: {
+  format: 'rawxml'
+  value: loadTextContent('searchservice-policy.xml')
+}
+}
+
+resource searchIndexAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-preview' = {
+  name: 'policy'
+  parent: searchIndexApi
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('searchindex-policy.xml')
+  }
+  }
+  
+resource backendSearchService 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = {
+name: searchServiceBackendName
+parent: apimService
+properties: {
+  description: searchServiceBackendDescription
+  url: 'https://${searchServiceName}-${resourceSuffix}.search.windows.net'
+  protocol: 'http'
+}
+}
+
+// vector-searching: additions END
 
 output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 

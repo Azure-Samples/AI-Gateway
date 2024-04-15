@@ -1,15 +1,10 @@
 # APIM ❤️ OpenAI
 
-## Advanced Load Balancing lab
-![flow](../../images/advanced-load-balancing.gif)
+## Vector Searching lab
+![flow](../../images/vector-searching.gif)
 
-Playground to try the advanced load balancing to either a list of Azure OpenAI endpoints or mock servers.
-
-This load balancer is based on a custom policy configuration forked from this great [smart load balancer repo](https://github.com/andredewes/apim-aoai-smart-loadbalancing) and adds the following enhancements:
-- Loads the load balancer configuration from a named value
-- Uses backends to enable the combination with the built-in circuit breaking feature
-- The policy doesn't have to be changed to add/modify endpoints or configure the load balancer 
-- Dynamicly supports any number of OpenAI endpoints
+Playground to try Azure AI Search integrated vectorization and Azure OpenAI embeddings. Integrated vectorization takes a dependency on indexers and skillsets, using the Text Split skill for data chunking, and the AzureOpenAIEmbedding skill.
+Reuses the [Azure AI Search integrated vectorization sample](https://github.com/Azure/azure-search-vector-samples/blob/main/demo-python/code/integrated-vectorization/azure-search-integrated-vectorization-sample.ipynb).
 
 ### Prerequisites
 - [Python 3.8 or later version](https://www.python.org/) installed
@@ -20,7 +15,7 @@ This load balancer is based on a custom policy configuration forked from this gr
 - [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
 
 ### 🚀 Get started
-Proceed by opening the [Jupyter notebook](advanced-load-balancing.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](backend-pool-load-balancing.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 When you're finished with the lab, you should remove all your deployed resources from Azure to avoid extra charges and keep your Azure subscription uncluttered.

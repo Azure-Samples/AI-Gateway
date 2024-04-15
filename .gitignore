@@ -9,6 +9,7 @@ __pycache__/
 .azure/
 
 labs-in-progress/
+params.json
 
 # Distribution / packaging
 .Python

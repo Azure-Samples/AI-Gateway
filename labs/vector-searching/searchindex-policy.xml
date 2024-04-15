@@ -1,0 +1,17 @@
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="search" />
+        <authentication-managed-identity resource="https://search.azure.com" />
+        <set-header name="api-key" exists-action="delete" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
