@@ -1,9 +1,9 @@
 # APIM ❤️ OpenAI
 
-## [Backend pool Load Balancing lab](backend-circuit-breaking.ipynb)
-[![flow](../../images/backend-pool-load-balancing.gif)](backend-pool-load-balancing.ipynb)
+## [App building lab](app-building.ipynb)
+[![flow](../../images/app-building.gif)](app-building.ipynb)
 
-Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers.
+Playground to try ...
 
 ### Prerequisites
 - [Python 3.8 or later version](https://www.python.org/) installed
@@ -14,7 +14,7 @@ Playground to try the built-in load balancing [backend pool functionality of API
 - [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
 
 ### 🚀 Get started
-Proceed by opening the [Jupyter notebook](backend-pool-load-balancing.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](app-building.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 When you're finished with the lab, you should remove all your deployed resources from Azure to avoid extra charges and keep your Azure subscription uncluttered.
