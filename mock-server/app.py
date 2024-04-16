@@ -50,6 +50,8 @@ def completions(deployment_name):
             created=int(datetime.datetime.now().timestamp()),
         )
         response = make_response(completion.model_dump_json())
+        response.headers["x-ratelimit-remaining-tokens"] = "5000"
+        response.headers["x-ratelimit-remaining-requests"] = "50"
     elif response_status_code == 429:
         response = make_response({'error': {'code': '429', 'message': 'Rate limit is exceeded. Try again in 5 seconds.'}})
         response.headers["retry_after_ms"] = "5000"

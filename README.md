@@ -9,9 +9,9 @@ With the expanding horizons of __AI services__ and their seamless integration wi
 ## AI Gateway
 ![AI-Gateway flow](images/ai-gateway.gif)
 
-This repo explores the __AI Gateway__ concept through a series of experimental labs. [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, performance, reliability, cost control and overall operational efficiency. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles could potentially be applied to any LLM.
+This repo explores the __AI Gateway__ concept through a series of experimental labs. [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles could potentially be applied to any LLM.
 
-## Labs
+## 🧪 Labs
 
 Acknowledging the rising dominance of Python, particularly in the realm of AI, along with the powerful experimental capabilities of Jupyter notebooks, the following labs are structured around Jupyter notebooks, with step-by-step instructions with Python scripts, Bicep files and APIM policies:
 
@@ -23,7 +23,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [Advanced load balancing](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | [![flow](images/advanced-load-balancing.gif)](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | Playground to try the advanced load balancing (based on a custom [APIM policy](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers. |
 | [Response streaming](labs/response-streaming/response-streaming.ipynb) | [![flow](images/response-streaming.gif)](labs/response-streaming/response-streaming.ipynb) | Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse). |
 | [Vector searching](labs/vector-searching/vector-searching.ipynb) | [![flow](images/vector-searching.gif)](labs/vector-searching/vector-searching.ipynb) | Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions. All the endpoints are managed via APIM. |
-
+| [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) | [![flow](images/built-in-logging.gif)](labs/built-in-logging/built-in-logging.ipynb) | Playground to try the [buil-in logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/observability). The requests are logged into Application Insights and it's easy to track request/response details and token usage with provided notebook.  |
 
 
 ### Backlog of experiments
@@ -39,7 +39,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 * Prompt guarding
 * Prompt model routing
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 - [Python 3.8 or later version](https://www.python.org/) installed
@@ -50,19 +50,36 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 - [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
 
 ### Quickstart
-1. Clone this repo and configure your local machine with the prerequisites or just create a [GitHub Codespace](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main) and run it on the browser or in VS Code.
+1. Clone this repo and configure your local machine with the prerequisites. Or just create a [GitHub Codespace](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main) and run it on the browser or in VS Code.
 2. Navigate through the available labs and select one that best suits your needs. For starters we recommend the [request forwarding](labs/request-forwarding/request-forwarding.ipynb) with just the Azure CLI or the [backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) with Bicep.
 3. Open the notebook and run the provided steps.
 4. Tailor the experiment according to your requirements. If you wish to contribute to our collective work, we would appreciate your [submission of a pull request](CONTRIBUTING.MD).
 
-## Mock Server
+## 🏛️ Well-Architected Framework
+
+The [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/well-architected/what-is-well-architected-framework) is a design framework that can improve the quality of a workload. The following table maps labs with the Well-Architected Framework pillars to set you up for success through architectural experimentation.
+
+| Lab  | Security | Reliability | Performance | Operations | Costs |
+| -------- | -------- |-------- |-------- |-------- |-------- |
+| [Request forwarding](labs/request-forwarding/request-forwarding.ipynb) | [⭐](. "Zero trust, keyless approach with manage identities and APIM security features") | |  |  |  |
+| [Backend circuit breaking](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb) | [⭐](. "Zero trust, keyless approach with manage identities and APIM security features") | [⭐](. "Controls the availability of the OpenAI endpoint with the circuit breaker feature") |  |  |  |
+| [Backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb)  |[⭐](. "Zero trust, keyless approach with manage identities and APIM security features")|[⭐](. "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")|[⭐](. "Load balances the requests to increase performance with the built-in feature")|  |  |
+| [Advanced load balancing](labs/advanced-load-balancing/advanced-load-balancing.ipynb) |[⭐](. "Zero trust, keyless approach with manage identities and APIM security features")|[⭐](. "To ensure resilience, the request is distributed to two or more endpoints with a custom policy")|[⭐](. "Load balances the requests to increase performance with a custom policy")|  |  |
+| [Response streaming](labs/response-streaming/response-streaming.ipynb)  |[⭐](. "Zero trust, keyless approach with manage identities and APIM security features")| |[⭐](. "To get responses sooner, you can 'stream' the completion as it's being generated")|  |  |
+| [Vector searching](labs/vector-searching/vector-searching.ipynb) |[⭐](. "Zero trust, keyless approach with manage identities and APIM security features")|[⭐](. "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")| [⭐](. "Load balances the requests to increase performance with the built-in feature")| |  |
+| [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) |[⭐](. "Zero trust, keyless approach with manage identities and APIM security features")|[⭐](. "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")|[⭐](. "Load balances the requests to increase performance with the built-in feature")|[⭐](. "Requests are logged to enable monitoring, alerting and automatic remediation")|[⭐](. "Relation between APIM subscription and token consumption allows cost control")|
+
+> [!TIP]
+> Check the [Azure Well-Architected Framework perspective on Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-openai) for aditional guidance.
+
+## 🪞 Mock Server
 
 The AI-Gateway Mock server is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with APIM and other use cases.
 The [app.py](app.py) can be customized to tailor the Mock server to specific use cases.
 
 * [Run locally or deploy to Azure](mock-server/mock-server.ipynb)
 
-## Resources
+## 🥇 Resources
 
 Numerous reference architectures, best practices and starter kits are available on this topic. Please refer to the resources provided if you need comprehensive solutions or a landing zone to initiate your project. We suggest leveraging the AI-Gateway labs to discover additional capabilities that can be integrated into the reference architectures.
 
@@ -74,8 +91,9 @@ Numerous reference architectures, best practices and starter kits are available 
 
 > We believe that there may be valuable content that we are currently unaware of. We would greatly appreciate any suggestions or recommendations to enhance this list.
 
-## Contributors
+## 🌐 WW GBB initiative
 
+![GBB](images/gbb.png)
 
 ## Disclaimer
 > [!IMPORTANT]
