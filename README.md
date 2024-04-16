@@ -24,16 +24,17 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [Response streaming](labs/response-streaming/response-streaming.ipynb) | [![flow](images/response-streaming.gif)](labs/response-streaming/response-streaming.ipynb) | Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse). |
 | [Vector searching](labs/vector-searching/vector-searching.ipynb) | [![flow](images/vector-searching.gif)](labs/vector-searching/vector-searching.ipynb) | Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions. All the endpoints are managed via APIM. |
 | [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) | [![flow](images/built-in-logging.gif)](labs/built-in-logging/built-in-logging.ipynb) | Playground to try the [buil-in logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/observability). The requests are logged into Application Insights and it's easy to track request/response details and token usage with provided notebook.  |
-
+| [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) | [![flow](images/slm-self-hosting.gif)](labs/slm-self-hosting/slm-self-hosting.ipynb) | Playground to try the self-hosted [phy-2 Small Language Model (SLM)](https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/) trough the [APIM self-hosted gateway](https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.  |
 
 ### Backlog of experiments
-* SLM self-hosting
+* Developer tooling
+* App building
 * Token counting
 * Semantic caching
+* Token rate limiting
 * Cost tracking
 * Content filtering
 * Prompt storing
-* Token throttling
 * Function calling
 * Prompt guarding
 * Prompt model routing
@@ -67,6 +68,7 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/w
 | [Response streaming](labs/response-streaming/response-streaming.ipynb)  |[⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and APIM security features")| |[⭐](#%EF%B8%8F-well-architected-framework "To get responses sooner, you can 'stream' the completion as it's being generated")|  |  |
 | [Vector searching](labs/vector-searching/vector-searching.ipynb) |[⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and APIM security features")|[⭐](#%EF%B8%8F-well-architected-framework "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")| [⭐](#%EF%B8%8F-well-architected-framework "Load balances the requests to increase performance with the built-in feature")| |  |
 | [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) |[⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and APIM security features")|[⭐](#%EF%B8%8F-well-architected-framework "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")|[⭐](#%EF%B8%8F-well-architected-framework "Load balances the requests to increase performance with the built-in feature")|[⭐](#%EF%B8%8F-well-architected-framework "Requests are logged to enable monitoring, alerting and automatic remediation")|[⭐](#%EF%B8%8F-well-architected-framework "Relation between APIM subscription and token consumption allows cost control")|
+| [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) |[⭐](#%EF%B8%8F-well-architected-framework "Self hosting the model might improve the security posture with network restrictions") | | [⭐](#%EF%B8%8F-well-architected-framework "Performance might be improved with full control to the self-hosted model") | | |
 
 > [!TIP]
 > Check the [Azure Well-Architected Framework perspective on Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-openai) for aditional guidance.

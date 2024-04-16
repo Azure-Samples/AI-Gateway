@@ -1,0 +1,32 @@
+
+### Local test to see if the phy-2 API is running
+GET http://localhost:5000/
+
+
+### Local test to get the completion result from the phy-2 API
+POST http://localhost:5000/openai/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-01
+Content-Type: application/json
+
+{
+    "messages": [
+        {
+            "role": "user", 
+            "content": "Write me a bedtime story"
+        }
+    ]
+}
+
+
+### Local test to get the completion result from the self-hosted gateway
+POST http://localhost/openai/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-01
+Content-Type: application/json
+api-key: <api-key>
+
+{
+    "messages": [
+        {
+            "role": "user", 
+            "content": "Write me a poem about a sunset"
+        }
+    ]
+}
