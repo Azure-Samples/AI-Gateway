@@ -84,8 +84,6 @@ The [app.py](app.py) can be customized to tailor the Mock server to specific use
 ## 🎒 Presenting the AI Gateway concept
 > [!TIP]
 > Install the [VS Code Reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal), open AI-GATEWAY.md and click on 'slides' at the botton to present the AI Gateway without leaving VS Code.
-
-> [!TIP]
 > Or just open the [AI-GATEWAY.pptx](AI-GATEWAY.pptx) for a plain old PowerPoint experience.
 
 ## 🥇 Other resources
