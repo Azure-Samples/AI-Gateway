@@ -17,14 +17,14 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 
 |  |  | |
 | ---- | ----- | ----------- |
-| [Request forwarding](labs/request-forwarding/request-forwarding.ipynb) | [![flow](images/request-forwarding.gif)](labs/request-forwarding/request-forwarding.ipynb) | Playground to try forwarding requests to either an Azure OpenAI endpoint or a mock server. APIM uses the system [managed identity](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-use-managed-service-identity) to authenticate into the Azure OpenAI service. |
-| [Backend circuit breaking](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb)     | [![flow](images/backend-circuit-breaking.gif)](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb) | Playground to try the built-in [backend circuit breaker functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either an Azure OpenAI endpoints or a mock server. |
-| [Backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | [![flow](images/backend-pool-load-balancing.gif)](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers. |
-| [Advanced load balancing](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | [![flow](images/advanced-load-balancing.gif)](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | Playground to try the advanced load balancing (based on a custom [APIM policy](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers. |
-| [Response streaming](labs/response-streaming/response-streaming.ipynb) | [![flow](images/response-streaming.gif)](labs/response-streaming/response-streaming.ipynb) | Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse). |
-| [Vector searching](labs/vector-searching/vector-searching.ipynb) | [![flow](images/vector-searching.gif)](labs/vector-searching/vector-searching.ipynb) | Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions. All the endpoints are managed via APIM. |
-| [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) | [![flow](images/built-in-logging.gif)](labs/built-in-logging/built-in-logging.ipynb) | Playground to try the [buil-in logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/observability). The requests are logged into Application Insights and it's easy to track request/response details and token usage with provided notebook.  |
-| [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) | [![flow](images/slm-self-hosting.gif)](labs/slm-self-hosting/slm-self-hosting.ipynb) | Playground to try the self-hosted [phy-2 Small Language Model (SLM)](https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/) trough the [APIM self-hosted gateway](https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.  |
+| [Request forwarding](labs/request-forwarding/request-forwarding.ipynb) | [![flow](images/request-forwarding-small.gif)](labs/request-forwarding/request-forwarding.ipynb) | Playground to try forwarding requests to either an Azure OpenAI endpoint or a mock server. APIM uses the system [managed identity](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-use-managed-service-identity) to authenticate into the Azure OpenAI service. |
+| [Backend circuit breaking](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb)     | [![flow](images/backend-circuit-breaking-small.gif)](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb) | Playground to try the built-in [backend circuit breaker functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either an Azure OpenAI endpoints or a mock server. |
+| [Backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | [![flow](images/backend-pool-load-balancing-small.gif)](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers. |
+| [Advanced load balancing](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | [![flow](images/advanced-load-balancing-small.gif)](labs/advanced-load-balancing/advanced-load-balancing.ipynb) | Playground to try the advanced load balancing (based on a custom [APIM policy](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers. |
+| [Response streaming](labs/response-streaming/response-streaming.ipynb) | [![flow](images/response-streaming-small.gif)](labs/response-streaming/response-streaming.ipynb) | Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse). |
+| [Vector searching](labs/vector-searching/vector-searching.ipynb) | [![flow](images/vector-searching-small.gif)](labs/vector-searching/vector-searching.ipynb) | Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions. All the endpoints are managed via APIM. |
+| [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) | [![flow](images/built-in-logging-small.gif)](labs/built-in-logging/built-in-logging.ipynb) | Playground to try the [buil-in logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/observability). The requests are logged into Application Insights and it's easy to track request/response details and token usage with provided notebook.  |
+| [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) | [![flow](images/slm-self-hosting-small.gif)](labs/slm-self-hosting/slm-self-hosting.ipynb) | Playground to try the self-hosted [phy-2 Small Language Model (SLM)](https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/) trough the [APIM self-hosted gateway](https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.  |
 
 ### Backlog of experiments
 * Developer tooling
@@ -34,6 +34,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 * Token rate limiting
 * Cost tracking
 * Content filtering
+* PII handling
 * Prompt storing
 * Function calling
 * Prompt guarding
@@ -80,7 +81,14 @@ The [app.py](app.py) can be customized to tailor the Mock server to specific use
 
 * [Run locally or deploy to Azure](mock-server/mock-server.ipynb)
 
-## 🥇 Resources
+## 🎒 Presenting the AI Gateway concept
+> [!TIP]
+> Install the [VS Code Reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal), open AI-GATEWAY.md and click on 'slides' at the botton to present the AI Gateway without leaving VS Code.
+
+> [!TIP]
+> Or just open the [AI-GATEWAY.pptx](AI-GATEWAY.pptx) for a plain old PowerPoint experience.
+
+## 🥇 Other resources
 
 Numerous reference architectures, best practices and starter kits are available on this topic. Please refer to the resources provided if you need comprehensive solutions or a landing zone to initiate your project. We suggest leveraging the AI-Gateway labs to discover additional capabilities that can be integrated into the reference architectures.
 
