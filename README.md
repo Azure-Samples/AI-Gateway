@@ -24,7 +24,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [Response streaming](labs/response-streaming/response-streaming.ipynb) | [![flow](images/response-streaming-small.gif)](labs/response-streaming/response-streaming.ipynb) | Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/en-us/azure/api-management/how-to-server-sent-events#guidelines-for-sse). |
 | [Vector searching](labs/vector-searching/vector-searching.ipynb) | [![flow](images/vector-searching-small.gif)](labs/vector-searching/vector-searching.ipynb) | Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions. All the endpoints are managed via APIM. |
 | [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) | [![flow](images/built-in-logging-small.gif)](labs/built-in-logging/built-in-logging.ipynb) | Playground to try the [buil-in logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/observability). The requests are logged into Application Insights and it's easy to track request/response details and token usage with provided notebook.  |
-| [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) | [![flow](images/slm-self-hosting-small.gif)](labs/slm-self-hosting/slm-self-hosting.ipynb) | Playground to try the self-hosted [phy-2 Small Language Model (SLM)](https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/) trough the [APIM self-hosted gateway](https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.  |
+| [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) | [![flow](images/slm-self-hosting-small.gif)](labs/slm-self-hosting/slm-self-hosting.ipynb) | Playground to try the self-hosted [phy-3 Small Language Model (SLM)](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/) trough the [APIM self-hosted gateway](https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.  |
 
 ### Backlog of experiments
 * Developer tooling
@@ -84,7 +84,7 @@ The [app.py](app.py) can be customized to tailor the Mock server to specific use
 ## 🎒 Presenting the AI Gateway concept
 > [!TIP]
 > Install the [VS Code Reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal), open AI-GATEWAY.md and click on 'slides' at the botton to present the AI Gateway without leaving VS Code.
-> Or just open the [AI-GATEWAY.pptx](AI-GATEWAY.pptx) for a plain old PowerPoint experience.
+> Or just open the [AI-GATEWAY.pptx](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAI-Gateway%2Fmain%2FAI-GATEWAY.pptx&wdOrigin=BROWSELINK) for a plain old PowerPoint experience.
 
 ## 🥇 Other resources
 

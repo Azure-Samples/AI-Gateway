@@ -3,9 +3,11 @@
 ## [SLM self hosting lab](slm-self-hosting.ipynb)
 ![flow](../../images/slm-self-hosting.gif)
 
-Playground to try the self-hosted [phy-2 Small Language Model (SLM)](https://www.microsoft.com/en-us/research/blog/phi-2-the-surprising-power-of-small-language-models/) trough the [APIM self-hosted gateway](https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.
+Playground to try the self-hosted [phy-3 Small Language Model (SLM)](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/) trough the [APIM self-hosted gateway](https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.
 
-Phi-2 is a Transformer with 2.7 billion parameters. It was trained using the same data sources as Phi-1.5, augmented with a new data source that consists of various NLP synthetic texts and filtered websites (for safety and educational value).
+The Phi-3-Mini-4K-Instruct is a 3.8B parameters, lightweight, state-of-the-art open model trained with the Phi-3 datasets that includes both synthetic data and the filtered publicly available websites data with a focus on high-quality and reasoning dense properties. The model belongs to the Phi-3 family with the Mini version in two variants 4K and 128K which is the context length (in tokens) that it can support.
+
+The model has underwent a post-training process that incorporates both supervised fine-tuning and direct preference optimization for the instruction following and safety measures. When assessed against benchmarks testing common sense, language understanding, math, code, long context and logical reasoning, Phi-3 Mini-4K-Instruct showcased a robust and state-of-the-art performance among models with less than 13 billion parameters.
 
 The APIM self-hosted gateway is a containerized version of the default managed gateway. It's useful for scenarios such as placing gateways in the same environments where you host your APIs. Like in this experiment where we self-host the phi-2 API. This enable use cases where the SLM is running on-premises 
 
