@@ -1,6 +1,6 @@
 # APIM ❤️ OpenAI
 
-## [Built-in logging lab)](built-in-logging.ipynb)
+## [Built-in logging lab](built-in-logging.ipynb)
 [![flow](../../images/built-in-logging.gif)](built-in-logging.ipynb)
 
 Playground to try the [buil-in logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/observability). The requests are logged into Application Insights and it's easy to track request/response details and token usage with provided [notebook](openai-usage-analysis-workbook.json).
