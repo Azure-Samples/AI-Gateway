@@ -1,0 +1,58 @@
+name: Bot Reply to new Issue
+
+on:
+  issues:
+    types: [opened]
+      
+jobs:
+  comment-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4    
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --save axios
+      - name: Cache
+        uses: actions/cache@v4      
+        with:
+          key: node_modules
+          path: node_modules        
+      - name: Comment Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.issue
+            github.rest.reactions.createForIssue({
+              owner,
+              repo,
+              issue_number: context.issue.number,
+              content: "+1",
+            });            
+            const fs = require('fs');
+            const axios = require('axios');            
+            const prompt = {
+              "prompt": fs.readFileSync('./README.md').toString() + "\n\nAnswer the following question from the text above.\n\nQ: " + context.payload.issue.body + "\nA:",
+              "max_tokens": 1000,
+              "stop": [
+                "\n"
+              ]
+            }
+            const res = await axios.post('${{ secrets.APIM_ENDPOINT }}openai/deployments/${{ secrets.OPENAI_DEPLOYMENT_NAME }}/completions?api-version=2024-02-01', JSON.stringify(prompt), {
+              headers: {
+                'Content-Type': 'application/json',
+                'api-key': '${{ secrets.APIM_API_KEY }}'
+              }
+            })
+              .catch(err => {
+                console.log('Error: ', err.message);
+              });
+              
+            console.log('Response: ', res);
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner,
+              repo,
+              body: res.data.choices[0].text,
+            });
+
