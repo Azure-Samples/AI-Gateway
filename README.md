@@ -9,10 +9,8 @@ With the expanding horizons of __AI services__ and their seamless integration wi
 ## AI Gateway
 ![AI-Gateway flow](images/ai-gateway.gif)
 
-This repo explores the __AI Gateway__ concept through a series of experimental labs. [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles could potentially be applied to any LLM.
+This repo explores the __AI Gateway__ concept through a series of experimental labs. [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles and design patterns could potentially be applied to any LLM.
 
-> [!TIP]
-> 💡 Please use the [discussions](../../discussions/9) to share your ideas and feedback.
 
 ## 🧪 Labs
 
@@ -44,6 +42,10 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 * Prompt storing
 * Prompt guarding
 * Prompt model routing
+* Llama inferencing
+
+> [!TIP]
+> Kindly use [the feedback discussion](../../discussions/9) so that we can continuously improve with your experiences, suggestions, ideas or lab requests.
 
 ## 🚀 Getting Started
 
@@ -62,7 +64,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 4. Tailor the experiment according to your requirements. If you wish to contribute to our collective work, we would appreciate your [submission of a pull request](CONTRIBUTING.MD).
 
 > [!NOTE]
-> 🪲 Please feel free to report any [issues](../../issues/) if you encounter something that is not functioning properly or appears to be broken.
+> 🪲 Please feel free to open a new [issue](../../issues/new) if you encounter something that is not functioning properly or appears to be broken.
 
 ## 🏛️ Well-Architected Framework
 
