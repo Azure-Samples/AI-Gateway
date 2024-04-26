@@ -64,7 +64,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 4. Tailor the experiment according to your requirements. If you wish to contribute to our collective work, we would appreciate your [submission of a pull request](CONTRIBUTING.MD).
 
 > [!NOTE]
-> 🪲 Please feel free to open a new [issue](../../issues/new) if you encounter something that is not functioning properly or appears to be broken.
+> 🪲 Please feel free to open a new [issue](../../issues/new) if you find something that should be fixed or enhanced.
 
 ## 🏛️ Well-Architected Framework
 
