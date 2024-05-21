@@ -1,0 +1,27 @@
+<policies>
+    <inbound>
+        <base />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" /> 
+        <set-header name="Authorization" exists-action="override">  
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>  
+        </set-header>
+        <set-backend-service backend-id="{backend-id}" />
+
+        <azure-openai-semantic-cache-lookup
+            score-threshold="0.05"
+            embeddings-backend-id ="{backend-id}"
+            embeddings-backend-auth ="system-assigned" >
+            <vary-by>@(context.Subscription.Id)</vary-by>
+        </azure-openai-semantic-cache-lookup>        
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+        <azure-openai-semantic-cache-store duration="60" />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

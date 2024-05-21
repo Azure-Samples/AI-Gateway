@@ -1,15 +1,26 @@
 # APIM ❤️ OpenAI
 
+[![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
+
+## Contents
+1. [🧠 AI Gateway](#🧠-ai-gateway)
+2. [🧪 Labs](#🧪-labs)
+3. [🚀 Getting started](#🚀-getting-started)
+4. [🏛️ Well Architected Framework](#🏛️-well-architected-framework)
+5. [🪞 Mock Server](#🪞-mock-server)
+6. [🎒 Show and tell](#🎒-show-and-tell)
+7. [🥇 Other Resources](#🥇-other-resources)
+
 The rapid pace of AI advances demands experimentation-driven approaches for organizations to remain at the forefront of the industry. With AI steadily becoming a game-changer for an array of sectors, maintaining a fast-paced innovation trajectory is crucial for businesses aiming to leverage its full potential. 
 
 __AI services__ are predominantly accessed via __APIs__, underscoring the essential need for a robust and efficient API management strategy. This strategy is instrumental for maintaining control and governance over the consumption of __AI services__.
 
-With the expanding horizons of __AI services__ and their seamless integration with __APIs__, there is a considerable demand for a comprehensive __AI Gateway__ concept, which broadens the core principles of API management. Aiming to accelerate the experimentation of advanced use cases and pave the road for further innovation in this rapidly evolving field. The well-architected principles of the __AI Gateway__ provides a framework for the confident deployment of __Intelligent Apps__ into production..
+With the expanding horizons of __AI services__ and their seamless integration with __APIs__, there is a considerable demand for a comprehensive __AI Gateway__ pattern, which broadens the core principles of API management. Aiming to accelerate the experimentation of advanced use cases and pave the road for further innovation in this rapidly evolving field. The well-architected principles of the __AI Gateway__ provides a framework for the confident deployment of __Intelligent Apps__ into production..
 
-## AI Gateway
+## 🧠 AI Gateway
 ![AI-Gateway flow](images/ai-gateway.gif)
 
-This repo explores the __AI Gateway__ concept through a series of experimental labs. [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles and design patterns could potentially be applied to any LLM.
+This repo explores the __AI Gateway__ pattern through a series of experimental labs. [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles and design patterns could potentially be applied to any LLM.
 
 
 ## 🧪 Labs
@@ -26,6 +37,11 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [Vector searching](labs/vector-searching/vector-searching.ipynb) | [![flow](images/vector-searching-small.gif)](labs/vector-searching/vector-searching.ipynb) | Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions. All the endpoints are managed via APIM. | [💬](../../issues/19 "Discussion") |
 | [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) | [![flow](images/built-in-logging-small.gif)](labs/built-in-logging/built-in-logging.ipynb) | Playground to try the [buil-in logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/observability). The requests are logged into Application Insights and it's easy to track request/response details and token usage with provided notebook.  | [💬](../../issues/20 "Discussion") |
 | [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) | [![flow](images/slm-self-hosting-small.gif)](labs/slm-self-hosting/slm-self-hosting.ipynb) | Playground to try the self-hosted [phy-3 Small Language Model (SLM)](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/) trough the [APIM self-hosted gateway](https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.  | [💬](../../issues/21 "Discussion") |
+| [Access controlling](labs/access-controlling/access-controlling.ipynb) | [![flow](images/access-controlling-small.gif)](labs/access-controlling/access-controlling.ipynb) | Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.com/en-us/azure/api-management/api-management-authenticate-authorize-azure-openai#oauth-20-authorization-using-identity-provider) using identity provider to enable more fine-grained access to OpenAPI APIs by particular users or client. | [💬](../../issues/25 "Discussion") |
+| [Token rate limiting](labs/token-rate-limiting/token-rate-limiting.ipynb) | [![flow](images/token-rate-limiting-small.gif)](labs/token-rate-limiting/token-rate-limiting.ipynb) | Playground to try the [token rate limiting policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-token-limit-policy) to either a list of Azure OpenAI endpoints or mock servers. | [💬](../../issues/26 "Discussion") |
+| [Semantic caching](labs/semantic-caching/semantic-caching.ipynb) | [![flow](images/semantic-caching-small.gif)](labs/semantic-caching/semantic-caching.ipynb) | Playground to try the [sementic caching policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-semantic-cache-lookup-policy).  | [💬](../../issues/27 "Discussion") |
+| [Token metrics emitting](labs/token-metrics-emitting/token-metrics-emitting.ipynb) | [![flow](images/token-metrics-emitting-small.gif)](labs/token-metrics-emitting/token-metrics-emitting.ipynb) | Playground to try the [emit token metric policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-emit-token-metric-policy). The policy sends metrics to Application Insights about consumption of large language model tokens through Azure OpenAI Service APIs.  | [💬](../../issues/28 "Discussion") |
+| [GPT-4o inferencing](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) | [![flow](images/GPT-4o-inferencing-small.gif)](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) | Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats.  | [💬](../../issues/29 "Discussion") |
 
 ### Backlog of experiments
 * Developer tooling
@@ -33,8 +49,6 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 * Token counting
 * Function calling
 * Assistants load balancing
-* Semantic caching
-* Token rate limiting
 * Semantic Kernel plugin
 * Cost tracking
 * Content filtering
@@ -91,7 +105,7 @@ The [app.py](app.py) can be customized to tailor the Mock server to specific use
 
 * [Run locally or deploy to Azure](mock-server/mock-server.ipynb)
 
-## 🎒 Presenting the AI Gateway concept
+## 🎒 Show and tell
 > [!TIP]
 > Install the [VS Code Reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal), open AI-GATEWAY.md and click on 'slides' at the botton to present the AI Gateway without leaving VS Code.
 > Or just open the [AI-GATEWAY.pptx](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAI-Gateway%2Fmain%2FAI-GATEWAY.pptx&wdOrigin=BROWSELINK) for a plain old PowerPoint experience.
@@ -100,7 +114,8 @@ The [app.py](app.py) can be customized to tailor the Mock server to specific use
 
 Numerous reference architectures, best practices and starter kits are available on this topic. Please refer to the resources provided if you need comprehensive solutions or a landing zone to initiate your project. We suggest leveraging the AI-Gateway labs to discover additional capabilities that can be integrated into the reference architectures.
 
-- [AI Hub Gateway Landing Zone](https://github.com/mohamedsaif/ai-hub-gateway-landing-zone)
+- [AI Hub Gateway Landing Zone](https://github.com/Azure-Samples/ai-hub-gateway-solution-accelerator)
+- [Designing and implementing a gateway solution with Azure OpenAI resources](https://aka.ms/genai-gateway)
 - [Azure OpenAI Using PTUs/TPMs With API Management - Using the Scaling Special Sauce](https://github.com/Azure/aoai-apim)
 - [Manage Azure OpenAI using APIM](https://github.com/microsoft/AzureOpenAI-with-APIM) 
 - [Setting up Azure OpenAI as a central capability with Azure API Management](https://github.com/Azure/enterprise-azureai)
@@ -108,10 +123,10 @@ Numerous reference architectures, best practices and starter kits are available 
 
 > We believe that there may be valuable content that we are currently unaware of. We would greatly appreciate any suggestions or recommendations to enhance this list.
 
-## 🌐 WW GBB initiative
+### 🌐 WW GBB initiative
 
 ![GBB](images/gbb.png)
 
-## Disclaimer
+### Disclaimer
 > [!IMPORTANT]
 > This software is provided for demonstration purposes only. It is not intended to be relied upon for any purpose. The creators of this software make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability or availability with respect to the software or the information, products, services, or related graphics contained in the software for any purpose. Any reliance you place on such information is therefore strictly at your own risk.
