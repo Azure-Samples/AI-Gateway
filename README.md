@@ -3,13 +3,13 @@
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
 ## Contents
-1. [🧠 AI Gateway](#🧠-ai-gateway)
-2. [🧪 Labs](#🧪-labs)
-3. [🚀 Getting started](#🚀-getting-started)
-4. [🏛️ Well Architected Framework](#🏛️-well-architected-framework)
-5. [🪞 Mock Server](#🪞-mock-server)
-6. [🎒 Show and tell](#🎒-show-and-tell)
-7. [🥇 Other Resources](#🥇-other-resources)
+1. [🧠 AI Gateway](#-ai-gateway)
+2. [🧪 Labs](#-labs)
+3. [🚀 Getting started](#-getting-started)
+4. [🏛️ Well Architected Framework](#-well-architected-framework)
+5. [🪞 Mock Server](#-mock-server)
+6. [🎒 Show and tell](#-show-and-tell)
+7. [🥇 Other Resources](#-other-resources)
 
 The rapid pace of AI advances demands experimentation-driven approaches for organizations to remain at the forefront of the industry. With AI steadily becoming a game-changer for an array of sectors, maintaining a fast-paced innovation trajectory is crucial for businesses aiming to leverage its full potential. 
 
