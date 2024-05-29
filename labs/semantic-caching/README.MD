@@ -7,6 +7,9 @@ Playground to try the [sementic caching policy](https://learn.microsoft.com/en-u
 
 The azure-openai-semantic-cache-lookup policy conducts a cache lookup of responses on Azure OpenAI Chat Completion API and Completion API requests from a pre-configured external cache. It operates by comparing the vector proximity of the prompt to prior requests and using a specific similarity score threshold. Caching responses helps reduce bandwidth and processing demands on the backend Azure OpenAI API, thus reducing latency perceived by API consumers.
 
+### Result
+![result](result.png)
+
 ### Prerequisites
 - [Python 3.8 or later version](https://www.python.org/) installed
 - [Pandas Library](https://pandas.pydata.org) installed
