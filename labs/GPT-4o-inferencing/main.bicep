@@ -190,7 +190,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
       apiType: 'http'
       description: openAIAPIDescription
       displayName: openAIAPIDisplayName
-      format: 'openapi+json'
+      format: 'openapi-link'
       path: openAIAPIPath
       protocols: [
         'https'
@@ -201,7 +201,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
       }
       subscriptionRequired: true
       type: 'http'
-      value: loadJsonContent('inference.json')
+      value: openAIAPISpecURL
     }
   }
 
