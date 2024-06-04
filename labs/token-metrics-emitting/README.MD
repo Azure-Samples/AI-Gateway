@@ -7,6 +7,9 @@ Playground to try the [emit token metric policy](https://learn.microsoft.com/en-
 
 Token count metrics include: Total Tokens, Prompt Tokens, and Completion Tokens.
 
+### Result
+![result](result.png)
+
 ### Prerequisites
 - [Python 3.8 or later version](https://www.python.org/) installed
 - [Pandas Library](https://pandas.pydata.org) installed
