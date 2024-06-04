@@ -418,6 +418,8 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
     category: 'OpenAI'
   }
 }
+output apimServiceId string = apimService.id
+
 output applicationInsightsAppId string = applicationInsights.properties.AppId
 
 output logAnalyticsWorkspaceId string = logAnalytics.properties.customerId
