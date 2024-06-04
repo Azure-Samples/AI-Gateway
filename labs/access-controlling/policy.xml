@@ -6,6 +6,11 @@
             <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>  
         </set-header>
         <set-backend-service backend-id="{backend-id}" />
+        <validate-azure-ad-token tenant-id="{aad-tenant-id}">
+            <client-application-ids>
+                <application-id>{aad-client-application-id}</application-id>
+            </client-application-ids>
+        </validate-azure-ad-token>        
     </inbound>
     <backend>
         <base />
