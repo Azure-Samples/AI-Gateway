@@ -285,6 +285,8 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
   }
 }
 
+output apimServiceId string = apimService.id
+
 output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 
 #disable-next-line outputs-should-not-contain-secrets

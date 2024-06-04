@@ -304,6 +304,7 @@ resource namedValue 'Microsoft.ApiManagement/service/namedValues@2023-05-01-prev
   }
 }
 
+output apimServiceId string = apimService.id
 
 output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 
