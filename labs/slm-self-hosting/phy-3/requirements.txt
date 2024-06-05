@@ -1,4 +1,4 @@
-Flask==2.2.2
+Flask==2.2.5
 gunicorn
 Werkzeug==3.0.3
 openai===1.16.2
