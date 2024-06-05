@@ -7,7 +7,7 @@
 2. [🧪 Labs](#-labs)
 3. [🚀 Getting started](#-getting-started)
 4. [🏛️ Well Architected Framework](#-well-architected-framework)
-5. [🪞 Mock Server](#-mock-server)
+5. [🔨 Tools](#-tools)
 6. [🎒 Show and tell](#-show-and-tell)
 7. [🥇 Other Resources](#-other-resources)
 
@@ -46,14 +46,10 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 ### Backlog of experiments
 * Developer tooling
 * App building
-* Token counting
-* Function calling
 * Assistants load balancing
 * Semantic Kernel plugin
-* Cost tracking
 * Content filtering
 * PII handling
-* Prompt storing
 * Prompt guarding
 * Prompt model routing
 * Llama inferencing
@@ -98,12 +94,10 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/w
 > [!TIP]
 > Check the [Azure Well-Architected Framework perspective on Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-openai) for aditional guidance.
 
-## 🪞 Mock Server
+## 🔨 Tools
 
-The AI-Gateway Mock server is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with APIM and other use cases.
-The [app.py](app.py) can be customized to tailor the Mock server to specific use cases.
-
-* [Run locally or deploy to Azure](mock-server/mock-server.ipynb)
+- [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with APIM and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
+- [Tracing](tools/tracing.ipynb) - Invoke OpenAI API with trace enabled and returns the tracing information.
 
 ## 🎒 Show and tell
 > [!TIP]
