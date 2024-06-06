@@ -6,8 +6,8 @@
 1. [🧠 AI Gateway](#-ai-gateway)
 2. [🧪 Labs](#-labs)
 3. [🚀 Getting started](#-getting-started)
-4. [🏛️ Well Architected Framework](#-well-architected-framework)
 5. [🔨 Tools](#-tools)
+4. [🏛️ Well Architected Framework](#-well-architected-framework)
 6. [🎒 Show and tell](#-show-and-tell)
 7. [🥇 Other Resources](#-other-resources)
 
@@ -57,6 +57,12 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [![flow](images/GPT-4o-inferencing-small.gif)](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)  | [![flow](images/message-storing-small.gif)](labs/message-storing/message-storing.ipynb) |
 | Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats.  [💬](../../issues/29 "Discussion") | Playground to test storimg message details into Cosmos DB through the [Log to event hub](https://learn.microsoft.com/en-us/azure/api-management/log-to-eventhub-policy) policy. With the policy we can control which data will be stored in the DB (prompt, completion, model, region, tokens etc.).  |
 
+| [**Developer tooling** (WIP)](labs/developer-tooling/developer-tooling.ipynb) | [**Function calling**](labs/function-calling/function-calling.ipynb) |
+| -- | -- |
+| [![flow](images/developer-tooling-small.gif)](labs/developer-tooling/developer-tooling.ipynb)  | [![flow](images/function-calling-small.gif)](labs/function-calling/function-calling.ipynb) |
+| Playground to try the developer tooling available with APIM to develop, debugg, test and publish AI Service APIs. | Playground to try the OpenAI [function calling](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API also managed with APIM.  |
+
+
 ### Backlog of experiments
 * Assistants load balancing
 * Semantic Kernel plugin
@@ -88,6 +94,12 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 > [!NOTE]
 > 🪲 Please feel free to open a new [issue](../../issues/new) if you find something that should be fixed or enhanced.
 
+## 🔨 Tools
+
+- [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with APIM and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
+- [Tracing](tools/tracing.ipynb) - Invoke OpenAI API with trace enabled and returns the tracing information.
+- [Streaming](streaming.ipynb) - Invoke OpenAI API with stream enabled and returns response in chunks.
+
 ## 🏛️ Well-Architected Framework
 
 The [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/well-architected/what-is-well-architected-framework) is a design framework that can improve the quality of a workload. The following table maps labs with the Well-Architected Framework pillars to set you up for success through architectural experimentation.
@@ -105,11 +117,6 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/w
 
 > [!TIP]
 > Check the [Azure Well-Architected Framework perspective on Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-openai) for aditional guidance.
-
-## 🔨 Tools
-
-- [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with APIM and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
-- [Tracing](tools/tracing.ipynb) - Invoke OpenAI API with trace enabled and returns the tracing information.
 
 ## 🎒 Show and tell
 > [!TIP]
