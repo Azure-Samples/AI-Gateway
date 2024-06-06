@@ -6,6 +6,7 @@
             <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>  
         </set-header>
         <set-backend-service backend-id="{backend-id}" />
+        <set-variable name="requestBody" value="@(context.Request.Body.As<string>(preserveContent: true))" />
     </inbound>
     <backend>
         <base />
@@ -15,6 +16,7 @@
         <choose>
             <when condition="@(context.Response.StatusCode == 200)">
                 <log-to-eventhub logger-id="{eventhub-logger-name}">@{
+                    var requestBody = (string)context.Variables["requestBody"]; 
                     var responseBody = context.Response.Body?.As<JObject>(preserveContent: true);
                     return new JObject(
                         new JProperty("id", responseBody?["id"]?.ToString() ?? Guid.NewGuid().ToString()),
@@ -24,6 +26,7 @@
                         new JProperty("apimRequestId", context.Response.Headers.GetValueOrDefault("apim-request-id", "N/A")),
                         new JProperty("clientIp", context.Request?.IpAddress ?? "NA"),
                         new JProperty("operationName", context.Operation?.Name ?? "NA"),
+                        new JProperty("request", requestBody),
                         new JProperty("response", responseBody?["choices"]?.ToString() ?? "N/A"),
                         new JProperty("promptTokens", responseBody?["usage"]?["prompt_tokens"]?.ToString() ?? "0"),
                         new JProperty("responseTokens", responseBody?["usage"]?["completion_tokens"]?.ToString() ?? "0"),
