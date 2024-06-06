@@ -60,7 +60,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [**Developer tooling** (WIP)](labs/developer-tooling/developer-tooling.ipynb) | [**Function calling**](labs/function-calling/function-calling.ipynb) |
 | -- | -- |
 | [![flow](images/developer-tooling-small.gif)](labs/developer-tooling/developer-tooling.ipynb)  | [![flow](images/function-calling-small.gif)](labs/function-calling/function-calling.ipynb) |
-| Playground to try the developer tooling available with APIM to develop, debugg, test and publish AI Service APIs. | Playground to try the OpenAI [function calling](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API also managed with APIM.  |
+| Playground to try the developer tooling available with APIM to develop, debugg, test and publish AI Service APIs. | Playground to try the OpenAI [function calling](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API that is also managed by APIM.  |
 
 
 ### Backlog of experiments
