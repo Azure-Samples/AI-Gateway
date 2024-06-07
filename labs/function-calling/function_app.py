@@ -17,21 +17,10 @@ def weather(req: func.HttpRequest) -> func.HttpResponse:
         location = req_body.get('location')
         unit = req_body.get('unit')
 
-    if "lisbon" in location.lower():
-        temperaure = 29
-    if "tokyo" in location.lower():
-        temperaure = 10
-    elif "san francisco" in location.lower():
-        temperaure = 72
-    elif "paris" in location.lower():
-        temperaure = 22
-    else:
-        temperaure = 20
-
     reponse = {
         'location': location,
         'unit': unit,
-        'temperature': temperaure
+        'temperature': get_temperature(location)
     }
                
     if location:
@@ -41,3 +30,24 @@ def weather(req: func.HttpRequest) -> func.HttpResponse:
              "{error: 'Please pass a location in the request body'}",
              status_code=200
         )
+    
+def get_temperature(location):
+    match location.lower():
+        case 'lisbon':
+            return 29
+        case 'london':
+            return 22
+        case 'tokyo':
+            return 10
+        case 'san francisco':
+            return 72
+        case 'new york city':
+            return 74
+        case 'new york':
+            return 74
+        case 'sydney':
+            return 25
+        case 'paris':
+            return 21
+        case _:
+            return 20        
