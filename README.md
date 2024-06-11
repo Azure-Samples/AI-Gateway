@@ -55,7 +55,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [**GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) | [**Message storing**](labs/message-storing/message-storing.ipynb) |
 | -- | -- |
 | [![flow](images/GPT-4o-inferencing-small.gif)](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)  | [![flow](images/message-storing-small.gif)](labs/message-storing/message-storing.ipynb) |
-| Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats.  [💬](../../issues/29 "Discussion") | Playground to test storimg message details into Cosmos DB through the [Log to event hub](https://learn.microsoft.com/en-us/azure/api-management/log-to-eventhub-policy) policy. With the policy we can control which data will be stored in the DB (prompt, completion, model, region, tokens etc.).  |
+| Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats.  [💬](../../issues/29 "Discussion") | Playground to test storing message details into Cosmos DB through the [Log to event hub](https://learn.microsoft.com/en-us/azure/api-management/log-to-eventhub-policy) policy. With the policy we can control which data will be stored in the DB (prompt, completion, model, region, tokens etc.).  |
 
 | [**Developer tooling** (WIP)](labs/developer-tooling/developer-tooling.ipynb) | [**Function calling**](labs/function-calling/function-calling.ipynb) |
 | -- | -- |
