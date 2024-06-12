@@ -1,4 +1,4 @@
-# APIM ❤️ OpenAI
+# APIM ❤️ OpenAI - 🧪 Labs for the [GenAI Gateway capabilities](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/introducing-genai-gateway-capabilities-in-azure-api-management/ba-p/4146525) of [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts)
 
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
@@ -128,6 +128,8 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/w
 Numerous reference architectures, best practices and starter kits are available on this topic. Please refer to the resources provided if you need comprehensive solutions or a landing zone to initiate your project. We suggest leveraging the AI-Gateway labs to discover additional capabilities that can be integrated into the reference architectures.
 
 - [AI Hub Gateway Landing Zone](https://github.com/Azure-Samples/ai-hub-gateway-solution-accelerator)
+- [GenAI Gateway Guide](https://aka.ms/genai-gateway)
+- [Azure OpenAI + APIM Sample](https://aka.ms/apim/genai/sample-app)
 - [AI+API better together: Benefits & Best Practices using APIs for AI workloads](https://techcommunity.microsoft.com/t5/apps-on-azure-blog/ai-api-better-together-benefits-amp-best-practices-using-apis/ba-p/4157120)
 - [Designing and implementing a gateway solution with Azure OpenAI resources](https://aka.ms/genai-gateway)
 - [Azure OpenAI Using PTUs/TPMs With API Management - Using the Scaling Special Sauce](https://github.com/Azure/aoai-apim)

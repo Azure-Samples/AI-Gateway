@@ -45,24 +45,24 @@ Playground to try forwarding requests to either an Azure OpenAI endpoint or a mo
 
 --------------
 
-*   APIM uses the managed identity (user or system assigned).  {style="font-size:20px"}
-*   APIM is authorized to consume the Azure OpenAI API through Role Based Access Controls.  {style="font-size:20px"}
-*   Zero impact on consumers using the API directly, with SDKs or orchestrators like LangChain. Just need to update the endpoint to use the APIM endpoint instead of Azure OpenAI endpoint.  {style="font-size:20px"}
-*   Keyless approach: API consumers use the APIM subscription keys, and the Azure OpenAI keys are never used  {style="font-size:20px"}
+*   Azure API Management uses the managed identity (user or system assigned).  {style="font-size:20px"}
+*   Azure API Management is authorized to consume the Azure OpenAI API through Role Based Access Controls.  {style="font-size:20px"}
+*   Zero impact on consumers using the API directly, with SDKs or orchestrators like LangChain. Just need to update the endpoint to use the Azure API Management endpoint instead of Azure OpenAI endpoint.  {style="font-size:20px"}
+*   Keyless approach: API consumers use the Azure API Management subscription keys, and the Azure OpenAI keys are never used  {style="font-size:20px"}
 
 ---
 
 Backend circuit breaking
 
-Playground to try the built-in backend circuit breaker functionality of APIM to either an Azure OpenAI endpoint or a mock server {style="font-size:20px"}
+Playground to try the built-in backend circuit breaker functionality of Azure API Management to either an Azure OpenAI endpoint or a mock server {style="font-size:20px"}
 
 <img src="../images/backend-circuit-breaking.gif" alt="drawing" style="width:700px;"/>
 
 --------------
 
-*   Azure OpenAI endpoint is configured as an APIM backend, promoting reusability across APIs and improved governance.   {style="font-size:20px"}
+*   Azure OpenAI endpoint is configured as an Azure API Management backend, promoting reusability across APIs and improved governance.   {style="font-size:20px"}
 *   Circuit breaking rules define controlled availability for the OpenAI endpoint.   {style="font-size:20px"}
-*   When the circuit breaks, APIM stops sending requests to OpenAI.   {style="font-size:20px"}
+*   When the circuit breaks, Azure API Management stops sending requests to OpenAI.   {style="font-size:20px"}
 *   Handles the status code 429  (Too Many Requests) and any other status code sent by the OpenAI service.   {style="font-size:20px"}
 *   Doesn’t need any policy configuration. The rules are just properties of the backend.   {style="font-size:20px"}
 
@@ -70,7 +70,7 @@ Playground to try the built-in backend circuit breaker functionality of APIM to 
 
 Backend pool load balancing
 
-Playground to try the built-in load balancing backend pool functionality of APIM {style="font-size:20px"}
+Playground to try the built-in load balancing backend pool functionality of Azure API Management {style="font-size:20px"}
 
 <img src="../images/backend-pool-load-balancing.gif" alt="drawing" style="width:700px;"/>
 
@@ -85,7 +85,7 @@ Playground to try the built-in load balancing backend pool functionality of APIM
 
 Advanced load balancing
 
-Playground to try the advanced load balancing (based on a custom APIM policy) {style="font-size:20px"}
+Playground to try the advanced load balancing (based on a custom Azure API Management policy) {style="font-size:20px"}
 
 <img src="../images/advanced-load-balancing.gif" alt="drawing" style="width:600px;"/>
 
@@ -101,7 +101,7 @@ Playground to try the advanced load balancing (based on a custom APIM policy) {s
 
 Response streaming
 
-Playground to try response streaming with APIM and Azure OpenAI endpoints to explore the advantages and shortcomings associated with streaming {style="font-size:20px"}
+Playground to try response streaming with Azure API Management and Azure OpenAI endpoints to explore the advantages and shortcomings associated with streaming {style="font-size:20px"}
 
 <img src="../images/response-streaming.gif" alt="drawing" style="width:700px;"/>
 
@@ -110,7 +110,6 @@ Playground to try response streaming with APIM and Azure OpenAI endpoints to exp
 *   The client application receives the completions in chunks as it's being generated.  {style="font-size:20px"}
 *   Might improve the user experience for intelligent apps with a ChatGPT interface.  {style="font-size:20px"}
 *   Streaming responses doesn't include the usage field to tell how many tokens were consumed.  {style="font-size:20px"}
-*   You sacrifice for now APIM built-in logging.  {style="font-size:20px"}
 *   Streaming in a production application makes it more difficult to moderate the content of the completions, as partial completions may be more difficult to evaluate.  {style="font-size:20px"}
 
 ---
@@ -128,7 +127,7 @@ Playground to try the Retrieval Augmented Generation (RAG) pattern with Azure AI
 *   Uses OpenAI to generate the embeddings.  {style="font-size:20px"}
 *   Supports key word search, hybrid search and semantic ranking.  {style="font-size:20px"}
 *   OpenAI completion is generated based on the user prompt and the AI search results.  {style="font-size:20px"}
-*   All the APIs from OpenAI and AI Search are served trough APIM without using keys.  {style="font-size:20px"}
+*   All the APIs from OpenAI and AI Search are served trough Azure API Management without using keys.  {style="font-size:20px"}
 
 ---
 
@@ -151,16 +150,16 @@ Playground to try the built-in logging capabilities of API Management  {style="f
 
 SLM self-hosting
 
-Playground to try the self-hosted phy-2 Small Language Model (SLM) trough the APIM self-hosted gateway with OpenAI API compatibility  {style="font-size:20px"}
+Playground to try the self-hosted phy-2 Small Language Model (SLM) trough the Azure API Management self-hosted gateway with OpenAI API compatibility  {style="font-size:20px"}
 
 <img src="../images/slm-self-hosting.gif" alt="drawing" style="width:700px;"/>
 
 --------------
 
-*   The APIM self-hosted gateway is a containerized version of the default managed gateway.  {style="font-size:20px"}
+*   The Azure API Management self-hosted gateway is a containerized version of the default managed gateway.  {style="font-size:20px"}
 *   Useful for scenarios where we need to self-host an open-source model from platforms such as Hugging Face.  {style="font-size:20px"}
 *   In this playground we have used Phi-2 that is a SLM suited to try on a laptop.  {style="font-size:20px"}
-*   Both APIM self-hosted gateway and the phy-2 could run on docker containers or in a Kubernetes cluster.  {style="font-size:20px"}
+*   Both Azure API Management self-hosted gateway and the phy-2 could run on docker containers or in a Kubernetes cluster.  {style="font-size:20px"}
 
 ---
 
@@ -169,7 +168,7 @@ Summary
 
 *   The AI Gateway concept provides a range of labs that enables the experimentation of AI Services supported by an API management strategy.  {style="font-size:20px"}
 *   The experimentation will feed the design architecture and the landing zone that will go into production.  {style="font-size:20px"}
-*   The labs are based on Jupyter Notebooks to enable clear and documented instructions, Python scripts, Bicep IaC and APIM policies.  {style="font-size:20px"}
+*   The labs are based on Jupyter Notebooks to enable clear and documented instructions, Python scripts, Bicep IaC and Azure API Management policies.  {style="font-size:20px"}
 *   There is a backlog of experiments that we plan to implement to take this work further and enable more advanced use cases. Stay tuned 🙂  {style="font-size:20px"}
 
 ---

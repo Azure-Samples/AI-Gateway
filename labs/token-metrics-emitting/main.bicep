@@ -315,11 +315,34 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
   parent: apimService
   properties: {
     allowTracing: true
-    displayName: openAISubscriptionDescription
+    displayName: 'Subscription1'
     scope: '/apis/${api.id}'
     state: 'active'
   }
 }
+
+resource apimSubscription2 'Microsoft.ApiManagement/service/subscriptions@2023-05-01-preview' = {
+  name: '${openAISubscriptionName}2'
+  parent: apimService
+  properties: {
+    allowTracing: true
+    displayName: 'Subscription2'
+    scope: '/apis/${api.id}'
+    state: 'active'
+  }
+}
+
+resource apimSubscription3 'Microsoft.ApiManagement/service/subscriptions@2023-05-01-preview' = {
+  name: '${openAISubscriptionName}3'
+  parent: apimService
+  properties: {
+    allowTracing: true
+    displayName: 'Subscription3'
+    scope: '/apis/${api.id}'
+    state: 'active'
+  }
+}
+
 
 // buult-in logging: additions BEGIN
 
@@ -431,3 +454,9 @@ output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 
 #disable-next-line outputs-should-not-contain-secrets
 output apimSubscriptionKey string = apimSubscription.listSecrets().primaryKey
+
+#disable-next-line outputs-should-not-contain-secrets
+output apimSubscription2Key string = apimSubscription2.listSecrets().primaryKey
+
+#disable-next-line outputs-should-not-contain-secrets
+output apimSubscription3Key string = apimSubscription3.listSecrets().primaryKey
