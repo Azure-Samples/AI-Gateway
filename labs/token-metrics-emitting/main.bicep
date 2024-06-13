@@ -311,7 +311,7 @@ resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
 }
 
 resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05-01-preview' = {
-  name: openAISubscriptionName
+  name: '${openAISubscriptionName}1'
   parent: apimService
   properties: {
     allowTracing: true
@@ -384,6 +384,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   properties: {
     Application_Type: 'web'
     WorkspaceResourceId: logAnalytics.id
+    CustomMetricsOptedInType: 'WithDimensions'
   }
 }
 

@@ -5,7 +5,12 @@
 
 Playground to try the [emit token metric policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-emit-token-metric-policy). The policy sends metrics to Application Insights about consumption of large language model tokens through Azure OpenAI Service APIs.
 
-Token count metrics include: Total Tokens, Prompt Tokens, and Completion Tokens.
+Notes:
+- Token count metrics include: Total Tokens, Prompt Tokens, and Completion Tokens.
+- This policy supports OpenAI response streaming! Use the [streaming tool](../../tools/streaming.ipynb) to test and troubleshoot response streaming.
+- Use the [tracing tool](../../tools/tracing.ipynb) to track the behavior and troubleshoot the [policy](policy.xml).
+
+[View policy configuration](policy.xml)
 
 ### Result
 ![result](result.png)
