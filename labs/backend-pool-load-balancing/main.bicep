@@ -251,6 +251,8 @@ resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-
     pool: {
       services: [for (config, i) in openAIConfig: {
           id: '/backends/${backendOpenAI[i].name}'
+          priority: config.priority
+          weight: config.weight
         }
       ]
     }
@@ -268,6 +270,8 @@ resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
     pool: {
       services: [for (webApp, i) in mockWebApps: {
           id: '/backends/${backendMock[i].name}'
+          priority: webApp.priority
+          weight: webApp.weight
         }
       ]
     }

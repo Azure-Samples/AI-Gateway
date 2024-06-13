@@ -2,6 +2,14 @@
 
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
+## What's new ✨
+➕ `priority` and `weight` parameters to the [**Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) lab.  
+➕ the [**Streaming**](streaming.ipynb) tool to test OpenAI streaming with Azure API Management.  
+➕ the [**Tracing**](tools/tracing.ipynb) tool to debug and troubleshoot OpenAI APIs using [Azure API Management tracing capability](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-api-inspector).  
+➕ image processing to the [**GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) lab.  
+➕ the [**Function calling**](labs/function-calling/function-calling.ipynb) lab with a sample API on Azure Functions.  
+
+
 ## Contents
 1. [🧠 GenAI Gateway](#-genai-gateway)
 2. [🧪 Labs](#-labs)
@@ -45,7 +53,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [**Access controlling**](labs/access-controlling/access-controlling.ipynb) | [**Token rate limiting**](labs/token-rate-limiting/token-rate-limiting.ipynb) |
 | -- | -- |
 | [![flow](images/access-controlling-small.gif)](labs/access-controlling/access-controlling.ipynb) | [![flow](images/token-rate-limiting-small.gif)](labs/token-rate-limiting/token-rate-limiting.ipynb) |
-| Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.com/en-us/azure/api-management/api-management-authenticate-authorize-azure-openai#oauth-20-authorization-using-identity-provider) using identity provider to enable more fine-grained access to OpenAPI APIs by particular users or client. [💬](../../issues/25 "Discussion") |  Playground to try the [token rate limiting policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-token-limit-policy) to either a list of Azure OpenAI endpoints or mock servers. When the token usage is exceeded, the caller receives a 429. [💬](../../issues/26 "Discussion") |
+| Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.com/en-us/azure/api-management/api-management-authenticate-authorize-azure-openai#oauth-20-authorization-using-identity-provider) using identity provider to enable more fine-grained access to OpenAPI APIs by particular users or client. [💬](../../issues/25 "Discussion") |  Playground to try the [token rate limiting policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-token-limit-policy) to one or more Azure OpenAI endpoints. When the token usage is exceeded, the caller receives a 429. [💬](../../issues/26 "Discussion") |
 
 | [**Semantic caching**](labs/semantic-caching/semantic-caching.ipynb) | [**Token metrics emitting**](labs/token-metrics-emitting/token-metrics-emitting.ipynb) |
 | -- | -- |

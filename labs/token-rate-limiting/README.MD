@@ -3,7 +3,7 @@
 ## [Token Rate Limiting lab](token-rate-limiting.ipynb)
 [![flow](../../images/token-rate-limiting.gif)](token-rate-limiting.ipynb)
 
-Playground to try the [token rate limiting policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-token-limit-policy) to either a list of Azure OpenAI endpoints or mock servers.
+Playground to try the [token rate limiting policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-token-limit-policy) to one or more Azure OpenAI endpoints.
 
 The azure-openai-token-limit policy prevents Azure OpenAI Service API usage spikes on a per key basis by limiting consumption of language model tokens to a specified number per minute. When the token usage is exceeded, the caller receives a 429 Too Many Requests response status code.
 
