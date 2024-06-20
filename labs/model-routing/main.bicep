@@ -123,13 +123,11 @@ param workbookLocation string = resourceGroup().location
 @description('Display Name for the Workbook')
 param workbookDisplayName string = 'OpenAI Usage Analysis'
 
+param index string = ''
+
 // model-routing: additions END
 
-
-
-var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
-
-//var openAIConfigs = union(openAIConfig_1, openAIConfig_2)
+var resourceSuffix = uniqueString(subscription().id, resourceGroup().id, index)
 
 resource cognitiveServices_1 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig_1: if(length(openAIConfig_1) > 0) {
   name: '${config.name}-${resourceSuffix}'
