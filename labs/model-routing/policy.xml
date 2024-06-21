@@ -10,6 +10,9 @@
                 case "gpt-35-turbo-0125":
                     return "{backend-id-2}";
 
+                case "gpt-4o-2024-05-13":
+                    return "{backend-id-3}";
+
                 default:
                     return "{backend-id-1}";
             }

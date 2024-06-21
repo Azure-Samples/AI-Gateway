@@ -4,11 +4,17 @@ param openAIConfig_1 array = []
 @description('List of OpenAI resources to create for Pool 2. Add pairs of name and location.')
 param openAIConfig_2 array = []
 
+@description('List of OpenAI resources to create for Pool 3. Add pairs of name and location.')
+param openAIConfig_3 array = []
+
 @description('Deployment 1 Name')
 param openAIDeploymentName_1 string
 
 @description('Deployment 2 Name')
 param openAIDeploymentName_2 string
+
+@description('Deployment 3 Name')
+param openAIDeploymentName_3 string
 
 @description('Azure OpenAI Sku')
 @allowed([
@@ -27,6 +33,12 @@ param openAIModelName_2 string
 
 @description('Model 2 Version')
 param openAIModelVersion_2 string
+
+@description('Model 3 Name')
+param openAIModelName_3 string
+
+@description('Model 3 Version')
+param openAIModelVersion_3 string
 
 @description('Model Capacity')
 param openAIModelCapacity int = 20
@@ -84,14 +96,17 @@ param openAISubscriptionName string = 'openai-subscription'
 @description('The description of the APIM Subscription for OpenAI API')
 param openAISubscriptionDescription string = 'OpenAI Subscription'
 
-@description('The name of the OpenAI backend pool')
+@description('The name of the OpenAI backend pool 1')
 param openAIBackendPoolName_1 string = 'openai-backend-pool-1'
+
+@description('The name of the OpenAI backend pool 2')
 param openAIBackendPoolName_2 string = 'openai-backend-pool-2'
+
+@description('The name of the OpenAI backend pool 3')
+param openAIBackendPoolName_3 string = 'openai-backend-pool-3'
 
 @description('The description of the OpenAI backend pool')
 param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
-
-// model-routing: additions BEGIN
 
 @description('Name of the Log Analytics resource')
 param logAnalyticsName string = 'workspace'
@@ -125,8 +140,6 @@ param workbookDisplayName string = 'OpenAI Usage Analysis'
 
 param index string = ''
 
-// model-routing: additions END
-
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id, index)
 
 resource cognitiveServices_1 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig_1: if(length(openAIConfig_1) > 0) {
@@ -159,24 +172,39 @@ resource cognitiveServices_2 'Microsoft.CognitiveServices/accounts@2021-10-01' =
   }
 }]
 
-// Optimize this
-resource deployment_1 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig_1: if(length(openAIConfig_1) > 0) {
-    name: openAIDeploymentName_1
-    parent: cognitiveServices_1[i]
-    properties: {
-      model: {
-        format: 'OpenAI'
-        name: openAIModelName_1
-        version: openAIModelVersion_1
-      }
+
+resource cognitiveServices_3 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig_3: if(length(openAIConfig_3) > 0) {
+  name: '${config.name}-${resourceSuffix}'
+  location: config.location
+  sku: {
+    name: openAISku
+  }
+  kind: 'OpenAI'  
+  properties: {
+    apiProperties: {
+      statisticsEnabled: false
     }
-    sku: {
-        name: 'Standard'
-        capacity: openAIModelCapacity
-    }
+    customSubDomainName: toLower('${config.name}-${resourceSuffix}')
+  }
 }]
 
-resource deployment_2 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig_2: if(length(openAIConfig_2) > 0) {
+resource deployment_1 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for (config, i) in openAIConfig_1: if(length(openAIConfig_1) > 0) {
+  name: openAIDeploymentName_1
+  parent: cognitiveServices_1[i]
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: openAIModelName_1
+      version: openAIModelVersion_1
+    }
+  }
+  sku: {
+    name: 'Standard'
+    capacity: openAIModelCapacity
+  }
+}]
+
+resource deployment_2 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for (config, i) in openAIConfig_2: if(length(openAIConfig_2) > 0) {
   name: openAIDeploymentName_2
   parent: cognitiveServices_2[i]
   properties: {
@@ -187,8 +215,24 @@ resource deployment_2 'Microsoft.CognitiveServices/accounts/deployments@2023-05-
     }
   }
   sku: {
-      name: 'Standard'
-      capacity: openAIModelCapacity
+    name: 'Standard'
+    capacity: openAIModelCapacity
+  }
+}]
+
+resource deployment_3 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for (config, i) in openAIConfig_3: if(length(openAIConfig_3) > 0) {
+  name: openAIDeploymentName_3
+  parent: cognitiveServices_3[i]
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: openAIModelName_3
+      version: openAIModelVersion_3
+    }
+  }
+  sku: {
+    name: 'Standard'
+    capacity: openAIModelCapacity
   }
 }]
 
@@ -229,6 +273,16 @@ resource roleAssignment_2 'Microsoft.Authorization/roleAssignments@2022-04-01' =
   }
 }]
 
+resource roleAssignment_3 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig_3: if(length(openAIConfig_3) > 0) {
+  scope: cognitiveServices_3[i]
+  name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
+  properties: {
+      roleDefinitionId: roleDefinitionID
+      principalId: apimService.identity.principalId
+      principalType: 'ServicePrincipal'
+  }
+}]
+
 resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
     name: openAIAPIName
     parent: apimService
@@ -261,6 +315,33 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
 }
 
 // Optimize this
+var circuitBreaker = {
+  rules: [
+    {
+      failureCondition: {
+        count: 3
+        errorReasons: [
+          'Server errors'
+        ]
+        interval: 'PT5M'
+        statusCodeRanges: [
+          { 
+            min: 429
+            max: 429
+          }, {
+            min: 500
+            max: 599
+          }
+        ]
+      }
+      name: 'myBreakerRule'
+      tripDuration: 'PT1M'
+      // acceptRetryAfter: true    // respects the Retry-After header
+    }
+  ]
+}
+
+
 resource backendOpenAI_1 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (config, i) in openAIConfig_1: if(length(openAIConfig_1) > 0) {
   name: config.name
   parent: apimService
@@ -268,27 +349,7 @@ resource backendOpenAI_1 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
     description: 'backend description'
     url: '${cognitiveServices_1[i].properties.endpoint}/openai'
     protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 3
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'openAIBreakerRule'
-          tripDuration: 'PT1M'
-        }
-      ]
-    }    
+    circuitBreaker: circuitBreaker  
   }
 }]
 
@@ -299,27 +360,18 @@ resource backendOpenAI_2 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
     description: 'backend description'
     url: '${cognitiveServices_2[i].properties.endpoint}/openai'
     protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 3
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'openAIBreakerRule'
-          tripDuration: 'PT1M'
-        }
-      ]
-    }    
+    circuitBreaker: circuitBreaker  
+  }
+}]
+
+resource backendOpenAI_3 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (config, i) in openAIConfig_3: if(length(openAIConfig_3) > 0) {
+  name: config.name
+  parent: apimService
+  properties: {
+    description: 'backend description'
+    url: '${cognitiveServices_3[i].properties.endpoint}/openai'
+    protocol: 'http'
+    circuitBreaker: circuitBreaker  
   }
 }]
 
@@ -330,8 +382,6 @@ resource backendPoolOpenAI_1 'Microsoft.ApiManagement/service/backends@2023-05-0
   properties: {
     description: openAIBackendPoolDescription
     type: 'Pool'
-    //protocol: 'http'                                              // the protocol is not supported in the Pool type
-    //url: '${cognitiveServices_1[0].properties.endpoint}/openai'   // the url is not supported in the Pool type
     pool: {
       services: [for (config, i) in openAIConfig_1: {
           id: '/backends/${backendOpenAI_1[i].name}'
@@ -348,11 +398,25 @@ resource backendPoolOpenAI_2 'Microsoft.ApiManagement/service/backends@2023-05-0
   properties: {
     description: openAIBackendPoolDescription
     type: 'Pool'
-    //protocol: 'http'                                              // the protocol is not supported in the Pool type
-    //url: '${cognitiveServices_2[0].properties.endpoint}/openai'   // the url is not supported in the Pool type
     pool: {
       services: [for (config, i) in openAIConfig_2: {
           id: '/backends/${backendOpenAI_2[i].name}'
+        }
+      ]
+    }
+  }
+}
+
+resource backendPoolOpenAI_3 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig_3) > 1) {
+  name: openAIBackendPoolName_3
+  parent: apimService
+  #disable-next-line BCP035
+  properties: {
+    description: openAIBackendPoolDescription
+    type: 'Pool'
+    pool: {
+      services: [for (config, i) in openAIConfig_3: {
+          id: '/backends/${backendOpenAI_3[i].name}'
         }
       ]
     }
@@ -472,9 +536,9 @@ resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-0
 resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   name: guid(resourceGroup().id, workbookName)
   location: workbookLocation
-  kind: 'shared'
+  kind: 'shared'  
   properties: {
-    displayName: workbookDisplayName
+    displayName: workbookDisplayName    
     serializedData: loadTextContent('openai-usage-analysis-workbook.json')
     sourceId: applicationInsights.id
     category: 'OpenAI'
@@ -492,5 +556,3 @@ output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 
 #disable-next-line outputs-should-not-contain-secrets
 output apimSubscriptionKey string = apimSubscription.listSecrets().primaryKey
-
-
