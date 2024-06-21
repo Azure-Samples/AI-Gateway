@@ -27,7 +27,7 @@ Use the [clean-up-resources notebook](clean-up-resources.ipynb) for that.
 
 ### Caveats
 
-- The lab currently does not use the same Azure OpenAI instance for multiple models. This would be preferential, especially with PTU use, but the bicep got a bit too convoluted fopr that.
+- The lab currently does not use the same Azure OpenAI instance for multiple models. This would be preferential, especially with PTU use, but the bicep got a bit too convoluted for that.
 - The determination as to what endpoint to use is driven through a particular deployment naming convention. This approach can be changed. Perhaps using the model as a suffix is more appropriate
-    for you. Maybe not using anything model-related at all and just performing explicit translations in API Management works better for your use cases. It's not as important to demonstrate how 
+    for you. Maybe not using anything model-related at all and just performing explicit translations in API Management works better for your use cases. It's not as important to demonstrate how
     you can change this as it is to show that you can use the same API Management endpoint for many models.
