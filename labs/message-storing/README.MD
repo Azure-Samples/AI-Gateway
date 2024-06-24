@@ -3,7 +3,7 @@
 ## [Message Storing lab](message-storing.ipynb)
 [![flow](../../images/message-storing.gif)](message-storing.ipynb)
 
-Playground to test storimg message details into Cosmos DB through the [Log to event hub](https://learn.microsoft.com/en-us/azure/api-management/log-to-eventhub-policy) policy. With the policy we can control which data will be stored in the DB (prompt, completion, model, region, tokens etc.). 
+Playground to test storing message details into Cosmos DB through the [Log to event hub](https://learn.microsoft.com/en-us/azure/api-management/log-to-eventhub-policy) policy. With the policy we can control which data will be stored in the DB (prompt, completion, model, region, tokens etc.). 
 
 ### Result
 ![result](result.png)
