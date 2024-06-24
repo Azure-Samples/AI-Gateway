@@ -13,7 +13,7 @@ params.json
 
 .vscode/
 .python_packages/
-
+.promptflow/
 
 # Distribution / packaging
 .Python
