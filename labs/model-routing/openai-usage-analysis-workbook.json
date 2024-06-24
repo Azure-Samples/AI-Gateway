@@ -1,0 +1,343 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 1,
+        "content": {
+          "json": "# APIM ♥️ OpenAI\n---\n\nThis is a sample workbook to show OpenAI usage\n"
+        },
+        "name": "text - 0"
+      },
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "parameters": [
+            {
+              "id": "e94aafa3-c5d9-4523-89f0-4e87aa754511",
+              "version": "KqlParameterItem/1.0",
+              "name": "Apps",
+              "type": 5,
+              "isRequired": true,
+              "multiSelect": true,
+              "quote": "'",
+              "delimiter": ",",
+              "typeSettings": {
+                "resourceTypeFilter": {
+                  "microsoft.insights/components": true
+                },
+                "additionalResourceOptions": [
+                  "value::all",
+                  "value::3"
+                ]
+              },
+              "value": [
+                "value::3"
+              ]
+            },
+            {
+              "id": "c4b69c01-2263-4ada-8d9c-43433b739ff3",
+              "version": "KqlParameterItem/1.0",
+              "name": "TimeRange",
+              "type": 4,
+              "typeSettings": {
+                "selectableValues": [
+                  {
+                    "durationMs": 300000,
+                    "createdTime": "2018-08-06T23:52:38.870Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 900000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 1800000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 3600000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 14400000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 43200000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 86400000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 172800000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 259200000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  },
+                  {
+                    "durationMs": 604800000,
+                    "createdTime": "2018-08-06T23:52:38.871Z",
+                    "isInitialTime": false,
+                    "grain": 1,
+                    "useDashboardTimeRange": false
+                  }
+                ],
+                "allowCustom": null
+              },
+              "value": {
+                "durationMs": 14400000
+              }
+            },
+            {
+              "id": "1014e6d9-72b9-4729-a3a0-f5704768854e",
+              "version": "KqlParameterItem/1.0",
+              "name": "Operation",
+              "type": 1,
+              "isHiddenWhenLocked": true,
+              "value": "{\"App\":\"\",\"Operation\":\"\"}"
+            },
+            {
+              "id": "9fb8e529-2818-4000-bdf0-48808de48eb7",
+              "version": "KqlParameterItem/1.0",
+              "name": "Columns",
+              "type": 2,
+              "isRequired": true,
+              "multiSelect": true,
+              "quote": "",
+              "delimiter": ",",
+              "jsonData": "[\"Mean\", \"Median\", \"p80\", \"p95\", \"p99\", \"Count\", \"Users\"]",
+              "value": [
+                "Mean",
+                "Median",
+                "p95",
+                "Count"
+              ]
+            }
+          ],
+          "style": "pills",
+          "queryType": 0,
+          "resourceType": "microsoft.insights/components"
+        },
+        "name": "parameters - 1"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let data = requests\r\n| where timestamp {TimeRange};\r\ndata\r\n| project timestamp, duration, resultCode, customDimensions\r\n| extend duration = round(duration, 2)\r\n| extend statusCode = resultCode\r\n| extend parsedCustomDimensions = parse_json(customDimensions)\r\n| extend apiName = tostring(parsedCustomDimensions.['API Name'])\r\n| extend apimSubscription = tostring(parsedCustomDimensions.['Subscription Name'])\r\n| extend userAgent = tostring(parsedCustomDimensions.['Request-User-agent'])\r\n| extend request_json = tostring(parsedCustomDimensions.['Request-Body'])\r\n| extend request = parse_json(request_json)\r\n| extend model = tostring(request.['model'])\r\n| extend messages = tostring(request.['messages'])\r\n| extend region = tostring(parsedCustomDimensions.['Response-x-ms-region'])\r\n| extend remainingTokens = tostring(parsedCustomDimensions.['Response-x-ratelimit-remaining-tokens'])\r\n| extend remainingRequests = tostring(parsedCustomDimensions.['Response-x-ratelimit-remaining-requests'])\r\n| extend response_json = tostring(parsedCustomDimensions.['Response-Body'])\r\n| extend response = parse_json(response_json)\r\n| extend promptTokens = tostring(response.['usage'].['prompt_tokens'])\r\n| extend completionTokens = tostring(response.['usage'].['completion_tokens'])\r\n| extend totalTokens = tostring(response.['usage'].['total_tokens'])\r\n| extend completion = tostring(response.['choices'][0].['message'].['content'])\r\n| project timestamp, apiName, apimSubscription, duration, statusCode, userAgent, model, messages, completion, region\r\n| order by timestamp desc\r\n",
+          "size": 0,
+          "queryType": 0,
+          "resourceType": "microsoft.insights/components"
+        },
+        "name": "query - 18"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let data = requests\r\n| where timestamp {TimeRange};\r\ndata\r\n| project timestamp, duration, resultCode, customDimensions\r\n| extend parsedCustomDimensions = parse_json(customDimensions)\r\n| extend request_json = tostring(parsedCustomDimensions.['Request-Body'])\r\n| extend request = parse_json(request_json)\r\n| extend model = tostring(request.['model'])\r\n| extend region = tostring(parsedCustomDimensions.['Response-x-ms-region'])\r\n| extend remainingTokens = tostring(parsedCustomDimensions.['Response-x-ratelimit-remaining-tokens'])\r\n| extend remainingRequests = tostring(parsedCustomDimensions.['Response-x-ratelimit-remaining-requests'])\r\n| extend response_json = tostring(parsedCustomDimensions.['Response-Body'])\r\n| extend response = parse_json(response_json)\r\n| extend promptTokens = tostring(response.['usage'].['prompt_tokens'])\r\n| extend completionTokens = tostring(response.['usage'].['completion_tokens'])\r\n| extend totalTokens = tostring(response.['usage'].['total_tokens'])\r\n| project timestamp, model, region, promptTokens, completionTokens, totalTokens, remainingTokens, remainingRequests\r\n| order by timestamp desc\r\n",
+          "size": 0,
+          "title": "Token count",
+          "queryType": 0,
+          "resourceType": "microsoft.insights/components"
+        },
+        "name": "query - 18 - Copy"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let data = requests\n| where timestamp {TimeRange};\ndata\n| summarize Mean = avg(duration), (Median, p80, p95, p99) = percentiles(duration, 50, 80, 95, 99), Count = count(), Users = dcount(user_Id) by name, appName\n| project App = appName, Operation = name, Mean, Median, p80, p95, p99, Count, Users, rank = 2\n| union (data\n    | summarize Mean = avg(duration), (Median, p80, p95, p99) = percentiles(duration, 50, 80, 95, 99), Count = count(), Users = dcount(user_Id)\n    | project App = '🔸 All Apps', Operation = '🔸 All operations', Mean, Median, p80, p95, p99, Count, Users, rank = 1)\n| extend Relevance = Mean * Count\n| order by rank asc, Relevance desc\n| project-away Relevance, rank\n| extend Mean = round(Mean, 2), Median = round(Median, 1), p80 = round(p80, 2), p95 = round(p95, 2), p99 = round(p99, 2)\n| project App, Operation, {Columns}\n",
+          "size": 0,
+          "title": "Request Details",
+          "exportParameterName": "Operation",
+          "queryType": 0,
+          "resourceType": "microsoft.insights/components",
+          "crossComponentResources": [
+            "{Apps}"
+          ],
+          "gridSettings": {
+            "formatters": [
+              {
+                "columnMatch": "Mean|Median|p80|p95|p99",
+                "formatter": 8,
+                "formatOptions": {
+                  "min": 0,
+                  "max": null,
+                  "palette": "red"
+                }
+              },
+              {
+                "columnMatch": "Count",
+                "formatter": 8,
+                "formatOptions": {
+                  "min": 0,
+                  "max": null,
+                  "palette": "blue"
+                }
+              },
+              {
+                "columnMatch": "Users",
+                "formatter": 8,
+                "formatOptions": {
+                  "min": 0,
+                  "max": null,
+                  "palette": "blueDark"
+                }
+              }
+            ]
+          }
+        },
+        "name": "query - 2"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "💡 *Click on the rows of the table above to see details for other operations*"
+        },
+        "name": "text - 3"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": ""
+        },
+        "name": "text - 4"
+      },
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "parameters": [
+            {
+              "id": "b09bfb5a-093f-4099-a5fb-e0fca139cc3d",
+              "version": "KqlParameterItem/1.0",
+              "name": "SelectedOperation",
+              "type": 1,
+              "isRequired": true,
+              "query": "let row = dynamic({Operation});\r\nlet operation = tostring(row.Operation);\r\nlet app = tostring(row.App);\r\nrange i from 1 to 1 step 1\r\n| project Operation = iff((operation == '' and app == '') or (operation == '🔸 All operations' and app == '🔸 All Apps'), 'all operations', operation)",
+              "isHiddenWhenLocked": true,
+              "jsonData": "",
+              "resourceType": "microsoft.insights/components"
+            }
+          ],
+          "style": "pills",
+          "queryType": 0,
+          "resourceType": "microsoft.insights/components"
+        },
+        "name": "parameters - 5"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "## Operation Details -- {SelectedOperation}\n"
+        },
+        "name": "text - 6"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "### Operation Duration (ms)\n"
+        },
+        "customWidth": "50",
+        "name": "text - 7"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "### All Operations"
+        },
+        "customWidth": "50",
+        "name": "text - 8"
+      },
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "parameters": [
+            {
+              "id": "1bbd1900-9445-4ac0-bb5d-f15dbe5f4485",
+              "version": "KqlParameterItem/1.0",
+              "name": "Show",
+              "type": 2,
+              "isRequired": true,
+              "query": "datatable(value:string, label:string)[\n\"avg(duration)\", \"Mean\",\n\"percentile(duration, 50)\", \"Median\",\n\"percentile(duration, 80)\", \"p80\",\n\"percentile(duration, 95)\", \"p95\",\n\"percentile(duration, 99)\", \"p99\"\n]",
+              "value": "percentile(duration, 95)",
+              "resourceType": "microsoft.insights/components"
+            }
+          ],
+          "style": "pills",
+          "queryType": 0,
+          "resourceType": "microsoft.insights/components"
+        },
+        "name": "parameters - 9"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let row = dynamic({Operation});\nlet operation = tostring(row.Operation);\nlet app = tostring(row.App);\nrequests\n| where timestamp {TimeRange}\n| where (name == operation and appName == app) or (operation == '' and app == '') or (operation == '🔸 All operations' and app == '🔸 All Apps')\n| make-series Duration = {Show} default = 0 on timestamp in range({TimeRange:start}, {TimeRange:end}, {TimeRange:grain})\n| mvexpand timestamp to typeof(datetime), Duration to typeof(long)\n",
+          "size": 1,
+          "queryType": 0,
+          "resourceType": "microsoft.insights/components",
+          "crossComponentResources": [
+            "{Apps}"
+          ],
+          "visualization": "areachart"
+        },
+        "customWidth": "50",
+        "name": "query - 10"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let row = dynamic({Operation});\nlet operation = tostring(row.Operation);\nlet app = tostring(row.App);\nrequests\n| where timestamp {TimeRange}\n| where (name == operation and appName == app) or (operation == '' and app == '') or (operation == '🔸 All operations' and app == '🔸 All Apps')\n| make-series Requests = count() default = 0 on timestamp in range({TimeRange:start}, {TimeRange:end}, {TimeRange:grain})\n| mvexpand timestamp to typeof(datetime), Requests to typeof(long)\n",
+          "size": 1,
+          "queryType": 0,
+          "resourceType": "microsoft.insights/components",
+          "crossComponentResources": [
+            "{Apps}"
+          ],
+          "visualization": "areachart"
+        },
+        "customWidth": "50",
+        "name": "query - 11"
+      }
+    ],
+    "fallbackResourceIds": [
+    ],
+    "fromTemplateId": "community-Workbooks/Performance/Performance Insights",
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }

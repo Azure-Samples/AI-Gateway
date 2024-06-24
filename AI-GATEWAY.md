@@ -99,6 +99,20 @@ Playground to try the advanced load balancing (based on a custom Azure API Manag
 
 ---
 
+Model Routing
+
+Playground to try routing to a backend based on Azure OpenAI model and version  {style="font-size:20px"}
+
+<img src="../images/model-routing.gif" alt="drawing" style="width:700px;"/>
+
+--------------
+
+*   Built atop the *Built-in logging* lab.  {style="font-size:20px"}
+*   Enables using the same API Management endpoint to target different models in different backend pools comprised of different backends.  {style="font-size:20px"}
+*   Requires minor policy configuration based on how this pattern is applied by you.  {style="font-size:20px"}
+
+---
+
 Response streaming
 
 Playground to try response streaming with Azure API Management and Azure OpenAI endpoints to explore the advantages and shortcomings associated with streaming {style="font-size:20px"}
