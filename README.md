@@ -3,6 +3,8 @@
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
 ## What's new ✨
+➕ the [**Model routing**](labs/model-routing/model-routing.ipynb) lab with OpenAI model based routing.  
+➕ the [**Prompt flow**](labs/prompt-flow/prompt-flow.ipynb) lab to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/prompt-flow) with Azure API Management.  
 ➕ `priority` and `weight` parameters to the [**Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) lab.  
 ➕ the [**Streaming**](streaming.ipynb) tool to test OpenAI streaming with Azure API Management.  
 ➕ the [**Tracing**](tools/tracing.ipynb) tool to debug and troubleshoot OpenAI APIs using [Azure API Management tracing capability](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-api-inspector).  
@@ -70,14 +72,21 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [![flow](images/developer-tooling-small.gif)](labs/developer-tooling/developer-tooling.ipynb)  | [![flow](images/function-calling-small.gif)](labs/function-calling/function-calling.ipynb) |
 | Playground to try the developer tooling available with Azure API Management to develop, debug, test and publish AI Service APIs. | Playground to try the OpenAI [function calling](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API that is also managed by Azure API Management.  |
 
+| [**Model Routing**](labs/model-routing/model-routing.ipynb) | [**Prompt flow**](labs/prompt-flow/prompt-flow.ipynb) |
+| -- | -- |
+| [![flow](images/model-routing-small.gif)](labs/model-routing/model-routing.ipynb)  | [![flow](images/prompt-flow-small.gif)](labs/prompt-flow/prompt-flow.ipynb) |
+| Playground to try routing to a backend based on Azure OpenAI model and version. | Playground to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/prompt-flow) with Azure API Management. |
+
+
+
 
 ### Backlog of experiments
 * Assistants load balancing
+* Logic Apps RAG
 * Semantic Kernel plugin
 * Content filtering
 * PII handling
 * Prompt guarding
-* Prompt model routing
 * Llama inferencing
 
 > [!TIP]
