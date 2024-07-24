@@ -3,35 +3,36 @@
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
 ## What's new ✨
-➕ the [**Model routing**](labs/model-routing/model-routing.ipynb) lab with OpenAI model based routing.  
-➕ the [**Prompt flow**](labs/prompt-flow/prompt-flow.ipynb) lab to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/prompt-flow) with Azure API Management.  
-➕ `priority` and `weight` parameters to the [**Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) lab.  
-➕ the [**Streaming**](streaming.ipynb) tool to test OpenAI streaming with Azure API Management.  
-➕ the [**Tracing**](tools/tracing.ipynb) tool to debug and troubleshoot OpenAI APIs using [Azure API Management tracing capability](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-api-inspector).  
-➕ image processing to the [**GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) lab.  
-➕ the [**Function calling**](labs/function-calling/function-calling.ipynb) lab with a sample API on Azure Functions.  
 
+➕ the [**Model routing**](labs/model-routing/model-routing.ipynb) lab with OpenAI model based routing.
+➕ the [**Prompt flow**](labs/prompt-flow/prompt-flow.ipynb) lab to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/en-us/azure/ai-studio/how-to/prompt-flow) with Azure API Management.
+➕ `priority` and `weight` parameters to the [**Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) lab.
+➕ the [**Streaming**](streaming.ipynb) tool to test OpenAI streaming with Azure API Management.
+➕ the [**Tracing**](tools/tracing.ipynb) tool to debug and troubleshoot OpenAI APIs using [Azure API Management tracing capability](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-api-inspector).
+➕ image processing to the [**GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) lab.
+➕ the [**Function calling**](labs/function-calling/function-calling.ipynb) lab with a sample API on Azure Functions.
 
 ## Contents
+
 1. [🧠 GenAI Gateway](#-genai-gateway)
-2. [🧪 Labs](#-labs)
-3. [🚀 Getting started](#-getting-started)
-5. [🔨 Tools](#-tools)
-4. [🏛️ Well Architected Framework](#-well-architected-framework)
-6. [🎒 Show and tell](#-show-and-tell)
-7. [🥇 Other Resources](#-other-resources)
+1. [🧪 Labs](#-labs)
+1. [🚀 Getting started](#-getting-started)
+1. [🔨 Tools](#-tools)
+1. [🏛️ Well-Architected Framework](#-well-architected-framework)    <!-- markdownlint-disable-line MD051 -->
+1. [🎒 Show and tell](#-show-and-tell)
+1. [🥇 Other Resources](#-other-resources)
 
-The rapid pace of AI advances demands experimentation-driven approaches for organizations to remain at the forefront of the industry. With AI steadily becoming a game-changer for an array of sectors, maintaining a fast-paced innovation trajectory is crucial for businesses aiming to leverage its full potential. 
+The rapid pace of AI advances demands experimentation-driven approaches for organizations to remain at the forefront of the industry. With AI steadily becoming a game-changer for an array of sectors, maintaining a fast-paced innovation trajectory is crucial for businesses aiming to leverage its full potential.
 
-__AI services__ are predominantly accessed via __APIs__, underscoring the essential need for a robust and efficient API management strategy. This strategy is instrumental for maintaining control and governance over the consumption of __AI services__.
+**AI services** are predominantly accessed via **APIs**, underscoring the essential need for a robust and efficient API management strategy. This strategy is instrumental for maintaining control and governance over the consumption of **AI services**.
 
-With the expanding horizons of __AI services__ and their seamless integration with __APIs__, there is a considerable demand for a comprehensive __AI Gateway__ pattern, which broadens the core principles of API management. Aiming to accelerate the experimentation of advanced use cases and pave the road for further innovation in this rapidly evolving field. The well-architected principles of the __AI Gateway__ provides a framework for the confident deployment of __Intelligent Apps__ into production.
+With the expanding horizons of **AI services** and their seamless integration with **APIs**, there is a considerable demand for a comprehensive **AI Gateway** pattern, which broadens the core principles of API management. Aiming to accelerate the experimentation of advanced use cases and pave the road for further innovation in this rapidly evolving field. The well-architected principles of the **AI Gateway** provides a framework for the confident deployment of **Intelligent Apps** into production.
 
 ## 🧠 GenAI Gateway
+
 ![AI-Gateway flow](images/ai-gateway.gif)
 
-This repo explores the __AI Gateway__ pattern through a series of experimental labs. The [GenAI Gateway capabilities](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/introducing-genai-gateway-capabilities-in-azure-api-management/ba-p/4146525) of [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles and design patterns could potentially be applied to any LLM.
-
+This repo explores the **AI Gateway** pattern through a series of experimental labs. The [GenAI Gateway capabilities](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/introducing-genai-gateway-capabilities-in-azure-api-management/ba-p/4146525) of [Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles and design patterns could potentially be applied to any LLM.
 
 ## 🧪 Labs
 
@@ -89,9 +90,8 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 |  |  |
 |  |  |
 
-
-
 ### Backlog of experiments
+
 * Assistants load balancing
 * Logic Apps RAG
 * Semantic Kernel plugin
@@ -106,14 +106,16 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [Python 3.8 or later version](https://www.python.org/) installed
-- [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed
-- [An Azure Subscription](https://azure.microsoft.com/en-us/free/) with Contributor permissions
-- [Access granted to Azure OpenAI](https://aka.ms/oai/access) or just enable the mock service
-- [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
+
+* [Python 3.8 or later version](https://www.python.org/) installed
+* [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
+* [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed
+* [An Azure Subscription](https://azure.microsoft.com/en-us/free/) with Contributor permissions
+* [Access granted to Azure OpenAI](https://aka.ms/oai/access) or just enable the mock service
+* [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
 
 ### Quickstart
+
 1. Clone this repo and configure your local machine with the prerequisites. Or just create a [GitHub Codespace](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main) and run it on the browser or in VS Code.
 2. Navigate through the available labs and select one that best suits your needs. For starters we recommend the [backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb).
 3. Open the notebook and run the provided steps.
@@ -124,9 +126,9 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 
 ## 🔨 Tools
 
-- [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with Azure API Management and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
-- [Tracing](tools/tracing.ipynb) - Invoke OpenAI API with trace enabled and returns the tracing information.
-- [Streaming](tools/streaming.ipynb) - Invoke OpenAI API with stream enabled and returns response in chunks.
+* [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with Azure API Management and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
+* [Tracing](tools/tracing.ipynb) - Invoke OpenAI API with trace enabled and returns the tracing information.
+* [Streaming](streaming.ipynb) - Invoke OpenAI API with stream enabled and returns response in chunks.
 
 ## 🏛️ Well-Architected Framework
 
@@ -147,6 +149,7 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/w
 > Check the [Azure Well-Architected Framework perspective on Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-openai) for aditional guidance.
 
 ## 🎒 Show and tell
+
 > [!TIP]
 > Install the [VS Code Reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal), open AI-GATEWAY.md and click on 'slides' at the botton to present the AI Gateway without leaving VS Code.
 > Or just open the [AI-GATEWAY.pptx](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAI-Gateway%2Fmain%2FAI-GATEWAY.pptx&wdOrigin=BROWSELINK) for a plain old PowerPoint experience.
@@ -155,15 +158,15 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/w
 
 Numerous reference architectures, best practices and starter kits are available on this topic. Please refer to the resources provided if you need comprehensive solutions or a landing zone to initiate your project. We suggest leveraging the AI-Gateway labs to discover additional capabilities that can be integrated into the reference architectures.
 
-- [AI Hub Gateway Landing Zone](https://github.com/Azure-Samples/ai-hub-gateway-solution-accelerator)
-- [GenAI Gateway Guide](https://aka.ms/genai-gateway)
-- [Azure OpenAI + APIM Sample](https://aka.ms/apim/genai/sample-app)
-- [AI+API better together: Benefits & Best Practices using APIs for AI workloads](https://techcommunity.microsoft.com/t5/apps-on-azure-blog/ai-api-better-together-benefits-amp-best-practices-using-apis/ba-p/4157120)
-- [Designing and implementing a gateway solution with Azure OpenAI resources](https://aka.ms/genai-gateway)
-- [Azure OpenAI Using PTUs/TPMs With API Management - Using the Scaling Special Sauce](https://github.com/Azure/aoai-apim)
-- [Manage Azure OpenAI using APIM](https://github.com/microsoft/AzureOpenAI-with-APIM) 
-- [Setting up Azure OpenAI as a central capability with Azure API Management](https://github.com/Azure/enterprise-azureai)
-- [Introduction to Building AI Apps](https://github.com/Azure/intro-to-intelligent-apps)
+* [AI Hub Gateway Landing Zone](https://github.com/Azure-Samples/ai-hub-gateway-solution-accelerator)
+* [GenAI Gateway Guide](https://aka.ms/genai-gateway)
+* [Azure OpenAI + APIM Sample](https://aka.ms/apim/genai/sample-app)
+* [AI+API better together: Benefits & Best Practices using APIs for AI workloads](https://techcommunity.microsoft.com/t5/apps-on-azure-blog/ai-api-better-together-benefits-amp-best-practices-using-apis/ba-p/4157120)
+* [Designing and implementing a gateway solution with Azure OpenAI resources](https://aka.ms/genai-gateway)
+* [Azure OpenAI Using PTUs/TPMs With API Management - Using the Scaling Special Sauce](https://github.com/Azure/aoai-apim)
+* [Manage Azure OpenAI using APIM](https://github.com/microsoft/AzureOpenAI-with-APIM)
+* [Setting up Azure OpenAI as a central capability with Azure API Management](https://github.com/Azure/enterprise-azureai)
+* [Introduction to Building AI Apps](https://github.com/Azure/intro-to-intelligent-apps)
 
 > We believe that there may be valuable content that we are currently unaware of. We would greatly appreciate any suggestions or recommendations to enhance this list.
 
@@ -172,5 +175,6 @@ Numerous reference architectures, best practices and starter kits are available 
 ![GBB](images/gbb.png)
 
 ### Disclaimer
+
 > [!IMPORTANT]
 > This software is provided for demonstration purposes only. It is not intended to be relied upon for any purpose. The creators of this software make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability or availability with respect to the software or the information, products, services, or related graphics contained in the software for any purpose. Any reliance you place on such information is therefore strictly at your own risk.
