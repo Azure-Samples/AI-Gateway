@@ -126,7 +126,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 
 - [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with Azure API Management and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
 - [Tracing](tools/tracing.ipynb) - Invoke OpenAI API with trace enabled and returns the tracing information.
-- [Streaming](streaming.ipynb) - Invoke OpenAI API with stream enabled and returns response in chunks.
+- [Streaming](tools/streaming.ipynb) - Invoke OpenAI API with stream enabled and returns response in chunks.
 
 ## 🏛️ Well-Architected Framework
 
