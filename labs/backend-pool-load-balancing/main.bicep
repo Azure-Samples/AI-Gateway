@@ -95,7 +95,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -120,7 +120,7 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01
     }
 }]
 
-resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
+resource apimService 'Microsoft.ApiManagement/service@2023-09-01-preview' = {
   name: '${apimResourceName}-${resourceSuffix}'
   location: apimResourceLocation
   sku: {
@@ -133,7 +133,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
   identity: {
     type: 'SystemAssigned'
-  } 
+  }
 }
 
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
@@ -147,7 +147,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
     }
 }]
 
-resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
+resource api 'Microsoft.ApiManagement/service/apis@2023-09-01-preview' = {
     name: openAIAPIName
     parent: apimService
     properties: {
@@ -169,7 +169,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
     }
   }
 
-resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-preview' = {
+resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2023-09-01-preview' = {
   name: 'policy'
   parent: api
   properties: {
@@ -178,18 +178,18 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
   }
 }
 
-resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
   name: config.name
   parent: apimService
   properties: {
     description: 'backend description'
-    url: '${cognitiveServices[i].properties.endpoint}/openai'
+    url: '${cognitiveServices[i].properties.endpoint}openai'
     protocol: 'http'
     circuitBreaker: {
       rules: [
         {
           failureCondition: {
-            count: 3
+            count: 1
             errorReasons: [
               'Server errors'
             ]
@@ -203,13 +203,14 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
           }
           name: 'openAIBreakerRule'
           tripDuration: 'PT1M'
+          acceptRetryAfter: true    // respects the Retry-After header
         }
       ]
-    }    
+    }
   }
 }]
 
-resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (mock, i) in mockWebApps: if(length(openAIConfig) == 0 && length(mockWebApps) > 0) {
+resource backendMock 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = [for (mock, i) in mockWebApps: if(length(openAIConfig) == 0 && length(mockWebApps) > 0) {
   name: mock.name
   parent: apimService
   properties: {
@@ -234,13 +235,14 @@ resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-previe
           }
           name: 'mockBreakerRule'
           tripDuration: 'PT1M'
+          acceptRetryAfter: true    // respects the Retry-After header
         }
       ]
-    }    
+    }
   }
 }]
 
-resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) > 1) {
+resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = if(length(openAIConfig) > 1) {
   name: openAIBackendPoolName
   parent: apimService
   properties: {
@@ -259,7 +261,7 @@ resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-
   }
 }
 
-resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) == 0 && length(mockWebApps) > 1) {
+resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = if(length(openAIConfig) == 0 && length(mockWebApps) > 1) {
   name: mockBackendPoolName
   parent: apimService
   properties: {
@@ -278,7 +280,7 @@ resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
   }
 }
 
-resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05-01-preview' = {
+resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-09-01-preview' = {
   name: openAISubscriptionName
   parent: apimService
   properties: {
