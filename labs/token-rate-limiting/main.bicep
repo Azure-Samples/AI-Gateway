@@ -176,6 +176,9 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
     format: 'rawxml'
     value: loadTextContent('policy.xml')
   }
+  dependsOn: [
+    backendOpenAI
+  ]  
 }
 
 resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {

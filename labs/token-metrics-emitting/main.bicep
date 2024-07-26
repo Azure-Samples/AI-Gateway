@@ -444,6 +444,7 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
 }
 
 output applicationInsightsAppId string = applicationInsights.properties.AppId
+output applicationInsightsResourceName string = applicationInsights.name
 
 output logAnalyticsWorkspaceId string = logAnalytics.properties.customerId
 

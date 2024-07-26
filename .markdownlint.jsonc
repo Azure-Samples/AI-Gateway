@@ -1,0 +1,11 @@
+// Example markdownlint configuration with all properties set to their default value
+{
+    // Default state for all rules
+    "default": true,
+
+    // Path to configuration file to extend
+    "extends": null,
+
+    // MD013/line-length : Line length : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md013.md
+    "MD013": false
+  }
