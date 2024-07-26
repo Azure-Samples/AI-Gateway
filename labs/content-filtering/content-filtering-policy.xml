@@ -12,7 +12,7 @@
             </set-header>
             <set-body>@{
             	string[] categories = new string[] {"Hate","Sexual","SelfHarm","Violence"};
-				JObject obj = new JObject();		
+				JObject obj = new JObject();
 				JProperty textProperty = new JProperty("text", string.Concat(context.Request.Body.As<JObject>(preserveContent: true)["messages"].Select(m => m.Value<string>("content")).ToArray()));
 				JProperty categoriesProperty = new JProperty("categories", new JArray(categories));
 				JProperty outputTypeProperty = new JProperty("outputType", "EightSeverityLevels");
@@ -24,27 +24,43 @@
         </send-request>
         <choose>
             <when condition="@(((IResponse)context.Variables["safetyResponse"]).StatusCode == 200)">
-                <set-variable name="safetyTotalSeverity" value="@{
-                    int totalSeverity = 0;
-                    JArray categoriesAnalysis = (JArray)((IResponse)context.Variables["safetyResponse"]).Body.As<JObject>(preserveContent: true)["categoriesAnalysis"];
-                    foreach (var item in categoriesAnalysis)
+                <set-variable name="thresholdExceededCategory" value="@{
+                    var thresholdExceededCategory = "";
+
+                    // Define the allowed threshold for each category
+                    Dictionary<string, int> categoryThresholds = new Dictionary<string, int>()
                     {
-                        totalSeverity += (int)item["severity"];
+                        { "Hate", 0 },
+                        { "Sexual", 0 },
+                        { "SelfHarm", 0 },
+                        { "Violence", 0 }
+                    };
+
+                    foreach (var category in categoryThresholds)
+                    {
+                        var categoryAnalysis = ((JArray)((IResponse)context.Variables["safetyResponse"]).Body.As<JObject>(preserveContent: true)["categoriesAnalysis"]).FirstOrDefault(c => (string)c["category"] == category.Key);
+
+                        if (categoryAnalysis != null && (int)categoryAnalysis["severity"] > category.Value)
+                        {
+                            // Threshold exceeded for the category
+                            thresholdExceededCategory = category.Key;
+                            break;
+                        }
                     }
-                    return totalSeverity;
+                    return thresholdExceededCategory;
                 }" />
                 <choose>
-                    <when condition="@(((int)context.Variables["safetyTotalSeverity"]) > 0)">
+                    <when condition="@(context.Variables["thresholdExceededCategory"] != "")">
                         <return-response>
                             <set-status code="400" reason="Bad Request" />
-                            <set-body>@{ 
+                            <set-body>@{
                                 var errorResponse = new
                                 {
                                     error = new
                                     {
-                                        message = "The content was filtered by the Azure AI Content Safety service. Total severity:" + (int)context.Variables["safetyTotalSeverity"]
+                                        message = "The content was filtered by the Azure AI Content Safety service for the category: " + (string)context.Variables["thresholdExceededCategory"]
                                     }
-                                };                            
+                                };
                                 return JsonConvert.SerializeObject(errorResponse);
                             }</set-body>
                         </return-response>
