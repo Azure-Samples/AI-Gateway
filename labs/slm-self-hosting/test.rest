@@ -10,7 +10,7 @@ Content-Type: application/json
 {
     "messages": [
         {
-            "role": "user", 
+            "role": "user",
             "content": "Write me a bedtime story"
         }
     ]
@@ -25,7 +25,7 @@ api-key: <api-key>
 {
     "messages": [
         {
-            "role": "user", 
+            "role": "user",
             "content": "Write me a poem about a sunset"
         }
     ]

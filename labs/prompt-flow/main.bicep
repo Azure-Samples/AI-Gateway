@@ -172,7 +172,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -210,7 +210,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
   identity: {
     type: 'SystemAssigned'
-  } 
+  }
 }
 
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
@@ -282,7 +282,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -313,7 +313,7 @@ resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-previe
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -388,7 +388,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
     metrics: [
       {
         category: 'AllMetrics'
-        enabled: true 
+        enabled: true
       }
     ]
   }
@@ -692,7 +692,7 @@ resource hub 'Microsoft.MachineLearningServices/workspaces@2024-01-01-preview' =
         key: apimSubscription.listSecrets().primaryKey
       }
     }
-  }  
+  }
 }
 
 
@@ -714,7 +714,7 @@ resource project 'Microsoft.MachineLearningServices/workspaces@2024-01-01-previe
     publicNetworkAccess: 'Enabled'
     discoveryUrl: 'https://${aiStudioHubLocation}.api.azureml.ms/discovery'
     hubResourceId: hub.id
-  }  
+  }
 }
 
 resource promptFlowAPI 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
@@ -803,7 +803,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
     userAssignedIdentities: {
       '${containerAppUAI.id}': {}
     }
-  }  
+  }
   properties: {
     managedEnvironmentId: containerAppEnv.id
     configuration: {
@@ -827,7 +827,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: applicationInsights.properties.ConnectionString
             }
-          ]          
+          ]
           resources: {
             cpu: json('.5')
             memory: '1Gi'
@@ -838,7 +838,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
         minReplicas: 1
         maxReplicas: 3
       }
-    }    
+    }
   }
 }
 

@@ -199,7 +199,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -237,7 +237,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
   identity: {
     type: 'SystemAssigned'
-  } 
+  }
 }
 
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd') // Cognitive Services OpenAI User
@@ -309,7 +309,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -340,7 +340,7 @@ resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-previe
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -418,7 +418,7 @@ resource searchService 'Microsoft.Search/searchServices@2023-11-01' = {
       aadOrApiKey: {
         aadAuthFailureMode: 'http401WithBearerChallenge'
       }
-    }    
+    }
     replicaCount: searchServiceReplicaCount
     partitionCount: searchServicePartitionCount
   }
@@ -508,7 +508,7 @@ resource searchIndexAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@202
     value: loadTextContent('searchindex-policy.xml')
   }
   }
-  
+
 resource backendSearchService 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = {
 name: searchServiceBackendName
 parent: apimService
@@ -547,7 +547,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
     metrics: [
       {
         category: 'AllMetrics'
-        enabled: true 
+        enabled: true
       }
     ]
   }
