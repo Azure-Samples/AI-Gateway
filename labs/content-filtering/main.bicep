@@ -138,6 +138,8 @@ param contentSafetyAPIDescription string = 'Content Safety API'
 @description('Full URL for the Content Safety API spec')
 param contentSafetyAPISpecURL string = 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/ContentSafety/preview/2024-02-15-preview/contentsafety.json'
 
+@description('Name of the policy file to use')
+param openAIAPIpolicyFile string = 'policy.xml'
 
 // MARK: content filtering: additions END
 
@@ -228,7 +230,7 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
   parent: api
   properties: {
     format: 'rawxml'
-    value: loadTextContent('policy.xml')
+    value: (((openAIAPIpolicyFile == 'content-filtering-policy.xml') ? loadTextContent('content-filtering-policy.xml') : loadTextContent('prompt-shield-policy.xml')))
   }
 }
 
