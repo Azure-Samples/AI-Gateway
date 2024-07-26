@@ -4,7 +4,7 @@
 
 [![flow](../../images/content-filtering.gif)](content-filtering.ipynb)
 
-Playground to try ...
+- Playground to try text moderation and prompt shields from [Azure AI Content Safety](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview). Content filtering software can help your app comply with regulations or maintain the intended environment for your users.
 
 ### Prerequisites
 
@@ -18,7 +18,7 @@ Playground to try ...
 
 ### 🚀 Get started
 
-Proceed by opening the [Jupyter notebook](content-filtering.ipynb), and follow the steps provided.
+Proceed by opening the [Content Filtering Jupyter notebook](content-filtering.ipynb) or the [Prompt Shielding Jupyter notebook](prompt-shielding.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 
