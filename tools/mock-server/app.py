@@ -22,11 +22,11 @@ def completions(deployment_name):
     if json is None:
         return {"message": "No JSON data found in the request"}, 400
     print("[", datetime.datetime.now().time(),"] Received request from ",request.remote_addr," with the following data: ",request.json)
-    try:        
+    try:
         response_status_code = request.json["messages"][0]["content"]["simulation"][hostname]["response_status_code"]
     except:
         response_status_code = request.json["messages"][0]["content"]["simulation"]["default"]["response_status_code"]
-    try:        
+    try:
         wait_time_ms = request.json["messages"][0]["content"]["simulation"][hostname]["wait_time_ms"]/1000
     except:
         wait_time_ms = request.json["messages"][0]["content"]["simulation"]["default"]["wait_time_ms"]/1000

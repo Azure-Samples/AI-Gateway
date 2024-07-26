@@ -17,11 +17,11 @@
                     return "{backend-id-1}";
             }
         }" />
-        
-        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" /> 
-        <set-header name="Authorization" exists-action="override">  
-            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>  
-        </set-header>        
+
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
+        </set-header>
     </inbound>
     <backend>
         <base />

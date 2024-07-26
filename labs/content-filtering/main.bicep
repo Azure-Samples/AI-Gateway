@@ -151,7 +151,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -189,7 +189,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
   identity: {
     type: 'SystemAssigned'
-  } 
+  }
 }
 
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
@@ -261,7 +261,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -292,7 +292,7 @@ resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-previe
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -367,7 +367,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
     metrics: [
       {
         category: 'AllMetrics'
-        enabled: true 
+        enabled: true
       }
     ]
   }
@@ -442,7 +442,7 @@ resource contentSafetyResource 'Microsoft.CognitiveServices/accounts@2024-04-01-
   sku: {
     name: contentSafetySKU
   }
-  kind: 'ContentSafety'  
+  kind: 'ContentSafety'
   properties: {
     publicNetworkAccess: 'Enabled'
     customSubDomainName: toLower('${contentSafetyName}-${resourceSuffix}')

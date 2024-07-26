@@ -148,7 +148,7 @@ resource cognitiveServices_1 'Microsoft.CognitiveServices/accounts@2021-10-01' =
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -163,7 +163,7 @@ resource cognitiveServices_2 'Microsoft.CognitiveServices/accounts@2021-10-01' =
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -179,7 +179,7 @@ resource cognitiveServices_3 'Microsoft.CognitiveServices/accounts@2021-10-01' =
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -249,7 +249,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
   identity: {
     type: 'SystemAssigned'
-  } 
+  }
 }
 
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
@@ -325,7 +325,7 @@ var circuitBreaker = {
         ]
         interval: 'PT5M'
         statusCodeRanges: [
-          { 
+          {
             min: 429
             max: 429
           }, {
@@ -349,7 +349,7 @@ resource backendOpenAI_1 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
     description: 'backend description'
     url: '${cognitiveServices_1[i].properties.endpoint}/openai'
     protocol: 'http'
-    circuitBreaker: circuitBreaker  
+    circuitBreaker: circuitBreaker
   }
 }]
 
@@ -360,7 +360,7 @@ resource backendOpenAI_2 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
     description: 'backend description'
     url: '${cognitiveServices_2[i].properties.endpoint}/openai'
     protocol: 'http'
-    circuitBreaker: circuitBreaker  
+    circuitBreaker: circuitBreaker
   }
 }]
 
@@ -371,7 +371,7 @@ resource backendOpenAI_3 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
     description: 'backend description'
     url: '${cognitiveServices_3[i].properties.endpoint}/openai'
     protocol: 'http'
-    circuitBreaker: circuitBreaker  
+    circuitBreaker: circuitBreaker
   }
 }]
 
@@ -459,7 +459,7 @@ resource diagnosticSettings_1 'Microsoft.Insights/diagnosticSettings@2021-05-01-
     metrics: [
       {
         category: 'AllMetrics'
-        enabled: true 
+        enabled: true
       }
     ]
   }
@@ -474,7 +474,7 @@ resource diagnosticSettings_2 'Microsoft.Insights/diagnosticSettings@2021-05-01-
     metrics: [
       {
         category: 'AllMetrics'
-        enabled: true 
+        enabled: true
       }
     ]
   }
@@ -536,9 +536,9 @@ resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-0
 resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   name: guid(resourceGroup().id, workbookName)
   location: workbookLocation
-  kind: 'shared'  
+  kind: 'shared'
   properties: {
-    displayName: workbookDisplayName    
+    displayName: workbookDisplayName
     serializedData: loadTextContent('openai-usage-analysis-workbook.json')
     sourceId: applicationInsights.id
     category: 'OpenAI'

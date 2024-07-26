@@ -2,8 +2,8 @@
     <inbound>
         <base />
         <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" client-id="{{managed-identity-clientid}}" ignore-error="false" />
-        <set-header name="Authorization" exists-action="override">  
-            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>  
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
         </set-header>
         <set-backend-service backend-id="{backend-id}" />
         <set-variable name="requestBody" value="@(context.Request.Body.As<string>(preserveContent: true))" />
@@ -16,7 +16,7 @@
         <choose>
             <when condition="@(context.Response.StatusCode == 200)">
                 <log-to-eventhub logger-id="{eventhub-logger-name}">@{
-                    var requestBody = (string)context.Variables["requestBody"]; 
+                    var requestBody = (string)context.Variables["requestBody"];
                     var responseBody = context.Response.Body?.As<JObject>(preserveContent: true);
                     return new JObject(
                         new JProperty("id", responseBody?["id"]?.ToString() ?? Guid.NewGuid().ToString()),
@@ -34,7 +34,7 @@
                         ).ToString();
                     }</log-to-eventhub>
             </when>
-        </choose>        
+        </choose>
     </outbound>
     <on-error>
         <base />

@@ -8,7 +8,7 @@
       "email": "yourname@example.com"
     },
     "description": "API for retrieving weather information"
-  },  
+  },
   "servers": [
     {
       "url": "https://api-staging.example.com/v1",
@@ -20,7 +20,7 @@
       "name": "Weather",
       "description": "Operations related to weather"
     }
-  ],    
+  ],
   "paths": {
     "/": {
       "post": {

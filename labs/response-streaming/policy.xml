@@ -6,7 +6,7 @@
             <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
         </set-header>
         <set-backend-service backend-id="{backend-id}" />
-        <!-- Reused the following policy: https://github.com/Azure/enterprise-azureai/blob/main/infra/modules/apim/policies/api_policy_openai.xml --> 
+        <!-- Reused the following policy: https://github.com/Azure/enterprise-azureai/blob/main/infra/modules/apim/policies/api_policy_openai.xml -->
         <choose>
             <when condition="@(context.Request.Body.As<JObject>(true)["stream"] != null && context.Request.Body.As<JObject>(true)["stream"].Type != JTokenType.Null)">
                 <set-variable name="isStream" value="@{
