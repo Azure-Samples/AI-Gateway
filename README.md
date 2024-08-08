@@ -89,15 +89,19 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 | [🦾 Bicep](labs/model-routing/main.bicep) ➕ [⚙️ Policy](labs/model-routing/policy.xml) ➕ [🧾 Notebook](labs/model-routing/model-routing.ipynb) 🟰 [💬](../../issues/37 "Feedback loop discussion") | [🦾 Bicep](labs/prompt-flow/main.bicep) ➕ [⚙️ Policy](labs/prompt-flow/policy.xml) ➕ [🧾 Notebook](labs/prompt-flow/prompt-flow.ipynb) 🟰 [💬](../../issues/38 "Feedback loop discussion") |
 |  |  |
 |  |  |
+| [**🧪 Content Filtering**](labs/content-filtering/content-filtering.ipynb) | [**🧪 Prompt Shielding**](labs/content-filtering/prompt-shielding.ipynb) |
+| [![flow](images/content-filtering-small.gif)](labs/content-filtering/content-filtering.ipynb)  | [![flow](images/content-filtering-small.gif)](labs/content-filtering/prompt-shielding.ipynb) |
+| Playground to try integrating Azure API Management with [Azure AI Content Safety](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview) to filter potentially offensive, risky, or undesirable content. | Playground to try Prompt Shields from Azure AI Content Safety service that analyzes LLM inputs and detects User Prompt attacks and Document attacks, which are two common types of adversarial inputs. |
+| [🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/content-filtering-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/content-filtering.ipynb) 🟰 [💬](../../issues/52 "Feedback loop discussion") | [🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/prompt-shield-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/prompt-shielding.ipynb) 🟰 [💬](../../issues/53 "Feedback loop discussion") |
+|  |  |
+|  |  |
 
 ### Backlog of experiments
 
 * Assistants load balancing
 * Logic Apps RAG
 * Semantic Kernel plugin
-* Content filtering
 * PII handling
-* Prompt guarding
 * Llama inferencing
 
 > [!TIP]
