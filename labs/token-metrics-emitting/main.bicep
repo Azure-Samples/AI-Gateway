@@ -131,7 +131,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -169,7 +169,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
   identity: {
     type: 'SystemAssigned'
-  } 
+  }
 }
 
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
@@ -241,7 +241,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -272,7 +272,7 @@ resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-previe
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -311,15 +311,38 @@ resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-pr
 }
 
 resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05-01-preview' = {
-  name: openAISubscriptionName
+  name: '${openAISubscriptionName}1'
   parent: apimService
   properties: {
     allowTracing: true
-    displayName: openAISubscriptionDescription
+    displayName: 'Subscription1'
     scope: '/apis/${api.id}'
     state: 'active'
   }
 }
+
+resource apimSubscription2 'Microsoft.ApiManagement/service/subscriptions@2023-05-01-preview' = {
+  name: '${openAISubscriptionName}2'
+  parent: apimService
+  properties: {
+    allowTracing: true
+    displayName: 'Subscription2'
+    scope: '/apis/${api.id}'
+    state: 'active'
+  }
+}
+
+resource apimSubscription3 'Microsoft.ApiManagement/service/subscriptions@2023-05-01-preview' = {
+  name: '${openAISubscriptionName}3'
+  parent: apimService
+  properties: {
+    allowTracing: true
+    displayName: 'Subscription3'
+    scope: '/apis/${api.id}'
+    state: 'active'
+  }
+}
+
 
 // buult-in logging: additions BEGIN
 
@@ -347,7 +370,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
     metrics: [
       {
         category: 'AllMetrics'
-        enabled: true 
+        enabled: true
       }
     ]
   }
@@ -361,6 +384,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   properties: {
     Application_Type: 'web'
     WorkspaceResourceId: logAnalytics.id
+    CustomMetricsOptedInType: 'WithDimensions'
   }
 }
 
@@ -418,13 +442,23 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
     category: 'OpenAI'
   }
 }
+
 output applicationInsightsAppId string = applicationInsights.properties.AppId
+output applicationInsightsResourceName string = applicationInsights.name
 
 output logAnalyticsWorkspaceId string = logAnalytics.properties.customerId
 
 // buult-in logging: additions END
 
+output apimServiceId string = apimService.id
+
 output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 
 #disable-next-line outputs-should-not-contain-secrets
 output apimSubscriptionKey string = apimSubscription.listSecrets().primaryKey
+
+#disable-next-line outputs-should-not-contain-secrets
+output apimSubscription2Key string = apimSubscription2.listSecrets().primaryKey
+
+#disable-next-line outputs-should-not-contain-secrets
+output apimSubscription3Key string = apimSubscription3.listSecrets().primaryKey

@@ -1,0 +1,42 @@
+<policies>
+    <inbound>
+        <base />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" client-id="{{managed-identity-clientid}}" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
+        </set-header>
+        <set-backend-service backend-id="{backend-id}" />
+        <set-variable name="requestBody" value="@(context.Request.Body.As<string>(preserveContent: true))" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+        <choose>
+            <when condition="@(context.Response.StatusCode == 200)">
+                <log-to-eventhub logger-id="{eventhub-logger-name}">@{
+                    var requestBody = (string)context.Variables["requestBody"];
+                    var responseBody = context.Response.Body?.As<JObject>(preserveContent: true);
+                    return new JObject(
+                        new JProperty("id", responseBody?["id"]?.ToString() ?? Guid.NewGuid().ToString()),
+                        new JProperty("timestamp", DateTime.UtcNow.ToString()),
+                        new JProperty("model", responseBody?["model"]?.ToString() ?? "NA"),
+                        new JProperty("modelRegion", context.Response.Headers.GetValueOrDefault("x-ms-region", "N/A")),
+                        new JProperty("apimRequestId", context.Response.Headers.GetValueOrDefault("apim-request-id", "N/A")),
+                        new JProperty("clientIp", context.Request?.IpAddress ?? "NA"),
+                        new JProperty("operationName", context.Operation?.Name ?? "NA"),
+                        new JProperty("request", requestBody),
+                        new JProperty("response", responseBody?["choices"]?.ToString() ?? "N/A"),
+                        new JProperty("promptTokens", responseBody?["usage"]?["prompt_tokens"]?.ToString() ?? "0"),
+                        new JProperty("responseTokens", responseBody?["usage"]?["completion_tokens"]?.ToString() ?? "0"),
+                        new JProperty("totalTokens", responseBody?["usage"]?["total_tokens"]?.ToString() ?? "0")
+                        ).ToString();
+                    }</log-to-eventhub>
+            </when>
+        </choose>
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

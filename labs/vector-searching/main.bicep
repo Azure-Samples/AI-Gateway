@@ -87,6 +87,40 @@ param openAIBackendPoolName string = 'openai-backend-pool'
 @description('The description of the OpenAI backend pool')
 param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
 
+// buult-in logging: additions BEGIN
+
+@description('Name of the Log Analytics resource')
+param logAnalyticsName string = 'workspace'
+
+@description('Location of the Log Analytics resource')
+param logAnalyticsLocation string = resourceGroup().location
+
+@description('Name of the Application Insights resource')
+param applicationInsightsName string = 'insights'
+
+@description('Location of the Application Insights resource')
+param applicationInsightsLocation string = resourceGroup().location
+
+@description('Name of the APIM Logger')
+param apimLoggerName string = 'apim-logger'
+
+@description('Description of the APIM Logger')
+param apimLoggerDescription string  = 'APIM Logger for OpenAI API'
+
+@description('Number of bytes to log for API diagnostics')
+param apiDiagnosticsLogBytes int = 8192
+
+@description(' Name for the Workbook')
+param workbookName string = 'OpenAIUsageAnalysis'
+
+@description('Location for the Workbook')
+param workbookLocation string = resourceGroup().location
+
+@description('Display Name for the Workbook')
+param workbookDisplayName string = 'OpenAI Usage Analysis'
+
+// buult-in logging: additions END
+
 // vector-searching: additions BEGIN
 
 @description('Embeddings Model Name')
@@ -165,7 +199,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
   sku: {
     name: openAISku
   }
-  kind: 'OpenAI'  
+  kind: 'OpenAI'
   properties: {
     apiProperties: {
       statisticsEnabled: false
@@ -203,7 +237,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
   identity: {
     type: 'SystemAssigned'
-  } 
+  }
 }
 
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd') // Cognitive Services OpenAI User
@@ -275,7 +309,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -306,7 +340,7 @@ resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-previe
           tripDuration: 'PT1M'
         }
       ]
-    }    
+    }
   }
 }]
 
@@ -384,7 +418,7 @@ resource searchService 'Microsoft.Search/searchServices@2023-11-01' = {
       aadOrApiKey: {
         aadAuthFailureMode: 'http401WithBearerChallenge'
       }
-    }    
+    }
     replicaCount: searchServiceReplicaCount
     partitionCount: searchServicePartitionCount
   }
@@ -474,7 +508,7 @@ resource searchIndexAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@202
     value: loadTextContent('searchindex-policy.xml')
   }
   }
-  
+
 resource backendSearchService 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = {
 name: searchServiceBackendName
 parent: apimService
@@ -486,6 +520,162 @@ properties: {
 }
 
 // vector-searching: additions END
+
+// buult-in logging: additions BEGIN
+
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+  name: '${logAnalyticsName}-${resourceSuffix}'
+  location: logAnalyticsLocation
+  properties: any({
+    retentionInDays: 30
+    features: {
+      searchVersion: 1
+    }
+    sku: {
+      name: 'PerGB2018'
+    }
+  })
+}
+
+/*
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+  name: '${cognitiveServices[i].name}-diagnostics'
+  scope: cognitiveServices[i]
+  properties: {
+    workspaceId: logAnalytics.id
+    logs: []
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}]
+*/
+
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: '${applicationInsightsName}-${resourceSuffix}'
+  location: applicationInsightsLocation
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    WorkspaceResourceId: logAnalytics.id
+  }
+}
+
+resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
+  name: apimLoggerName
+  parent: apimService
+  properties: {
+    credentials: {
+      instrumentationKey: applicationInsights.properties.InstrumentationKey
+    }
+    description: apimLoggerDescription
+    isBuffered: false
+    loggerType: 'applicationInsights'
+    resourceId: applicationInsights.id
+  }
+}
+
+var logSettings = {
+  headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
+  body: { bytes: apiDiagnosticsLogBytes }
+}
+
+resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(apimLogger.name)) {
+  name: 'applicationinsights'
+  parent: api
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: apimLogger.id
+    metrics: true
+    verbosity: 'verbose'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+    frontend: {
+      request: logSettings
+      response: logSettings
+    }
+    backend: {
+      request: logSettings
+      response: logSettings
+    }
+  }
+}
+
+resource searchServiceApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(apimLogger.name)) {
+  name: 'applicationinsights'
+  parent: searchServiceApi
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: apimLogger.id
+    metrics: true
+    verbosity: 'verbose'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+    frontend: {
+      request: logSettings
+      response: logSettings
+    }
+    backend: {
+      request: logSettings
+      response: logSettings
+    }
+  }
+}
+
+resource searchIndexApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(apimLogger.name)) {
+  name: 'applicationinsights'
+  parent: searchIndexApi
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: apimLogger.id
+    metrics: true
+    verbosity: 'verbose'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+    frontend: {
+      request: logSettings
+      response: logSettings
+    }
+    backend: {
+      request: logSettings
+      response: logSettings
+    }
+  }
+}
+
+resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
+  name: guid(resourceGroup().id, workbookName)
+  location: workbookLocation
+  kind: 'shared'
+  properties: {
+    displayName: workbookDisplayName
+    serializedData: loadTextContent('openai-usage-analysis-workbook.json')
+    sourceId: applicationInsights.id
+    category: 'OpenAI'
+  }
+}
+output applicationInsightsAppId string = applicationInsights.properties.AppId
+
+output logAnalyticsWorkspaceId string = logAnalytics.properties.customerId
+
+// buult-in logging: additions END
+
+output apimServiceId string = apimService.id
 
 output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 

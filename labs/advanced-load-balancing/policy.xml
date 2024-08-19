@@ -13,7 +13,7 @@
                     // ------- Explanation of backend properties -------
                     // -------------------------------------------------
                     // "name":         Name of the backend
-                    // "priority":     Lower value means higher priority over other backends. 
+                    // "priority":     Lower value means higher priority over other backends.
                     //                 If you have more one or more Priority 1 backends, they will always be used instead
                     //                 of Priority 2 or higher. Higher values backends will only be used if your lower values (top priority) are all throttling.
                     // "isThrottling": Indicates if this endpoint is returning 429 (Too many requests) currently
@@ -28,11 +28,11 @@
                             { "name", config.GetValue("name").ToString() },
                             { "priority", config.GetValue("priority").Value<int>() },
                             { "weight", config.GetValue("weight").Value<int>() },
-                            { "isThrottling", false }, 
-                            { "retryAfter", DateTime.MinValue } 
+                            { "isThrottling", false },
+                            { "retryAfter", DateTime.MinValue }
                         });
                     }
-                    return backends;   
+                    return backends;
                 }" />
                 <!-- And store the variable into cache again -->
                 <cache-store-value key="listBackends" value="@((JArray)context.Variables["listBackends"])" duration="60" />
@@ -46,7 +46,7 @@
         </set-header>
     </inbound>
     <backend>
-        <retry condition="@(context.Response != null && (context.Response.StatusCode == 429 || context.Response.StatusCode >= 500) && ((Int32)context.Variables["remainingBackends"]) > 0)" count="50" interval="0">
+        <retry condition="@(context.Response != null && (context.Response.StatusCode == 429 || context.Response.StatusCode >= 500) && (int.Parse((string)context.Variables["remainingBackends"])) > 0)" count="50" interval="0">
             <!-- Before picking the backend, let's verify if there is any that should be set to not throttling anymore -->
             <set-variable name="listBackends" value="@{
                 JArray backends = (JArray)context.Variables["listBackends"];
@@ -62,7 +62,7 @@
                     }
                 }
 
-                return backends; 
+                return backends;
             }" />
             <cache-store-value key="listBackends" value="@((JArray)context.Variables["listBackends"])" duration="60" />
             <!-- This is the main logic to pick the backend to be used -->
@@ -85,7 +85,7 @@
                             selectedPriority = backendPriority;
                             availableBackends.Clear();
                             availableBackends.Add(i);
-                        } 
+                        }
                         else if (backendPriority == selectedPriority)
                         {
                             availableBackends.Add(i);
@@ -97,7 +97,7 @@
                 {
                     return availableBackends[0];
                 }
-            
+
                 if (availableBackends.Count > 0)
                 {
                     //Returns a random backend from the list if we have more than one available with the same priority
@@ -106,7 +106,7 @@
                 else
                 {
                     //If there are no available backends, the request will be sent to the first one
-                    return 0;    
+                    return 0;
                 }
                 }" />
             <set-backend-service backend-id="@(((JObject)((JArray)context.Variables["listBackends"])[(Int32)context.Variables["backendIndex"]]).Value<string>("name"))" />
@@ -134,7 +134,7 @@
                         backend["isThrottling"] = true;
                         backend["retryAfter"] = DateTime.Now.AddSeconds(retryAfter);
 
-                        return backends;      
+                        return backends;
                     }" />
                     <cache-store-value key="listBackends" value="@((JArray)context.Variables["listBackends"])" duration="60" />
                     <set-variable name="remainingBackends" value="@{

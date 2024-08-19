@@ -1,10 +1,10 @@
 <policies>
     <inbound>
         <base />
-        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" /> 
-        <set-header name="Authorization" exists-action="override">  
-            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>  
-        </set-header> 
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
+        </set-header>
         <set-backend-service backend-id="{backend-id}" />
     </inbound>
     <backend>

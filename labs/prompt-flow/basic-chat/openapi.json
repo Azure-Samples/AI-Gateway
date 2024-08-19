@@ -1,0 +1,68 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Basic chat flow API",
+      "version": "1.0.0",
+      "contact": {
+        "name": "Your Name",
+        "email": "yourname@example.com"
+      },
+      "description": "API for the basic chat flow"
+    },  
+    "servers": [
+      {
+        "url": "https://api-staging.example.com/v1",
+        "description": "Staging server"
+      }
+    ],
+    "tags": [
+      {
+        "name": "score",
+        "description": "score"
+      }
+    ],    
+    "paths": {
+      "/score": {
+        "post": {
+          "tags": ["score"],
+          "summary": "score",
+          "description": "score",
+          "operationId": "score",
+          "requestBody": {
+            "description": "Basic Chat input data",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string",
+                      "description": "Prompt for the basic chat"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Basic chat response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "answer": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }

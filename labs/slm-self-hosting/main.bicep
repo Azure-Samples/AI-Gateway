@@ -325,6 +325,8 @@ output apimResourceName string = apimService.name
 
 // slm-self-hosting: additions END
 
+output apimServiceId string = apimService.id
+
 output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 
 #disable-next-line outputs-should-not-contain-secrets
