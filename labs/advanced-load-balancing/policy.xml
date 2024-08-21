@@ -46,7 +46,7 @@
         </set-header>
     </inbound>
     <backend>
-        <retry condition="@(context.Response != null && (context.Response.StatusCode == 429 || context.Response.StatusCode >= 500) && (int.Parse((string)context.Variables["remainingBackends"])) > 0)" count="50" interval="0">
+        <retry condition="@(context.Response != null && (context.Response.StatusCode == 429 || context.Response.StatusCode >= 500) && (Convert.ToInt32(context.Variables["remainingBackends"]) > 0))" count="50" interval="0">
             <!-- Before picking the backend, let's verify if there is any that should be set to not throttling anymore -->
             <set-variable name="listBackends" value="@{
                 JArray backends = (JArray)context.Variables["listBackends"];
