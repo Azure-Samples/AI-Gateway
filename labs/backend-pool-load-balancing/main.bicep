@@ -245,6 +245,7 @@ resource backendMock 'Microsoft.ApiManagement/service/backends@2023-09-01-previe
 resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = if(length(openAIConfig) > 1) {
   name: openAIBackendPoolName
   parent: apimService
+  #disable-next-line BCP035 // suppress the false positive as protocol and url are not needed in the Pool type
   properties: {
     description: openAIBackendPoolDescription
     type: 'Pool'
@@ -264,6 +265,7 @@ resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-09-01-
 resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = if(length(openAIConfig) == 0 && length(mockWebApps) > 1) {
   name: mockBackendPoolName
   parent: apimService
+  #disable-next-line BCP035 // suppress the false positive as protocol and url are not needed in the Pool type
   properties: {
     description: mockBackendPoolDescription
     type: 'Pool'
