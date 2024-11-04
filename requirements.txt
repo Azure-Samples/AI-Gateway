@@ -1,1 +1,3 @@
-openai===1.16.2
+openai
+pandas
+matplotlib
