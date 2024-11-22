@@ -202,7 +202,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-09-01-prev
             ]
           }
           name: 'openAIBreakerRule'
-          tripDuration: 'PT3S'
+          tripDuration: 'PT1M'
           acceptRetryAfter: true    // respects the Retry-After header
         }
       ]
