@@ -391,7 +391,7 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
 
 // vector-searching: additions BEGIN
 
-resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && !empty(deployment[i].id)) {
   name: openAIEmbeddingsDeploymentName
   parent: cognitiveServices[i]
   properties: {
