@@ -1,11 +1,6 @@
-@description('List of Mock webapp names used to simulate OpenAI behavior.')
-param mockWebApps array = []
-
-@description('The name of the OpenAI mock backend pool')
-param mockBackendPoolName string = 'openai-backend-pool'
-
-@description('The description of the OpenAI mock backend pool')
-param mockBackendPoolDescription string = 'Load balancer for multiple OpenAI Mocking endpoints'
+// ------------------
+//    PARAMETERS
+// ------------------
 
 @description('List of OpenAI resources to create. Add pairs of name and location.')
 param openAIConfig array = []
@@ -46,14 +41,6 @@ param apimResourceLocation string = resourceGroup().location
 ])
 param apimSku string = 'Consumption'
 
-@description('The instance size of this API Management service.')
-@allowed([
-  0
-  1
-  2
-])
-param apimSkuCount int = 1
-
 @description('The email address of the owner of the service')
 param apimPublisherEmail string = 'noreply@microsoft.com'
 
@@ -87,215 +74,84 @@ param openAIBackendPoolName string = 'openai-backend-pool'
 @description('The description of the OpenAI backend pool')
 param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
 
+// ------------------
+//    VARIABLES
+// ------------------
+
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 
-resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig: if(length(openAIConfig) > 0) {
-  name: '${config.name}-${resourceSuffix}'
-  location: config.location
-  sku: {
-    name: openAISku
-  }
-  kind: 'OpenAI'
-  properties: {
-    apiProperties: {
-      statisticsEnabled: false
-    }
-    customSubDomainName: toLower('${config.name}-${resourceSuffix}')
-  }
-}]
+// ------------------
+//    RESOURCES
+// ------------------
 
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-    name: openAIDeploymentName
-    parent: cognitiveServices[i]
-    properties: {
-      model: {
-        format: 'OpenAI'
-        name: openAIModelName
-        version: openAIModelVersion
-      }
-    }
-    sku: {
-        name: 'Standard'
-        capacity: openAIModelCapacity
-    }
-}]
+/* ORDER OF CREATION
 
-resource apimService 'Microsoft.ApiManagement/service@2023-09-01-preview' = {
-  name: '${apimResourceName}-${resourceSuffix}'
-  location: apimResourceLocation
-  sku: {
-    name: apimSku
-    capacity: (apimSku == 'Consumption') ? 0 : ((apimSku == 'Developer') ? 1 : apimSkuCount)
+  1. Cognitive Services
+  2. API Management
+  3. RBAC Assignment
+
+ */
+
+// 1. Cognitive Services
+module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
+  name: 'openAIModule'
+  params: {
+    openAIConfig: openAIConfig
+    openAIDeploymentName: openAIDeploymentName
+    openAISku: openAISku
+    openAIModelName: openAIModelName
+    openAIModelVersion: openAIModelVersion
+    openAIModelCapacity: openAIModelCapacity
   }
-  properties: {
+}
+
+var extendedOpenAIConfig = openAIModule.outputs.extendedOpenAIConfig
+
+// 3. API Management
+var apimManagementName = '${apimResourceName}-${resourceSuffix}'
+
+module apimModule '../../modules/apim/v1/apim.bicep' = {
+  name: 'apimModule'
+  params: {
+    apiManagementName: apimManagementName
+    location: apimResourceLocation
+    apimSku: apimSku
     publisherEmail: apimPublisherEmail
     publisherName: apimPublisherName
-  }
-  identity: {
-    type: 'SystemAssigned'
+    policyXml: loadTextContent('policy-updated.xml')
+    openAIConfig: extendedOpenAIConfig
+    openAIAPIDescription:openAIAPIDescription
+    openAIAPIDisplayName: openAIAPIDisplayName
+    openAIAPIName: openAIAPIName
+    openAIAPIPath: openAIAPIPath
+    openAIAPISpecURL: openAIAPISpecURL
+    openAIBackendPoolDescription: openAIBackendPoolDescription
+    openAIBackendPoolName: openAIBackendPoolName
+    openAISubscriptionDescription: openAISubscriptionDescription
+    openAISubscriptionName: openAISubscriptionName
   }
 }
 
+var apimPrincipalId = apimModule.outputs.principalId
+
+// 5. RBAC Assignment
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-    scope: cognitiveServices[i]
-    name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
-    properties: {
-        roleDefinitionId: roleDefinitionID
-        principalId: apimService.identity.principalId
-        principalType: 'ServicePrincipal'
-    }
-}]
 
-resource api 'Microsoft.ApiManagement/service/apis@2023-09-01-preview' = {
-    name: openAIAPIName
-    parent: apimService
-    properties: {
-      apiType: 'http'
-      description: openAIAPIDescription
-      displayName: openAIAPIDisplayName
-      format: 'openapi-link'
-      path: openAIAPIPath
-      protocols: [
-        'https'
-      ]
-      subscriptionKeyParameterNames: {
-        header: 'api-key'
-        query: 'api-key'
-      }
-      subscriptionRequired: true
-      type: 'http'
-      value: openAIAPISpecURL
-    }
-  }
-
-resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2023-09-01-preview' = {
-  name: 'policy'
-  parent: api
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(length(openAIConfig) > 0) {
+  #disable-next-line use-stable-resource-identifiers
+  scope: resourceGroup()
+  name: guid(subscription().id, resourceGroup().id, openAIConfig[0].name, roleDefinitionID)
   properties: {
-    format: 'rawxml'
-    value: loadTextContent('policy.xml')
+    roleDefinitionId: roleDefinitionID
+    principalId: apimPrincipalId
+    principalType: 'ServicePrincipal'
   }
 }
 
-resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: config.name
-  parent: apimService
-  properties: {
-    description: 'backend description'
-    url: '${cognitiveServices[i].properties.endpoint}openai'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 1
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'openAIBreakerRule'
-          tripDuration: 'PT1M'
-          acceptRetryAfter: true    // respects the Retry-After header
-        }
-      ]
-    }
-  }
-}]
+// ------------------
+//    OUTPUTS
+// ------------------
 
-resource backendMock 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = [for (mock, i) in mockWebApps: if(length(openAIConfig) == 0 && length(mockWebApps) > 0) {
-  name: mock.name
-  parent: apimService
-  properties: {
-    description: 'backend description'
-    url: '${mock.endpoint}/openai'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 3
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'mockBreakerRule'
-          tripDuration: 'PT1M'
-          acceptRetryAfter: true    // respects the Retry-After header
-        }
-      ]
-    }
-  }
-}]
-
-resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = if(length(openAIConfig) > 1) {
-  name: openAIBackendPoolName
-  parent: apimService
-  #disable-next-line BCP035 // suppress the false positive as protocol and url are not needed in the Pool type
-  properties: {
-    description: openAIBackendPoolDescription
-    type: 'Pool'
-//    protocol: 'http'  // the protocol is not needed in the Pool type
-//    url: '${cognitiveServices[0].properties.endpoint}/openai'   // the url is not needed in the Pool type
-    pool: {
-      services: [for (config, i) in openAIConfig: {
-          id: '/backends/${backendOpenAI[i].name}'
-          priority: config.priority
-          weight: config.weight
-        }
-      ]
-    }
-  }
-}
-
-resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = if(length(openAIConfig) == 0 && length(mockWebApps) > 1) {
-  name: mockBackendPoolName
-  parent: apimService
-  #disable-next-line BCP035 // suppress the false positive as protocol and url are not needed in the Pool type
-  properties: {
-    description: mockBackendPoolDescription
-    type: 'Pool'
-//    protocol: 'http'  // the protocol is not needed in the Pool type
-//    url: '${mockWebApps[0].endpoint}/openai'   // the url is not needed in the Pool type
-    pool: {
-      services: [for (webApp, i) in mockWebApps: {
-          id: '/backends/${backendMock[i].name}'
-          priority: webApp.priority
-          weight: webApp.weight
-        }
-      ]
-    }
-  }
-}
-
-resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-09-01-preview' = {
-  name: openAISubscriptionName
-  parent: apimService
-  properties: {
-    allowTracing: true
-    displayName: openAISubscriptionDescription
-    scope: '/apis/${api.id}'
-    state: 'active'
-  }
-}
-
-output apimServiceId string = apimService.id
-
-output apimResourceGatewayURL string = apimService.properties.gatewayUrl
-
-#disable-next-line outputs-should-not-contain-secrets
-output apimSubscriptionKey string = apimSubscription.listSecrets().primaryKey
+output apimServiceId string = apimModule.outputs.id
+output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
+output apimSubscriptionKey string = apimModule.outputs.subscriptionPrimaryKey
