@@ -107,7 +107,7 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
 
 var extendedOpenAIConfig = openAIModule.outputs.extendedOpenAIConfig
 
-// 3. API Management
+// 2. API Management
 var apimManagementName = '${apimResourceName}-${resourceSuffix}'
 
 module apimModule '../../modules/apim/v1/apim.bicep' = {
@@ -134,7 +134,7 @@ module apimModule '../../modules/apim/v1/apim.bicep' = {
 
 var apimPrincipalId = apimModule.outputs.principalId
 
-// 5. RBAC Assignment
+// 3. RBAC Assignment
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(length(openAIConfig) > 0) {
