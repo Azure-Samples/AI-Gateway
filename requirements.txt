@@ -2,3 +2,4 @@ openai
 pandas
 matplotlib
 msal
+requests
