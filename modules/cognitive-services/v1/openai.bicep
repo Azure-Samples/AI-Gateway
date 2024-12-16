@@ -30,7 +30,7 @@ param openAIModelCapacity int = 20
 param openAIConfig array = []
 
 @description('Log Analytics Workspace Id')
-param lawId string
+param lawId string = ''
 
 // ------------------
 //    VARIABLES
@@ -58,11 +58,11 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
 }]
 
 // https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings
-resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && lawId != '') {
   name: '${cognitiveServices[i].name}-diagnostics'
   scope: cognitiveServices[i]
   properties: {
-    workspaceId: lawId
+    workspaceId: lawId != '' ? lawId : null
     logs: []
     metrics: [
       {

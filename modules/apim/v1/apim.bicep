@@ -22,10 +22,10 @@ param publisherEmail string
 param publisherName string
 
 @description('Name of the APIM Logger')
-param apimLoggerName string = 'apim-logger'
+param apimLoggerName string = ''
 
 @description('Description of the APIM Logger')
-param apimLoggerDescription string  = 'APIM Logger for OpenAI API'
+param apimLoggerDescription string  = ''
 
 @description('The pricing tier of this API Management service')
 @allowed([
@@ -73,10 +73,10 @@ param openAISubscriptionName string
 param openAISubscriptionDescription string
 
 @description('The instrumentation key for Application Insights')
-param appInsightsInstrumentationKey string
+param appInsightsInstrumentationKey string = ''
 
 @description('The resource ID for Application Insights')
-param appInsightsId string
+param appInsightsId string = ''
 
 // ------------------
 //    VARIABLES
@@ -202,7 +202,7 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06
   }
 }
 
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
+resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = if (apimLoggerName != '') {
   name: apimLoggerName
   parent: apimService
   properties: {
