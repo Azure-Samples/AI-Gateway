@@ -1,3 +1,7 @@
+// ------------------
+//    PARAMETERS
+// ------------------
+
 @description('List of OpenAI resources to create. Add pairs of name and location.')
 param openAIConfig array = []
 
@@ -107,8 +111,6 @@ var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 //    RESOURCES
 // ------------------
 
-// TODO: Set up the correct order of creation
-
 /* ORDER OF CREATION
 
   1. Log Analytics Workspace
@@ -197,14 +199,16 @@ var apimPrincipalId = apimModule.outputs.principalId
 // 5. RBAC Assignment
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-    name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(length(openAIConfig) > 0) {
+  #disable-next-line use-stable-resource-identifiers
+  scope: resourceGroup()
+  name: guid(subscription().id, resourceGroup().id, openAIConfig[0].name, roleDefinitionID)
     properties: {
         roleDefinitionId: roleDefinitionID
         principalId: apimPrincipalId
         principalType: 'ServicePrincipal'
     }
-}]
+}
 
 // ------------------
 //    OUTPUTS
