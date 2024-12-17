@@ -1,3 +1,7 @@
+// ------------------
+//    PARAMETERS
+// ------------------
+
 @description('List of OpenAI resources to create for Pool 1. Add pairs of name and location.')
 param openAIConfig_1 array = []
 
@@ -140,8 +144,25 @@ param workbookDisplayName string = 'OpenAI Usage Analysis'
 
 param index string = ''
 
+// ------------------
+//    VARIABLES
+// ------------------
+
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id, index)
 
+// ------------------
+//    RESOURCES
+// ------------------
+
+/* ORDER OF CREATION
+
+  1. Cognitive Services
+  2. API Management
+  3. RBAC Assignment
+
+ */
+
+// 1. Cognitive Services
 resource cognitiveServices_1 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig_1: if(length(openAIConfig_1) > 0) {
   name: '${config.name}-${resourceSuffix}'
   location: config.location
@@ -236,8 +257,11 @@ resource deployment_3 'Microsoft.CognitiveServices/accounts/deployments@2023-05-
   }
 }]
 
+// 2. API Management
+var apimManagementName = '${apimResourceName}-${resourceSuffix}'
+
 resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
-  name: '${apimResourceName}-${resourceSuffix}'
+  name: apimManagementName
   location: apimResourceLocation
   sku: {
     name: apimSku
@@ -252,7 +276,9 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
 }
 
+// 3. RBAC Assignment
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
+
 resource roleAssignment_1 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig_1: if(length(openAIConfig_1) > 0) {
     scope: cognitiveServices_1[i]
     name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
