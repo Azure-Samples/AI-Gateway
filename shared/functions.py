@@ -7,7 +7,7 @@ import traceback
 
 # Logs the result of an action
 def log(stdout, name, action):
-    if stdout.startswith("ERROR"):
+    if stdout is None or stdout.startswith("ERROR"):
         print("👎🏻 ", name, " was NOT ", action, ": ", stdout)
     else:
         print("👍🏻 ", name, " was ", action, " ⌚ ", datetime.datetime.now().time())
@@ -27,9 +27,14 @@ def cleanUpResources(deployment_name, resource_group_name):
             return
 
         deployment = json.loads(deployment_stdout)
+        output_resources = deployment.get("properties", {}).get("outputResources", [])
+
+        if output_resources is None:
+            print(f"🚫 No output resources found for deployment '{deployment_name}'.")
+            return
 
         # Iterate over the resources in the deployment
-        for resource in deployment.get("properties", {}).get("outputResources", []):
+        for resource in output_resources:
             resource_id = resource.get("id")
 
             try:
@@ -59,6 +64,8 @@ def cleanUpResources(deployment_name, resource_group_name):
 
 # Deletes a specific resource based on its type
 def delete_resource(resource_type, resource_name, resource_group_name, resource_location=None):
+    print(f"🗑 Deleting {resource_type} '{resource_name}' in resource group '{resource_group_name}'...")
+
     # API Management
     if resource_type == "Microsoft.ApiManagement/service":
         stdout = run_az_cli(f"az apim delete -n {resource_name} -g {resource_group_name} -y")
