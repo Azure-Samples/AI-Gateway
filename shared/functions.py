@@ -13,10 +13,13 @@ def log(stdout, name, action):
         print("👍🏻 ", name, " was ", action, " ⌚ ", datetime.datetime.now().time())
 
 # Cleans up resources associated with a deployment in a resource group
-def cleanUpResources(deployment_name, resource_group_name):
-    if not deployment_name or not resource_group_name:
-        print("🚫 Missing required parameters for cleanup.")
+def cleanUpResources(deployment_name, resource_group_name = None):
+    if not deployment_name:
+        print("🚫 Missing deployment name parameter.")
         return
+
+    if not resource_group_name:
+        resource_group_name = f"lab-{deployment_name}"
 
     try:
         print(f"🧹 Cleaning up deployment '{deployment_name}' resources in resource group '{resource_group_name}'...\n")
@@ -27,26 +30,22 @@ def cleanUpResources(deployment_name, resource_group_name):
             return
 
         deployment = json.loads(deployment_stdout)
-        output_resources = deployment.get("properties", {}).get("outputResources", [])
+        resources = deployment.get("properties", {}).get("outputResources", [])
 
-        if output_resources is None:
-            print(f"🚫 No output resources found for deployment '{deployment_name}'.")
+        if resources is None:
+            print(f"🚫 No resources found for deployment '{deployment_name}'.")
             return
 
         # Iterate over the resources in the deployment
-        for resource in output_resources:
+        for resource in resources:
             resource_id = resource.get("id")
 
             try:
-                query = "\"{type:type, name:name, location:location}\""
-                resource_stdout = run_az_cli(f"az resource show --id {resource_id} --query {query} -o json")
+                resource_stdout = run_az_cli(f"az resource show --id {resource_id} --query \"{{type:type, name:name, location:location}}\" -o json")
                 if resource_stdout is None:
                     continue
 
-                resource = json.loads(resource_stdout)
-
-                # Delete the resource
-                delete_resource(resource.get("type"), resource.get("name"), resource_group_name, resource.get("location"))
+                delete_resource(json.loads(resource_stdout))
 
             except Exception as e:
                 print(f"✌🏻 {resource_id} ignored due to error: {e}")
@@ -63,7 +62,11 @@ def cleanUpResources(deployment_name, resource_group_name):
         traceback.print_exc()
 
 # Deletes a specific resource based on its type
-def delete_resource(resource_type, resource_name, resource_group_name, resource_location=None):
+def delete_resource(resource):
+    resource_name = resource.get("name")
+    resource_type = resource.get("type")
+    resource_location = resource.get("location")
+
     print(f"🗑 Deleting {resource_type} '{resource_name}' in resource group '{resource_group_name}'...")
 
     # API Management
