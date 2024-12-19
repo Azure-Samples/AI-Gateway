@@ -6,9 +6,9 @@ Playground to try the developer tooling available with APIM to develop, debugg, 
 
 ### Prerequisites
 
-- [An Azure Subscription](https://azure.microsoft.com/en-us/free/) with Contributor permissions
+- [An Azure Subscription](https://azure.microsoft.com/free/) with Contributor permissions
 - [Access granted to Azure OpenAI](https://aka.ms/oai/access) or just enable the mock service
-- [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
+- [Sign in to Azure with Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
 
 ### 🚀 Get started
 
