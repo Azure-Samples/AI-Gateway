@@ -15,7 +15,7 @@ __pycache__/
 labs-in-progress/
 params.json
 
-.vscode/
+.vscode/**/*
 .python_packages/
 .promptflow/
 
@@ -140,3 +140,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# --------------------------------------------------------------------------------
+# List additional inclusions & exclusions
+
+#policy-updated.xml
+!.vscode/README.md
+!.vscode/settings.json
