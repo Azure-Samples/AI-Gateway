@@ -72,7 +72,7 @@ def delete_resource(resource, resource_group_name):
         log(stdout, resource_name, "deleted")
 
         stdout = run_az_cli(f"az apim deletedservice purge --service-name {resource_name} --location \"{resource_location}\"")
-        log(stdout, resource_name, "purged")
+        log(stdout, resource_name, "purged ") # intentional space for alignment
 
     # Cognitive Services
     elif resource_type == "Microsoft.CognitiveServices/accounts":
@@ -80,7 +80,7 @@ def delete_resource(resource, resource_group_name):
         log(stdout, resource_name, "deleted")
 
         stdout = run_az_cli(f"az cognitiveservices account purge -g {resource_group_name} -n {resource_name} -l \"{resource_location}\"")
-        log(stdout, resource_name, "purged")
+        log(stdout, resource_name, "purged ") # intentional space for alignment
 
     # Key Vault
     elif resource_type == "Microsoft.KeyVault/vaults":
