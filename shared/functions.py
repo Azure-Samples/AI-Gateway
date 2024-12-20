@@ -1,5 +1,3 @@
-# type: ignore
-
 import datetime
 import json
 import subprocess
