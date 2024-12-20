@@ -1,3 +1,6 @@
+
+# type: ignore
+
 import time
 from openai import AzureOpenAI
 

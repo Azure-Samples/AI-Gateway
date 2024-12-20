@@ -1,3 +1,6 @@
+
+# type: ignore
+
 import requests
 import time
 

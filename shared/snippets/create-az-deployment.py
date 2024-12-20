@@ -1,3 +1,6 @@
+
+# type: ignore
+
 import json
 
 backend_id = "openai-backend-pool" if len(openai_resources) > 1 else openai_resources[0].get("name")

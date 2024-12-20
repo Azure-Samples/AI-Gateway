@@ -1,3 +1,6 @@
+
+# type: ignore
+
 stdout = ! az deployment group show --name {deployment_name} -g {resource_group_name} --query properties.outputs.apimServiceId.value -o tsv
 apim_service_id = stdout.n
 print(f"👉🏻 APIM Service Id: {apim_service_id}")
