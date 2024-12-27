@@ -142,7 +142,7 @@ Playground to try the Retrieval Augmented Generation (RAG) pattern with Azure AI
 * Uses OpenAI to generate the embeddings.  {style="font-size:20px"}
 * Supports key word search, hybrid search and semantic ranking.  {style="font-size:20px"}
 * OpenAI completion is generated based on the user prompt and the AI search results.  {style="font-size:20px"}
-* All the APIs from OpenAI and AI Search are served trough Azure API Management without using keys.  {style="font-size:20px"}
+* All the APIs from OpenAI and AI Search are served through Azure API Management without using keys.  {style="font-size:20px"}
 
 ---
 
@@ -165,7 +165,7 @@ Playground to try the built-in logging capabilities of API Management  {style="f
 
 SLM self-hosting
 
-Playground to try the self-hosted phy-2 Small Language Model (SLM) trough the Azure API Management self-hosted gateway with OpenAI API compatibility  {style="font-size:20px"}
+Playground to try the self-hosted phy-2 Small Language Model (SLM) through the Azure API Management self-hosted gateway with OpenAI API compatibility  {style="font-size:20px"}
 
 <img src="../images/slm-self-hosting.gif" alt="drawing" style="width:700px;"/>
 
