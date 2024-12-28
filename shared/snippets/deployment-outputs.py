@@ -22,8 +22,8 @@ print(f"👉🏻 App ID: {app_id}")
 
 stdout = ! az deployment group show --name {deployment_name} -g {resource_group_name} --query properties.outputs.functionAppResourceName.value -o tsv
 function_app_resource_name = stdout.n
-print(f"👉🏻 Function Name: {function_app_resource_name})
+print(f"👉🏻 Function Name: {function_app_resource_name}")
 
 stdout = ! az deployment group show --name {deployment_name} -g {resource_group_name} --query properties.outputs.cosmosDBConnectionString.value -o tsv
 cosmosdb_connection_string = stdout.n
-print(f"👉🏻 Cosmos DB Connection String: {cosmosdb_connection_string})
+print(f"👉🏻 Cosmos DB Connection String: {cosmosdb_connection_string}")
