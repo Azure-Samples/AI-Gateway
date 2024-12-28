@@ -9,17 +9,20 @@
 //    PARAMETERS
 // ------------------
 
-@description('The name of the API Management instance.')
-param apiManagementName string
+@description('The suffix to append to the API Management instance name. Defaults to a unique string based on subscription and resource group IDs.')
+param resourceSuffix string = uniqueString(subscription().id, resourceGroup().id)
+
+@description('The name of the API Management instance. Defaults to "apim-<resourceSuffix>".')
+param apiManagementName string = 'apim-${resourceSuffix}'
 
 @description('The location of the API Management instance. Defaults to the resource group location.')
 param location string = resourceGroup().location
 
-@description('The email address of the publisher.')
-param publisherEmail string
+@description('The email address of the publisher. Defaults to "noreply@microsoft.com".')
+param publisherEmail string = 'noreply@microsoft.com'
 
-@description('The name of the publisher.')
-param publisherName string
+@description('The name of the publisher. Defaults to "Microsoft".')
+param publisherName string = 'Microsoft'
 
 @description('Name of the APIM Logger')
 param apimLoggerName string = ''
@@ -37,7 +40,7 @@ param apimLoggerDescription string  = ''
   'Standardv2'
   'Premium'
 ])
-param apimSku string = 'Consumption'
+param apimSku string = 'Basicv2'
 
 @description('The XML content for the API policy')
 param policyXml string
@@ -45,38 +48,52 @@ param policyXml string
 @description('Configuration array for OpenAI resources')
 param openAIConfig array = []
 
-@description('The name of the OpenAI API in API Management')
-param openAIAPIName string
+@description('The name of the OpenAI API in API Management. Defaults to "openai".')
+param openAIAPIName string = 'openai'
 
-@description('The description of the OpenAI API in API Management')
-param openAIAPIDescription string
+@description('The description of the OpenAI API in API Management. Defaults to "Azure OpenAI API inferencing API".')
+param openAIAPIDescription string = 'Azure OpenAI API inferencing API'
 
-@description('The display name of the OpenAI API in API Management')
-param openAIAPIDisplayName string
+@description('The display name of the OpenAI API in API Management. Defaults to "OpenAI".')
+param openAIAPIDisplayName string = 'OpenAI'
 
-@description('The path of the OpenAI API in API Management')
-param openAIAPIPath string
+@description('The path of the OpenAI API in API Management. Defaults to "openai".')
+param openAIAPIPath string = 'openai'
+
+@description('The version of the OpenAI API in API Management. Defaults to "2024-02-01".')
+param openAIAPIVersion string = '2024-02-01'
 
 @description('The URL for the OpenAI API specification')
-param openAIAPISpecURL string
+param openAIAPISpecURL string = 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/${openAIAPIVersion}/inference.json'
 
-@description('The name of the OpenAI backend pool')
-param openAIBackendPoolName string
+@description('The name of the OpenAI backend pool. Defaults to "openai-backend-pool".')
+param openAIBackendPoolName string = 'openai-backend-pool'
 
-@description('The description of the OpenAI backend pool')
-param openAIBackendPoolDescription string
+@description('The description of the OpenAI backend pool. Defaults to "Load balancer for multiple OpenAI endpoints".')
+param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
 
-@description('The name of the OpenAI subscription in API Management')
-param openAISubscriptionName string
+@description('The name of the OpenAI subscription in API Management. Defaults to "openai-subscription".')
+param openAISubscriptionName string = 'openai-subscription'
 
-@description('The description of the OpenAI subscription in API Management')
-param openAISubscriptionDescription string
+@description('The description of the OpenAI subscription in API Management. Defaults to "OpenAI Subscription".')
+param openAISubscriptionDescription string = 'OpenAI Subscription'
 
 @description('The instrumentation key for Application Insights')
 param appInsightsInstrumentationKey string = ''
 
 @description('The resource ID for Application Insights')
 param appInsightsId string = ''
+
+@description('The type of managed identity to by used with API Management')
+@allowed([
+  'SystemAssigned'
+  'UserAssigned'
+  'SystemAssigned, UserAssigned'
+])
+param apimManagedIdentityType string = 'SystemAssigned'
+
+@description('The user-assigned managed identity ID to be used with API Management')
+param apimUserAssignedManagedIdentityId string = ''
 
 // ------------------
 //    VARIABLES
@@ -104,7 +121,11 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
     publisherName: publisherName
   }
   identity: {
-    type: 'SystemAssigned'
+    type: apimManagedIdentityType
+    userAssignedIdentities: apimManagedIdentityType == 'UserAssigned' && apimUserAssignedManagedIdentityId != '' ? {
+      // BCP037: Not yet added to latest API:
+      '${apimUserAssignedManagedIdentityId}': {}
+    } : null
   }
 }
 
@@ -246,6 +267,7 @@ resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-0
 // ------------------
 
 output id string = apimService.id
+output name string = apimService.name
 output principalId string = apimService.identity.principalId
 output gatewayUrl string = apimService.properties.gatewayUrl
 

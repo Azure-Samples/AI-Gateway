@@ -1,11 +1,6 @@
 <policies>
     <inbound>
         <base />
-        <validate-azure-ad-token tenant-id="16b3c013-d300-468d-ac64-7eda0820b6d3">
-            <client-application-ids>
-                <application-id>98e328e5-3c3a-4ee8-a819-226657c14293</application-id>
-            </client-application-ids>
-        </validate-azure-ad-token>
         <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
         <set-header name="Authorization" exists-action="override">
             <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>

@@ -29,6 +29,10 @@ param openAIModelCapacity int = 20
 @description('Configuration array for OpenAI resources')
 param openAIConfig array = []
 
+// param openAIEmbeddingsDeploymentName string = ''
+// param openAIEmbeddingsModelName string = ''
+// param openAIEmbeddingsModelVersion string = ''
+
 @description('Log Analytics Workspace Id')
 param lawId string = ''
 
@@ -42,7 +46,7 @@ var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 //    RESOURCES
 // ------------------
 
-resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig: if(length(openAIConfig) > 0) {
+resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [for config in openAIConfig: if(length(openAIConfig) > 0) {
   name: '${config.name}-${resourceSuffix}'
   location: config.location
   sku: {
@@ -73,7 +77,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
   }
 }]
 
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
     name: openAIDeploymentName
     parent: cognitiveServices[i]
     properties: {
@@ -88,6 +92,22 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01
         capacity: openAIModelCapacity
     }
 }]
+
+// resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && !empty(deployment[i].id)) {
+//   name: openAIEmbeddingsDeploymentName
+//   parent: cognitiveServices[i]
+//   properties: {
+//     model: {
+//       format: 'OpenAI'
+//       name: openAIEmbeddingsModelName
+//       version: openAIEmbeddingsModelVersion
+//     }
+//   }
+//   sku: {
+//       name: 'Standard'
+//       capacity: openAIModelCapacity
+//   }
+// }]
 
 // ------------------
 //    OUTPUTS

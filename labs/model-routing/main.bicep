@@ -2,15 +2,9 @@
 //    PARAMETERS
 // ------------------
 
-@description('List of OpenAI resources to create for Pool 1. Add pairs of name and location.')
-param openAIConfig_1 array = []
+// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
 
-@description('List of OpenAI resources to create for Pool 2. Add pairs of name and location.')
-param openAIConfig_2 array = []
-
-@description('List of OpenAI resources to create for Pool 3. Add pairs of name and location.')
-param openAIConfig_3 array = []
-
+// Required parameters
 @description('Deployment 1 Name')
 param openAIDeploymentName_1 string
 
@@ -20,147 +14,80 @@ param openAIDeploymentName_2 string
 @description('Deployment 3 Name')
 param openAIDeploymentName_3 string
 
-@description('Azure OpenAI Sku')
-@allowed([
-  'S0'
-])
-param openAISku string = 'S0'
-
 @description('Model 1 Name')
 param openAIModelName_1 string
-
-@description('Model 1 Version')
-param openAIModelVersion_1 string
 
 @description('Model 2 Name')
 param openAIModelName_2 string
 
-@description('Model 2 Version')
-param openAIModelVersion_2 string
-
 @description('Model 3 Name')
 param openAIModelName_3 string
+
+@description('Model 1 Version')
+param openAIModelVersion_1 string
+
+@description('Model 2 Version')
+param openAIModelVersion_2 string
 
 @description('Model 3 Version')
 param openAIModelVersion_3 string
 
-@description('Model Capacity')
+param openAIAPIVersion string
+
+// Optional parameters
+param openAISku string = 'S0'
 param openAIModelCapacity int = 20
-
-@description('The name of the API Management resource')
-param apimResourceName string
-
-@description('Location for the APIM resource')
+param apimSku string = 'Basicv2'
 param apimResourceLocation string = resourceGroup().location
-
-@description('The pricing tier of this API Management service')
-@allowed([
-  'Consumption'
-  'Developer'
-  'Basic'
-  'Basicv2'
-  'Standard'
-  'Standardv2'
-  'Premium'
-])
-param apimSku string = 'Consumption'
-
-@description('The instance size of this API Management service.')
-@allowed([
-  0
-  1
-  2
-])
-param apimSkuCount int = 1
-
-@description('The email address of the owner of the service')
-param apimPublisherEmail string = 'noreply@microsoft.com'
-
-@description('The name of the owner of the service')
-param apimPublisherName string = 'Microsoft'
-
-@description('The name of the APIM API for OpenAI API')
-param openAIAPIName string = 'openai'
-
-@description('The relative path of the APIM API for OpenAI API')
-param openAIAPIPath string = 'openai'
-
-@description('The display name of the APIM API for OpenAI API')
-param openAIAPIDisplayName string = 'OpenAI'
-
-@description('The description of the APIM API for OpenAI API')
-param openAIAPIDescription string = 'Azure OpenAI API inferencing API'
-
-@description('Full URL for the OpenAI API spec')
-param openAIAPISpecURL string = 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.json'
-
-@description('The name of the APIM Subscription for OpenAI API')
-param openAISubscriptionName string = 'openai-subscription'
-
-@description('The description of the APIM Subscription for OpenAI API')
-param openAISubscriptionDescription string = 'OpenAI Subscription'
-
-@description('The name of the OpenAI backend pool 1')
-param openAIBackendPoolName_1 string = 'openai-backend-pool-1'
-
-@description('The name of the OpenAI backend pool 2')
-param openAIBackendPoolName_2 string = 'openai-backend-pool-2'
-
-@description('The name of the OpenAI backend pool 3')
-param openAIBackendPoolName_3 string = 'openai-backend-pool-3'
-
-@description('The description of the OpenAI backend pool')
-param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
-
-@description('Name of the Log Analytics resource')
-param logAnalyticsName string = 'workspace'
-
-@description('Location of the Log Analytics resource')
 param logAnalyticsLocation string = resourceGroup().location
-
-@description('Name of the Application Insights resource')
-param applicationInsightsName string = 'insights'
-
-@description('Location of the Application Insights resource')
 param applicationInsightsLocation string = resourceGroup().location
 
-@description('Name of the APIM Logger')
+@description('List of OpenAI resources to create for Pool 1. Add pairs of name and location.')
+param openAIConfig_1 array = []
+
+@description('List of OpenAI resources to create for Pool 2. Add pairs of name and location.')
+param openAIConfig_2 array = []
+
+@description('List of OpenAI resources to create for Pool 3. Add pairs of name and location.')
+param openAIConfig_3 array = []
+
+param apimResourceName string = 'apim'
+param apimPublisherEmail string = 'noreply@microsoft.com'
+param apimPublisherName string = 'Microsoft'
+param openAIAPIName string = 'openai'
+param openAIAPIPath string = 'openai'
+param openAIAPIDisplayName string = 'OpenAI'
+param openAIAPIDescription string = 'Azure OpenAI API inferencing API'
+param openAISubscriptionName string = 'openai-subscription'
+param openAISubscriptionDescription string = 'OpenAI Subscription'
+
+param openAIBackendPoolName_1 string = 'openai-backend-pool-1'
+param openAIBackendPoolName_2 string = 'openai-backend-pool-2'
+param openAIBackendPoolName_3 string = 'openai-backend-pool-3'
+
+param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
+param logAnalyticsName string = 'workspace'
+param applicationInsightsName string = 'insights'
 param apimLoggerName string = 'apim-logger'
-
-@description('Description of the APIM Logger')
 param apimLoggerDescription string  = 'APIM Logger for OpenAI API'
-
-@description('Number of bytes to log for API diagnostics')
-param apiDiagnosticsLogBytes int = 8192
-
-@description(' Name for the Workbook')
 param workbookName string = 'OpenAIUsageAnalysis'
-
-@description('Location for the Workbook')
 param workbookLocation string = resourceGroup().location
-
-@description('Display Name for the Workbook')
 param workbookDisplayName string = 'OpenAI Usage Analysis'
-
-param index string = ''
 
 // ------------------
 //    VARIABLES
 // ------------------
 
-var resourceSuffix = uniqueString(subscription().id, resourceGroup().id, index)
+var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
+var apiManagementName = '${apimResourceName}-${resourceSuffix}'
+var updatedPolicyXml = loadTextContent('policy-updated.xml')
+var openAIAPISpecURL = 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/${openAIAPIVersion}/inference.json'
+var azureRoles = loadJsonContent('../../modules/azure-roles.json')
+var cognitiveServicesOpenAIUserRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesOpenAIUser)
 
 // ------------------
 //    RESOURCES
 // ------------------
-
-/* ORDER OF CREATION
-
-  1. Cognitive Services
-  2. API Management
-  3. RBAC Assignment
-
- */
 
 // 1. Cognitive Services
 resource cognitiveServices_1 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig_1: if(length(openAIConfig_1) > 0) {
@@ -258,14 +185,12 @@ resource deployment_3 'Microsoft.CognitiveServices/accounts/deployments@2023-05-
 }]
 
 // 2. API Management
-var apimManagementName = '${apimResourceName}-${resourceSuffix}'
-
 resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
-  name: apimManagementName
+  name: apiManagementName
   location: apimResourceLocation
   sku: {
     name: apimSku
-    capacity: (apimSku == 'Consumption') ? 0 : ((apimSku == 'Developer') ? 1 : apimSkuCount)
+    capacity: 1
   }
   properties: {
     publisherEmail: apimPublisherEmail
@@ -277,13 +202,11 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
 }
 
 // 3. RBAC Assignment
-var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
-
 resource roleAssignment_1 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig_1: if(length(openAIConfig_1) > 0) {
     scope: cognitiveServices_1[i]
-    name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
+    name: guid(subscription().id, resourceGroup().id, config.name, cognitiveServicesOpenAIUserRoleDefinitionID)
     properties: {
-        roleDefinitionId: roleDefinitionID
+        roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
         principalId: apimService.identity.principalId
         principalType: 'ServicePrincipal'
     }
@@ -291,9 +214,9 @@ resource roleAssignment_1 'Microsoft.Authorization/roleAssignments@2022-04-01' =
 
 resource roleAssignment_2 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig_2: if(length(openAIConfig_2) > 0) {
   scope: cognitiveServices_2[i]
-  name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
+  name: guid(subscription().id, resourceGroup().id, config.name, cognitiveServicesOpenAIUserRoleDefinitionID)
   properties: {
-      roleDefinitionId: roleDefinitionID
+      roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
       principalId: apimService.identity.principalId
       principalType: 'ServicePrincipal'
   }
@@ -301,9 +224,9 @@ resource roleAssignment_2 'Microsoft.Authorization/roleAssignments@2022-04-01' =
 
 resource roleAssignment_3 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig_3: if(length(openAIConfig_3) > 0) {
   scope: cognitiveServices_3[i]
-  name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
+  name: guid(subscription().id, resourceGroup().id, config.name, cognitiveServicesOpenAIUserRoleDefinitionID)
   properties: {
-      roleDefinitionId: roleDefinitionID
+      roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
       principalId: apimService.identity.principalId
       principalType: 'ServicePrincipal'
   }
@@ -336,7 +259,7 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
   parent: api
   properties: {
     format: 'rawxml'
-    value: loadTextContent('policy.xml')
+    value: updatedPolicyXml
   }
 }
 
@@ -532,7 +455,7 @@ resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview'
 
 var logSettings = {
   headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
-  body: { bytes: apiDiagnosticsLogBytes }
+  body: { bytes: 8192 }
 }
 resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(apimLogger.name)) {
   name: 'applicationinsights'

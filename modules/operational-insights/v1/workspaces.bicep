@@ -8,7 +8,7 @@
 //    PARAMETERS
 // ------------------
 
-@description('Name of the Log Analytics resource')
+@description('Name of the Log Analytics resource. Defaults to "workspace".')
 param logAnalyticsName string = 'workspace'
 
 @description('Location of the Log Analytics resource')

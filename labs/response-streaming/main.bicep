@@ -104,7 +104,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
   }
 }]
 
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
     name: openAIDeploymentName
     parent: cognitiveServices[i]
     properties: {
@@ -136,7 +136,9 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
 }
 
-var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
+var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesOpenAIUser)
+var azureRoles = loadJsonContent('../../modules/azure-roles.json')
+
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
     scope: cognitiveServices[i]
     name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)

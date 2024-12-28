@@ -192,6 +192,7 @@ param searchIndexAPIPath string = 'searchindex'
 // vector-searching: additions END
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
+var azureRoles = loadJsonContent('../../modules/azure-roles.json')
 
 resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig: if(length(openAIConfig) > 0) {
   name: '${config.name}-${resourceSuffix}'
@@ -208,7 +209,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
   }
 }]
 
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
     name: openAIDeploymentName
     parent: cognitiveServices[i]
     properties: {
@@ -240,7 +241,7 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   }
 }
 
-var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd') // Cognitive Services OpenAI User
+var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesOpenAIUser) // Cognitive Services OpenAI User
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
     scope: cognitiveServices[i]
     name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
@@ -391,7 +392,7 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
 
 // vector-searching: additions BEGIN
 
-resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && !empty(deployment[i].id)) {
+resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && !empty(deployment[i].id)) {
   name: openAIEmbeddingsDeploymentName
   parent: cognitiveServices[i]
   properties: {
@@ -424,7 +425,7 @@ resource searchService 'Microsoft.Search/searchServices@2023-11-01' = {
   }
 }
 
-var roleDefinitionIDAISearchService = resourceId('Microsoft.Authorization/roleDefinitions', '7ca78c08-252a-4471-8644-bb5ff32d4ba0') // Search Service Contributor
+var roleDefinitionIDAISearchService = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.SearchServiceContributor) // Search Service Contributor
 resource roleAssignmentAISearchService 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: searchService
   name: guid(subscription().id, resourceGroup().id, searchService.name, roleDefinitionIDAISearchService)
@@ -435,7 +436,7 @@ resource roleAssignmentAISearchService 'Microsoft.Authorization/roleAssignments@
   }
 }
 
-var roleDefinitionIDAISearchIndex = resourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7') // Search Index Data Contributor
+var roleDefinitionIDAISearchIndex = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.SearchIndexDataContributor) // Search Index Data Contributor
 resource roleAssignmentAISearchIndex 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: searchService
   name: guid(subscription().id, resourceGroup().id, searchService.name, roleDefinitionIDAISearchIndex)

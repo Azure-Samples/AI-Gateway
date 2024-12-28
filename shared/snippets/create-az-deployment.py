@@ -6,8 +6,17 @@ import json
 backend_id = "openai-backend-pool" if len(openai_resources) > 1 else openai_resources[0].get("name")
 
 with open("policy.xml", 'r') as policy_xml_file:
-    policy_template_xml = policy_xml_file.read()
-    policy_xml = policy_template_xml.replace("{backend-id}", backend_id)
+    policy_xml = policy_xml_file.read()
+
+    if "{backend-id}" in policy_xml:
+        policy_xml = policy_xml.replace("{backend-id}", backend_id)
+
+    if "{aad-client-application-id}" in policy_xml:
+        policy_xml = policy_xml.replace("{aad-client-application-id}", client_id)
+
+    if "{aad-tenant-id}" in policy_xml:
+        policy_xml = policy_xml.replace("{aad-tenant-id}", tenant_id)
+
     policy_xml_file.close()
 open("policy-updated.xml", 'w').write(policy_xml)
 
@@ -19,6 +28,7 @@ bicep_parameters = {
         "openAIDeploymentName": { "value": openai_deployment_name },
         "openAIModelName": { "value": openai_model_name },
         "openAIModelVersion": { "value": openai_model_version },
+        "openAIAPIVersion": { "value": openai_api_version }
     }
 }
 
