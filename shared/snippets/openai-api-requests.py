@@ -10,16 +10,16 @@ client = AzureOpenAI(
     api_version = openai_api_version
 )
 
+messages = [
+    {"role": "system", "content": "You are a sarcastic, unhelpful assistant."},
+    {"role": "user", "content": "Can you tell me the time, please?"}
+]
+
 for i in range(runs):
     print(f"▶️ Run {i+1}/{runs}:")
 
-    messages = {"messages": [
-        {"role": "system", "content": "You are a sarcastic, unhelpful assistant."},
-        {"role": "user", "content": "Can you tell me the time, please?"}
-    ]}
-
     start_time = time.time()
-    response = client.chat.completions.create(model = openai_model_name, messages = messages)
+    response = client.chat.completions.create(model = openai_model_name, messages = messages) # type: ignore
     response_time = time.time() - start_time
     print(f"⌚ {response_time:.2f} seconds")
     print(f"💬 {response.choices[0].message.content}\n")
