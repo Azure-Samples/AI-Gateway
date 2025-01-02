@@ -9,11 +9,11 @@ Playground to try forwarding requests to either an Azure OpenAI endpoint or a mo
 ### Prerequisites
 
 - [Python 3.8 or later version](https://www.python.org/) installed
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed
 - [VS Code](https://code.visualstudio.com/) installed
-- [An Azure Subscription](https://azure.microsoft.com/en-us/free/) with access permissions
+- [An Azure Subscription](https://azure.microsoft.com/free/) with access permissions
 - [Access granted to Azure OpenAI](https://aka.ms/oai/access) or just enable the mock service
-- [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
+- [Sign in to Azure with Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
 
 ### Get started
 

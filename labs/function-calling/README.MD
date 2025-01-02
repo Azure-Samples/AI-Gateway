@@ -4,7 +4,7 @@
 
 [![flow](../../images/function-calling.gif)](function-callingg.ipynb)
 
-Playground to try the OpenAI [function calling](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API also managed with APIM.
+Playground to try the OpenAI [function calling](https://learn.microsoft.com/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API also managed with APIM.
 
 At a high level you can break down working with functions into three steps:
 
@@ -21,11 +21,11 @@ At a high level you can break down working with functions into three steps:
 - [Python 3.8 or later version](https://www.python.org/) installed
 - [Pandas Library](https://pandas.pydata.org/) installed
 - [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed
-- [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-python#install-the-azure-functions-core-tools) installed
-- [An Azure Subscription](https://azure.microsoft.com/en-us/free/) with Contributor permissions
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed
+- [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-python#install-the-azure-functions-core-tools) installed
+- [An Azure Subscription](https://azure.microsoft.com/free/) with Contributor permissions
 - [Access granted to Azure OpenAI](https://aka.ms/oai/access) or just enable the mock service
-- [Sign in to Azure with Azure CLI](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively)
+- [Sign in to Azure with Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
 
 ### 🚀 Get started
 
