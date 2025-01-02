@@ -8,7 +8,7 @@ Playground to try the built-in [backend circuit breaker functionality of APIM](h
 
 ### Prerequisites
 
-- [Python 3.8 or later version](https://www.python.org/) installed
+- [Python 3.9 or later version](https://www.python.org/) installed
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed
 - [VS Code](https://code.visualstudio.com/) installed
 - [An Azure Subscription](https://azure.microsoft.com/free/) with access permissions

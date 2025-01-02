@@ -14,7 +14,7 @@ Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://lea
 
 ### Prerequisites
 
-- [Python 3.8 or later version](https://www.python.org/) installed
+- [Python 3.9 or later version](https://www.python.org/) installed
 - [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed
 - [An Azure Subscription](https://azure.microsoft.com/free/) with Contributor permissions
