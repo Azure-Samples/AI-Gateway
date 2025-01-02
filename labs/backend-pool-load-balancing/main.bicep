@@ -9,6 +9,7 @@ param openAIModelName string
 param openAIModelVersion string
 param openAIDeploymentName string
 param openAIAPIVersion string = '2024-02-01'
+param openAIModelCapacity int = 8
 
 // ------------------
 //    VARIABLES
@@ -30,6 +31,7 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
     openAIDeploymentName: openAIDeploymentName
     openAIModelName: openAIModelName
     openAIModelVersion: openAIModelVersion
+    openAIModelCapacity: openAIModelCapacity
   }
 }
 

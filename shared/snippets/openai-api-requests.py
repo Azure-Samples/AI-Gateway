@@ -1,3 +1,4 @@
+
 import time
 from openai import AzureOpenAI
 
@@ -22,6 +23,8 @@ for i in range(runs):
     response = client.chat.completions.create(model = openai_model_name, messages = messages) # type: ignore
     response_time = time.time() - start_time
     print(f"⌚ {response_time:.2f} seconds")
+    if response.usage:
+        print(f"Token usage: Total tokens: {response.usage.total_tokens} (Prompt tokens: {response.usage.prompt_tokens} & Completion tokens: {response.usage.completion_tokens})")
     print(f"💬 {response.choices[0].message.content}\n")
 
     time.sleep(sleep_time_ms/1000)
