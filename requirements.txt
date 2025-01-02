@@ -1,3 +1,19 @@
-openai
-pandas
+# This is a comprehensive requirements.txt file for all labs to ensure that one installation covers everything.
+
+# Do not include azure-functions-worker in this file
+# The Python Worker is managed by the Azure Functions platform
+# Manually managing azure-functions-worker may cause unexpected issues
+
+azure-ai-inference[prompts]
+azure-ai-projects
+azure-cli
+azure-functions
+azure-identity
+azure-search-documents
 matplotlib
+msal
+openai
+opentelemetry-api
+pandas
+python-dotenv
+requests
