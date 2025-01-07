@@ -25,10 +25,10 @@ param publisherEmail string = 'noreply@microsoft.com'
 param publisherName string = 'Microsoft'
 
 @description('Name of the APIM Logger')
-param apimLoggerName string = ''
+param apimLoggerName string = 'apim-logger'
 
 @description('Description of the APIM Logger')
-param apimLoggerDescription string  = ''
+param apimLoggerDescription string  = 'APIM Logger for OpenAI API'
 
 @description('The pricing tier of this API Management service')
 @allowed([
@@ -223,7 +223,8 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06
   }
 }
 
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = if (apimLoggerName != '') {
+// Create a logger only if we have an App Insights ID and instrumentation key.
+resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = if (!empty(appInsightsId) && !empty(appInsightsInstrumentationKey)) {
   name: apimLoggerName
   parent: apimService
   properties: {
@@ -237,7 +238,8 @@ resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview'
   }
 }
 
-resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(apimLogger.name)) {
+// Create diagnostics only if we have an App Insights ID and instrumentation key.
+resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(appInsightsId) && !empty(appInsightsInstrumentationKey)) {
   name: 'applicationinsights'
   parent: api
   properties: {

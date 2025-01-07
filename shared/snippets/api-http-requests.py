@@ -14,7 +14,10 @@ messages = {"messages": [
 # Initialize a session for connection pooling
 session = requests.Session()
 # Set default headers
-session.headers.update({'api-key': apim_subscription_key})
+session.headers.update({
+    'api-key': apim_subscription_key,
+    'x-user-id': 'alex'
+})
 
 try:
     for i in range(runs):

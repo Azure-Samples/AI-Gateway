@@ -84,3 +84,4 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = if (useWorkbook) {
 output id string = applicationInsights.id
 output instrumentationKey string = applicationInsights.properties.InstrumentationKey
 output appId string = applicationInsights.properties.AppId
+output applicationInsightsName string = applicationInsightsName
