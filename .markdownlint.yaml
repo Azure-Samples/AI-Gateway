@@ -10,11 +10,6 @@ extends: null
 MD013:
   false
 
-# Exception for MD033 (inline HTML) for README.md
-MD033:
-  allowed_elements:
-    [div, style]
-
 # MD041/first-line-heading/first-line-h1 : First line in a file should be a top-level heading : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md041.md
 MD041:
   false
