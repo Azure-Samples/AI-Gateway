@@ -1,4 +1,5 @@
 # type: ignore
+# codeql [python] suppress [py/unsafe-execution] "Using shell commands in Jupyter notebooks"
 
 import datetime
 
