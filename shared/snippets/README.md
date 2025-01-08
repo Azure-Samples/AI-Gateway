@@ -19,7 +19,7 @@ What you see here is an executed load as the command is now commented out after 
 
 While this is generally very maintable, the loading is static, unlike a function reference, for example. That means that code may be stale. When you are editing Jupyter notebook files, it is advisable that you execute the load commands fresh and check for git changes.
 
-## Upadting a Loaded Snippet
+## Updating a Loaded Snippet
 
 1. In a Jupyter Notebook's Python code cell, remove everything below the `%load` command in line 1.
 1. Uncomment the `%load` command. The cell should then look similar to this:
