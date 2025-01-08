@@ -1,5 +1,4 @@
 # type: ignore
-# codeql [python] suppress [py/unsafe-execution] "Using shell commands in Jupyter notebooks"
 
 # Obtain all of the outputs from the deployment
 stdout = ! az deployment group show --name {deployment_name} -g {resource_group_name} --query properties.outputs -o json
