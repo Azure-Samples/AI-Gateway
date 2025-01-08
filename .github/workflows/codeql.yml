@@ -18,6 +18,7 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: '30 8 * * 0'    # Run at 8:30am UTC on Sunday
+  workflow_dispatch:
 
 jobs:
   analyze:
