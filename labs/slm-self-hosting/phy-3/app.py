@@ -69,7 +69,7 @@ def completions(deployment_name):
 
     except Exception as e:
         print("Error: ", e)
-        response = make_response({'error': {'code': '500', 'message': str(e)}})
+        response = make_response({'error': {'code': '500', 'message': 'An error occurred.'}})
 
     response.headers["x-ms-region"] = hostname
     return response
