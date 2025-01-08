@@ -1,0 +1,6 @@
+paths:
+  - "labs"
+  - "modules"
+  - "shared"
+paths-ignore:
+  - "shared/snippets/**/*.*"

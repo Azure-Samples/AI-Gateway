@@ -17,7 +17,8 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '30 8 * * 0'
+    - cron: '30 8 * * 0'    # Run at 8:30am UTC on Sunday
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -62,6 +63,7 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
+        config-file: ./.github/codeql/codeql-config.yml
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
         # If you wish to specify custom queries, you can do so here or in a config file.
