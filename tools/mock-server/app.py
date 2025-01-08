@@ -60,7 +60,7 @@ def completions(deployment_name):
     elif response_status_code == 503:
         response = make_response({'error': {'code': '503', 'message': 'The engine is currently overloaded, please try again later'}})
     else:
-        response = make_response({'error': {'code': response_status_code, 'message': 'Unknown error'}})
+        response = make_response({'error': {'code': 'N/A', 'message': 'Unknown error'}})
     response.status_code = response_status_code
     response.headers["x-ms-region"] = hostname
     return response
