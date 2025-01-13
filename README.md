@@ -53,15 +53,6 @@ Playground to try the built-in load balancing [backend pool functionality of Azu
 
 [🦾 Bicep](labs/backend-pool-load-balancing/main.bicep) ➕ [⚙️ Policy](labs/backend-pool-load-balancing/policy.xml) ➕ [🧾 Notebook](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) 🟰 [💬](../../issues/16 "Feedback loop discussion")
 
-<!-- Access controlling -->
-#### [**🧪 Access controlling**](labs/access-controlling/access-controlling.ipynb)
-
-Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.com/azure/api-management/api-management-authenticate-authorize-azure-openai#oauth-20-authorization-using-identity-provider) using identity provider to enable more fine-grained access to OpenAPI APIs by particular users or client.
-
-[![flow](images/access-controlling-small.gif)](labs/access-controlling/access-controlling.ipynb)
-
-[🦾 Bicep](labs/access-controlling/main.bicep) ➕ [⚙️ Policy](labs/access-controlling/policy.xml) ➕ [🧾 Notebook](labs/access-controlling/access-controlling.ipynb) 🟰 [💬](../../issues/25 "Feedback loop discussion")
-
 <!-- Token rate limiting -->
 #### [**🧪 Token rate limiting**](labs/token-rate-limiting/token-rate-limiting.ipynb)
 
@@ -88,6 +79,42 @@ Playground to try the [semantic caching policy](https://learn.microsoft.com/azur
 [![flow](images/semantic-caching-small.gif)](labs/semantic-caching/semantic-caching.ipynb)
 
 [🦾 Bicep](labs/semantic-caching/main.bicep) ➕ [⚙️ Policy](labs/semantic-caching/policy.xml) ➕ [🧾 Notebook](labs/semantic-caching/semantic-caching.ipynb) 🟰 [💬](../../issues/27 "Feedback loop discussion")
+
+<!-- Access controlling -->
+#### [**🧪 Access controlling**](labs/access-controlling/access-controlling.ipynb)
+
+Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.com/azure/api-management/api-management-authenticate-authorize-azure-openai#oauth-20-authorization-using-identity-provider) using identity provider to enable more fine-grained access to OpenAPI APIs by particular users or client.
+
+[![flow](images/access-controlling-small.gif)](labs/access-controlling/access-controlling.ipynb)
+
+[🦾 Bicep](labs/access-controlling/main.bicep) ➕ [⚙️ Policy](labs/access-controlling/policy.xml) ➕ [🧾 Notebook](labs/access-controlling/access-controlling.ipynb) 🟰 [💬](../../issues/25 "Feedback loop discussion")
+
+<!-- GPT-4o inferencing -->
+#### [**🧪 GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
+
+Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats.
+
+[![flow](images/GPT-4o-inferencing-small.gif)](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
+
+[🦾 Bicep](labs/GPT-4o-inferencing/main.bicep) ➕ [⚙️ Policy](labs/GPT-4o-inferencing/policy.xml) ➕ [🧾 Notebook](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) 🟰 [💬](../../issues/29 "Feedback loop discussion")
+
+<!-- Function calling -->
+#### [**🧪 Function calling**](labs/function-calling/function-calling.ipynb)
+
+Playground to try the OpenAI [function calling](https://learn.microsoft.com/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API that is also managed by Azure API Management.
+
+[![flow](images/function-calling-small.gif)](labs/function-calling/function-calling.ipynb)
+
+[🦾 Bicep](labs/function-calling/main.bicep) ➕ [⚙️ Policy](labs/function-calling/policy.xml) ➕ [🧾 Notebook](labs/function-calling/function-calling.ipynb) 🟰 [💬](../../issues/36 "Feedback loop discussion")
+
+<!-- Model Routing -->
+#### [**🧪 Model Routing**](labs/model-routing/model-routing.ipynb)
+
+Playground to try routing to a backend based on Azure OpenAI model and version.
+
+[![flow](images/model-routing-small.gif)](labs/model-routing/model-routing.ipynb)
+
+[🦾 Bicep](labs/model-routing/main.bicep) ➕ [⚙️ Policy](labs/model-routing/policy.xml) ➕ [🧾 Notebook](labs/model-routing/model-routing.ipynb) 🟰 [💬](../../issues/37 "Feedback loop discussion")
 
 <!-- Response streaming -->
 #### [**🧪 Response streaming**](labs/response-streaming/response-streaming.ipynb)
@@ -125,15 +152,6 @@ Playground to try the self-hosted [phy-3 Small Language Model (SLM)](https://azu
 
 [🦾 Bicep](labs/slm-self-hosting/main.bicep) ➕ [⚙️ Policy](labs/slm-self-hosting/policy.xml) ➕ [🧾 Notebook](labs/slm-self-hosting/slm-self-hosting.ipynb) 🟰 [💬](../../issues/21 "Feedback loop discussion")
 
-<!-- GPT-4o inferencing -->
-#### [**🧪 GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
-
-Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats.
-
-[![flow](images/GPT-4o-inferencing-small.gif)](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
-
-[🦾 Bicep](labs/GPT-4o-inferencing/main.bicep) ➕ [⚙️ Policy](labs/GPT-4o-inferencing/policy.xml) ➕ [🧾 Notebook](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) 🟰 [💬](../../issues/29 "Feedback loop discussion")
-
 <!-- Message storing -->
 #### [**🧪 Message storing**](labs/message-storing/message-storing.ipynb)
 
@@ -144,31 +162,13 @@ Playground to test storing message details into Cosmos DB through the [Log to ev
 [🦾 Bicep](labs/message-storing/main.bicep) ➕ [⚙️ Policy](labs/message-storing/policy.xml) ➕ [🧾 Notebook](labs/message-storing/message-storing.ipynb) 🟰 [💬](../../issues/34 "Feedback loop discussion")
 
 <!-- Developer tooling -->
-#### [**🧪 Developer tooling** (WIP)](labs/developer-tooling/developer-tooling.ipynb)
+<!-- #### [**🧪 Developer tooling** (WIP)](labs/developer-tooling/developer-tooling.ipynb)
 
 Playground to try the developer tooling available with Azure API Management to develop, debug, test and publish AI Service APIs.
 
 [![flow](images/developer-tooling-small.gif)](labs/developer-tooling/developer-tooling.ipynb)
 
-[🦾 Bicep](labs/developer-tooling/main.bicep) ➕ [⚙️ Policy](labs/developer-tooling/policy.xml) ➕ [🧾 Notebook](labs/developer-tooling/developer-tooling.ipynb) 🟰 [💬](../../issues/35 "Feedback loop discussion")
-
-<!-- Function calling -->
-#### [**🧪 Function calling**](labs/function-calling/function-calling.ipynb)
-
-Playground to try the OpenAI [function calling](https://learn.microsoft.com/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API that is also managed by Azure API Management.
-
-[![flow](images/function-calling-small.gif)](labs/function-calling/function-calling.ipynb)
-
-[🦾 Bicep](labs/function-calling/main.bicep) ➕ [⚙️ Policy](labs/function-calling/policy.xml) ➕ [🧾 Notebook](labs/function-calling/function-calling.ipynb) 🟰 [💬](../../issues/36 "Feedback loop discussion")
-
-<!-- Model Routing -->
-#### [**🧪 Model Routing**](labs/model-routing/model-routing.ipynb)
-
-Playground to try routing to a backend based on Azure OpenAI model and version.
-
-[![flow](images/model-routing-small.gif)](labs/model-routing/model-routing.ipynb)
-
-[🦾 Bicep](labs/model-routing/main.bicep) ➕ [⚙️ Policy](labs/model-routing/policy.xml) ➕ [🧾 Notebook](labs/model-routing/model-routing.ipynb) 🟰 [💬](../../issues/37 "Feedback loop discussion")
+[🦾 Bicep](labs/developer-tooling/main.bicep) ➕ [⚙️ Policy](labs/developer-tooling/policy.xml) ➕ [🧾 Notebook](labs/developer-tooling/developer-tooling.ipynb) 🟰 [💬](../../issues/35 "Feedback loop discussion") -->
 
 <!-- Prompt flow -->
 #### [**🧪 Prompt flow**](labs/prompt-flow/prompt-flow.ipynb)
