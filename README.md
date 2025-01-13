@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD033 -->
+
 # APIM ❤️ OpenAI - 🧪 Labs for the [GenAI Gateway capabilities](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/introducing-genai-gateway-capabilities-in-azure-api-management/ba-p/4146525) of [Azure API Management](https://learn.microsoft.com/azure/api-management/api-management-key-concepts)
 
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
@@ -40,65 +42,179 @@ This repo explores the **AI Gateway** pattern through a series of experimental l
 
 Acknowledging the rising dominance of Python, particularly in the realm of AI, along with the powerful experimental capabilities of Jupyter notebooks, the following labs are structured around Jupyter notebooks, with step-by-step instructions with Python scripts, [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview?tabs=bicep) files and [Azure API Management policies](https://learn.microsoft.com/azure/api-management/api-management-howto-policies):
 
-|  |  |
-| -- | -- |
-|  |  |
-| [**🧪 Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) (built-in) | [**🧪 Advanced load balancing**](labs/advanced-load-balancing/advanced-load-balancing.ipynb) (custom) |
-| [![flow](images/backend-pool-load-balancing-small.gif)](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) | [![flow](images/advanced-load-balancing-small.gif)](labs/advanced-load-balancing/advanced-load-balancing.ipynb) |
-| Playground to try the built-in load balancing [backend pool functionality of Azure API Management](https://learn.microsoft.com/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers.| Playground to try the advanced load balancing (based on a custom [Azure API Management policy](https://learn.microsoft.com/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers. |
-| [🦾 Bicep](labs/backend-pool-load-balancing/main.bicep) ➕ [⚙️ Policy](labs/backend-pool-load-balancing/policy.xml) ➕ [🧾 Notebook](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) 🟰 [💬](../../issues/16 "Feedback loop discussion") | [🦾 Bicep](labs/advanced-load-balancing/main.bicep) ➕ [⚙️ Policy](labs/advanced-load-balancing/policy.xml) ➕ [🧾 Notebook](labs/advanced-load-balancing/advanced-load-balancing.ipynb) 🟰 [💬](../../issues/17 "Feedback loop discussion") |
-|  |  |
-|  |  |
-| [**🧪 Access controlling**](labs/access-controlling/access-controlling.ipynb) | [**🧪 Token rate limiting**](labs/token-rate-limiting/token-rate-limiting.ipynb) |
-| [![flow](images/access-controlling-small.gif)](labs/access-controlling/access-controlling.ipynb) | [![flow](images/token-rate-limiting-small.gif)](labs/token-rate-limiting/token-rate-limiting.ipynb) |
-| Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.com/azure/api-management/api-management-authenticate-authorize-azure-openai#oauth-20-authorization-using-identity-provider) using identity provider to enable more fine-grained access to OpenAPI APIs by particular users or client.  |  Playground to try the [token rate limiting policy](https://learn.microsoft.com/azure/api-management/azure-openai-token-limit-policy) to one or more Azure OpenAI endpoints. When the token usage is exceeded, the caller receives a 429. |
-| [🦾 Bicep](labs/access-controlling/main.bicep) ➕ [⚙️ Policy](labs/access-controlling/policy.xml) ➕ [🧾 Notebook](labs/access-controlling/access-controlling.ipynb) 🟰 [💬](../../issues/25 "Feedback loop discussion") | [🦾 Bicep](labs/token-rate-limiting/main.bicep) ➕ [⚙️ Policy](labs/token-rate-limiting/policy.xml) ➕ [🧾 Notebook](labs/token-rate-limiting/token-rate-limiting.ipynb) 🟰 [💬](../../issues/26 "Feedback loop discussion") |
-|  |  |
-|  |  |
-| [**🧪 Token metrics emitting**](labs/token-metrics-emitting/token-metrics-emitting.ipynb) | [**🧪 Semantic caching**](labs/semantic-caching/semantic-caching.ipynb) |
-| [![flow](images/token-metrics-emitting-small.gif)](labs/token-metrics-emitting/token-metrics-emitting.ipynb) | [![flow](images/semantic-caching-small.gif)](labs/semantic-caching/semantic-caching.ipynb) |
-| Playground to try the [emit token metric policy](https://learn.microsoft.com/azure/api-management/azure-openai-emit-token-metric-policy). The policy sends metrics to Application Insights about consumption of large language model tokens through Azure OpenAI Service APIs. | Playground to try the [semantic caching policy](https://learn.microsoft.com/azure/api-management/azure-openai-semantic-cache-lookup-policy). Uses vector proximity of the prompt to previous requests and a specified similarity score threshold. |
-| [🦾 Bicep](labs/token-metrics-emitting/main.bicep) ➕ [⚙️ Policy](labs/token-metrics-emitting/policy.xml) ➕ [🧾 Notebook](labs/token-metrics-emitting/token-metrics-emitting.ipynb) 🟰 [💬](../../issues/28 "Feedback loop discussion") | [🦾 Bicep](labs/semantic-caching/main.bicep) ➕ [⚙️ Policy](labs/semantic-caching/policy.xml) ➕ [🧾 Notebook](labs/semantic-caching/semantic-caching.ipynb) 🟰 [💬](../../issues/27 "Feedback loop discussion") |
-|  |  |
-|  |  |
-| [**🧪 Response streaming**](labs/response-streaming/response-streaming.ipynb) | [**🧪 Vector searching**](labs/vector-searching/vector-searching.ipynb) |
-| [![flow](images/response-streaming-small.gif)](labs/response-streaming/response-streaming.ipynb) | [![flow](images/vector-searching-small.gif)](labs/vector-searching/vector-searching.ipynb) |
-| Playground to try response streaming with Azure API Management and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/azure/api-management/how-to-server-sent-events#guidelines-for-sse).| Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions. |
-| [🦾 Bicep](labs/response-streaming/main.bicep) ➕ [⚙️ Policy](labs/response-streaming/policy.xml) ➕ [🧾 Notebook](labs/response-streaming/response-streaming.ipynb) 🟰 [💬](../../issues/18 "Feedback loop discussion") | [🦾 Bicep](labs/vector-searching/main.bicep) ➕ [⚙️ Policy](labs/vector-searching/policy.xml) ➕ [🧾 Notebook](labs/vector-searching/vector-searching.ipynb) 🟰 [💬](../../issues/19 "Feedback loop discussion") |
-|  |  |
-|  |  |
-| [**🧪 Built-in logging**](labs/built-in-logging/built-in-logging.ipynb) | [**🧪 SLM self-hosting**](labs/slm-self-hosting/slm-self-hosting.ipynb) (phy-3) |
-| [![flow](images/built-in-logging-small.gif)](labs/built-in-logging/built-in-logging.ipynb) | [![flow](images/slm-self-hosting-small.gif)](labs/slm-self-hosting/slm-self-hosting.ipynb) |
-| Playground to try the [buil-in logging capabilities of Azure API Management](https://learn.microsoft.com/azure/api-management/observability). Logs requests into App Insights to track details and token usage. | Playground to try the self-hosted [phy-3 Small Language Model (SLM)](https://azure.microsoft.com/blog/introducing-phi-3-redefining-whats-possible-with-slms/) through the [Azure API Management self-hosted gateway](https://learn.microsoft.com/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility. |
-| [🦾 Bicep](labs/built-in-logging/main.bicep) ➕ [⚙️ Policy](labs/built-in-logging/policy.xml) ➕ [🧾 Notebook](labs/built-in-logging/built-in-logging.ipynb) 🟰 [💬](../../issues/20 "Feedback loop discussion") | [🦾 Bicep](labs/slm-self-hosting/main.bicep) ➕ [⚙️ Policy](labs/slm-self-hosting/policy.xml) ➕ [🧾 Notebook](labs/slm-self-hosting/slm-self-hosting.ipynb) 🟰 [💬](../../issues/21 "Feedback loop discussion") |
-|  |  |
-|  |  |
-| [**🧪 GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) | [**🧪 Message storing**](labs/message-storing/message-storing.ipynb) |
-| [![flow](images/GPT-4o-inferencing-small.gif)](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)  | [![flow](images/message-storing-small.gif)](labs/message-storing/message-storing.ipynb) |
-| Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats. | Playground to test storing message details into Cosmos DB through the [Log to event hub](https://learn.microsoft.com/azure/api-management/log-to-eventhub-policy) policy. With the policy we can control which data will be stored in the DB (prompt, completion, model, region, tokens etc.).  |
-| [🦾 Bicep](labs/GPT-4o-inferencing/main.bicep) ➕ [⚙️ Policy](labs/GPT-4o-inferencing/policy.xml) ➕ [🧾 Notebook](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) 🟰 [💬](../../issues/29 "Feedback loop discussion") | [🦾 Bicep](labs/message-storing/main.bicep) ➕ [⚙️ Policy](labs/message-storing/policy.xml) ➕ [🧾 Notebook](labs/message-storing/message-storing.ipynb) 🟰 [💬](../../issues/34 "Feedback loop discussion") |
-|  |  |
-|  |  |
-| [**🧪 Developer tooling** (WIP)](labs/developer-tooling/developer-tooling.ipynb) | [**🧪 Function calling**](labs/function-calling/function-calling.ipynb) |
-| [![flow](images/developer-tooling-small.gif)](labs/developer-tooling/developer-tooling.ipynb)  | [![flow](images/function-calling-small.gif)](labs/function-calling/function-calling.ipynb) |
-| Playground to try the developer tooling available with Azure API Management to develop, debug, test and publish AI Service APIs. | Playground to try the OpenAI [function calling](https://learn.microsoft.com/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API that is also managed by Azure API Management.  |
-| [🦾 Bicep](labs/developer-tooling/main.bicep) ➕ [⚙️ Policy](labs/developer-tooling/policy.xml) ➕ [🧾 Notebook](labs/developer-tooling/developer-tooling.ipynb) 🟰 [💬](../../issues/35 "Feedback loop discussion") | [🦾 Bicep](labs/function-calling/main.bicep) ➕ [⚙️ Policy](labs/function-calling/policy.xml) ➕ [🧾 Notebook](labs/function-calling/function-calling.ipynb) 🟰 [💬](../../issues/36 "Feedback loop discussion") |
-|  |  |
-|  |  |
-| [**🧪 Model Routing**](labs/model-routing/model-routing.ipynb) | [**🧪 Prompt flow**](labs/prompt-flow/prompt-flow.ipynb) |
-| [![flow](images/model-routing-small.gif)](labs/model-routing/model-routing.ipynb)  | [![flow](images/prompt-flow-small.gif)](labs/prompt-flow/prompt-flow.ipynb) |
-| Playground to try routing to a backend based on Azure OpenAI model and version. | Playground to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/azure/ai-studio/how-to/prompt-flow) with Azure API Management. |
-| [🦾 Bicep](labs/model-routing/main.bicep) ➕ [⚙️ Policy](labs/model-routing/policy.xml) ➕ [🧾 Notebook](labs/model-routing/model-routing.ipynb) 🟰 [💬](../../issues/37 "Feedback loop discussion") | [🦾 Bicep](labs/prompt-flow/main.bicep) ➕ [⚙️ Policy](labs/prompt-flow/policy.xml) ➕ [🧾 Notebook](labs/prompt-flow/prompt-flow.ipynb) 🟰 [💬](../../issues/38 "Feedback loop discussion") |
-|  |  |
-|  |  |
-| [**🧪 Content Filtering**](labs/content-filtering/content-filtering.ipynb) | [**🧪 Prompt Shielding**](labs/content-filtering/prompt-shielding.ipynb) |
-| [![flow](images/content-filtering-small.gif)](labs/content-filtering/content-filtering.ipynb)  | [![flow](images/content-filtering-small.gif)](labs/content-filtering/prompt-shielding.ipynb) |
-| Playground to try integrating Azure API Management with [Azure AI Content Safety](https://learn.microsoft.com/azure/ai-services/content-safety/overview) to filter potentially offensive, risky, or undesirable content. | Playground to try Prompt Shields from Azure AI Content Safety service that analyzes LLM inputs and detects User Prompt attacks and Document attacks, which are two common types of adversarial inputs. |
-| [🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/content-filtering-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/content-filtering.ipynb) 🟰 [💬](../../issues/52 "Feedback loop discussion") | [🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/prompt-shield-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/prompt-shielding.ipynb) 🟰 [💬](../../issues/53 "Feedback loop discussion") |
-|  |  |
-|  |  |
+### Current Labs
 
-### Backlog of experiments
+These labs are currently recommended after which to model your workloads.
+
+<!-- Backend pool load balancing -->
+#### [**🧪 Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) (built-in)
+
+Playground to try the built-in load balancing [backend pool functionality of Azure API Management](https://learn.microsoft.com/azure/api-management/backends?tabs=bicep) to either a list of Azure OpenAI endpoints or mock servers.
+
+[<img src="images/backend-pool-load-balancing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb)
+
+[🦾 Bicep](labs/backend-pool-load-balancing/main.bicep) ➕ [⚙️ Policy](labs/backend-pool-load-balancing/policy.xml) ➕ [🧾 Notebook](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) 🟰 [💬](../../issues/16 "Feedback loop discussion")
+
+<!-- Token rate limiting -->
+#### [**🧪 Token rate limiting**](labs/token-rate-limiting/token-rate-limiting.ipynb)
+
+Playground to try the [token rate limiting policy](https://learn.microsoft.com/azure/api-management/azure-openai-token-limit-policy) to one or more Azure OpenAI endpoints. When the token usage is exceeded, the caller receives a 429.
+
+[<img src="images/token-rate-limiting-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/token-rate-limiting/token-rate-limiting.ipynb)
+
+[🦾 Bicep](labs/token-rate-limiting/main.bicep) ➕ [⚙️ Policy](labs/token-rate-limiting/policy.xml) ➕ [🧾 Notebook](labs/token-rate-limiting/token-rate-limiting.ipynb) 🟰 [💬](../../issues/26 "Feedback loop discussion")
+
+<!-- Token metrics emitting -->
+#### [**🧪 Token metrics emitting**](labs/token-metrics-emitting/token-metrics-emitting.ipynb)
+
+Playground to try the [emit token metric policy](https://learn.microsoft.com/azure/api-management/azure-openai-emit-token-metric-policy). The policy sends metrics to Application Insights about consumption of large language model tokens through Azure OpenAI Service APIs.
+
+[<img src="images/token-metrics-emitting-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/token-metrics-emitting/token-metrics-emitting.ipynb)
+
+[🦾 Bicep](labs/token-metrics-emitting/main.bicep) ➕ [⚙️ Policy](labs/token-metrics-emitting/policy.xml) ➕ [🧾 Notebook](labs/token-metrics-emitting/token-metrics-emitting.ipynb) 🟰 [💬](../../issues/28 "Feedback loop discussion")
+
+<!-- Semantic caching -->
+#### [**🧪 Semantic caching**](labs/semantic-caching/semantic-caching.ipynb)
+
+Playground to try the [semantic caching policy](https://learn.microsoft.com/azure/api-management/azure-openai-semantic-cache-lookup-policy). Uses vector proximity of the prompt to previous requests and a specified similarity score threshold.
+
+[<img src="images/semantic-caching-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/semantic-caching/semantic-caching.ipynb)
+
+[🦾 Bicep](labs/semantic-caching/main.bicep) ➕ [⚙️ Policy](labs/semantic-caching/policy.xml) ➕ [🧾 Notebook](labs/semantic-caching/semantic-caching.ipynb) 🟰 [💬](../../issues/27 "Feedback loop discussion")
+
+<!-- Access controlling -->
+#### [**🧪 Access controlling**](labs/access-controlling/access-controlling.ipynb)
+
+Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.com/azure/api-management/api-management-authenticate-authorize-azure-openai#oauth-20-authorization-using-identity-provider) using identity provider to enable more fine-grained access to OpenAPI APIs by particular users or client.
+
+[<img src="images/access-controlling-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/access-controlling/access-controlling.ipynb)
+
+[🦾 Bicep](labs/access-controlling/main.bicep) ➕ [⚙️ Policy](labs/access-controlling/policy.xml) ➕ [🧾 Notebook](labs/access-controlling/access-controlling.ipynb) 🟰 [💬](../../issues/25 "Feedback loop discussion")
+
+<!-- GPT-4o inferencing -->
+#### [**🧪 GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
+
+Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats.
+
+[<img src="images/GPT-4o-inferencing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
+
+[🦾 Bicep](labs/GPT-4o-inferencing/main.bicep) ➕ [⚙️ Policy](labs/GPT-4o-inferencing/policy.xml) ➕ [🧾 Notebook](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) 🟰 [💬](../../issues/29 "Feedback loop discussion")
+
+<!-- Function calling -->
+#### [**🧪 Function calling**](labs/function-calling/function-calling.ipynb)
+
+Playground to try the OpenAI [function calling](https://learn.microsoft.com/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API that is also managed by Azure API Management.
+
+[<img src="images/function-calling-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/function-calling/function-calling.ipynb)
+
+[🦾 Bicep](labs/function-calling/main.bicep) ➕ [⚙️ Policy](labs/function-calling/policy.xml) ➕ [🧾 Notebook](labs/function-calling/function-calling.ipynb) 🟰 [💬](../../issues/36 "Feedback loop discussion")
+
+<!-- Model Routing -->
+#### [**🧪 Model Routing**](labs/model-routing/model-routing.ipynb)
+
+Playground to try routing to a backend based on Azure OpenAI model and version.
+
+[<img src="images/model-routing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/model-routing/model-routing.ipynb)
+
+[🦾 Bicep](labs/model-routing/main.bicep) ➕ [⚙️ Policy](labs/model-routing/policy.xml) ➕ [🧾 Notebook](labs/model-routing/model-routing.ipynb) 🟰 [💬](../../issues/37 "Feedback loop discussion")
+
+<!-- Response streaming -->
+#### [**🧪 Response streaming**](labs/response-streaming/response-streaming.ipynb)
+
+Playground to try response streaming with Azure API Management and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/azure/api-management/how-to-server-sent-events#guidelines-for-sse).
+
+[<img src="images/response-streaming-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/response-streaming/response-streaming.ipynb)
+
+[🦾 Bicep](labs/response-streaming/main.bicep) ➕ [⚙️ Policy](labs/response-streaming/policy.xml) ➕ [🧾 Notebook](labs/response-streaming/response-streaming.ipynb) 🟰 [💬](../../issues/18 "Feedback loop discussion")
+
+<!-- Vector searching -->
+#### [**🧪 Vector searching**](labs/vector-searching/vector-searching.ipynb)
+
+Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/azure/search/retrieval-augmented-generation-overview) with Azure AI Search, Azure OpenAI embeddings and Azure OpenAI completions.
+
+[<img src="images/vector-searching-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/vector-searching/vector-searching.ipynb)
+
+[🦾 Bicep](labs/vector-searching/main.bicep) ➕ [⚙️ Policy](labs/vector-searching/policy.xml) ➕ [🧾 Notebook](labs/vector-searching/vector-searching.ipynb) 🟰 [💬](../../issues/19 "Feedback loop discussion")
+
+<!-- Built-in logging -->
+#### [**🧪 Built-in logging**](labs/built-in-logging/built-in-logging.ipynb)
+
+Playground to try the [buil-in logging capabilities of Azure API Management](https://learn.microsoft.com/azure/api-management/observability). Logs requests into App Insights to track details and token usage.
+
+[<img src="images/built-in-logging-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/built-in-logging/built-in-logging.ipynb)
+
+[🦾 Bicep](labs/built-in-logging/main.bicep) ➕ [⚙️ Policy](labs/built-in-logging/policy.xml) ➕ [🧾 Notebook](labs/built-in-logging/built-in-logging.ipynb) 🟰 [💬](../../issues/20 "Feedback loop discussion")
+
+<!-- SLM self-hosting -->
+#### [**🧪 SLM self-hosting**](labs/slm-self-hosting/slm-self-hosting.ipynb) (phy-3)
+
+Playground to try the self-hosted [phy-3 Small Language Model (SLM)](https://azure.microsoft.com/blog/introducing-phi-3-redefining-whats-possible-with-slms/) through the [Azure API Management self-hosted gateway](https://learn.microsoft.com/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.
+
+[<img src="images/slm-self-hosting-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/slm-self-hosting/slm-self-hosting.ipynb)
+
+[🦾 Bicep](labs/slm-self-hosting/main.bicep) ➕ [⚙️ Policy](labs/slm-self-hosting/policy.xml) ➕ [🧾 Notebook](labs/slm-self-hosting/slm-self-hosting.ipynb) 🟰 [💬](../../issues/21 "Feedback loop discussion")
+
+<!-- Message storing -->
+#### [**🧪 Message storing**](labs/message-storing/message-storing.ipynb)
+
+Playground to test storing message details into Cosmos DB through the [Log to event hub](https://learn.microsoft.com/azure/api-management/log-to-eventhub-policy) policy. With the policy we can control which data will be stored in the DB (prompt, completion, model, region, tokens etc.).
+
+[<img src="images/message-storing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/message-storing/message-storing.ipynb)
+
+[🦾 Bicep](labs/message-storing/main.bicep) ➕ [⚙️ Policy](labs/message-storing/policy.xml) ➕ [🧾 Notebook](labs/message-storing/message-storing.ipynb) 🟰 [💬](../../issues/34 "Feedback loop discussion")
+
+<!-- Developer tooling -->
+<!-- #### [**🧪 Developer tooling** (WIP)](labs/developer-tooling/developer-tooling.ipynb)
+
+Playground to try the developer tooling available with Azure API Management to develop, debug, test and publish AI Service APIs.
+
+[<img src="images/developer-tooling-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/developer-tooling/developer-tooling.ipynb)
+
+[🦾 Bicep](labs/developer-tooling/main.bicep) ➕ [⚙️ Policy](labs/developer-tooling/policy.xml) ➕ [🧾 Notebook](labs/developer-tooling/developer-tooling.ipynb) 🟰 [💬](../../issues/35 "Feedback loop discussion") -->
+
+<!-- Prompt flow -->
+#### [**🧪 Prompt flow**](labs/prompt-flow/prompt-flow.ipynb)
+
+Playground to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/azure/ai-studio/how-to/prompt-flow) with Azure API Management.
+
+[<img src="images/prompt-flow-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/prompt-flow/prompt-flow.ipynb)
+
+[🦾 Bicep](labs/prompt-flow/main.bicep) ➕ [⚙️ Policy](labs/prompt-flow/policy.xml) ➕ [🧾 Notebook](labs/prompt-flow/prompt-flow.ipynb) 🟰 [💬](../../issues/38 "Feedback loop discussion")
+
+<!-- Content Filtering -->
+#### [**🧪 Content Filtering**](labs/content-filtering/content-filtering.ipynb)
+
+Playground to try integrating Azure API Management with [Azure AI Content Safety](https://learn.microsoft.com/azure/ai-services/content-safety/overview) to filter potentially offensive, risky, or undesirable content.
+
+[<img src="images/content-filtering-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/content-filtering/content-filtering.ipynb)
+
+[🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/content-filtering-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/content-filtering.ipynb) 🟰 [💬](../../issues/52 "Feedback loop discussion")
+
+<!-- Prompt Shielding -->
+#### [**🧪 Prompt Shielding**](labs/content-filtering/prompt-shielding.ipynb)
+
+Playground to try Prompt Shields from Azure AI Content Safety service that analyzes LLM inputs and detects User Prompt attacks and Document attacks, which are two common types of adversarial inputs.
+
+[<img src="images/content-filtering-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/content-filtering/prompt-shielding.ipynb)
+
+[🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/prompt-shield-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/prompt-shielding.ipynb) 🟰 [💬](../../issues/53 "Feedback loop discussion")
+
+### Deprecated Labs
+
+These labs are no longer applicable. If you have implemented logic from these labs, please consider updating.
+
+<!-- Advanced load balancing -->
+#### [**🧪 Advanced load balancing**](labs/advanced-load-balancing/advanced-load-balancing.ipynb) (custom)
+
+Playground to try the advanced load balancing (based on a custom [Azure API Management policy](https://learn.microsoft.com/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers.
+
+[<img src="images/advanced-load-balancing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/advanced-load-balancing/advanced-load-balancing.ipynb)
+
+[🦾 Bicep](labs/advanced-load-balancing/main.bicep) ➕ [⚙️ Policy](labs/advanced-load-balancing/policy.xml) ➕ [🧾 Notebook](labs/advanced-load-balancing/advanced-load-balancing.ipynb) 🟰 [💬](../../issues/17 "Feedback loop discussion")
+
+### Backlog of Labs
+
+This is a list of potential future labs to be developed.
 
 * Assistants load balancing
 * Logic Apps RAG
