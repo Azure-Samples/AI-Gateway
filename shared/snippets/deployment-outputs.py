@@ -13,6 +13,7 @@ apim_subscription3_key = outputs.get('apimSubscription3Key', {}).get('value', ''
 apim_resource_gateway_url = outputs.get('apimResourceGatewayURL', {}).get('value', '')
 workspace_id = outputs.get('logAnalyticsWorkspaceId', {}).get('value', '')
 app_id = outputs.get('applicationInsightsAppId', {}).get('value', '')
+app_insights_name = outputs.get('applicationInsightsName', {}).get('value', '')
 function_app_resource_name = outputs.get('functionAppResourceName', {}).get('value', '')
 cosmosdb_connection_string = outputs.get('cosmosDBConnectionString', {}).get('value', '')
 
@@ -40,6 +41,9 @@ if workspace_id:
 
 if app_id:
     print(f"👉🏻 App ID: {app_id}")
+
+if app_insights_name:
+    print(f"👉🏻 Application Insights Name: {app_insights_name}")
 
 if function_app_resource_name:
     print(f"👉🏻 Function Name: {function_app_resource_name}")
