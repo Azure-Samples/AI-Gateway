@@ -81,19 +81,19 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
 
 @batchSize(1)
 resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-    name: openAIDeploymentName
-    parent: cognitiveServices[i]
-    properties: {
-      model: {
-        format: 'OpenAI'
-        name: openAIModelName
-        version: openAIModelVersion
-      }
+  name: openAIDeploymentName
+  parent: cognitiveServices[i]
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: openAIModelName
+      version: openAIModelVersion
     }
-    sku: {
-        name: 'Standard'
-        capacity: openAIModelCapacity
-    }
+  }
+  sku: {
+      name: 'Standard'
+      capacity: openAIModelCapacity
+  }
 }]
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
