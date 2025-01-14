@@ -16,15 +16,18 @@ param openAIModelCapacity int = 8
 // ------------------
 
 var updatedPolicyXml = loadTextContent('policy-updated.xml')
-var azureRoles = loadJsonContent('../../modules/azure-roles.json')
-var cognitiveServicesOpenAIUserRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesOpenAIUser)
 
 // ------------------
 //    RESOURCES
 // ------------------
 
-// 1. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
+// 1. API Management Instance
+module apimModule '../../modules/apim/v2/apim.bicep' = {
+  name: 'apimModule'
+}
+
+// 2. Cognitive Services
+module openAIModule '../../modules/cognitive-services/v2/openai.bicep' = {
   name: 'openAIModule'
   params: {
     openAIConfig: openAIConfig
@@ -32,32 +35,20 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
     openAIModelName: openAIModelName
     openAIModelVersion: openAIModelVersion
     openAIModelCapacity: openAIModelCapacity
+    apimPrincipalId: apimModule.outputs.principalId
   }
 }
 
 var extendedOpenAIConfig = openAIModule.outputs.extendedOpenAIConfig
 
-// 2. API Management
-module apimModule '../../modules/apim/v1/apim.bicep' = {
-  name: 'apimModule'
+// 3. API Management APIs
+module apimOpenAIAPIModule '../../modules/apim-openai-api/v1/openai-api.bicep' = {
+  name: 'apimOpenAIAPIModule'
   params: {
-    policyXml: updatedPolicyXml
     openAIConfig: extendedOpenAIConfig
     openAIAPIVersion: openAIAPIVersion
+    policyXml: updatedPolicyXml
   }
-}
-
-var apimPrincipalId = apimModule.outputs.principalId
-
-// 3. RBAC Assignment
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(length(openAIConfig) > 0) {
-  scope: resourceGroup()
-  name: guid(subscription().id, resourceGroup().id, openAIConfig[0].name, cognitiveServicesOpenAIUserRoleDefinitionID)
-    properties: {
-        roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
-        principalId: apimPrincipalId
-        principalType: 'ServicePrincipal'
-    }
 }
 
 // ------------------
@@ -66,4 +57,4 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = i
 
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
-output apimSubscriptionKey string = apimModule.outputs.subscriptionPrimaryKey
+output apimSubscriptionKey string = apimOpenAIAPIModule.outputs.subscriptionPrimaryKey
