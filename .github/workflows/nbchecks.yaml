@@ -1,0 +1,28 @@
+name: notebook-checks
+
+on:
+  pull_request:
+    paths:
+      - "**/*.ipynb"
+    branches: [main]
+  push:
+    paths:
+      - "**/*.ipynb"
+    branches: [main]
+  
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  nbchecks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.12"
+      - uses: actions/checkout@v1
+      - name: nbchecks
+        run: |
+          python ./.github/workflows/nbchecks.py
