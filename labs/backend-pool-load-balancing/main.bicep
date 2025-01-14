@@ -39,13 +39,11 @@ module openAIModule '../../modules/cognitive-services/v2/openai.bicep' = {
   }
 }
 
-var extendedOpenAIConfig = openAIModule.outputs.extendedOpenAIConfig
-
 // 3. API Management APIs
 module apimOpenAIAPIModule '../../modules/apim-openai-api/v1/openai-api.bicep' = {
   name: 'apimOpenAIAPIModule'
   params: {
-    openAIConfig: extendedOpenAIConfig
+    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
     openAIAPIVersion: openAIAPIVersion
     policyXml: updatedPolicyXml
   }
