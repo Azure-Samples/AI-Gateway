@@ -20,12 +20,6 @@ session.headers.update({
 })
 
 try:
-    # Warm up the APIM instance prior to the first meaningful request.
-    apim_status_url = f"{apim_resource_gateway_url}/status-0123456789abcdef"
-    print(f"🔥 Warming up the APIM instance with a GET request to {apim_status_url}")
-    response = session.get(apim_status_url)
-    print(f"Response status: {response.status_code}\n")
-
     for i in range(runs):
         print(f"▶️ Run {i+1}/{runs}:")
 
