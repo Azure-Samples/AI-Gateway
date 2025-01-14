@@ -32,11 +32,17 @@ param openAIConfig array = []
 @description('Log Analytics Workspace Id')
 param lawId string = ''
 
+@description('APIM Pricipal Id')
+param  apimPrincipalId string
+
 // ------------------
 //    VARIABLES
 // ------------------
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
+var azureRoles = loadJsonContent('../../azure-roles.json')
+var cognitiveServicesOpenAIUserRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesOpenAIUser)
+
 
 // ------------------
 //    RESOURCES
@@ -73,6 +79,7 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
   }
 }]
 
+@batchSize(1)
 resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
     name: openAIDeploymentName
     parent: cognitiveServices[i]
@@ -88,6 +95,17 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01
         capacity: openAIModelCapacity
     }
 }]
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+  scope: cognitiveServices[i]
+  name: guid(subscription().id, resourceGroup().id, config.name, cognitiveServicesOpenAIUserRoleDefinitionID)
+    properties: {
+        roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
+        principalId: apimPrincipalId
+        principalType: 'ServicePrincipal'
+    }
+}]
+
 
 // ------------------
 //    OUTPUTS
