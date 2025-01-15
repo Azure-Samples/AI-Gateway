@@ -122,7 +122,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-prev
       rules: [
         {
           failureCondition: {
-            count: 3
+            count: 1
             errorReasons: [
               'Server errors'
             ]
@@ -136,6 +136,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-prev
           }
           name: 'openAIBreakerRule'
           tripDuration: 'PT1M'
+          acceptRetryAfter: true
         }
       ]
     }
