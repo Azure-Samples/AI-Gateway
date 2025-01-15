@@ -4,19 +4,13 @@
 
         <!-- Use a <choose> block to evaluate deployment-id -->
         <choose>
-            <when condition="@(
-                context.Request.MatchedParameters["deployment-id"] == "gpt-35-turbo-1106"
-            )">
+            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-35-turbo-1106")">
                 <set-backend-service backend-id="{backend-id-1}" />
             </when>
-            <when condition="@(
-                context.Request.MatchedParameters["deployment-id"] == "gpt-35-turbo-0125"
-            )">
+            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-35-turbo-0125")">
                 <set-backend-service backend-id="{backend-id-2}" />
             </when>
-            <when condition="@(
-                context.Request.MatchedParameters["deployment-id"] == "gpt-4o-2024-05-13"
-            )">
+            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-4o-2024-05-13")">
                 <set-backend-service backend-id="{backend-id-3}" />
             </when>
             <otherwise>
