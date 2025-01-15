@@ -21,7 +21,15 @@ param openAIAPIVersion string
 //    RESOURCES
 // ------------------
 
-// 1. Cognitive Services
+// 1. API Management
+module apimModule '../../modules/apim/v1/apim.bicep' = {
+  name: 'apimModule'
+  params: {
+    apimSku: apimSku
+  }
+}
+
+// 2. Cognitive Services
 module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
   name: 'openAIModule'
   params: {
@@ -34,14 +42,7 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
   }
 }
 
-// 2. API Management
-module apimModule '../../modules/apim/v1/apim.bicep' = {
-  name: 'apimModule'
-  params: {
-    apimSku: apimSku
-  }
-}
-
+// 3. APIM OpenAI API
 module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
   name: 'openAIAPIModule'
   params: {
