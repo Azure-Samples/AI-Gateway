@@ -112,8 +112,12 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
 // ------------------
 
 output extendedOpenAIConfig array = [for (config, i) in openAIConfig: {
+  // Original openAIConfig properties
   name: config.name
   location: config.location
+  priority: config.?priority
+  weight: config.?weight
+  // Additional properties
   sku: openAISku
   deploymentName: openAIDeploymentName
   modelName: openAIModelName

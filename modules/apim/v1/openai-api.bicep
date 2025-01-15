@@ -153,9 +153,10 @@ resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-
     type: 'Pool'
     pool: {
       services: [for (config, i) in openAIConfig: {
-          id: '/backends/${backendOpenAI[i].name}'
-        }
-      ]
+        id: '/backends/${backendOpenAI[i].name}'
+        priority: config.?priority
+        weight: config.?weight
+      }]
     }
   }
 }
