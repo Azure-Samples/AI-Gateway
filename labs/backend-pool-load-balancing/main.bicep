@@ -45,8 +45,9 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
 // 3. APIM OpenAI API
 module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
   name: 'openAIAPIModule'
-  params: {
-    policyXml: loadTextContent('policy.xml')
+  params: {    
+    policyXml: replace(loadTextContent('policy.xml'), '{backend-id}', 
+        (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
     openAIConfig: openAIModule.outputs.extendedOpenAIConfig
     openAIAPIVersion: openAIAPIVersion
   }
