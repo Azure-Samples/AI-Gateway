@@ -16,6 +16,9 @@ param openAIAPIVersion string
 //    VARIABLES
 // ------------------
 
+// Account for all placeholders in the polixy.xml file.
+var policyXml = loadTextContent('policy.xml')
+var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
 
 // ------------------
 //    RESOURCES
@@ -46,7 +49,7 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
 module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
   name: 'openAIAPIModule'
   params: {
-    policyXml: loadTextContent('policy.xml')
+    policyXml: updatedPolicyXml
     openAIConfig: openAIModule.outputs.extendedOpenAIConfig
     openAIAPIVersion: openAIAPIVersion
   }
