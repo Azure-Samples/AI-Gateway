@@ -21,6 +21,10 @@ var openAISubscriptionName = 'openai-subscription'
 var openAISubscriptionDescription = 'OpenAI Subscription'
 var openAIAPIName = 'openai'
 
+// Account for all placeholders in the polixy.xml file.
+var policyXml = loadTextContent('policy.xml')
+var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
+
 // ------------------
 //    RESOURCES
 // ------------------
@@ -72,12 +76,13 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
 module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
   name: 'openAIAPIModule'
   params: {
-    policyXml: loadTextContent('policy.xml')
+    policyXml: updatedPolicyXml
     openAIConfig: openAIModule.outputs.extendedOpenAIConfig
     openAIAPIVersion: openAIAPIVersion
+    appInsightsInstrumentationKey: appInsightsInstrumentationKey
+    appInsightsId: appInsightsId
   }
 }
-
 
 // We presume the APIM resource has been created as part of this bicep flow.
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
@@ -109,7 +114,6 @@ resource apimSubscriptions 'Microsoft.ApiManagement/service/subscriptions@2024-0
     api
   ]
 }]
-
 
 // ------------------
 //    OUTPUTS
