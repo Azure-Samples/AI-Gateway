@@ -34,40 +34,44 @@ def cleanup_resources(deployment_name, resource_group_name = None):
         resource_group_name = f"lab-{deployment_name}"
 
     try:
-        print_message(f"🧹 Cleaning up deployment '{deployment_name}' resources in resource group '{resource_group_name}'...")
+        print_info(f"🧹 Cleaning up resource group '{resource_group_name}'...")
 
         # Show the deployment details
         output = run(f"az deployment group show --name {deployment_name} -g {resource_group_name} -o json", "Deployment retrieved", "Failed to retrieve the deployment")
 
         if output.success and output.json_data:
-            resources = output.json_data.get("properties", {}).get("outputResources", [])
+            provisioning_state = output.json_data.get("properties").get("provisioningState")
+            print_info(f"Deployment provisioning state: {provisioning_state}")
 
-            if resources is None:
-                print_error(f"No resources found for deployment '{deployment_name}'.")
-                return
-            else:
-                i = 1
+            # Delete and purge CognitiveService accounts
+            output = run(f" az cognitiveservices account list -g {resource_group_name}", f"Listed CognitiveService accounts", f"Failed to list CognitiveService accounts")
+            if output.success and output.json_data:
+                for resource in output.json_data:
+                    print_info(f"Deleting and purging Cognitive Service Account '{resource['name']}' in resource group '{resource_group_name}'...")
+                    output = run(f"az cognitiveservices account delete -g {resource_group_name} -n {resource['name']}", f"Cognitive Services '{resource['name']}' deleted", f"Failed to delete Cognitive Services '{resource['name']}'")
+                    output = run(f"az cognitiveservices account purge -g {resource_group_name} -n {resource['name']} -l \"{resource['location']}\"", f"Cognitive Services '{resource['name']}' purged", f"Failed to purge Cognitive Services '{resource['name']}'")
 
-                # Iterate over the resources in the deployment
-                for resource in resources:
-                    print(f"\n🔍  Processing resource {i}/{len(resources)}...")
-                    resource_id = resource.get("id")
-                    i+=1
+            # Delete and purge APIM resources
+            output = run(f" az apim list -g {resource_group_name}", f"Listed APIM resources", f"Failed to list APIM resources")
+            if output.success and output.json_data:
+                for resource in output.json_data:
+                    print_info(f"Deleting and purging API Management '{resource['name']}' in resource group '{resource_group_name}'...")
+                    output = run(f"az apim delete -n {resource['name']} -g {resource_group_name} -y", f"API Management '{resource['name']}' deleted", f"Failed to delete API Management '{resource['name']}'")
+                    output = run(f"az apim deletedservice purge --service-name {resource['name']} --location \"{resource['location']}\"", f"API Management '{resource['name']}' purged", f"Failed to purge API Management '{resource['name']}'")
 
-                    try:
-                        output = run(f"az resource show --id {resource_id} --query \"{{type:type, name:name, location:location}}\" -o json")
+            # Delete and purge Key Vault resources
+            output = run(f" az keyvault list -g {resource_group_name}", f"Listed Key Vault resources", f"Failed to list Key Vault resources")
+            if output.success and output.json_data:
+                for resource in output.json_data:
+                    print_info(f"Deleting and purging Key Vault '{resource['name']}' in resource group '{resource_group_name}'...")
+                    output = run(f"az keyvault delete -n {resource['name']} -g {resource_group_name}", f"Key Vault '{resource['name']}' deleted", f"Failed to delete Key Vault '{resource['name']}'")
+                    output = run(f"az keyvault purge -n {resource['name']} --location \"{resource['location']}\"", f"Key Vault '{resource['name']}' purged", f"Failed to purge Key Vault '{resource['name']}'")
 
-                        if output.success and output.json_data:
-                            delete_resource(output.json_data, resource_group_name)
+            # Delete the resource group last
+            print_message(f"🧹 Deleting resource group '{resource_group_name}'...")
+            output = run(f"az group delete --name {resource_group_name} -y", f"Resource group '{resource_group_name}' deleted", f"Failed to delete resource group '{resource_group_name}'")
 
-                    except Exception as e:
-                        print(f"✌🏻 {resource_id} ignored due to error: {e}")
-                        traceback.print_exc()
-
-        # Delete the resource group last
-        output = run(f"az group delete --name {resource_group_name} -y", f"Resource group '{resource_group_name}' deleted", f"Failed to delete resource group '{resource_group_name}'")
-
-        print_message("🧹 Cleanup completed.")
+            print_message("🧹 Cleanup completed.")
 
     except Exception as e:
         print(f"An error occurred during cleanup: {e}")
@@ -87,7 +91,7 @@ def create_resource_group(resource_group_name, resource_group_location = None):
             else:
                 print_info(f"Resource group {resource_group_name} does not yet exist. Creating the resource group now...")
 
-                output = run(f"az group create --name {resource_group_name} --location {resource_group_location}",
+                output = run(f"az group create --name {resource_group_name} --location {resource_group_location} --tags source=ai-gateway",
                     f"Resource group '{resource_group_name}' created",
                     f"Failed to create the resource group '{resource_group_name}'")
 
