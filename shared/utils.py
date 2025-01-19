@@ -22,7 +22,7 @@ class Output(object):
         try:
             self.json_data = json.loads(text)
         except:
-            self.json_data = None
+            self.json_data = json.loads("{}")   # return an empty JSON object if the output is not valid JSON rather than None as that makes consuming it easier this way
 
 # Cleans up resources associated with a deployment in a resource group
 def cleanup_resources(deployment_name, resource_group_name = None):

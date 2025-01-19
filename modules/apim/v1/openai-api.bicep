@@ -173,10 +173,6 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06
   }
 }
 
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' existing = {
-  name: apimLoggerName
-}
-
 // Create diagnostics only if we have an App Insights ID and instrumentation key.
 resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(appInsightsId) && !empty(appInsightsInstrumentationKey)) {
   name: 'applicationinsights'
@@ -185,7 +181,7 @@ resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-0
     alwaysLog: 'allErrors'
     httpCorrelationProtocol: 'W3C'
     logClientIp: true
-    loggerId: apimLogger.id
+    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apiManagementName, apimLoggerName)
     metrics: true
     verbosity: 'verbose'
     sampling: {
