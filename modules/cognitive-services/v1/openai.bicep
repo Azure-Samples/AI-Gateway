@@ -63,7 +63,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
   }
 }]
 
-// https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/diagnosticsettings
+// https://learn.microsoft.com/azure/templates/microsoft.insights/diagnosticsettings
 resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && lawId != '') {
   name: '${cognitiveServices[i].name}-diagnostics'
   scope: cognitiveServices[i]

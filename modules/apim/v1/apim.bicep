@@ -68,7 +68,7 @@ param apimUserAssignedManagedIdentityId string = ''
 //    RESOURCES
 // ------------------
 
-// https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
 resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
   name: apiManagementName
   location: location

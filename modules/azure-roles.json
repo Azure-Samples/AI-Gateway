@@ -1,5 +1,5 @@
 {
-    "__source": "https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles",
+    "__source": "https://learn.microsoft.com/azure/role-based-access-control/built-in-roles",
     "AcrPull": "7f951dda-4ed3-4680-a7ca-43fe172d538d",
     "AzureEventHubsDataOwner": "f526a384-b230-433a-b45c-95f59c4a2dec",
     "AzureEventHubsDataSender": "2b629674-e913-4c01-ae53-ef4638d8f975",

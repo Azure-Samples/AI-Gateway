@@ -77,7 +77,7 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existi
   name: apiManagementName
 }
 
-// https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/apis
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   name: openAIAPIName
   parent: apimService
@@ -100,7 +100,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   }
 }
 
-// https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/apis/policies
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/policies
 resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = {
   name: 'policy'
   parent: api
@@ -110,7 +110,7 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-pre
   }
 }
 
-// https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/backends
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
 resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
   name: config.name
   parent: apimService
@@ -143,7 +143,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-prev
   }
 }]
 
-// https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/service/backends
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
 resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = if(length(openAIConfig) > 1) {
   name: openAIBackendPoolName
   parent: apimService
