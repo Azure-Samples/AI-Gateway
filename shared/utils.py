@@ -179,3 +179,24 @@ def run(command, ok_message = '', error_message = '', print_output = False, prin
         print_message(ok_message if success else error_message, output_text if not success or print_output  else "", f"[{int(minutes)}m:{int(seconds)}s]")
 
     return Output(success, output_text)
+
+def create_bicep_params(policy_xml_filepath, parameters_filepath, bicep_parameters, replacements_list):
+    # Read the specified policy XML file
+    with open(policy_xml_filepath, 'r') as policy_xml_file:
+        policy_template_xml = policy_xml_file.read()
+
+    # Replace the placeholders in the policy XML with the actual values from the replacements_lists array
+    for key, value in replacements_list:
+        policy_template_xml = policy_template_xml.replace(key, str(value))
+
+    # Set or update the policyXml parameter in the bicep parameters file
+    bicep_parameters['parameters'].setdefault('policyXml', {})
+    bicep_parameters['parameters']['policyXml']['value'] = policy_template_xml
+
+    # Write the updated bicep parameters to the specified parameters file
+    with open(parameters_filepath, 'w') as bicep_parameters_file:
+        bicep_parameters_file.write(json.dumps(bicep_parameters))
+
+    print(f"📝 Updated the policy XML in the bicep parameters file '{parameters_filepath}'")
+
+    return bicep_parameters
