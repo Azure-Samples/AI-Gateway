@@ -9,7 +9,7 @@ __pycache__/
 .azure/
 
 labs-in-progress/
-params.json
+params*.json
 policy-updated.xml
 
 .vscode/**/*
