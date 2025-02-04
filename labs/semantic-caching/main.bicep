@@ -35,8 +35,10 @@ var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) 
 // ------------------
 
 // 1. Redis Cache
+// 2/4/25: 2024-10-01 is not yet available in all regions. 2024-09-01-preview is more widely available.
+
 // https://learn.microsoft.com/azure/templates/microsoft.cache/redisenterprise
-resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-10-01' = {
+resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-09-01-preview' = {
   name: '${redisCacheName}-${resourceSuffix}'
   location: resourceGroup().location
   sku: {
@@ -45,7 +47,7 @@ resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-10-01' = {
 }
 
 // https://learn.microsoft.com/azure/templates/microsoft.cache/redisenterprise/databases
-resource redisCache 'Microsoft.Cache/redisEnterprise/databases@2024-10-01' = {
+resource redisCache 'Microsoft.Cache/redisEnterprise/databases@2024-09-01-preview' = {
   name: 'default'
   parent: redisEnterprise
   properties: {
