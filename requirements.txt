@@ -17,3 +17,4 @@ opentelemetry-api
 pandas
 python-dotenv
 requests
+redis

@@ -1,22 +1,20 @@
 <policies>
     <inbound>
         <base />
+        <!-- Check the embeddings in the Redis cache for a cached prompt response according to the score threshold. If successful, the policy automatically moves past the azure-openai-semantic-cache-store policy. -->
+        <azure-openai-semantic-cache-lookup score-threshold="0.8" embeddings-backend-id ="embeddings-backend" embeddings-backend-auth ="system-assigned" />
         <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
         <set-header name="Authorization" exists-action="override">
             <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
         </set-header>
         <set-backend-service backend-id="{backend-id}" />
-        <azure-openai-semantic-cache-lookup
-            score-threshold="0.8"
-            embeddings-backend-id ="embeddings-backend"
-            embeddings-backend-auth ="system-assigned" >
-        </azure-openai-semantic-cache-lookup>
     </inbound>
     <backend>
         <base />
     </backend>
     <outbound>
-        <azure-openai-semantic-cache-store duration="60" />
+        <!-- Cache the Gen AI response in Redis for 2 minutes -->
+        <azure-openai-semantic-cache-store duration="120" />
         <base />
     </outbound>
     <on-error>
