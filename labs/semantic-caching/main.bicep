@@ -35,7 +35,8 @@ var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) 
 // ------------------
 
 // 1. Redis Cache
-resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-09-01-preview' = {
+// https://learn.microsoft.com/azure/templates/microsoft.cache/redisenterprise
+resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-10-01' = {
   name: '${redisCacheName}-${resourceSuffix}'
   location: resourceGroup().location
   sku: {
@@ -43,7 +44,8 @@ resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-09-01-preview' = 
   }
 }
 
-resource redisCache 'Microsoft.Cache/redisEnterprise/databases@2022-01-01' = {
+// https://learn.microsoft.com/azure/templates/microsoft.cache/redisenterprise/databases
+resource redisCache 'Microsoft.Cache/redisEnterprise/databases@2024-10-01' = {
   name: 'default'
   parent: redisEnterprise
   properties: {
@@ -70,7 +72,8 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existi
   name: apiManagementName
 }
 
-resource apimCache 'Microsoft.ApiManagement/service/caches@2021-12-01-preview' = {
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/caches
+resource apimCache 'Microsoft.ApiManagement/service/caches@2024-06-01-preview' = {
   name: 'Default'
   parent: apimService
   properties: {
@@ -144,6 +147,6 @@ output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
 output apimSubscriptionKey string = openAIAPIModule.outputs.subscriptionPrimaryKey
 
 output redisCacheHost string = redisEnterprise.properties.hostName
-#disable-next-line outputs-should-not-contain-secrets 
+#disable-next-line outputs-should-not-contain-secrets
 output redisCacheKey string = redisCache.listKeys().primaryKey
 output redisCachePort int = redisCachePort
