@@ -1,4 +1,4 @@
-import datetime, json, os, subprocess, time, traceback
+import datetime, json, os, subprocess, requests, time, traceback
 
 # Define ANSI escape code constants vor clarity in the print commands below
 RESET_FORMATTING = "\x1b[0m"
@@ -200,3 +200,29 @@ def create_bicep_params(policy_xml_filepath, parameters_filepath, bicep_paramete
     print(f"📝 Updated the policy XML in the bicep parameters file '{parameters_filepath}'")
 
     return bicep_parameters
+
+def update_api_policy(subscription_id, resource_group_name, apim_service_name, api_id, policy_xml):
+    # We first need to obtain an access token for the REST API
+    output = run(f"az account get-access-token --resource https://management.azure.com/",
+        f"Successfully obtained access token", f"Failed to obtain access token")
+
+    if output.success and output.json_data:
+        access_token = output.json_data['accessToken']
+
+        print("Updating the API policy...")
+        # https://learn.microsoft.com/en-us/rest/api/apimanagement/api-policy/create-or-update?view=rest-apimanagement-2024-06-01-preview
+        url = f"https://management.azure.com/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.ApiManagement/service/{apim_service_name}/apis/{api_id}/policies/policy?api-version=2024-06-01-preview"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}"
+        }
+
+        body = {
+            "properties": {
+                "format": "rawxml",
+                "value": policy_xml
+            }
+        }
+
+        response = requests.put(url, headers = headers, json = body)
+        print_response_code(response)
