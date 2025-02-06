@@ -8,6 +8,7 @@ param apimSku string
 param openAIConfig array = []
 param openAIModelName string
 param openAIModelVersion string
+param openAIModelSKU string
 param openAIDeploymentName string
 param openAIModelCapacity int
 param openAIAPIVersion string
@@ -93,11 +94,12 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
     openAIDeploymentName: openAIDeploymentName
     openAIModelName: openAIModelName
     openAIModelVersion: openAIModelVersion
+    openAIModelSKU: openAIModelSKU
     openAIModelCapacity: openAIModelCapacity
     apimPrincipalId: apimModule.outputs.principalId
   }
 }
-resource cognitiveService 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = if (length(openAIModule.outputs.extendedOpenAIConfig) > 0) {
+resource cognitiveService 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
   name: '${openAIConfig[0].name}-${resourceSuffix}'
 }
 resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
@@ -105,7 +107,7 @@ resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@
   parent: cognitiveService
   properties: {
     model: {
-      format: 'OpenAI'
+      format: (length(openAIModule.outputs.extendedOpenAIConfig) > 0) ? 'OpenAI': ''
       name: embeddingsModelName
       version: embeddingsModelVersion
     }
