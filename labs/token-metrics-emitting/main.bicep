@@ -8,6 +8,7 @@ param apimSku string
 param openAIConfig array = []
 param openAIModelName string
 param openAIModelVersion string
+param openAIModelSKU string
 param openAIDeploymentName string
 param openAIAPIVersion string = '2024-02-01'
 
@@ -67,6 +68,7 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
       openAIDeploymentName: openAIDeploymentName
       openAIModelName: openAIModelName
       openAIModelVersion: openAIModelVersion
+      openAIModelSKU: openAIModelSKU
       apimPrincipalId: apimModule.outputs.principalId
       lawId: lawId
     }
