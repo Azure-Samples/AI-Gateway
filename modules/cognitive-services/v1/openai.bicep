@@ -23,6 +23,9 @@ param openAIModelName string
 @description('Model Version')
 param openAIModelVersion string
 
+@description('Model SKU')
+param openAIModelSKU string = 'Standard'
+
 @description('Model Capacity')
 param openAIModelCapacity int = 20
 
@@ -91,7 +94,7 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01
     }
   }
   sku: {
-      name: 'Standard'
+      name: openAIModelSKU
       capacity: openAIModelCapacity
   }
 }]
