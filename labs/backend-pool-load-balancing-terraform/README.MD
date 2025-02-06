@@ -1,8 +1,8 @@
 # APIM ❤️ OpenAI
 
-## [Backend pool Load Balancing lab](backend-circuit-breaking.ipynb)
+## [Backend pool Load Balancing lab](backend-pool-load-balancing-tf.ipynb) (with Terraform)
 
-[![flow](../../images/backend-pool-load-balancing.gif)](backend-pool-load-balancing.ipynb)
+[![flow](../../images/backend-pool-load-balancing.gif)](backend-pool-load-balancing-tf.ipynb)
 
 Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/azure/api-management/backends?tabs=bicep) to a list of Azure OpenAI endpoints.
 **This is a typical prioritized PTU with fallback consumption scenario**. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.
@@ -19,10 +19,11 @@ Playground to try the built-in load balancing [backend pool functionality of API
 - [An Azure Subscription](https://azure.microsoft.com/free/) with Contributor permissions
 - [Access granted to Azure OpenAI](https://aka.ms/oai/access) or just enable the mock service
 - [Sign in to Azure with Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
+- [Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli) installed
 
 ### 🚀 Get started
 
-Proceed by opening the [Jupyter notebook](backend-pool-load-balancing.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](backend-pool-load-balancing-tf.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 
