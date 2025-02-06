@@ -9,6 +9,7 @@ param openAIConfig array = []
 param openAIModelName string
 param openAIModelVersion string
 param openAIDeploymentName string
+param openAIModelSKU string
 param openAIModelCapacity int
 param openAIAPIVersion string
 
@@ -40,6 +41,7 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
     openAIDeploymentName: openAIDeploymentName
     openAIModelName: openAIModelName
     openAIModelVersion: openAIModelVersion
+    openAIModelSKU: openAIModelSKU
     openAIModelCapacity: openAIModelCapacity
     apimPrincipalId: apimModule.outputs.principalId
   }

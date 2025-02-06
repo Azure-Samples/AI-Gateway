@@ -1,6 +1,6 @@
 # APIM ❤️ OpenAI
 
-## [Backend pool Load Balancing lab](backend-circuit-breaking.ipynb)
+## [Backend pool Load Balancing lab](backend-pool-load-balancing.ipynb)
 
 [![flow](../../images/backend-pool-load-balancing.gif)](backend-pool-load-balancing.ipynb)
 
