@@ -4,44 +4,38 @@
 
 // Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
 
+param apimSku string
 param openAIConfig array = []
 param openAIModelName string
 param openAIModelVersion string
 param openAIDeploymentName string
+param openAIModelSKU string
+param openAIModelCapacity int
 param openAIAPIVersion string
+param tenantId string
+param clientId string
 
 // ------------------
 //    VARIABLES
 // ------------------
 
-var updatedPolicyXml = loadTextContent('policy-updated.xml')
-var azureRoles = loadJsonContent('../../modules/azure-roles.json')
-var cognitiveServicesOpenAIUserRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesOpenAIUser)
+// Account for all placeholders in the polixy.xml file.
+var policyXml = loadTextContent('policy.xml')
+var updatedPolicyXml = replace(replace(replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name), '{tenant-id}', tenantId), '{client-application-id}', clientId)
 
 // ------------------
 //    RESOURCES
 // ------------------
 
-// 1. Log Analytics Workspace
-module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
-  name: 'lawModule'
-}
-
-var lawId = lawModule.outputs.id
-
-// 2. Application Insights
-module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
-  name: 'appInsightsModule'
+// 1. API Management
+module apimModule '../../modules/apim/v1/apim.bicep' = {
+  name: 'apimModule'
   params: {
-    workbookJson: loadTextContent('openai-usage-analysis-workbook.json')
-    lawId: lawId
+    apimSku: apimSku
   }
 }
 
-var appInsightsId = appInsightsModule.outputs.id
-var appInsightsInstrumentationKey = appInsightsModule.outputs.instrumentationKey
-
-// 3. Cognitive Services
+// 2. Cognitive Services
 module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
   name: 'openAIModule'
   params: {
@@ -49,43 +43,25 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
     openAIDeploymentName: openAIDeploymentName
     openAIModelName: openAIModelName
     openAIModelVersion: openAIModelVersion
-    lawId: lawId
+    openAIModelSKU: openAIModelSKU
+    openAIModelCapacity: openAIModelCapacity
+    apimPrincipalId: apimModule.outputs.principalId
   }
 }
 
-var extendedOpenAIConfig = openAIModule.outputs.extendedOpenAIConfig
-
-// 4. API Management
-module apimModule '../../modules/apim/v1/apim.bicep' = {
-  name: 'apimModule'
+// 3. APIM OpenAI API
+module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
+  name: 'openAIAPIModule'
   params: {
     policyXml: updatedPolicyXml
-    openAIConfig: extendedOpenAIConfig
-    appInsightsInstrumentationKey: appInsightsInstrumentationKey
-    appInsightsId: appInsightsId
+    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
     openAIAPIVersion: openAIAPIVersion
   }
 }
 
-var apimPrincipalId = apimModule.outputs.principalId
-
-// 5. RBAC Assignment
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(length(openAIConfig) > 0) {
-  scope: resourceGroup()
-  name: guid(subscription().id, resourceGroup().id, openAIConfig[0].name, cognitiveServicesOpenAIUserRoleDefinitionID)
-    properties: {
-        roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
-        principalId: apimPrincipalId
-        principalType: 'ServicePrincipal'
-    }
-}
-
 // ------------------
-//    OUTPUTS
+//    MARK: OUTPUTS
 // ------------------
-
-output applicationInsightsAppId string = appInsightsModule.outputs.appId
-output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
-output apimSubscriptionKey string = apimModule.outputs.subscriptionPrimaryKey
+output apimSubscriptionKey string = openAIAPIModule.outputs.subscriptionPrimaryKey

@@ -1,9 +1,9 @@
 <policies>
     <inbound>
         <base />
-        <validate-azure-ad-token tenant-id="{aad-tenant-id}">
+        <validate-azure-ad-token tenant-id="{tenant-id}">
             <client-application-ids>
-                <application-id>{aad-client-application-id}</application-id>
+                <application-id>{client-application-id}</application-id>
             </client-application-ids>
         </validate-azure-ad-token>
         <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
