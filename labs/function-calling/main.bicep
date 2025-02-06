@@ -1,11 +1,3 @@
-@description('List of Mock webapp names used to simulate OpenAI behavior.')
-param mockWebApps array = []
-
-@description('The name of the OpenAI mock backend pool')
-param mockBackendPoolName string = 'openai-backend-pool'
-
-@description('The description of the OpenAI mock backend pool')
-param mockBackendPoolDescription string = 'Load balancer for multiple OpenAI Mocking endpoints'
 
 @description('List of OpenAI resources to create. Add pairs of name and location.')
 param openAIConfig array = []
@@ -24,6 +16,9 @@ param openAIModelName string
 
 @description('Model Version')
 param openAIModelVersion string
+
+@description('Model SKU')
+param openAIModelSKU string
 
 @description('Model Capacity')
 param openAIModelCapacity int = 20
@@ -162,6 +157,10 @@ param functionAPIDescription string = 'Weather API'
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 
+var policyXml = loadTextContent('policy.xml')
+var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
+
+
 resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig: if(length(openAIConfig) > 0) {
   name: '${config.name}-${resourceSuffix}'
   location: config.location
@@ -188,7 +187,7 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01
       }
     }
     sku: {
-        name: 'Standard'
+        name: openAIModelSKU
         capacity: openAIModelCapacity
     }
 }]
@@ -247,7 +246,7 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
   parent: api
   properties: {
     format: 'rawxml'
-    value: loadTextContent('policy.xml')
+    value: updatedPolicyXml
   }
 }
 
@@ -282,65 +281,17 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
   }
 }]
 
-resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (mock, i) in mockWebApps: if(length(openAIConfig) == 0 && length(mockWebApps) > 0) {
-  name: mock.name
-  parent: apimService
-  properties: {
-    description: 'backend description'
-    url: '${mock.endpoint}/openai'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 3
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'mockBreakerRule'
-          tripDuration: 'PT1M'
-        }
-      ]
-    }
-  }
-}]
-
 resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) > 1) {
   name: openAIBackendPoolName
   parent: apimService
+  // BCP035: protocol and url are not needed in the Pool type. This is an incorrect error.
+  #disable-next-line BCP035
   properties: {
     description: openAIBackendPoolDescription
     type: 'Pool'
-//    protocol: 'http'  // the protocol is not needed in the Pool type
-//    url: '${cognitiveServices[0].properties.endpoint}/openai'   // the url is not needed in the Pool type
     pool: {
       services: [for (config, i) in openAIConfig: {
           id: '/backends/${backendOpenAI[i].name}'
-        }
-      ]
-    }
-  }
-}
-
-resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) == 0 && length(mockWebApps) > 1) {
-  name: mockBackendPoolName
-  parent: apimService
-  properties: {
-    description: mockBackendPoolDescription
-    type: 'Pool'
-//    protocol: 'http'  // the protocol is not needed in the Pool type
-//    url: '${mockWebApps[0].endpoint}/openai'   // the url is not needed in the Pool type
-    pool: {
-      services: [for (webApp, i) in mockWebApps: {
-          id: '/backends/${backendMock[i].name}'
         }
       ]
     }
