@@ -98,7 +98,7 @@ Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.
 
 Playground to create a combination of several policies in an iterative approach. We start with load balancing, then progressively add token emitting, rate limiting, and, eventually, semantic caching. Each of these sets of policies is derived from other labs in this repo.
 
-[<img src="images/zero-to-production.gif" alt="flow" style="width: 537px; display: inline-block;" data-target="animated-image.originalImage">](labs/zero-to-production/zero-to-production.ipynb)
+[<img src="images/zero-to-production-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/zero-to-production/zero-to-production.ipynb)
 
 [🦾 Bicep](labs/zero-to-production/main.bicep) ➕ [⚙️ Policy](labs/zero-to-production/policy-3.xml) ➕ [🧾 Notebook](labs/zero-to-production/zero-to-production.ipynb)
 
@@ -214,7 +214,7 @@ Playground to try Prompt Shields from Azure AI Content Safety service that analy
 These labs are no longer applicable. If you have implemented logic from these labs, please consider updating.
 
 <!-- Advanced load balancing -->
-#### [**🧪 Advanced load balancing**](labs/advanced-load-balancing/advanced-load-balancing.ipynb) (custom)
+#### [**🧪 Load balancing with policy expressions**](labs/advanced-load-balancing/advanced-load-balancing.ipynb) (custom)
 
 Playground to try the advanced load balancing (based on a custom [Azure API Management policy](https://learn.microsoft.com/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers.
 
