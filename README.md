@@ -98,7 +98,7 @@ Playground to try the [OAuth 2.0 authorization feature](https://learn.microsoft.
 
 Playground to create a combination of several policies in an iterative approach. We start with load balancing, then progressively add token emitting, rate limiting, and, eventually, semantic caching. Each of these sets of policies is derived from other labs in this repo.
 
-[<img src="images/zero-to-production.gif" alt="flow" style="width: 537px; display: inline-block;" data-target="animated-image.originalImage">](labs/zero-to-production/zero-to-production.ipynb)
+[<img src="images/zero-to-production-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/zero-to-production/zero-to-production.ipynb)
 
 [🦾 Bicep](labs/zero-to-production/main.bicep) ➕ [⚙️ Policy](labs/zero-to-production/policy-3.xml) ➕ [🧾 Notebook](labs/zero-to-production/zero-to-production.ipynb)
 
