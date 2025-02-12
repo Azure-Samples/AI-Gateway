@@ -10,7 +10,6 @@ param openAIModelName string
 param openAIModelVersion string
 param openAIDeploymentName string
 param openAIModelSKU string
-param openAIModelCapacity int
 param openAIAPIVersion string = '2024-02-01'
 param policyXml string
 
@@ -59,7 +58,7 @@ module apimModule '../../modules/apim/v1/apim.bicep' = {
 }
 
 // 4. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
+module openAIModule '../../modules/cognitive-services/v2/openai.bicep' = {
   name: 'openAIModule'
   params: {
     openAIConfig: openAIConfig
@@ -67,7 +66,6 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
     openAIModelName: openAIModelName
     openAIModelVersion: openAIModelVersion
     openAIModelSKU: openAIModelSKU
-    openAIModelCapacity: openAIModelCapacity
     apimPrincipalId: apimModule.outputs.principalId
     lawId: lawId
   }
