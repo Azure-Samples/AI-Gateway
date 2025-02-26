@@ -217,6 +217,8 @@ Playground to try Prompt Shields from Azure AI Content Safety service that analy
 
 [🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/prompt-shield-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/prompt-shielding.ipynb)
 
+---
+
 <!-- Advanced load balancing -->
 #### [**🧪 Load balancing with policy expressions**](labs/advanced-load-balancing/advanced-load-balancing.ipynb) (consider to use [backend pool load balancing instead](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb))
 
