@@ -1,0 +1,91 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Place Order API",
+        "version": "1.0",
+        "description": "Place an Order to the specified sku and quantity."
+    },
+    "host": "replace-me.local",
+    "basePath": "/orderservice",
+    "schemes": ["https"],
+    "securityDefinitions": {
+        "apiKeyHeader": {
+            "type": "apiKey",
+            "name": "api-key",
+            "in": "header"
+        },
+        "apiKeyQuery": {
+            "type": "apiKey",
+            "name": "subscription-key",
+            "in": "query"
+        }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }, {
+        "apiKeyQuery": []
+    }],
+    "paths": {
+        "/PlaceOrder/paths/invoke": {
+            "post": {
+                "description": "Place an Order to the specified sku and quantity.",
+                "operationId": "PlaceOrder-invoke",
+                "summary": "PlaceOrder-invoke",
+                "parameters": [{
+                    "name": "request-PlaceOrder",
+                    "in": "body",
+                    "schema": {
+                        "$ref": "#/definitions/request-PlaceOrder"
+                    },
+                    "description": "The request body."
+                }],
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "responses": {
+                    "200": {
+                        "description": "The Logic App Response.",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceOrderPathsInvokePost200ApplicationJsonResponse"
+                        },
+                        "examples": {
+                            "application/json": {}
+                        }
+                    },
+                    "500": {
+                        "description": "The Logic App Response.",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceOrderPathsInvokePost500ApplicationJsonResponse"
+                        },
+                        "examples": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "request-PlaceOrder": {
+            "type": "object",
+            "properties": {
+                "sku": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            },
+            "example": {
+                "sku": "string",
+                "quantity": 0
+            }
+        },
+        "PlaceOrderPathsInvokePost200ApplicationJsonResponse": {
+            "type": "object"
+        },
+        "PlaceOrderPathsInvokePost500ApplicationJsonResponse": {
+            "type": "object"
+        }
+    },
+    "tags": []
+}
