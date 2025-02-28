@@ -4,17 +4,20 @@
 # The Python Worker is managed by the Azure Functions platform
 # Manually managing azure-functions-worker may cause unexpected issues
 
-azure-ai-inference[prompts]
-azure-ai-projects
-azure-cli
-azure-functions
-azure-identity
-azure-search-documents
+requests
+jsonref
+python-dotenv
+pandas
 matplotlib
+redis
 msal
 openai
+azure-cli
+azure-identity
 opentelemetry-api
-pandas
-python-dotenv
-requests
-redis
+opentelemetry-sdk
+azure-monitor-opentelemetry
+azure-ai-projects
+azure-ai-inference[prompts]
+azure-search-documents
+azure-functions
