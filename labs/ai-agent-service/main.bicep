@@ -159,17 +159,47 @@ resource placeOrderWorkflow 'Microsoft.Logic/workflows@2019-05-01' = {
         }
       }
       actions: {
-        UpdateStatus: {
-          runAfter: {}
-          type: 'Response'
-          kind: 'Http'
-          inputs: {
-            statusCode: 200
-            body: {
-              status: '@concat(\'Order placed for SKU \', triggerBody()?[\'sku\'], \' with \', triggerBody()?[\'quantity\'], \' items.\')'
+        Condition: {
+          actions: {
+            UpdateStatusOk: {
+              type: 'Response'
+              kind: 'Http'
+              inputs: {
+                statusCode: 200
+                body: {
+                  status: '@concat(\'Order placed with id \', rand(1000,9000),\' for SKU \', triggerBody()?[\'sku\'], \' with \', triggerBody()?[\'quantity\'], \' items.\')'                  
+                }
+              }
+              description: 'Return the status for the order.'
             }
           }
-          description: 'Return the status for the order.'
+          runAfter: {}
+          else: {
+            actions: {
+              UpdateStatusError: {
+                type: 'Response'
+                kind: 'Http'
+                inputs: {
+                  statusCode: 200
+                  body: {
+                    status: 'The order was not placed because the quantity exceeds the maximum limit of five items.'
+                  }
+                }
+                description: 'Return the status for the order.'
+              }
+            }
+          }
+          expression: {
+            and: [
+              {
+                lessOrEquals: [
+                  '@triggerBody()?[\'quantity\']'
+                  5
+                ]
+              }
+            ]
+          }
+          type: 'If'
         }
       }
       outputs: {}
@@ -394,12 +424,14 @@ resource weatherAPIConnection 'Microsoft.MachineLearningServices/workspaces/conn
   name: 'WeatherAPI'
   parent: hub
   properties: {
-    category: 'ApiKey'
-    authType: 'ApiKey'
+    category: 'CustomKeys'
+    authType: 'CustomKeys'
     target: '${apimService.properties.gatewayUrl}/${weatherAPIPath}'
     isSharedToAll: true
     credentials: {
-      key: apimSubscription.listSecrets().primaryKey
+      keys: {
+        'api-key': apimSubscription.listSecrets().primaryKey
+      }
     }
   }
 }
@@ -408,12 +440,14 @@ resource placeOrderAPIConnection 'Microsoft.MachineLearningServices/workspaces/c
   name: 'PlaceOrderAPI'
   parent: hub
   properties: {
-    category: 'ApiKey'
-    authType: 'ApiKey'
+    category: 'CustomKeys'
+    authType: 'CustomKeys'
     target: '${apimService.properties.gatewayUrl}/${placeOrderAPIPath}'
     isSharedToAll: true
     credentials: {
-      key: apimSubscription.listSecrets().primaryKey
+      keys: {
+        'api-key': apimSubscription.listSecrets().primaryKey
+      }
     }
   }
 }
@@ -422,12 +456,14 @@ resource productCatalogAPIConnection 'Microsoft.MachineLearningServices/workspac
   name: 'ProductCatalogAPI'
   parent: hub
   properties: {
-    category: 'ApiKey'
-    authType: 'ApiKey'
+    category: 'CustomKeys'
+    authType: 'CustomKeys'
     target: '${apimService.properties.gatewayUrl}/${productCatalogAPIPath}'
     isSharedToAll: true
     credentials: {
-      key: apimSubscription.listSecrets().primaryKey
+      keys: {
+        'api-key': apimSubscription.listSecrets().primaryKey
+      }
     }
   }
 }
@@ -909,8 +945,15 @@ var projectEndoint = replace(replace(project.properties.discoveryUrl, 'https://'
 output projectConnectionString string = '${projectEndoint};${subscription().subscriptionId};${resourceGroup().name};${project.name}'
 
 output bingSearchConnectionName string = bingSearchConnection.name
+
 output weatherAPIConnectionName string = weatherAPIConnection.name
-output weatherAPIConnectionId string = weatherAPIConnection.id
+output weatherAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.MachineLearningServices/workspaces/${project.name}/connections/${weatherAPIConnection.name}'
+
+output placeOrderAPIConnectionName string = placeOrderAPIConnection.name
+output placeOrderAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.MachineLearningServices/workspaces/${project.name}/connections/${placeOrderAPIConnection.name}'
+
+output productCatalogAPIConnectionName string = productCatalogAPIConnection.name
+output productCatalogAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.MachineLearningServices/workspaces/${project.name}/connections/${productCatalogAPIConnection.name}'
 
 output applicationInsightsAppId string = applicationInsights.id
 output applicationInsightsName string = applicationInsights.name

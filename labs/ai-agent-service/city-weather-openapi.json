@@ -111,17 +111,10 @@
                 "type": "apiKey",
                 "name": "api-key",
                 "in": "header"
-            },
-            "apiKeyQuery": {
-                "type": "apiKey",
-                "name": "subscription-key",
-                "in": "query"
             }
         }
     },
     "security": [{
         "apiKeyHeader": []
-    }, {
-        "apiKeyQuery": []
     }]
 }
