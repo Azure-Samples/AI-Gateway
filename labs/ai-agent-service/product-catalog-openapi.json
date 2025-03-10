@@ -6,7 +6,7 @@
         "version": "1.0"
     },
     "servers": [{
-        "url": "https://replace-me.local"
+        "url": "https://replace-me.local/catalogservice"
     }],
     "paths": {
         "/product": {
@@ -104,17 +104,10 @@
                 "type": "apiKey",
                 "name": "api-key",
                 "in": "header"
-            },
-            "apiKeyQuery": {
-                "type": "apiKey",
-                "name": "subscription-key",
-                "in": "query"
             }
         }
     },
     "security": [{
         "apiKeyHeader": []
-    }, {
-        "apiKeyQuery": []
     }]
 }

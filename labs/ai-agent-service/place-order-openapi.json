@@ -1,91 +1,97 @@
 {
-    "swagger": "2.0",
+    "openapi": "3.0.1",
     "info": {
-        "title": "Place Order API",
-        "version": "1.0",
-        "description": "Place an Order to the specified sku and quantity."
+      "title": "Place Order API",
+      "description": "Place an Order to the specified sku and quantity.",
+      "version": "1.0"
     },
-    "host": "replace-me.local",
-    "basePath": "/orderservice",
-    "schemes": ["https"],
-    "securityDefinitions": {
-        "apiKeyHeader": {
-            "type": "apiKey",
-            "name": "api-key",
-            "in": "header"
-        },
-        "apiKeyQuery": {
-            "type": "apiKey",
-            "name": "subscription-key",
-            "in": "query"
-        }
-    },
-    "security": [{
+    "servers": [
+      {
+        "url": "https://replace-me.local/orderservice"
+      }
+    ],
+    "security": [
+      {
         "apiKeyHeader": []
-    }, {
-        "apiKeyQuery": []
-    }],
+      }
+    ],
+    "tags": [],
     "paths": {
-        "/PlaceOrder/paths/invoke": {
-            "post": {
-                "description": "Place an Order to the specified sku and quantity.",
-                "operationId": "PlaceOrder-invoke",
-                "summary": "PlaceOrder-invoke",
-                "parameters": [{
-                    "name": "request-PlaceOrder",
-                    "in": "body",
-                    "schema": {
-                        "$ref": "#/definitions/request-PlaceOrder"
-                    },
-                    "description": "The request body."
-                }],
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "responses": {
-                    "200": {
-                        "description": "The Logic App Response.",
-                        "schema": {
-                            "$ref": "#/definitions/PlaceOrderPathsInvokePost200ApplicationJsonResponse"
-                        },
-                        "examples": {
-                            "application/json": {}
-                        }
-                    },
-                    "500": {
-                        "description": "The Logic App Response.",
-                        "schema": {
-                            "$ref": "#/definitions/PlaceOrderPathsInvokePost500ApplicationJsonResponse"
-                        },
-                        "examples": {
-                            "application/json": {}
-                        }
-                    }
+      "/PlaceOrder/paths/invoke": {
+        "post": {
+          "summary": "PlaceOrder-invoke",
+          "description": "Place an Order to the specified sku and quantity.",
+          "operationId": "PlaceOrder-invoke",
+          "requestBody": {
+            "description": "The request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/request-PlaceOrder"
                 }
-            }
-        }
-    },
-    "definitions": {
-        "request-PlaceOrder": {
-            "type": "object",
-            "properties": {
-                "sku": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "integer"
-                }
+              }
             },
-            "example": {
-                "sku": "string",
-                "quantity": 0
+            "required": false
+          },
+          "responses": {
+            "200": {
+              "description": "The Logic App Response.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlaceOrderPathsInvokePost200ApplicationJsonResponse"
+                  },
+                  "example": {}
+                }
+              }
+            },
+            "500": {
+              "description": "The Logic App Response.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlaceOrderPathsInvokePost500ApplicationJsonResponse"
+                  },
+                  "example": {}
+                }
+              }
             }
+          },
+          "x-codegen-request-body-name": "request-PlaceOrder"
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "request-PlaceOrder": {
+          "type": "object",
+          "properties": {
+            "sku": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "integer"
+            }
+          },
+          "example": {
+            "sku": "string",
+            "quantity": 0
+          }
         },
         "PlaceOrderPathsInvokePost200ApplicationJsonResponse": {
-            "type": "object"
+          "type": "object"
         },
         "PlaceOrderPathsInvokePost500ApplicationJsonResponse": {
-            "type": "object"
+          "type": "object"
         }
+      },
+      "securitySchemes": {
+        "apiKeyHeader": {
+          "type": "apiKey",
+          "name": "api-key",
+          "in": "header"
+        }
+      }
     },
-    "tags": []
-}
+    "x-original-swagger-version": "2.0"
+  }
