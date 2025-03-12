@@ -10,18 +10,7 @@ param openAIModelName string
 param openAIModelVersion string
 param openAIModelSKU string
 param openAIDeploymentName string
-param openAIModelCapacity int
-param openAIAPIVersion string
-
-@description('The tags for the resources')
-param tagValues object = {
-}
-
-
-@description('Name of the APIM Logger')
-param apimLoggerName string = 'apim-logger'
-
-// Creates Azure dependent resources for Azure AI studio
+param openAIAPIVersion string = '2024-02-01'
 
 @description('Azure region of the deployment')
 param location string = resourceGroup().location
@@ -30,9 +19,6 @@ param weatherAPIPath string = 'weatherservice'
 param placeOrderAPIPath string = 'orderservice'
 param productCatalogAPIPath string = 'catalogservice'
 
-param inferenceAPISubscriptionPrimaryKey string = newGuid()
-param inferenceAPISubscriptionSecondaryKey string = newGuid()
-
 // ------------------
 //    VARIABLES
 // ------------------
@@ -40,76 +26,81 @@ param inferenceAPISubscriptionSecondaryKey string = newGuid()
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var apiManagementName = 'apim-${resourceSuffix}'
 
-var inferenceAPIPolicyXML = loadTextContent('inference-policy.xml')
-
+var apimLoggerName = 'apim-logger'
 var logSettings = {
   headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
   body: { bytes: 8192 }
 }
 
+// Account for all placeholders in the polixy.xml file.
+var policyXml = loadTextContent('policy.xml')
+var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
+
 // ------------------
 //    RESOURCES
 // ------------------
 
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: 'law-${resourceSuffix}'
-  location: location
-  properties: any({
-    retentionInDays: 30
-    features: {
-      searchVersion: 1
-    }
-    sku: {
-      name: 'PerGB2018'
-    }
-  })
+// 1. Log Analytics Workspace
+module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
+  name: 'lawModule'
 }
 
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: 'insights-${resourceSuffix}'
-  location: location
-  tags: tagValues
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    WorkspaceResourceId: logAnalytics.id
-    // BCP037: Not yet added to latest API: https://github.com/Azure/bicep-types-az/issues/2048
-    #disable-next-line BCP037
-    CustomMetricsOptedInType: 'WithDimensions'
+var lawId = lawModule.outputs.id
 
+// 2. Application Insights
+module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
+  name: 'appInsightsModule'
+  params: {
+    lawId: lawId
+    customMetricsOptedInType: 'WithDimensions'
   }
 }
 
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
+var appInsightsId = appInsightsModule.outputs.id
+var appInsightsInstrumentationKey = appInsightsModule.outputs.instrumentationKey
+
+// 3. API Management
+module apimModule '../../modules/apim/v1/apim.bicep' = {
+  name: 'apimModule'
+  params: {
+    apimSku: apimSku
+    appInsightsInstrumentationKey: appInsightsInstrumentationKey
+    appInsightsId: appInsightsId
+  }
+}
+
+// 4. Cognitive Services
+module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
+    name: 'openAIModule'
+    params: {
+      openAIConfig: openAIConfig
+      openAIDeploymentName: openAIDeploymentName
+      openAIModelName: openAIModelName
+      openAIModelVersion: openAIModelVersion
+      openAIModelSKU: openAIModelSKU
+      apimPrincipalId: apimModule.outputs.principalId
+      lawId: lawId
+    }
+  }
+
+// 5. APIM OpenAI API
+module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
+  name: 'openAIAPIModule'
+  params: {
+    policyXml: updatedPolicyXml
+    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
+    openAIAPIVersion: openAIAPIVersion
+    appInsightsInstrumentationKey: appInsightsInstrumentationKey
+    appInsightsId: appInsightsId
+  }
+}
+
+// We presume the APIM resource has been created as part of this bicep flow.
+resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apiManagementName
-  location: location
-  sku: {
-    name: apimSku
-    capacity: 1
-  }
-  properties: {
-    publisherEmail: 'noreply@microsoft.com'
-    publisherName: 'Microsoft'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-}
-
-// Create a logger only if we have an App Insights ID and instrumentation key.
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
-  name: apimLoggerName
-  parent: apimService
-  properties: {
-    credentials: {
-      instrumentationKey: applicationInsights.properties.InstrumentationKey
-    }
-    description: 'APIM Logger'
-    isBuffered: false
-    loggerType: 'applicationInsights'
-    resourceId: applicationInsights.id
-  }
+  dependsOn: [
+    apimModule
+  ]
 }
 
 resource placeOrderWorkflow 'Microsoft.Logic/workflows@2019-05-01' = {
@@ -200,92 +191,10 @@ resource placeOrderWorkflow 'Microsoft.Logic/workflows@2019-05-01' = {
   }
 }
 
-resource openAIAccount 'Microsoft.CognitiveServices/accounts@2024-10-01' = [for config in openAIConfig: if(length(openAIConfig) > 0) {
-  name: '${config.name}-${resourceSuffix}'
-  location: config.location
-  sku: {
-    name: 'S0'
-  }
-  kind: 'OpenAI'
-  properties: {
-    apiProperties: {
-      statisticsEnabled: false
-    }
-    customSubDomainName: toLower('${config.name}-${resourceSuffix}')
-  }
-}]
-
-@batchSize(1)
-resource openAIDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: openAIDeploymentName
-  parent: openAIAccount[i]
-  properties: {
-    model: {
-      format: 'OpenAI'
-      name: openAIModelName
-      version: openAIModelVersion
-    }
-  }
-  sku: {
-      name: openAIModelSKU
-      capacity: openAIModelCapacity
-  }
-}]
-
-// https://learn.microsoft.com/azure/templates/microsoft.insights/diagnosticsettings
-resource openAIDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: '${openAIAccount[i].name}-diagnostics'
-  scope: openAIAccount[i]
-  properties: {
-    workspaceId: logAnalytics.id
-    logs: []
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}]
-
-var cognitiveServicesOpenAIUserRoleDefinitionID = '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
-resource openAIAccountRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: guid(subscription().id, resourceGroup().id, config.name, cognitiveServicesOpenAIUserRoleDefinitionID)
-  scope: openAIAccount[i]
-  properties: {
-      roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesOpenAIUserRoleDefinitionID)
-      principalId: apimService.identity.principalId
-      principalType: 'ServicePrincipal'
-  }
-}]
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
-resource inferenceAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
-  name: 'inference-api'
-  parent: apimService
-  properties: {
-    apiType: 'http'
-    description: 'Inference API - ${openAIDeployment[0].name}'
-    displayName: 'InferenceAPI'
-    format: 'openapi+json'
-    path: 'models'
-    protocols: [
-      'https'
-    ]
-    subscriptionKeyParameterNames: {
-      header: 'Authorization'
-      query: 'api-key'
-    }
-    subscriptionRequired: true
-    type: 'http'
-    value: loadTextContent('inference-openapi.json')
-  }
-}
-
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
 resource weatherAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   name: 'weather-api'
-  parent: apimService
+  parent: apim
   properties: {
     apiType: 'http'
     description: 'City Weather API'
@@ -308,7 +217,7 @@ resource weatherAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
 resource placeOrderAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   name: 'place-order-api'
-  parent: apimService
+  parent: apim
   properties: {
     apiType: 'http'
     description: 'Place Order API'
@@ -331,7 +240,7 @@ resource placeOrderAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview'
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
 resource productCatalogAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   name: 'product-catalog-api'
-  parent: apimService
+  parent: apim
   properties: {
     apiType: 'http'
     description: 'Product Catalog API'
@@ -351,18 +260,6 @@ resource productCatalogAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-prev
   }
 }
 
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/policies
-resource inferenceAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = {
-  name: 'policy'
-  parent: inferenceAPI
-  properties: {
-    format: 'rawxml'
-    value: inferenceAPIPolicyXML
-  }
-  dependsOn: [
-    backendInferenceAPI
-  ]
-}
 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/policies
 resource weatherAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = {
@@ -397,43 +294,11 @@ resource productCatalogAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@
   }
 }
 
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
-resource backendInferenceAPI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
-  name: 'inference-backend'
-  parent: apimService
-  properties: {
-    description: 'Backend for the inference API'
-    url: '${openAIAccount[0].properties.endpoint}/openai/deployments/${openAIDeploymentName}'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 1
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'openAIBreakerRule'
-          tripDuration: 'PT1M'
-          acceptRetryAfter: true
-        }
-      ]
-    }
-  }
-}
 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
 resource backendPlaceOrderAPI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   name: 'orderworflow-backend'
-  parent: apimService
+  parent: apim
   properties: {
     description: 'Backend for the Place Order API'
     url: '${placeOrderWorkflow.listCallbackUrl().basePath}/triggers'
@@ -446,31 +311,6 @@ resource backendPlaceOrderAPI 'Microsoft.ApiManagement/service/backends@2024-06-
           sv: [ placeOrderWorkflow.listCallbackUrl().queries.sv ]        
       }
     }    
-  }
-}
-
-resource inferenceAPIDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
-  name: 'applicationinsights'
-  parent: inferenceAPI
-  properties: {
-    alwaysLog: 'allErrors'
-    httpCorrelationProtocol: 'W3C'
-    logClientIp: true
-    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apiManagementName, apimLoggerName)
-    metrics: true
-    verbosity: 'verbose'
-    sampling: {
-      samplingType: 'fixed'
-      percentage: 100
-    }
-    frontend: {
-      request: logSettings
-      response: logSettings
-    }
-    backend: {
-      request: logSettings
-      response: logSettings
-    }
   }
 }
 
@@ -549,22 +389,20 @@ resource productCatalogAPIDiagnostics 'Microsoft.ApiManagement/service/apis/diag
   }
 }
 
-resource inferenceAPISubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
-  name: 'inference-api-subscription'
-  parent: apimService
+resource openAISubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
+  name: 'openai-subscription'
+  parent: apim
   properties: {
     allowTracing: true
-    displayName: 'Inference API Subscription'
+    displayName: 'OpenAI Inference API Subscription'
     scope: '/apis'
     state: 'active'
-    primaryKey: 'Bearer ${inferenceAPISubscriptionPrimaryKey}'
-    secondaryKey: 'Bearer ${inferenceAPISubscriptionSecondaryKey}'
   }
 }
 
 resource toolsSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
   name: 'tools-subscription'
-  parent: apimService
+  parent: apim
   properties: {
     allowTracing: true
     displayName: 'Tools APIs Subscription'
@@ -574,16 +412,18 @@ resource toolsSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-0
 }
 
 
+
 // ------------------
 //    OUTPUTS
 // ------------------
 
-output applicationInsightsAppId string = applicationInsights.id
-output applicationInsightsName string = applicationInsights.name
-output apimResourceGatewayURL string = apimService.properties.gatewayUrl
+output applicationInsightsAppId string = appInsightsModule.outputs.appId
+output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
+output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
+output apimServiceId string = apimModule.outputs.id
+output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
 
 #disable-next-line outputs-should-not-contain-secrets
-output inferenceAPISubscriptionKey string = inferenceAPISubscription.listSecrets().primaryKey
-
+output openAISubscriptionKey string = openAISubscription.listSecrets().primaryKey
 #disable-next-line outputs-should-not-contain-secrets
 output toolsSubscriptionKey string = toolsSubscription.listSecrets().primaryKey
