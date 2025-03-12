@@ -6,6 +6,8 @@
 
 ## What's new ✨
 
+➕ **Agentic ✨** experiments with [**OpenAI Agents SDK**](labs/openai-agents/openai-agents.ipynb).  
+➕ **Agentic ✨** experiments with [**AI Agent Service**](labs/ai-agent-service/ai-agent-service.ipynb) from [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry).  
 ➕ the [**AI Foundry Deepseek**](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb) lab with Deepseek R1 model from [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry).  
 ➕ the [**Zero-to-Production**](labs/zero-to-production/zero-to-production.ipynb) lab with an iterative policy exploration to fine-tune the optimal production configuration.  
 ➕ the [**Terraform flavor  of backend pool load balancing**](labs/backend-pool-load-balancing-tf/backend-pool-load-balancing-tf.ipynb) lab.  
@@ -22,9 +24,12 @@
 ## Contents
 
 1. [🧠 GenAI Gateway](#-genai-gateway)
-1. [🧪 Labs](#-labs)
+1. [🧪 Labs with AI Agents](#-labs-with-ai-agents)
+1. [🧪 Labs with the Inference API](#-labs-with-the-inference-api)
+1. [🧪 Labs based on Azure OpenAI](#-labs-based-on-azure-openai)
 1. [🚀 Getting started](#-getting-started)
-1. [🔨 Tools](#-tools)
+1. [⛵ Roll-out to production](#-roll-out-to-production)
+1. [🔨 Supporting tools](#-supporting-tools)
 1. [🏛️ Well-Architected Framework](#-well-architected-framework)    <!-- markdownlint-disable-line MD051 -->
 1. [🎒 Show and tell](#-show-and-tell)
 1. [🥇 Other Resources](#-other-resources)
@@ -41,11 +46,58 @@ With the expanding horizons of **AI services** and their seamless integration wi
 
 This repo explores the **AI Gateway** pattern through a series of experimental labs. The [GenAI Gateway capabilities](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/introducing-genai-gateway-capabilities-in-azure-api-management/ba-p/4146525) of [Azure API Management](https://learn.microsoft.com/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles and design patterns could potentially be applied to any LLM.
 
-## 🧪 Labs
-
 Acknowledging the rising dominance of Python, particularly in the realm of AI, along with the powerful experimental capabilities of Jupyter notebooks, the following labs are structured around Jupyter notebooks, with step-by-step instructions with Python scripts, [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview?tabs=bicep) files and [Azure API Management policies](https://learn.microsoft.com/azure/api-management/api-management-howto-policies):
 
-These labs are currently recommended after which to model your workloads.
+## 🧪 Labs with AI Agents
+
+<!-- OpenAI Agents -->
+### [**🧪 OpenAI Agents**](labs/openai-agents/openai-agents.ipynb)
+
+Playground to try the [OpenAI Agents](https://openai.github.io/openai-agents-python/) with Azure OpenAI models and API based tools controlled by Azure API Management.
+
+[<img src="images/openai-agents-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/openai-agents/openai-agents.ipynb)
+
+[🦾 Bicep](labs/openai-agents/main.bicep) ➕ [⚙️ Policy](labs/openai-agents/inference-policy.xml) ➕ [🧾 Notebook](labs/openai-agents/openai-agents.ipynb)
+
+<!-- AI Agent Service -->
+### [**🧪 AI Agent Service**](labs/ai-agent-service/ai-agent-service.ipynb)
+
+Use this playground to explore the [Azure AI Agent Service](https://learn.microsoft.com/en-us/azure/ai-services/agents/overview), leveraging Azure API Management to control multiple services, including Azure OpenAI models, Logic Apps Workflows, and OpenAPI-based APIs.
+
+[<img src="images/ai-agent-service-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/ai-agent-service/ai-agent-service.ipynb)
+
+[🦾 Bicep](labs/ai-agent-service/main.bicep) ➕ [⚙️ Policy](labs/ai-agent-service/policy.xml) ➕ [🧾 Notebook](labs/ai-agent-service/ai-agent-service.ipynb)
+
+<!-- Function calling -->
+### [**🧪 Function calling**](labs/function-calling/function-calling.ipynb)
+
+Playground to try the OpenAI [function calling](https://learn.microsoft.com/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API that is also managed by Azure API Management.
+
+[<img src="images/function-calling-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/function-calling/function-calling.ipynb)
+
+[🦾 Bicep](labs/function-calling/main.bicep) ➕ [⚙️ Policy](labs/function-calling/policy.xml) ➕ [🧾 Notebook](labs/function-calling/function-calling.ipynb)
+
+## 🧪 Labs with the Inference API
+
+<!-- AI Foundry Deepseek -->
+### [**🧪 AI Foundry Deepseek**](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb)
+
+Playground to try the [Deepseek R1 model](https://azure.microsoft.com/en-us/blog/deepseek-r1-is-now-available-on-azure-ai-foundry-and-github/) via the AI Model Inference from [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry). This lab uses the [Azure AI Model Inference API](https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/how-to/inference?tabs=python) and two APIM LLM policies: [llm-token-limit](https://learn.microsoft.com/en-us/azure/api-management/llm-token-limit-policy) and [llm-emit-token-metric](https://learn.microsoft.com/en-us/azure/api-management/llm-emit-token-metric-policy).
+
+[<img src="images/ai-foundry-deepseek-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb)
+
+[🦾 Bicep](labs/ai-foundry-deepseek/main.bicep) ➕ [⚙️ Policy](labs/ai-foundry-deepseek/policy.xml) ➕ [🧾 Notebook](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb)
+
+<!-- SLM self-hosting -->
+### [**🧪 SLM self-hosting**](labs/slm-self-hosting/slm-self-hosting.ipynb) (phy-3)
+
+Playground to try the self-hosted [phy-3 Small Language Model (SLM)](https://azure.microsoft.com/blog/introducing-phi-3-redefining-whats-possible-with-slms/) through the [Azure API Management self-hosted gateway](https://learn.microsoft.com/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.
+
+[<img src="images/slm-self-hosting-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/slm-self-hosting/slm-self-hosting.ipynb)
+
+[🦾 Bicep](labs/slm-self-hosting/main.bicep) ➕ [⚙️ Policy](labs/slm-self-hosting/policy.xml) ➕ [🧾 Notebook](labs/slm-self-hosting/slm-self-hosting.ipynb)
+
+## 🧪 Labs based on Azure OpenAI
 
 <!-- Backend pool load balancing -->
 ### [**🧪 Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) - Available with [Bicep](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) and [Terraform](labs/backend-pool-load-balancing-tf/backend-pool-load-balancing-tf.ipynb)
@@ -83,15 +135,6 @@ Playground to try the [semantic caching policy](https://learn.microsoft.com/azur
 
 [🦾 Bicep](labs/semantic-caching/main.bicep) ➕ [⚙️ Policy](labs/semantic-caching/policy.xml) ➕ [🧾 Notebook](labs/semantic-caching/semantic-caching.ipynb)
 
-<!-- AI Foundry Deepseek -->
-### [**🧪 AI Foundry Deepseek**](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb)
-
-Playground to try the [Deepseek R1 model](https://azure.microsoft.com/en-us/blog/deepseek-r1-is-now-available-on-azure-ai-foundry-and-github/) via the AI Model Inference from [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry). This lab uses the [Azure AI Model Inference API](https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/how-to/inference?tabs=python) and two APIM LLM policies: [llm-token-limit](https://learn.microsoft.com/en-us/azure/api-management/llm-token-limit-policy) and [llm-emit-token-metric](https://learn.microsoft.com/en-us/azure/api-management/llm-emit-token-metric-policy).
-
-[<img src="images/ai-foundry-deepseek-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb)
-
-[🦾 Bicep](labs/ai-foundry-deepseek/main.bicep) ➕ [⚙️ Policy](labs/ai-foundry-deepseek/policy.xml) ➕ [🧾 Notebook](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb)
-
 <!-- Access controlling -->
 ### [**🧪 Access controlling**](labs/access-controlling/access-controlling.ipynb)
 
@@ -119,15 +162,6 @@ Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to h
 
 [🦾 Bicep](labs/GPT-4o-inferencing/main.bicep) ➕ [⚙️ Policy](labs/GPT-4o-inferencing/policy.xml) ➕ [🧾 Notebook](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
 
-<!-- Function calling -->
-### [**🧪 Function calling**](labs/function-calling/function-calling.ipynb)
-
-Playground to try the OpenAI [function calling](https://learn.microsoft.com/azure/ai-services/openai/how-to/function-calling?tabs=non-streaming%2Cpython) feature with an Azure Functions API that is also managed by Azure API Management.
-
-[<img src="images/function-calling-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/function-calling/function-calling.ipynb)
-
-[🦾 Bicep](labs/function-calling/main.bicep) ➕ [⚙️ Policy](labs/function-calling/policy.xml) ➕ [🧾 Notebook](labs/function-calling/function-calling.ipynb)
-
 <!-- Model Routing -->
 ### [**🧪 Model Routing**](labs/model-routing/model-routing.ipynb)
 
@@ -136,14 +170,6 @@ Playground to try routing to a backend based on Azure OpenAI model and version.
 [<img src="images/model-routing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/model-routing/model-routing.ipynb)
 
 [🦾 Bicep](labs/model-routing/main.bicep) ➕ [⚙️ Policy](labs/model-routing/policy.xml) ➕ [🧾 Notebook](labs/model-routing/model-routing.ipynb)
-<!-- Response streaming -->
-### [**🧪 Response streaming**](labs/response-streaming/response-streaming.ipynb)
-
-Playground to try response streaming with Azure API Management and Azure OpenAI endpoints to explore the advantages and shortcomings associated with [streaming](https://learn.microsoft.com/azure/api-management/how-to-server-sent-events#guidelines-for-sse).
-
-[<img src="images/response-streaming-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/response-streaming/response-streaming.ipynb)
-
-[🦾 Bicep](labs/response-streaming/main.bicep) ➕ [⚙️ Policy](labs/response-streaming/policy.xml) ➕ [🧾 Notebook](labs/response-streaming/response-streaming.ipynb)
 
 <!-- Vector searching -->
 ### [**🧪 Vector searching**](labs/vector-searching/vector-searching.ipynb)
@@ -163,15 +189,6 @@ Playground to try the [buil-in logging capabilities of Azure API Management](htt
 
 [🦾 Bicep](labs/built-in-logging/main.bicep) ➕ [⚙️ Policy](labs/built-in-logging/policy.xml) ➕ [🧾 Notebook](labs/built-in-logging/built-in-logging.ipynb)
 
-<!-- SLM self-hosting -->
-### [**🧪 SLM self-hosting**](labs/slm-self-hosting/slm-self-hosting.ipynb) (phy-3)
-
-Playground to try the self-hosted [phy-3 Small Language Model (SLM)](https://azure.microsoft.com/blog/introducing-phi-3-redefining-whats-possible-with-slms/) through the [Azure API Management self-hosted gateway](https://learn.microsoft.com/azure/api-management/self-hosted-gateway-overview) with OpenAI API compatibility.
-
-[<img src="images/slm-self-hosting-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/slm-self-hosting/slm-self-hosting.ipynb)
-
-[🦾 Bicep](labs/slm-self-hosting/main.bicep) ➕ [⚙️ Policy](labs/slm-self-hosting/policy.xml) ➕ [🧾 Notebook](labs/slm-self-hosting/slm-self-hosting.ipynb)
-
 <!-- Message storing -->
 ### [**🧪 Message storing**](labs/message-storing/message-storing.ipynb)
 
@@ -180,15 +197,6 @@ Playground to test storing message details into Cosmos DB through the [Log to ev
 [<img src="images/message-storing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/message-storing/message-storing.ipynb)
 
 [🦾 Bicep](labs/message-storing/main.bicep) ➕ [⚙️ Policy](labs/message-storing/policy.xml) ➕ [🧾 Notebook](labs/message-storing/message-storing.ipynb)
-
-<!-- Developer tooling -->
-<!-- ### [**🧪 Developer tooling** (WIP)](labs/developer-tooling/developer-tooling.ipynb)
-
-Playground to try the developer tooling available with Azure API Management to develop, debug, test and publish AI Service APIs.
-
-[<img src="images/developer-tooling-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/developer-tooling/developer-tooling.ipynb)
-
-[🦾 Bicep](labs/developer-tooling/main.bicep) ➕ [⚙️ Policy](labs/developer-tooling/policy.xml) ➕ [🧾 Notebook](labs/developer-tooling/developer-tooling.ipynb) -->
 
 <!-- Prompt flow -->
 ### [**🧪 Prompt flow**](labs/prompt-flow/prompt-flow.ipynb)
@@ -217,17 +225,6 @@ Playground to try Prompt Shields from Azure AI Content Safety service that analy
 
 [🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/prompt-shield-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/prompt-shielding.ipynb)
 
----
-
-<!-- Advanced load balancing -->
-#### [**🧪 Load balancing with policy expressions**](labs/advanced-load-balancing/advanced-load-balancing.ipynb) (consider to use [backend pool load balancing instead](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb))
-
-Playground to try the load balancing (based on a custom [Azure API Management policy](https://learn.microsoft.com/azure/api-management/api-management-howto-policies)) to either a list of Azure OpenAI endpoints or mock servers.
-
-[<img src="images/advanced-load-balancing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/advanced-load-balancing/advanced-load-balancing.ipynb)
-
-[🦾 Bicep](labs/advanced-load-balancing/main.bicep) ➕ [⚙️ Policy](labs/advanced-load-balancing/policy.xml) ➕ [🧾 Notebook](labs/advanced-load-balancing/advanced-load-balancing.ipynb)
-
 ## Backlog of Labs
 
 This is a list of potential future labs to be developed.
@@ -236,7 +233,6 @@ This is a list of potential future labs to be developed.
 * Semantic Kernel with Agents
 * Logic Apps RAG
 * PII handling
-* AI Foundry with Deepseek R1
 * Gemini
 
 > [!TIP]
@@ -248,21 +244,25 @@ This is a list of potential future labs to be developed.
 
 * [Python 3.12 or later version](https://www.python.org/) installed
 * [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
-* [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed
-* [An Azure Subscription](https://azure.microsoft.com/free/) with Owner or Contributor+UserAccessAdministrator permissions
-* [Sign in to Azure with Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
+* [Python environment](https://code.visualstudio.com/docs/python/environments#_creating-environments) with the [requirements.txt](../../requirements.txt) or run `pip install -r requirements.txt` in your terminal
+* [An Azure Subscription](https://azure.microsoft.com/free/) with [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor) + [RBAC Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator) or [Owner](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#owner) roles
+* [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and [Signed into your Azure subscription](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
 
 ### Quickstart
 
 1. Clone this repo and configure your local machine with the prerequisites. Or just create a [GitHub Codespace](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main) and run it on the browser or in VS Code.
-2. Navigate through the available labs and select one that best suits your needs. For starters we recommend the [backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb).
+2. Navigate through the available labs and select one that best suits your needs. For starters we recommend the [token rate limiting](labs/token-rate-limiting/token-rate-limiting.ipynb).
 3. Open the notebook and run the provided steps.
 4. Tailor the experiment according to your requirements. If you wish to contribute to our collective work, we would appreciate your [submission of a pull request](CONTRIBUTING.MD).
 
 > [!NOTE]
 > 🪲 Please feel free to open a new [issue](../../issues/new) if you find something that should be fixed or enhanced.
 
-## 🔨 Tools
+## ⛵ Roll-out to production
+
+We recommend the guidelines and best practices from the [AI Hub Gateway Landing Zone](https://github.com/Azure-Samples/ai-hub-gateway-solution-accelerator) to implement a central AI API gateway to empower various line-of-business units in an organization to leverage Azure AI services.
+
+## 🔨 Supporting Tools
 
 * [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with Azure API Management and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
 * [Tracing](tools/tracing.ipynb) - Invoke OpenAI API with trace enabled and returns the tracing information.
@@ -296,7 +296,6 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-ar
 
 Numerous reference architectures, best practices and starter kits are available on this topic. Please refer to the resources provided if you need comprehensive solutions or a landing zone to initiate your project. We suggest leveraging the AI-Gateway labs to discover additional capabilities that can be integrated into the reference architectures.
 
-* [AI Hub Gateway Landing Zone](https://github.com/Azure-Samples/ai-hub-gateway-solution-accelerator)
 * [GenAI Gateway Guide](https://aka.ms/genai-gateway)
 * [Azure OpenAI + APIM Sample](https://aka.ms/apim/genai/sample-app)
 * [AI+API better together: Benefits & Best Practices using APIs for AI workloads](https://techcommunity.microsoft.com/t5/apps-on-azure-blog/ai-api-better-together-benefits-amp-best-practices-using-apis/ba-p/4157120)
