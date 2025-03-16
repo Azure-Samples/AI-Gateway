@@ -1,0 +1,113 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Product Catalog API",
+        "description": "API to retrieve the product catalog.",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://replace-me.local/catalogservice"
+    }],
+    "paths": {
+        "/product": {
+            "get": {
+                "summary": "Get product details for a specified category",
+                "description": "Retrieves product details, for a specified category.",
+                "operationId": "get-product-details",
+                "parameters": [{
+                    "name": "category",
+                    "in": "query",
+                    "description": "Name of the category to retrieve product information for",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "example": "Electronics"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Product information for the specified category",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductInformation"
+                                },
+                                "examples": {
+                                    "Smartphone": {
+                                        "summary": "Example response for Smartphone",
+                                        "value": {
+                                            "name": "Smartphone",
+                                            "category": "Electronics",
+                                            "sku": "ELEC1234",
+                                            "stock": 50,
+                                            "store_location": "Lisbon"
+                                        }
+                                    },
+                                    "Laptop": {
+                                        "summary": "Example response for Laptop",
+                                        "value": {
+                                            "name": "Laptop",
+                                            "category": "Electronics",
+                                            "sku": "ELEC5678",
+                                            "stock": 30,
+                                            "store_location": "Seattle"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Category not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ProductInformation": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Smartphone"
+                    },
+                    "category": {
+                        "type": "string",
+                        "example": "Electronics"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "example": "ELEC1234"
+                    },
+                    "stock": {
+                        "type": "number",
+                        "format": "int32",
+                        "example": 60
+                    },
+                    "store_location": {
+                        "type": "string",
+                        "example": "Lisbon"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "header"
+            }
+        }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }]
+}
