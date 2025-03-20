@@ -21,3 +21,4 @@ azure-ai-projects
 azure-ai-inference[prompts]
 azure-search-documents
 azure-functions
+azure-mgmt-apimanagement
