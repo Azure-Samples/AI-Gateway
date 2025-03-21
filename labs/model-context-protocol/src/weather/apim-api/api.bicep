@@ -1,17 +1,9 @@
-
+param apimServiceName string
 param APIServiceURL string
-
 param APIPath string = 'weather'
 
-// ------------------
-//    VARIABLES
-// ------------------
-
-var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
-var apiManagementName = 'apim-${resourceSuffix}'
-
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
-  name: apiManagementName
+  name: apimServiceName
 }
 
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
@@ -31,7 +23,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
       openidAuthenticationSettings: []
     }
     subscriptionKeyParameterNames: {
-      header: 'Ocp-Apim-Subscription-Key'
+      header: 'api-key'
       query: 'subscription-key'
     }
     isCurrent: true

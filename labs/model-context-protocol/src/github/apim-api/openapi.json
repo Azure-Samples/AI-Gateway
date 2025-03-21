@@ -53,69 +53,6 @@
                 }
             }
         },
-        "/authorize": {
-            "post": {
-                "tags": ["MCP"],
-                "summary": "authorize",
-                "description": "authorize",
-                "operationId": "authorize",
-                "parameters": [{
-                    "name": "providerId",
-                    "in": "header",
-                    "required": true,
-                    "schema": {
-                        "type": ""
-                    }
-                }, {
-                    "name": "authorizationId",
-                    "in": "header",
-                    "required": true,
-                    "schema": {
-                        "type": ""
-                    }
-                }, {
-                    "name": "postLoginRedirectUrl",
-                    "in": "header",
-                    "required": true,
-                    "schema": {
-                        "type": ""
-                    }
-                }],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/token": {
-            "get": {
-                "tags": ["MCP"],
-                "summary": "token",
-                "description": "token",
-                "operationId": "token",
-                "parameters": [{
-                    "name": "providerId",
-                    "in": "header",
-                    "required": true,
-                    "schema": {
-                        "type": ""
-                    }
-                }, {
-                    "name": "authorizationId",
-                    "in": "header",
-                    "required": true,
-                    "schema": {
-                        "type": ""
-                    }
-                }],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
         "/user": {
             "get": {
                 "tags": ["API"],
@@ -165,7 +102,7 @@
                 "tags": ["API"],
                 "summary": "List issues for a repository",
                 "description": "List issues for a repository",
-                "operationId": "list-repositories-for-a-user",
+                "operationId": "issues",
                 "parameters": [{
                     "name": "username",
                     "in": "path",
