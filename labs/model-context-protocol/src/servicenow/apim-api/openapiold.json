@@ -1,0 +1,3374 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "ServiceNow MCP",
+        "description": "",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://apim-rocks.azure-api.net/servicenow"
+    }],
+    "paths": {
+        "/api/now/v2/table/incident": {
+            "get": {
+                "summary": "List Incidents",
+                "description": "Retrieves a list of incidents from ServiceNow",
+                "operationId": "ListIncidents",
+                "parameters": [
+                    {
+                        "name": "sysparm_exclude_reference_link",
+                        "in": "query",
+                        "description": "Determines if reference links should be excluded",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "sysparm_display_value",
+                        "in": "query",
+                        "description": "Determines if system references should be included",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "sysparm_fields",
+                        "in": "query",
+                        "description": "Fields to return in response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sysparm_limit",
+                        "in": "query",
+                        "description": "Maximum number of records to return",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "sysparm_query",
+                        "in": "query",
+                        "description": "Encoded query used to filter the result set",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "default",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiNowV2TableIncidentGet200ApplicationJsonResponse"
+                                },
+                                "example": {
+                                    "result": [
+                                        {
+                                            "parent": "string",
+                                            "made_sla": "string",
+                                            "caused_by": "string",
+                                            "watch_list": "string",
+                                            "upon_reject": "string",
+                                            "sys_updated_on": "string",
+                                            "child_incidents": "string",
+                                            "hold_reason": "string",
+                                            "task_effective_number": "string",
+                                            "approval_history": "string",
+                                            "number": "string",
+                                            "resolved_by": "string",
+                                            "sys_updated_by": "string",
+                                            "opened_by": "string",
+                                            "user_input": "string",
+                                            "sys_created_on": "string",
+                                            "sys_domain": "string",
+                                            "state": "string",
+                                            "route_reason": "string",
+                                            "sys_created_by": "string",
+                                            "knowledge": "string",
+                                            "order": "string",
+                                            "calendar_stc": "string",
+                                            "closed_at": "string",
+                                            "cmdb_ci": "string",
+                                            "delivery_plan": "string",
+                                            "contract": "string",
+                                            "impact": "string",
+                                            "active": "string",
+                                            "work_notes_list": "string",
+                                            "business_service": "string",
+                                            "priority": "string",
+                                            "sys_domain_path": "string",
+                                            "rfc": "string",
+                                            "time_worked": "string",
+                                            "expected_start": "string",
+                                            "opened_at": "string",
+                                            "business_duration": "string",
+                                            "group_list": "string",
+                                            "work_end": "string",
+                                            "caller_id": "string",
+                                            "reopened_time": "string",
+                                            "resolved_at": "string",
+                                            "approval_set": "string",
+                                            "subcategory": "string",
+                                            "work_notes": "string",
+                                            "universal_request": "string",
+                                            "short_description": "string",
+                                            "close_code": "string",
+                                            "correlation_display": "string",
+                                            "delivery_task": "string",
+                                            "work_start": "string",
+                                            "assignment_group": "string",
+                                            "additional_assignee_list": "string",
+                                            "business_stc": "string",
+                                            "description": "string",
+                                            "calendar_duration": "string",
+                                            "close_notes": "string",
+                                            "notify": "string",
+                                            "service_offering": "string",
+                                            "sys_class_name": "string",
+                                            "closed_by": "string",
+                                            "follow_up": "string",
+                                            "parent_incident": "string",
+                                            "sys_id": "string",
+                                            "contact_type": "string",
+                                            "reopened_by": "string",
+                                            "incident_state": "string",
+                                            "urgency": "string",
+                                            "problem_id": "string",
+                                            "company": "string",
+                                            "reassignment_count": "string",
+                                            "activity_due": "string",
+                                            "assigned_to": "string",
+                                            "severity": "string",
+                                            "comments": "string",
+                                            "approval": "string",
+                                            "sla_due": "string",
+                                            "comments_and_work_notes": "string",
+                                            "due_date": "string",
+                                            "sys_mod_count": "string",
+                                            "reopen_count": "string",
+                                            "sys_tags": "string",
+                                            "escalation": "string",
+                                            "upon_approval": "string",
+                                            "correlation_id": "string",
+                                            "location": "string",
+                                            "category": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create Incident",
+                "description": "Create a new ServiceNow Incident",
+                "operationId": "CreateIncident",
+                "parameters": [
+                    {
+                        "name": "sysparm_exclude_reference_link",
+                        "in": "query",
+                        "description": "Determines if reference links should be excluded",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "sysparm_display_value",
+                        "in": "query",
+                        "description": "Determines if system references should be included",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "sysparm_fields",
+                        "in": "query",
+                        "description": "Fields to return in response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sysparm_input_display_value",
+                        "in": "query",
+                        "description": "Flag that indicates whether to set field values using the display value or the actual value",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body-1"
+                            },
+                            "example": {
+                                "upon_approval": "string",
+                                "location": "string",
+                                "expected_start": "string",
+                                "reopen_count": "string",
+                                "additional_assignee_list": "string",
+                                "impact": "string",
+                                "urgency": "string",
+                                "correlation_id": "string",
+                                "sys_tags": "string",
+                                "sys_domain": "string",
+                                "description": "string",
+                                "group_list": "string",
+                                "priority": "string",
+                                "delivery_plan": "string",
+                                "work_notes_list": "string",
+                                "business_service": "string",
+                                "follow_up": "string",
+                                "closed_at": "string",
+                                "sla_due": "string",
+                                "delivery_task": "string",
+                                "sys_updated_on": "string",
+                                "parent": "string",
+                                "work_end": "string",
+                                "number": "string",
+                                "closed_by": "string",
+                                "work_start": "string",
+                                "category": "string",
+                                "business_duration": "string",
+                                "incident_state": "string",
+                                "activity_due": "string",
+                                "correlation_display": "string",
+                                "company": "string",
+                                "active": "string",
+                                "due_date": "string",
+                                "assignment_group": "string",
+                                "caller_id": "string",
+                                "knowledge": "string",
+                                "made_sla": "string",
+                                "comments_and_work_notes": "string",
+                                "parent_incident": "string",
+                                "state": "string",
+                                "user_input": "string",
+                                "sys_created_on": "string",
+                                "approval_set": "string",
+                                "reassignment_count": "string",
+                                "child_incidents": "string",
+                                "opened_at": "string",
+                                "short_description": "string",
+                                "order": "string",
+                                "sys_updated_by": "string",
+                                "resolved_by": "string",
+                                "notify": "string",
+                                "upon_reject": "string",
+                                "approval_history": "string",
+                                "problem_id": "string",
+                                "work_notes": "string",
+                                "calendar_duration": "string",
+                                "sys_id": "string",
+                                "approval": "string",
+                                "caused_by": "string",
+                                "severity": "string",
+                                "sys_created_by": "string",
+                                "resolved_at": "string",
+                                "assigned_to": "string",
+                                "sys_domain_path": "string",
+                                "opened_by": "string",
+                                "subcategory": "string",
+                                "watch_list": "string",
+                                "time_worked": "string",
+                                "contact_type": "string",
+                                "escalation": "string",
+                                "comments": "string",
+                                "hold_reason": "string",
+                                "task_effective_number": "string",
+                                "contract": "string",
+                                "universal_request": "string",
+                                "service_offering": "string",
+                                "close_code": "string",
+                                "close_notes": "string",
+                                "route_reason": "string"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "default",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiNowV2TableIncidentPost201ApplicationJsonResponse"
+                                },
+                                "example": {
+                                    "result": {
+                                        "parent": "string",
+                                        "made_sla": "string",
+                                        "caused_by": "string",
+                                        "watch_list": "string",
+                                        "upon_reject": "string",
+                                        "sys_updated_on": "string",
+                                        "child_incidents": "string",
+                                        "hold_reason": "string",
+                                        "task_effective_number": "string",
+                                        "approval_history": "string",
+                                        "number": "string",
+                                        "resolved_by": "string",
+                                        "sys_updated_by": "string",
+                                        "opened_by": "string",
+                                        "user_input": "string",
+                                        "sys_created_on": "string",
+                                        "sys_domain": "string",
+                                        "state": "string",
+                                        "route_reason": "string",
+                                        "sys_created_by": "string",
+                                        "knowledge": "string",
+                                        "order": "string",
+                                        "calendar_stc": "string",
+                                        "closed_at": "string",
+                                        "cmdb_ci": "string",
+                                        "delivery_plan": "string",
+                                        "contract": "string",
+                                        "impact": "string",
+                                        "active": "string",
+                                        "work_notes_list": "string",
+                                        "business_service": "string",
+                                        "priority": "string",
+                                        "sys_domain_path": "string",
+                                        "rfc": "string",
+                                        "time_worked": "string",
+                                        "expected_start": "string",
+                                        "opened_at": "string",
+                                        "business_duration": "string",
+                                        "group_list": "string",
+                                        "work_end": "string",
+                                        "caller_id": "string",
+                                        "reopened_time": "string",
+                                        "resolved_at": "string",
+                                        "approval_set": "string",
+                                        "subcategory": "string",
+                                        "work_notes": "string",
+                                        "universal_request": "string",
+                                        "short_description": "string",
+                                        "close_code": "string",
+                                        "correlation_display": "string",
+                                        "delivery_task": "string",
+                                        "work_start": "string",
+                                        "assignment_group": "string",
+                                        "additional_assignee_list": "string",
+                                        "business_stc": "string",
+                                        "description": "string",
+                                        "calendar_duration": "string",
+                                        "close_notes": "string",
+                                        "notify": "string",
+                                        "service_offering": "string",
+                                        "sys_class_name": "string",
+                                        "closed_by": "string",
+                                        "follow_up": "string",
+                                        "parent_incident": "string",
+                                        "sys_id": "string",
+                                        "contact_type": "string",
+                                        "reopened_by": "string",
+                                        "incident_state": "string",
+                                        "urgency": "string",
+                                        "problem_id": "string",
+                                        "company": "string",
+                                        "reassignment_count": "string",
+                                        "activity_due": "string",
+                                        "assigned_to": "string",
+                                        "severity": "string",
+                                        "comments": "string",
+                                        "approval": "string",
+                                        "sla_due": "string",
+                                        "comments_and_work_notes": "string",
+                                        "due_date": "string",
+                                        "sys_mod_count": "string",
+                                        "reopen_count": "string",
+                                        "sys_tags": "string",
+                                        "escalation": "string",
+                                        "upon_approval": "string",
+                                        "correlation_id": "string",
+                                        "location": "string",
+                                        "category": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/now/v2/table/incident/{sys_id}": {
+            "get": {
+                "summary": "Get Incident",
+                "description": "Retrieves the specific incident record using the provided Id parameter.",
+                "operationId": "GetIncident",
+                "parameters": [
+                    {
+                        "name": "sys_id",
+                        "in": "path",
+                        "description": "System ID of the record",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sysparm_exclude_reference_link",
+                        "in": "query",
+                        "description": "Determines if reference links should be excluded",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "sysparm_fields",
+                        "in": "query",
+                        "description": "Fields to return in response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sysparm_display_value",
+                        "in": "query",
+                        "description": "Determines if system references should be included",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "default",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiNowV2TableIncidentSys_idGet200ApplicationJsonResponse"
+                                },
+                                "example": {
+                                    "result": {
+                                        "parent": "string",
+                                        "made_sla": "string",
+                                        "caused_by": "string",
+                                        "watch_list": "string",
+                                        "upon_reject": "string",
+                                        "sys_updated_on": "string",
+                                        "child_incidents": "string",
+                                        "hold_reason": "string",
+                                        "task_effective_number": "string",
+                                        "approval_history": "string",
+                                        "number": "string",
+                                        "resolved_by": "string",
+                                        "sys_updated_by": "string",
+                                        "opened_by": "string",
+                                        "user_input": "string",
+                                        "sys_created_on": "string",
+                                        "sys_domain": "string",
+                                        "state": "string",
+                                        "route_reason": "string",
+                                        "sys_created_by": "string",
+                                        "knowledge": "string",
+                                        "order": "string",
+                                        "calendar_stc": "string",
+                                        "closed_at": "string",
+                                        "cmdb_ci": "string",
+                                        "delivery_plan": "string",
+                                        "contract": "string",
+                                        "impact": "string",
+                                        "active": "string",
+                                        "work_notes_list": "string",
+                                        "business_service": "string",
+                                        "priority": "string",
+                                        "sys_domain_path": "string",
+                                        "rfc": "string",
+                                        "time_worked": "string",
+                                        "expected_start": "string",
+                                        "opened_at": "string",
+                                        "business_duration": "string",
+                                        "group_list": "string",
+                                        "work_end": "string",
+                                        "caller_id": "string",
+                                        "reopened_time": "string",
+                                        "resolved_at": "string",
+                                        "approval_set": "string",
+                                        "subcategory": "string",
+                                        "work_notes": "string",
+                                        "universal_request": "string",
+                                        "short_description": "string",
+                                        "close_code": "string",
+                                        "correlation_display": "string",
+                                        "delivery_task": "string",
+                                        "work_start": "string",
+                                        "assignment_group": "string",
+                                        "additional_assignee_list": "string",
+                                        "business_stc": "string",
+                                        "description": "string",
+                                        "calendar_duration": "string",
+                                        "close_notes": "string",
+                                        "notify": "string",
+                                        "service_offering": "string",
+                                        "sys_class_name": "string",
+                                        "closed_by": "string",
+                                        "follow_up": "string",
+                                        "parent_incident": "string",
+                                        "sys_id": "string",
+                                        "contact_type": "string",
+                                        "reopened_by": "string",
+                                        "incident_state": "string",
+                                        "urgency": "string",
+                                        "problem_id": "string",
+                                        "company": "string",
+                                        "reassignment_count": "string",
+                                        "activity_due": "string",
+                                        "assigned_to": "string",
+                                        "severity": "string",
+                                        "comments": "string",
+                                        "approval": "string",
+                                        "sla_due": "string",
+                                        "comments_and_work_notes": "string",
+                                        "due_date": "string",
+                                        "sys_mod_count": "string",
+                                        "reopen_count": "string",
+                                        "sys_tags": "string",
+                                        "escalation": "string",
+                                        "upon_approval": "string",
+                                        "correlation_id": "string",
+                                        "location": "string",
+                                        "category": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/": {
+            "post": {
+                "tags": ["MCP"],
+                "summary": "messages",
+                "description": "messages",
+                "operationId": "messages",
+                "parameters": [{
+                    "name": "Content-Type",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "enum": [""],
+                        "type": ""
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/sse": {
+            "get": {
+                "tags": ["MCP"],
+                "summary": "sse",
+                "description": "sse",
+                "operationId": "sse",
+                "parameters": [{
+                    "name": "Content-Type",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "enum": [""],
+                        "type": ""
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        }
+    },
+    "components":{
+        "schemas": {
+            "GetTypesResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "description": "Display name of the record type.",
+                                    "x-ms-summary": "Value"
+                                }
+                            }
+                        },
+                        "description": "Result set of all record types for current instance"
+                    }
+                }
+            },
+            "ApiNowV2TableSys_userSys_idGet200ApplicationJsonResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "country": {
+                                "type": "string",
+                                "description": "country"
+                            },
+                            "building": {
+                                "type": "string",
+                                "description": "building"
+                            },
+                            "state": {
+                                "type": "string",
+                                "description": "state"
+                            },
+                            "vip": {
+                                "type": "string",
+                                "description": "vip"
+                            },
+                            "zip": {
+                                "type": "string",
+                                "description": "zip"
+                            },
+                            "cost_center": {
+                                "type": "string",
+                                "description": "cost_center"
+                            },
+                            "phone": {
+                                "type": "string",
+                                "description": "phone"
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "name"
+                            },
+                            "city": {
+                                "type": "string",
+                                "description": "city"
+                            },
+                            "user_name": {
+                                "type": "string",
+                                "description": "user_name"
+                            },
+                            "roles": {
+                                "type": "string",
+                                "description": "roles"
+                            },
+                            "title": {
+                                "type": "string",
+                                "description": "title"
+                            },
+                            "sys_id": {
+                                "type": "string",
+                                "description": "sys_id"
+                            },
+                            "mobile_phone": {
+                                "type": "string",
+                                "description": "mobile_phone"
+                            },
+                            "street": {
+                                "type": "string",
+                                "description": "street"
+                            },
+                            "company": {
+                                "type": "string",
+                                "description": "company"
+                            },
+                            "department": {
+                                "type": "string",
+                                "description": "department"
+                            },
+                            "first_name": {
+                                "type": "string",
+                                "description": "first_name"
+                            },
+                            "email": {
+                                "type": "string",
+                                "description": "email"
+                            },
+                            "manager": {
+                                "type": "string",
+                                "description": "manager"
+                            },
+                            "last_name": {
+                                "type": "string",
+                                "description": "last_name"
+                            },
+                            "photo": {
+                                "type": "string",
+                                "description": "photo"
+                            },
+                            "location": {
+                                "type": "string",
+                                "description": "location"
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            },
+            "ApiNowV1AttachmentSys_idGet200ApplicationJsonResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "table_sys_id": {
+                                "type": "string",
+                                "description": "table_sys_id"
+                            },
+                            "size_bytes": {
+                                "type": "string",
+                                "description": "size_bytes"
+                            },
+                            "download_link": {
+                                "type": "string",
+                                "description": "download_link"
+                            },
+                            "sys_updated_on": {
+                                "type": "string",
+                                "description": "sys_updated_on"
+                            },
+                            "sys_id": {
+                                "type": "string",
+                                "description": "sys_id"
+                            },
+                            "image_height": {
+                                "type": "string",
+                                "description": "image_height"
+                            },
+                            "sys_created_on": {
+                                "type": "string",
+                                "description": "sys_created_on"
+                            },
+                            "file_name": {
+                                "type": "string",
+                                "description": "file_name"
+                            },
+                            "sys_created_by": {
+                                "type": "string",
+                                "description": "sys_created_by"
+                            },
+                            "compressed": {
+                                "type": "string",
+                                "description": "compressed"
+                            },
+                            "average_image_color": {
+                                "type": "string",
+                                "description": "average_image_color"
+                            },
+                            "sys_updated_by": {
+                                "type": "string",
+                                "description": "sys_updated_by"
+                            },
+                            "sys_tags": {
+                                "type": "string",
+                                "description": "sys_tags"
+                            },
+                            "table_name": {
+                                "type": "string",
+                                "description": "table_name"
+                            },
+                            "image_width": {
+                                "type": "string",
+                                "description": "image_width"
+                            },
+                            "sys_mod_count": {
+                                "type": "string",
+                                "description": "sys_mod_count"
+                            },
+                            "content_type": {
+                                "type": "string",
+                                "description": "content_type"
+                            },
+                            "size_compressed": {
+                                "type": "string",
+                                "description": "size_compressed"
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            },
+            "ApiNowV1AttachmentSys_idDelete204ApplicationJsonResponse": {},
+            "ApiNowV1AttachmentGet200ApplicationJsonResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "table_sys_id": {
+                                    "type": "string",
+                                    "description": "table_sys_id"
+                                },
+                                "size_bytes": {
+                                    "type": "string",
+                                    "description": "size_bytes"
+                                },
+                                "download_link": {
+                                    "type": "string",
+                                    "description": "download_link"
+                                },
+                                "sys_updated_on": {
+                                    "type": "string",
+                                    "description": "sys_updated_on"
+                                },
+                                "sys_id": {
+                                    "type": "string",
+                                    "description": "sys_id"
+                                },
+                                "image_height": {
+                                    "type": "string",
+                                    "description": "image_height"
+                                },
+                                "sys_created_on": {
+                                    "type": "string",
+                                    "description": "sys_created_on"
+                                },
+                                "file_name": {
+                                    "type": "string",
+                                    "description": "file_name"
+                                },
+                                "sys_created_by": {
+                                    "type": "string",
+                                    "description": "sys_created_by"
+                                },
+                                "compressed": {
+                                    "type": "string",
+                                    "description": "compressed"
+                                },
+                                "average_image_color": {
+                                    "type": "string",
+                                    "description": "average_image_color"
+                                },
+                                "sys_updated_by": {
+                                    "type": "string",
+                                    "description": "sys_updated_by"
+                                },
+                                "sys_tags": {
+                                    "type": "string",
+                                    "description": "sys_tags"
+                                },
+                                "table_name": {
+                                    "type": "string",
+                                    "description": "table_name"
+                                },
+                                "image_width": {
+                                    "type": "string",
+                                    "description": "image_width"
+                                },
+                                "sys_mod_count": {
+                                    "type": "string",
+                                    "description": "sys_mod_count"
+                                },
+                                "content_type": {
+                                    "type": "string",
+                                    "description": "content_type"
+                                },
+                                "size_compressed": {
+                                    "type": "string",
+                                    "description": "size_compressed"
+                                }
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            },
+            "ApiNowV1AttachmentSys_idFileGet200ApplicationJsonResponse": {
+                "title": "File Content",
+                "type": "string",
+                "format": "binary"
+            },
+            "Body": {
+                "type": "string",
+                "format": "binary"
+            },
+            "ApiNowV1AttachmentFilePost201ApplicationJsonResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "table_sys_id": {
+                                "type": "string",
+                                "description": "table_sys_id"
+                            },
+                            "size_bytes": {
+                                "type": "string",
+                                "description": "size_bytes"
+                            },
+                            "download_link": {
+                                "type": "string",
+                                "description": "download_link"
+                            },
+                            "sys_updated_on": {
+                                "type": "string",
+                                "description": "sys_updated_on"
+                            },
+                            "sys_id": {
+                                "type": "string",
+                                "description": "sys_id"
+                            },
+                            "image_height": {
+                                "type": "string",
+                                "description": "image_height"
+                            },
+                            "sys_created_on": {
+                                "type": "string",
+                                "description": "sys_created_on"
+                            },
+                            "file_name": {
+                                "type": "string",
+                                "description": "file_name"
+                            },
+                            "sys_created_by": {
+                                "type": "string",
+                                "description": "sys_created_by"
+                            },
+                            "compressed": {
+                                "type": "string",
+                                "description": "compressed"
+                            },
+                            "average_image_color": {
+                                "type": "string",
+                                "description": "average_image_color"
+                            },
+                            "sys_updated_by": {
+                                "type": "string",
+                                "description": "sys_updated_by"
+                            },
+                            "sys_tags": {
+                                "type": "string",
+                                "description": "sys_tags"
+                            },
+                            "table_name": {
+                                "type": "string",
+                                "description": "table_name"
+                            },
+                            "image_width": {
+                                "type": "string",
+                                "description": "image_width"
+                            },
+                            "sys_mod_count": {
+                                "type": "string",
+                                "description": "sys_mod_count"
+                            },
+                            "content_type": {
+                                "type": "string",
+                                "description": "content_type"
+                            },
+                            "size_compressed": {
+                                "type": "string",
+                                "description": "size_compressed"
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            },
+            "ApiNowV2TableIncidentGet200ApplicationJsonResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "parent": {
+                                    "type": "string",
+                                    "description": "parent"
+                                },
+                                "made_sla": {
+                                    "type": "string",
+                                    "description": "made_sla"
+                                },
+                                "caused_by": {
+                                    "type": "string",
+                                    "description": "caused_by"
+                                },
+                                "watch_list": {
+                                    "type": "string",
+                                    "description": "watch_list"
+                                },
+                                "upon_reject": {
+                                    "type": "string",
+                                    "description": "upon_reject"
+                                },
+                                "sys_updated_on": {
+                                    "type": "string",
+                                    "description": "sys_updated_on"
+                                },
+                                "child_incidents": {
+                                    "type": "string",
+                                    "description": "child_incidents"
+                                },
+                                "hold_reason": {
+                                    "title": "On hold reason",
+                                    "type": "string",
+                                    "description": "hold_reason",
+                                    "x-ms-visibility": "advanced"
+                                },
+                                "task_effective_number": {
+                                    "type": "string",
+                                    "description": "task_effective_number"
+                                },
+                                "approval_history": {
+                                    "type": "string",
+                                    "description": "approval_history"
+                                },
+                                "number": {
+                                    "type": "string",
+                                    "description": "number"
+                                },
+                                "resolved_by": {
+                                    "type": "string",
+                                    "description": "resolved_by"
+                                },
+                                "sys_updated_by": {
+                                    "type": "string",
+                                    "description": "sys_updated_by"
+                                },
+                                "opened_by": {
+                                    "type": "string",
+                                    "description": "opened_by"
+                                },
+                                "user_input": {
+                                    "type": "string",
+                                    "description": "user_input"
+                                },
+                                "sys_created_on": {
+                                    "type": "string",
+                                    "description": "sys_created_on"
+                                },
+                                "sys_domain": {
+                                    "type": "string",
+                                    "description": "sys_domain"
+                                },
+                                "state": {
+                                    "type": "string",
+                                    "description": "state"
+                                },
+                                "route_reason": {
+                                    "type": "string",
+                                    "description": "route_reason"
+                                },
+                                "sys_created_by": {
+                                    "type": "string",
+                                    "description": "sys_created_by"
+                                },
+                                "knowledge": {
+                                    "type": "string",
+                                    "description": "knowledge"
+                                },
+                                "order": {
+                                    "type": "string",
+                                    "description": "order"
+                                },
+                                "calendar_stc": {
+                                    "type": "string",
+                                    "description": "calendar_stc"
+                                },
+                                "closed_at": {
+                                    "type": "string",
+                                    "description": "closed_at"
+                                },
+                                "cmdb_ci": {
+                                    "type": "string",
+                                    "description": "cmdb_ci"
+                                },
+                                "delivery_plan": {
+                                    "type": "string",
+                                    "description": "delivery_plan"
+                                },
+                                "contract": {
+                                    "type": "string",
+                                    "description": "contract"
+                                },
+                                "impact": {
+                                    "type": "string",
+                                    "description": "impact"
+                                },
+                                "active": {
+                                    "type": "string",
+                                    "description": "active"
+                                },
+                                "work_notes_list": {
+                                    "type": "string",
+                                    "description": "work_notes_list"
+                                },
+                                "business_service": {
+                                    "type": "string",
+                                    "description": "business_service"
+                                },
+                                "priority": {
+                                    "type": "string",
+                                    "description": "priority"
+                                },
+                                "sys_domain_path": {
+                                    "type": "string",
+                                    "description": "sys_domain_path"
+                                },
+                                "rfc": {
+                                    "type": "string",
+                                    "description": "rfc"
+                                },
+                                "time_worked": {
+                                    "type": "string",
+                                    "description": "time_worked"
+                                },
+                                "expected_start": {
+                                    "type": "string",
+                                    "description": "expected_start"
+                                },
+                                "opened_at": {
+                                    "type": "string",
+                                    "description": "opened_at"
+                                },
+                                "business_duration": {
+                                    "type": "string",
+                                    "description": "business_duration"
+                                },
+                                "group_list": {
+                                    "type": "string",
+                                    "description": "group_list"
+                                },
+                                "work_end": {
+                                    "type": "string",
+                                    "description": "work_end"
+                                },
+                                "caller_id": {
+                                    "type": "string",
+                                    "description": "caller_id"
+                                },
+                                "reopened_time": {
+                                    "type": "string",
+                                    "description": "reopened_time"
+                                },
+                                "resolved_at": {
+                                    "type": "string",
+                                    "description": "resolved_at"
+                                },
+                                "approval_set": {
+                                    "type": "string",
+                                    "description": "approval_set"
+                                },
+                                "subcategory": {
+                                    "type": "string",
+                                    "description": "subcategory"
+                                },
+                                "work_notes": {
+                                    "type": "string",
+                                    "description": "work_notes"
+                                },
+                                "universal_request": {
+                                    "type": "string",
+                                    "description": "universal_request"
+                                },
+                                "short_description": {
+                                    "type": "string",
+                                    "description": "short_description"
+                                },
+                                "close_code": {
+                                    "type": "string",
+                                    "description": "close_code"
+                                },
+                                "correlation_display": {
+                                    "type": "string",
+                                    "description": "correlation_display"
+                                },
+                                "delivery_task": {
+                                    "type": "string",
+                                    "description": "delivery_task"
+                                },
+                                "work_start": {
+                                    "type": "string",
+                                    "description": "work_start"
+                                },
+                                "assignment_group": {
+                                    "type": "string",
+                                    "description": "assignment_group"
+                                },
+                                "additional_assignee_list": {
+                                    "type": "string",
+                                    "description": "additional_assignee_list"
+                                },
+                                "business_stc": {
+                                    "type": "string",
+                                    "description": "business_stc"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "description"
+                                },
+                                "calendar_duration": {
+                                    "type": "string",
+                                    "description": "calendar_duration"
+                                },
+                                "close_notes": {
+                                    "type": "string",
+                                    "description": "close_notes"
+                                },
+                                "notify": {
+                                    "type": "string",
+                                    "description": "notify"
+                                },
+                                "service_offering": {
+                                    "type": "string",
+                                    "description": "service_offering"
+                                },
+                                "sys_class_name": {
+                                    "type": "string",
+                                    "description": "sys_class_name"
+                                },
+                                "closed_by": {
+                                    "type": "string",
+                                    "description": "closed_by"
+                                },
+                                "follow_up": {
+                                    "type": "string",
+                                    "description": "follow_up"
+                                },
+                                "parent_incident": {
+                                    "type": "string",
+                                    "description": "parent_incident"
+                                },
+                                "sys_id": {
+                                    "type": "string",
+                                    "description": "sys_id"
+                                },
+                                "contact_type": {
+                                    "type": "string",
+                                    "description": "contact_type"
+                                },
+                                "reopened_by": {
+                                    "type": "string",
+                                    "description": "reopened_by"
+                                },
+                                "incident_state": {
+                                    "type": "string",
+                                    "description": "incident_state"
+                                },
+                                "urgency": {
+                                    "type": "string",
+                                    "description": "urgency"
+                                },
+                                "problem_id": {
+                                    "type": "string",
+                                    "description": "problem_id"
+                                },
+                                "company": {
+                                    "type": "string",
+                                    "description": "company"
+                                },
+                                "reassignment_count": {
+                                    "type": "string",
+                                    "description": "reassignment_count"
+                                },
+                                "activity_due": {
+                                    "type": "string",
+                                    "description": "activity_due"
+                                },
+                                "assigned_to": {
+                                    "type": "string",
+                                    "description": "assigned_to"
+                                },
+                                "severity": {
+                                    "type": "string",
+                                    "description": "severity"
+                                },
+                                "comments": {
+                                    "type": "string",
+                                    "description": "comments"
+                                },
+                                "approval": {
+                                    "type": "string",
+                                    "description": "approval"
+                                },
+                                "sla_due": {
+                                    "type": "string",
+                                    "description": "sla_due"
+                                },
+                                "comments_and_work_notes": {
+                                    "type": "string",
+                                    "description": "comments_and_work_notes"
+                                },
+                                "due_date": {
+                                    "type": "string",
+                                    "description": "due_date"
+                                },
+                                "sys_mod_count": {
+                                    "type": "string",
+                                    "description": "sys_mod_count"
+                                },
+                                "reopen_count": {
+                                    "type": "string",
+                                    "description": "reopen_count"
+                                },
+                                "sys_tags": {
+                                    "type": "string",
+                                    "description": "sys_tags"
+                                },
+                                "escalation": {
+                                    "type": "string",
+                                    "description": "escalation"
+                                },
+                                "upon_approval": {
+                                    "type": "string",
+                                    "description": "upon_approval"
+                                },
+                                "correlation_id": {
+                                    "type": "string",
+                                    "description": "correlation_id"
+                                },
+                                "location": {
+                                    "type": "string",
+                                    "description": "location"
+                                },
+                                "category": {
+                                    "type": "string",
+                                    "description": "category"
+                                }
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            },
+            "Body-1": {
+                "type": "object",
+                "properties": {
+                    "upon_approval": {
+                        "title": "Upon approval",
+                        "type": "string",
+                        "description": "upon_approval",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "location": {
+                        "title": "Location",
+                        "type": "string",
+                        "description": "Where the caller or service is located",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "expected_start": {
+                        "title": "Expected start",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "reopen_count": {
+                        "title": "Reopen count",
+                        "type": "string",
+                        "description": "Number of times Incident state has changed from REsolved or Closed to another state",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "additional_assignee_list": {
+                        "title": "Additional assignee list",
+                        "type": "string",
+                        "description": "Additional assignees",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "impact": {
+                        "title": "Impact",
+                        "type": "string",
+                        "description": "Measures of the business criticality of the affected service",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "urgency": {
+                        "title": "Urgency",
+                        "type": "string",
+                        "description": "Measure of the business criticality based on the impact and on the business needs",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "correlation_id": {
+                        "title": "Correlation ID",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sys_tags": {
+                        "title": "Tags",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sys_domain": {
+                        "title": "Domain",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "description": {
+                        "title": "Description",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "group_list": {
+                        "title": "Group list",
+                        "type": "string",
+                        "description": "Interested groups",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "priority": {
+                        "title": "Priority",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "delivery_plan": {
+                        "title": "Delivery plan",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "work_notes_list": {
+                        "title": "Work notes list",
+                        "type": "string",
+                        "description": "Users interested in work notes",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "business_service": {
+                        "title": "Service",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "follow_up": {
+                        "title": "Follow up",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "closed_at": {
+                        "title": "Resolve time",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sla_due": {
+                        "title": "SLA due",
+                        "type": "string",
+                        "description": "Date by which the SLA expects this task to be completed",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "delivery_task": {
+                        "title": "Delivery task",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sys_updated_on": {
+                        "title": "Updated on",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "parent": {
+                        "title": "Parent",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "work_end": {
+                        "title": "Work end",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "number": {
+                        "title": "Number",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "closed_by": {
+                        "title": "Closed by",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "work_start": {
+                        "title": "Work start",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "category": {
+                        "title": "Category",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "business_duration": {
+                        "title": "Business duration",
+                        "type": "string",
+                        "description": "Business time elapsed before task was closed",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "incident_state": {
+                        "title": "Incident state",
+                        "type": "string",
+                        "description": "Workflow state of the incident",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "activity_due": {
+                        "title": "Activity due",
+                        "type": "string",
+                        "description": "Date by which the Inactivity Monitor expects the task to be updated",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "correlation_display": {
+                        "title": "Correlation display",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "company": {
+                        "title": "Company",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "active": {
+                        "title": "Active",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "due_date": {
+                        "title": "Due date",
+                        "type": "string",
+                        "description": "Expected date from assigned to",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "assignment_group": {
+                        "title": "Assignment group",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "caller_id": {
+                        "title": "Caller ID",
+                        "type": "string",
+                        "description": "Person who reported or is affected by this incident",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "knowledge": {
+                        "title": "Knowledge",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "made_sla": {
+                        "title": "Made SLA",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "comments_and_work_notes": {
+                        "title": "Comments and work notes",
+                        "type": "string",
+                        "description": "Combined output of Additional comments and Work notes",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "parent_incident": {
+                        "title": "Parent incident",
+                        "type": "string",
+                        "description": "Can be used to collect incidents for the same root issue",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "state": {
+                        "title": "State",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "user_input": {
+                        "title": "User input",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sys_created_on": {
+                        "title": "Created on",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "approval_set": {
+                        "title": "Approval set",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "reassignment_count": {
+                        "title": "Reassignment count",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "child_incidents": {
+                        "title": "Child incidents",
+                        "type": "string",
+                        "description": "Number of child incidents related to this problem",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "opened_at": {
+                        "title": "Opened at",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "short_description": {
+                        "title": "Short Description",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "order": {
+                        "title": "Order",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sys_updated_by": {
+                        "title": "Updated by",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "resolved_by": {
+                        "title": "Resolved by",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "notify": {
+                        "title": "Notify",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "upon_reject": {
+                        "title": "Upon reject",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "approval_history": {
+                        "title": "Approval history",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "problem_id": {
+                        "title": "Problem ID",
+                        "type": "string",
+                        "description": "Related problem if one exists",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "work_notes": {
+                        "title": "Work notes",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "calendar_duration": {
+                        "title": "Calendar duration",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sys_id": {
+                        "title": "System ID",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "approval": {
+                        "title": "Approval",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "caused_by": {
+                        "title": "Caused by",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "severity": {
+                        "title": "Severity",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sys_created_by": {
+                        "title": "Created by",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "resolved_at": {
+                        "title": "Resolved at",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "assigned_to": {
+                        "title": "Assigned to",
+                        "type": "string",
+                        "description": "Person primarily responsible for working this task",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "sys_domain_path": {
+                        "title": "Domain path",
+                        "type": "string",
+                        "description": "Domain to which the task belongs",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "opened_by": {
+                        "title": "Opened by",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "subcategory": {
+                        "title": "Subcategory",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "watch_list": {
+                        "title": "Watch list",
+                        "type": "string",
+                        "description": "Interested users",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "time_worked": {
+                        "title": "Time worked",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "contact_type": {
+                        "title": "Contact type",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "escalation": {
+                        "title": "Escalation",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "comments": {
+                        "title": "Comments",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "hold_reason": {
+                        "title": "Hold reason",
+                        "type": "string",
+                        "description": "hold_reason",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "task_effective_number": {
+                        "title": "Effective number",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "contract": {
+                        "title": "Contract",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "universal_request": {
+                        "title": "Universal request",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "service_offering": {
+                        "title": "Service offering",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "close_code": {
+                        "title": "Resolution code",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "close_notes": {
+                        "title": "Resolution notes",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    },
+                    "route_reason": {
+                        "title": "Transfer reason",
+                        "type": "string",
+                        "x-ms-visibility": "advanced"
+                    }
+                }
+            },
+            "ApiNowV2TableIncidentPost201ApplicationJsonResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "parent": {
+                                "type": "string",
+                                "description": "parent"
+                            },
+                            "made_sla": {
+                                "type": "string",
+                                "description": "made_sla"
+                            },
+                            "caused_by": {
+                                "type": "string",
+                                "description": "caused_by"
+                            },
+                            "watch_list": {
+                                "type": "string",
+                                "description": "watch_list"
+                            },
+                            "upon_reject": {
+                                "type": "string",
+                                "description": "upon_reject"
+                            },
+                            "sys_updated_on": {
+                                "type": "string",
+                                "description": "sys_updated_on"
+                            },
+                            "child_incidents": {
+                                "type": "string",
+                                "description": "child_incidents"
+                            },
+                            "hold_reason": {
+                                "type": "string",
+                                "description": "hold_reason"
+                            },
+                            "task_effective_number": {
+                                "type": "string",
+                                "description": "task_effective_number"
+                            },
+                            "approval_history": {
+                                "type": "string",
+                                "description": "approval_history"
+                            },
+                            "number": {
+                                "type": "string",
+                                "description": "number"
+                            },
+                            "resolved_by": {
+                                "type": "string",
+                                "description": "resolved_by"
+                            },
+                            "sys_updated_by": {
+                                "type": "string",
+                                "description": "sys_updated_by"
+                            },
+                            "opened_by": {
+                                "type": "string",
+                                "description": "opened_by"
+                            },
+                            "user_input": {
+                                "type": "string",
+                                "description": "user_input"
+                            },
+                            "sys_created_on": {
+                                "type": "string",
+                                "description": "sys_created_on"
+                            },
+                            "sys_domain": {
+                                "type": "string",
+                                "description": "sys_domain"
+                            },
+                            "state": {
+                                "type": "string",
+                                "description": "state"
+                            },
+                            "route_reason": {
+                                "type": "string",
+                                "description": "route_reason"
+                            },
+                            "sys_created_by": {
+                                "type": "string",
+                                "description": "sys_created_by"
+                            },
+                            "knowledge": {
+                                "type": "string",
+                                "description": "knowledge"
+                            },
+                            "order": {
+                                "type": "string",
+                                "description": "order"
+                            },
+                            "calendar_stc": {
+                                "type": "string",
+                                "description": "calendar_stc"
+                            },
+                            "closed_at": {
+                                "type": "string",
+                                "description": "closed_at"
+                            },
+                            "cmdb_ci": {
+                                "type": "string",
+                                "description": "cmdb_ci"
+                            },
+                            "delivery_plan": {
+                                "type": "string",
+                                "description": "delivery_plan"
+                            },
+                            "contract": {
+                                "type": "string",
+                                "description": "contract"
+                            },
+                            "impact": {
+                                "type": "string",
+                                "description": "impact"
+                            },
+                            "active": {
+                                "type": "string",
+                                "description": "active"
+                            },
+                            "work_notes_list": {
+                                "type": "string",
+                                "description": "work_notes_list"
+                            },
+                            "business_service": {
+                                "type": "string",
+                                "description": "business_service"
+                            },
+                            "priority": {
+                                "type": "string",
+                                "description": "priority"
+                            },
+                            "sys_domain_path": {
+                                "type": "string",
+                                "description": "sys_domain_path"
+                            },
+                            "rfc": {
+                                "type": "string",
+                                "description": "rfc"
+                            },
+                            "time_worked": {
+                                "type": "string",
+                                "description": "time_worked"
+                            },
+                            "expected_start": {
+                                "type": "string",
+                                "description": "expected_start"
+                            },
+                            "opened_at": {
+                                "type": "string",
+                                "description": "opened_at"
+                            },
+                            "business_duration": {
+                                "type": "string",
+                                "description": "business_duration"
+                            },
+                            "group_list": {
+                                "type": "string",
+                                "description": "group_list"
+                            },
+                            "work_end": {
+                                "type": "string",
+                                "description": "work_end"
+                            },
+                            "caller_id": {
+                                "type": "string",
+                                "description": "caller_id"
+                            },
+                            "reopened_time": {
+                                "type": "string",
+                                "description": "reopened_time"
+                            },
+                            "resolved_at": {
+                                "type": "string",
+                                "description": "resolved_at"
+                            },
+                            "approval_set": {
+                                "type": "string",
+                                "description": "approval_set"
+                            },
+                            "subcategory": {
+                                "type": "string",
+                                "description": "subcategory"
+                            },
+                            "work_notes": {
+                                "type": "string",
+                                "description": "work_notes"
+                            },
+                            "universal_request": {
+                                "type": "string",
+                                "description": "universal_request"
+                            },
+                            "short_description": {
+                                "type": "string",
+                                "description": "short_description"
+                            },
+                            "close_code": {
+                                "type": "string",
+                                "description": "close_code"
+                            },
+                            "correlation_display": {
+                                "type": "string",
+                                "description": "correlation_display"
+                            },
+                            "delivery_task": {
+                                "type": "string",
+                                "description": "delivery_task"
+                            },
+                            "work_start": {
+                                "type": "string",
+                                "description": "work_start"
+                            },
+                            "assignment_group": {
+                                "type": "string",
+                                "description": "assignment_group"
+                            },
+                            "additional_assignee_list": {
+                                "type": "string",
+                                "description": "additional_assignee_list"
+                            },
+                            "business_stc": {
+                                "type": "string",
+                                "description": "business_stc"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "description"
+                            },
+                            "calendar_duration": {
+                                "type": "string",
+                                "description": "calendar_duration"
+                            },
+                            "close_notes": {
+                                "type": "string",
+                                "description": "close_notes"
+                            },
+                            "notify": {
+                                "type": "string",
+                                "description": "notify"
+                            },
+                            "service_offering": {
+                                "type": "string",
+                                "description": "service_offering"
+                            },
+                            "sys_class_name": {
+                                "type": "string",
+                                "description": "sys_class_name"
+                            },
+                            "closed_by": {
+                                "type": "string",
+                                "description": "closed_by"
+                            },
+                            "follow_up": {
+                                "type": "string",
+                                "description": "follow_up"
+                            },
+                            "parent_incident": {
+                                "type": "string",
+                                "description": "parent_incident"
+                            },
+                            "sys_id": {
+                                "type": "string",
+                                "description": "sys_id"
+                            },
+                            "contact_type": {
+                                "type": "string",
+                                "description": "contact_type"
+                            },
+                            "reopened_by": {
+                                "type": "string",
+                                "description": "reopened_by"
+                            },
+                            "incident_state": {
+                                "type": "string",
+                                "description": "incident_state"
+                            },
+                            "urgency": {
+                                "type": "string",
+                                "description": "urgency"
+                            },
+                            "problem_id": {
+                                "type": "string",
+                                "description": "problem_id"
+                            },
+                            "company": {
+                                "type": "string",
+                                "description": "company"
+                            },
+                            "reassignment_count": {
+                                "type": "string",
+                                "description": "reassignment_count"
+                            },
+                            "activity_due": {
+                                "type": "string",
+                                "description": "activity_due"
+                            },
+                            "assigned_to": {
+                                "type": "string",
+                                "description": "assigned_to"
+                            },
+                            "severity": {
+                                "type": "string",
+                                "description": "severity"
+                            },
+                            "comments": {
+                                "type": "string",
+                                "description": "comments"
+                            },
+                            "approval": {
+                                "type": "string",
+                                "description": "approval"
+                            },
+                            "sla_due": {
+                                "type": "string",
+                                "description": "sla_due"
+                            },
+                            "comments_and_work_notes": {
+                                "type": "string",
+                                "description": "comments_and_work_notes"
+                            },
+                            "due_date": {
+                                "type": "string",
+                                "description": "due_date"
+                            },
+                            "sys_mod_count": {
+                                "type": "string",
+                                "description": "sys_mod_count"
+                            },
+                            "reopen_count": {
+                                "type": "string",
+                                "description": "reopen_count"
+                            },
+                            "sys_tags": {
+                                "type": "string",
+                                "description": "sys_tags"
+                            },
+                            "escalation": {
+                                "type": "string",
+                                "description": "escalation"
+                            },
+                            "upon_approval": {
+                                "type": "string",
+                                "description": "upon_approval"
+                            },
+                            "correlation_id": {
+                                "type": "string",
+                                "description": "correlation_id"
+                            },
+                            "location": {
+                                "type": "string",
+                                "description": "location"
+                            },
+                            "category": {
+                                "type": "string",
+                                "description": "category"
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            },
+            "ApiNowV2TableIncidentSys_idGet200ApplicationJsonResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "parent": {
+                                "type": "string",
+                                "description": "parent"
+                            },
+                            "made_sla": {
+                                "type": "string",
+                                "description": "made_sla"
+                            },
+                            "caused_by": {
+                                "type": "string",
+                                "description": "caused_by"
+                            },
+                            "watch_list": {
+                                "type": "string",
+                                "description": "watch_list"
+                            },
+                            "upon_reject": {
+                                "type": "string",
+                                "description": "upon_reject"
+                            },
+                            "sys_updated_on": {
+                                "type": "string",
+                                "description": "sys_updated_on"
+                            },
+                            "child_incidents": {
+                                "type": "string",
+                                "description": "child_incidents"
+                            },
+                            "hold_reason": {
+                                "type": "string",
+                                "description": "hold_reason"
+                            },
+                            "task_effective_number": {
+                                "type": "string",
+                                "description": "task_effective_number"
+                            },
+                            "approval_history": {
+                                "type": "string",
+                                "description": "approval_history"
+                            },
+                            "number": {
+                                "type": "string",
+                                "description": "number"
+                            },
+                            "resolved_by": {
+                                "type": "string",
+                                "description": "resolved_by"
+                            },
+                            "sys_updated_by": {
+                                "type": "string",
+                                "description": "sys_updated_by"
+                            },
+                            "opened_by": {
+                                "type": "string",
+                                "description": "opened_by"
+                            },
+                            "user_input": {
+                                "type": "string",
+                                "description": "user_input"
+                            },
+                            "sys_created_on": {
+                                "type": "string",
+                                "description": "sys_created_on"
+                            },
+                            "sys_domain": {
+                                "type": "string",
+                                "description": "sys_domain"
+                            },
+                            "state": {
+                                "type": "string",
+                                "description": "state"
+                            },
+                            "route_reason": {
+                                "type": "string",
+                                "description": "route_reason"
+                            },
+                            "sys_created_by": {
+                                "type": "string",
+                                "description": "sys_created_by"
+                            },
+                            "knowledge": {
+                                "type": "string",
+                                "description": "knowledge"
+                            },
+                            "order": {
+                                "type": "string",
+                                "description": "order"
+                            },
+                            "calendar_stc": {
+                                "type": "string",
+                                "description": "calendar_stc"
+                            },
+                            "closed_at": {
+                                "type": "string",
+                                "description": "closed_at"
+                            },
+                            "cmdb_ci": {
+                                "type": "string",
+                                "description": "cmdb_ci"
+                            },
+                            "delivery_plan": {
+                                "type": "string",
+                                "description": "delivery_plan"
+                            },
+                            "contract": {
+                                "type": "string",
+                                "description": "contract"
+                            },
+                            "impact": {
+                                "type": "string",
+                                "description": "impact"
+                            },
+                            "active": {
+                                "type": "string",
+                                "description": "active"
+                            },
+                            "work_notes_list": {
+                                "type": "string",
+                                "description": "work_notes_list"
+                            },
+                            "business_service": {
+                                "type": "string",
+                                "description": "business_service"
+                            },
+                            "priority": {
+                                "type": "string",
+                                "description": "priority"
+                            },
+                            "sys_domain_path": {
+                                "type": "string",
+                                "description": "sys_domain_path"
+                            },
+                            "rfc": {
+                                "type": "string",
+                                "description": "rfc"
+                            },
+                            "time_worked": {
+                                "type": "string",
+                                "description": "time_worked"
+                            },
+                            "expected_start": {
+                                "type": "string",
+                                "description": "expected_start"
+                            },
+                            "opened_at": {
+                                "type": "string",
+                                "description": "opened_at"
+                            },
+                            "business_duration": {
+                                "type": "string",
+                                "description": "business_duration"
+                            },
+                            "group_list": {
+                                "type": "string",
+                                "description": "group_list"
+                            },
+                            "work_end": {
+                                "type": "string",
+                                "description": "work_end"
+                            },
+                            "caller_id": {
+                                "type": "string",
+                                "description": "caller_id"
+                            },
+                            "reopened_time": {
+                                "type": "string",
+                                "description": "reopened_time"
+                            },
+                            "resolved_at": {
+                                "type": "string",
+                                "description": "resolved_at"
+                            },
+                            "approval_set": {
+                                "type": "string",
+                                "description": "approval_set"
+                            },
+                            "subcategory": {
+                                "type": "string",
+                                "description": "subcategory"
+                            },
+                            "work_notes": {
+                                "type": "string",
+                                "description": "work_notes"
+                            },
+                            "universal_request": {
+                                "type": "string",
+                                "description": "universal_request"
+                            },
+                            "short_description": {
+                                "type": "string",
+                                "description": "short_description"
+                            },
+                            "close_code": {
+                                "type": "string",
+                                "description": "close_code"
+                            },
+                            "correlation_display": {
+                                "type": "string",
+                                "description": "correlation_display"
+                            },
+                            "delivery_task": {
+                                "type": "string",
+                                "description": "delivery_task"
+                            },
+                            "work_start": {
+                                "type": "string",
+                                "description": "work_start"
+                            },
+                            "assignment_group": {
+                                "type": "string",
+                                "description": "assignment_group"
+                            },
+                            "additional_assignee_list": {
+                                "type": "string",
+                                "description": "additional_assignee_list"
+                            },
+                            "business_stc": {
+                                "type": "string",
+                                "description": "business_stc"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "description"
+                            },
+                            "calendar_duration": {
+                                "type": "string",
+                                "description": "calendar_duration"
+                            },
+                            "close_notes": {
+                                "type": "string",
+                                "description": "close_notes"
+                            },
+                            "notify": {
+                                "type": "string",
+                                "description": "notify"
+                            },
+                            "service_offering": {
+                                "type": "string",
+                                "description": "service_offering"
+                            },
+                            "sys_class_name": {
+                                "type": "string",
+                                "description": "sys_class_name"
+                            },
+                            "closed_by": {
+                                "type": "string",
+                                "description": "closed_by"
+                            },
+                            "follow_up": {
+                                "type": "string",
+                                "description": "follow_up"
+                            },
+                            "parent_incident": {
+                                "type": "string",
+                                "description": "parent_incident"
+                            },
+                            "sys_id": {
+                                "type": "string",
+                                "description": "sys_id"
+                            },
+                            "contact_type": {
+                                "type": "string",
+                                "description": "contact_type"
+                            },
+                            "reopened_by": {
+                                "type": "string",
+                                "description": "reopened_by"
+                            },
+                            "incident_state": {
+                                "type": "string",
+                                "description": "incident_state"
+                            },
+                            "urgency": {
+                                "type": "string",
+                                "description": "urgency"
+                            },
+                            "problem_id": {
+                                "type": "string",
+                                "description": "problem_id"
+                            },
+                            "company": {
+                                "type": "string",
+                                "description": "company"
+                            },
+                            "reassignment_count": {
+                                "type": "string",
+                                "description": "reassignment_count"
+                            },
+                            "activity_due": {
+                                "type": "string",
+                                "description": "activity_due"
+                            },
+                            "assigned_to": {
+                                "type": "string",
+                                "description": "assigned_to"
+                            },
+                            "severity": {
+                                "type": "string",
+                                "description": "severity"
+                            },
+                            "comments": {
+                                "type": "string",
+                                "description": "comments"
+                            },
+                            "approval": {
+                                "type": "string",
+                                "description": "approval"
+                            },
+                            "sla_due": {
+                                "type": "string",
+                                "description": "sla_due"
+                            },
+                            "comments_and_work_notes": {
+                                "type": "string",
+                                "description": "comments_and_work_notes"
+                            },
+                            "due_date": {
+                                "type": "string",
+                                "description": "due_date"
+                            },
+                            "sys_mod_count": {
+                                "type": "string",
+                                "description": "sys_mod_count"
+                            },
+                            "reopen_count": {
+                                "type": "string",
+                                "description": "reopen_count"
+                            },
+                            "sys_tags": {
+                                "type": "string",
+                                "description": "sys_tags"
+                            },
+                            "escalation": {
+                                "type": "string",
+                                "description": "escalation"
+                            },
+                            "upon_approval": {
+                                "type": "string",
+                                "description": "upon_approval"
+                            },
+                            "correlation_id": {
+                                "type": "string",
+                                "description": "correlation_id"
+                            },
+                            "location": {
+                                "type": "string",
+                                "description": "location"
+                            },
+                            "category": {
+                                "type": "string",
+                                "description": "category"
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            },
+            "ApiNowV2TableIncidentSys_idDelete200ApplicationJsonResponse": {},
+            "Body-2": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "upon_approval": {
+                                "title": "Upon approval",
+                                "type": "string",
+                                "description": "upon_approval",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "location": {
+                                "title": "Location",
+                                "type": "string",
+                                "description": "Where the caller or service is located",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "expected_start": {
+                                "title": "Expected start",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "reopen_count": {
+                                "title": "Reopen count",
+                                "type": "string",
+                                "description": "Number of times Incident state has changed from REsolved or Closed to another state",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "additional_assignee_list": {
+                                "title": "Additional assignee list",
+                                "type": "string",
+                                "description": "Additional assignees",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "impact": {
+                                "title": "Impact",
+                                "type": "string",
+                                "description": "Measures of the business criticality of the affected service",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "urgency": {
+                                "title": "Urgency",
+                                "type": "string",
+                                "description": "Measure of the business criticality based on the impact and on the business needs",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "correlation_id": {
+                                "title": "Correlation ID",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sys_tags": {
+                                "title": "Tags",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sys_domain": {
+                                "title": "Domain",
+                                "type": "object",
+                                "properties": {
+                                    "link": {
+                                        "type": "string",
+                                        "description": "link"
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "description": "value"
+                                    }
+                                },
+                                "description": "Domain to which the task belongs",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "description": {
+                                "title": "Description",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "group_list": {
+                                "title": "Group list",
+                                "type": "string",
+                                "description": "Interested groups",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "priority": {
+                                "title": "Priority",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "delivery_plan": {
+                                "title": "Delivery plan",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "work_notes_list": {
+                                "title": "Work notes list",
+                                "type": "string",
+                                "description": "Users interested in work notes",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "business_service": {
+                                "title": "Service",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "follow_up": {
+                                "title": "Follow up",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "closed_at": {
+                                "title": "Resolve time",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sla_due": {
+                                "title": "SLA due",
+                                "type": "string",
+                                "description": "Date by which the SLA expects this task to be completed",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "delivery_task": {
+                                "title": "Delivery task",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sys_updated_on": {
+                                "title": "Updated on",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "parent": {
+                                "title": "Parent",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "work_end": {
+                                "title": "Work end",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "number": {
+                                "title": "Number",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "closed_by": {
+                                "title": "Closed by",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "work_start": {
+                                "title": "Work start",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "category": {
+                                "title": "Category",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "business_duration": {
+                                "title": "Business duration",
+                                "type": "string",
+                                "description": "Business time elapsed before task was closed",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "incident_state": {
+                                "title": "Incident state",
+                                "type": "string",
+                                "description": "Workflow state of the incident",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "activity_due": {
+                                "title": "Activity due",
+                                "type": "string",
+                                "description": "Date by which the Inactivity Monitor expects the task to be updated",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "correlation_display": {
+                                "title": "Correlation display",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "company": {
+                                "title": "Company",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "active": {
+                                "title": "Active",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "due_date": {
+                                "title": "Due date",
+                                "type": "string",
+                                "description": "Expected date from assigned to",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "assignment_group": {
+                                "title": "Assignment group",
+                                "type": "object",
+                                "properties": {
+                                    "link": {
+                                        "type": "string",
+                                        "description": "link"
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "description": "value"
+                                    }
+                                },
+                                "x-ms-visibility": "advanced"
+                            },
+                            "caller_id": {
+                                "title": "Caller ID",
+                                "type": "string",
+                                "description": "Person who reported or is affected by this incident",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "knowledge": {
+                                "title": "Knowledge",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "made_sla": {
+                                "title": "Made SLA",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "comments_and_work_notes": {
+                                "title": "Comments and work notes",
+                                "type": "string",
+                                "description": "Combined output of Additional comments and Work notes",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "parent_incident": {
+                                "title": "Parent incident",
+                                "type": "string",
+                                "description": "Can be used to collect incidents for the same root issue",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "state": {
+                                "title": "State",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "user_input": {
+                                "title": "User input",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sys_created_on": {
+                                "title": "Created on",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "approval_set": {
+                                "title": "Approval set",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "reassignment_count": {
+                                "title": "Reassignment count",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "child_incidents": {
+                                "title": "Child incidents",
+                                "type": "string",
+                                "description": "Number of child incidents related to this problem",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "opened_at": {
+                                "title": "Opened at",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "short_description": {
+                                "title": "Short Description",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "order": {
+                                "title": "Order",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sys_updated_by": {
+                                "title": "Updated by",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "resolved_by": {
+                                "title": "Resolved by",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "notify": {
+                                "title": "Notify",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "upon_reject": {
+                                "title": "Upon reject",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "approval_history": {
+                                "title": "Approval history",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "problem_id": {
+                                "title": "Problem ID",
+                                "type": "string",
+                                "description": "Related problem if one exists",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "work_notes": {
+                                "title": "Work notes",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "calendar_duration": {
+                                "title": "Calendar duration",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sys_id": {
+                                "title": "System ID",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "approval": {
+                                "title": "Approval",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "caused_by": {
+                                "title": "Caused by",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "severity": {
+                                "title": "Severity",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sys_created_by": {
+                                "title": "Created by",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "resolved_at": {
+                                "title": "Resolved at",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "assigned_to": {
+                                "title": "Assigned to",
+                                "type": "string",
+                                "description": "Person primarily responsible for working this task",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "sys_domain_path": {
+                                "title": "Domain path",
+                                "type": "string",
+                                "description": "Domain to which the task belongs",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "opened_by": {
+                                "title": "Opened by",
+                                "type": "object",
+                                "properties": {
+                                    "link": {
+                                        "type": "string",
+                                        "description": "link"
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "description": "value"
+                                    }
+                                },
+                                "x-ms-visibility": "advanced"
+                            },
+                            "subcategory": {
+                                "title": "Subcategory",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "watch_list": {
+                                "title": "Watch list",
+                                "type": "string",
+                                "description": "Interested users",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "time_worked": {
+                                "title": "Time worked",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "contact_type": {
+                                "title": "Contact type",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "escalation": {
+                                "title": "Escalation",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "comments": {
+                                "title": "Comments",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "hold_reason": {
+                                "title": "Hold reason",
+                                "type": "string",
+                                "description": "hold_reason",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "task_effective_number": {
+                                "title": "Effective number",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "contract": {
+                                "title": "Contract",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "universal_request": {
+                                "title": "Universal request",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "service_offering": {
+                                "title": "Service offering",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "close_code": {
+                                "title": "Resolution code",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "close_notes": {
+                                "title": "Resolution notes",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            },
+                            "route_reason": {
+                                "title": "Transfer reason",
+                                "type": "string",
+                                "x-ms-visibility": "advanced"
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            },
+            "ApiNowV2TableIncidentSys_idPut200ApplicationJsonResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "parent": {
+                                "type": "string",
+                                "description": "parent"
+                            },
+                            "made_sla": {
+                                "type": "string",
+                                "description": "made_sla"
+                            },
+                            "caused_by": {
+                                "type": "string",
+                                "description": "caused_by"
+                            },
+                            "watch_list": {
+                                "type": "string",
+                                "description": "watch_list"
+                            },
+                            "upon_reject": {
+                                "type": "string",
+                                "description": "upon_reject"
+                            },
+                            "sys_updated_on": {
+                                "type": "string",
+                                "description": "sys_updated_on"
+                            },
+                            "child_incidents": {
+                                "type": "string",
+                                "description": "child_incidents"
+                            },
+                            "hold_reason": {
+                                "type": "string",
+                                "description": "hold_reason"
+                            },
+                            "task_effective_number": {
+                                "type": "string",
+                                "description": "task_effective_number"
+                            },
+                            "approval_history": {
+                                "type": "string",
+                                "description": "approval_history"
+                            },
+                            "number": {
+                                "type": "string",
+                                "description": "number"
+                            },
+                            "resolved_by": {
+                                "type": "string",
+                                "description": "resolved_by"
+                            },
+                            "sys_updated_by": {
+                                "type": "string",
+                                "description": "sys_updated_by"
+                            },
+                            "opened_by": {
+                                "type": "string",
+                                "description": "opened_by"
+                            },
+                            "user_input": {
+                                "type": "string",
+                                "description": "user_input"
+                            },
+                            "sys_created_on": {
+                                "type": "string",
+                                "description": "sys_created_on"
+                            },
+                            "sys_domain": {
+                                "type": "string",
+                                "description": "sys_domain"
+                            },
+                            "state": {
+                                "type": "string",
+                                "description": "state"
+                            },
+                            "route_reason": {
+                                "type": "string",
+                                "description": "route_reason"
+                            },
+                            "sys_created_by": {
+                                "type": "string",
+                                "description": "sys_created_by"
+                            },
+                            "knowledge": {
+                                "type": "string",
+                                "description": "knowledge"
+                            },
+                            "order": {
+                                "type": "string",
+                                "description": "order"
+                            },
+                            "calendar_stc": {
+                                "type": "string",
+                                "description": "calendar_stc"
+                            },
+                            "closed_at": {
+                                "type": "string",
+                                "description": "closed_at"
+                            },
+                            "cmdb_ci": {
+                                "type": "string",
+                                "description": "cmdb_ci"
+                            },
+                            "delivery_plan": {
+                                "type": "string",
+                                "description": "delivery_plan"
+                            },
+                            "contract": {
+                                "type": "string",
+                                "description": "contract"
+                            },
+                            "impact": {
+                                "type": "string",
+                                "description": "impact"
+                            },
+                            "active": {
+                                "type": "string",
+                                "description": "active"
+                            },
+                            "work_notes_list": {
+                                "type": "string",
+                                "description": "work_notes_list"
+                            },
+                            "business_service": {
+                                "type": "string",
+                                "description": "business_service"
+                            },
+                            "priority": {
+                                "type": "string",
+                                "description": "priority"
+                            },
+                            "sys_domain_path": {
+                                "type": "string",
+                                "description": "sys_domain_path"
+                            },
+                            "rfc": {
+                                "type": "string",
+                                "description": "rfc"
+                            },
+                            "time_worked": {
+                                "type": "string",
+                                "description": "time_worked"
+                            },
+                            "expected_start": {
+                                "type": "string",
+                                "description": "expected_start"
+                            },
+                            "opened_at": {
+                                "type": "string",
+                                "description": "opened_at"
+                            },
+                            "business_duration": {
+                                "type": "string",
+                                "description": "business_duration"
+                            },
+                            "group_list": {
+                                "type": "string",
+                                "description": "group_list"
+                            },
+                            "work_end": {
+                                "type": "string",
+                                "description": "work_end"
+                            },
+                            "caller_id": {
+                                "type": "string",
+                                "description": "caller_id"
+                            },
+                            "reopened_time": {
+                                "type": "string",
+                                "description": "reopened_time"
+                            },
+                            "resolved_at": {
+                                "type": "string",
+                                "description": "resolved_at"
+                            },
+                            "approval_set": {
+                                "type": "string",
+                                "description": "approval_set"
+                            },
+                            "subcategory": {
+                                "type": "string",
+                                "description": "subcategory"
+                            },
+                            "work_notes": {
+                                "type": "string",
+                                "description": "work_notes"
+                            },
+                            "universal_request": {
+                                "type": "string",
+                                "description": "universal_request"
+                            },
+                            "short_description": {
+                                "type": "string",
+                                "description": "short_description"
+                            },
+                            "close_code": {
+                                "type": "string",
+                                "description": "close_code"
+                            },
+                            "correlation_display": {
+                                "type": "string",
+                                "description": "correlation_display"
+                            },
+                            "delivery_task": {
+                                "type": "string",
+                                "description": "delivery_task"
+                            },
+                            "work_start": {
+                                "type": "string",
+                                "description": "work_start"
+                            },
+                            "assignment_group": {
+                                "type": "string",
+                                "description": "assignment_group"
+                            },
+                            "additional_assignee_list": {
+                                "type": "string",
+                                "description": "additional_assignee_list"
+                            },
+                            "business_stc": {
+                                "type": "string",
+                                "description": "business_stc"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "description"
+                            },
+                            "calendar_duration": {
+                                "type": "string",
+                                "description": "calendar_duration"
+                            },
+                            "close_notes": {
+                                "type": "string",
+                                "description": "close_notes"
+                            },
+                            "notify": {
+                                "type": "string",
+                                "description": "notify"
+                            },
+                            "service_offering": {
+                                "type": "string",
+                                "description": "service_offering"
+                            },
+                            "sys_class_name": {
+                                "type": "string",
+                                "description": "sys_class_name"
+                            },
+                            "closed_by": {
+                                "type": "string",
+                                "description": "closed_by"
+                            },
+                            "follow_up": {
+                                "type": "string",
+                                "description": "follow_up"
+                            },
+                            "parent_incident": {
+                                "type": "string",
+                                "description": "parent_incident"
+                            },
+                            "sys_id": {
+                                "type": "string",
+                                "description": "sys_id"
+                            },
+                            "contact_type": {
+                                "type": "string",
+                                "description": "contact_type"
+                            },
+                            "reopened_by": {
+                                "type": "string",
+                                "description": "reopened_by"
+                            },
+                            "incident_state": {
+                                "type": "string",
+                                "description": "incident_state"
+                            },
+                            "urgency": {
+                                "type": "string",
+                                "description": "urgency"
+                            },
+                            "problem_id": {
+                                "type": "string",
+                                "description": "problem_id"
+                            },
+                            "company": {
+                                "type": "string",
+                                "description": "company"
+                            },
+                            "reassignment_count": {
+                                "type": "string",
+                                "description": "reassignment_count"
+                            },
+                            "activity_due": {
+                                "type": "string",
+                                "description": "activity_due"
+                            },
+                            "assigned_to": {
+                                "type": "string",
+                                "description": "assigned_to"
+                            },
+                            "severity": {
+                                "type": "string",
+                                "description": "severity"
+                            },
+                            "comments": {
+                                "type": "string",
+                                "description": "comments"
+                            },
+                            "approval": {
+                                "type": "string",
+                                "description": "approval"
+                            },
+                            "sla_due": {
+                                "type": "string",
+                                "description": "sla_due"
+                            },
+                            "comments_and_work_notes": {
+                                "type": "string",
+                                "description": "comments_and_work_notes"
+                            },
+                            "due_date": {
+                                "type": "string",
+                                "description": "due_date"
+                            },
+                            "sys_mod_count": {
+                                "type": "string",
+                                "description": "sys_mod_count"
+                            },
+                            "reopen_count": {
+                                "type": "string",
+                                "description": "reopen_count"
+                            },
+                            "sys_tags": {
+                                "type": "string",
+                                "description": "sys_tags"
+                            },
+                            "escalation": {
+                                "type": "string",
+                                "description": "escalation"
+                            },
+                            "upon_approval": {
+                                "type": "string",
+                                "description": "upon_approval"
+                            },
+                            "correlation_id": {
+                                "type": "string",
+                                "description": "correlation_id"
+                            },
+                            "location": {
+                                "type": "string",
+                                "description": "location"
+                            },
+                            "category": {
+                                "type": "string",
+                                "description": "category"
+                            }
+                        },
+                        "description": "result"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }, {
+        "apiKeyQuery": []
+    }]
+}

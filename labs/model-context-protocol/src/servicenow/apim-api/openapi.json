@@ -1,58 +1,274 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "Time MCP",
+        "title": "ServiceNow MCP",
         "description": "",
         "version": "1.0"
     },
     "servers": [{
-        "url": "https://apim-rocks.azure-api.net/time"
+        "url": "https://apim-rocks.azure-api.net/servicenow"
     }],
     "paths": {
-        "/timezone": {
+        "/api/now/v2/table/incident": {
             "get": {
-                "summary": "a listing of all timezones.",
-                "description": "a listing of all timezones.",
-                "operationId": "get-timezone",
+                "summary": "List Incidents",
+                "description": "Retrieves a list of incidents from ServiceNow",
+                "operationId": "ListIncidents",
+                "parameters": [
+                    {
+                        "name": "sysparm_exclude_reference_link",
+                        "in": "query",
+                        "description": "Determines if reference links should be excluded",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "sysparm_display_value",
+                        "in": "query",
+                        "description": "Determines if system references should be included",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "sysparm_fields",
+                        "in": "query",
+                        "description": "Fields to return in response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sysparm_limit",
+                        "in": "query",
+                        "description": "Maximum number of records to return",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "sysparm_query",
+                        "in": "query",
+                        "description": "Encoded query used to filter the result set",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "the list of available timezones in JSON format",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ListJsonResponse"
-                                },
-                                "example": [
-                                    "string"
-                                ]
-                            }
+                        "description": "null"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create Incident",
+                "description": "Create a new ServiceNow Incident",
+                "operationId": "CreateIncident",
+                "parameters": [
+                    {
+                        "name": "sysparm_exclude_reference_link",
+                        "in": "query",
+                        "description": "Determines if reference links should be excluded",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
                         }
                     },
-                    "400": {
-                        "description": "the list of available timezones in JSON format",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ListJsonResponse"
-                                },
-                                "example": [
-                                    "string"
-                                ]
-                            }
+                    {
+                        "name": "sysparm_display_value",
+                        "in": "query",
+                        "description": "Determines if system references should be included",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
                         }
                     },
-                    "500": {
-                        "description": "the list of available timezones in JSON format",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ListJsonResponse"
-                                },
-                                "example": [
-                                    "string"
-                                ]
+                    {
+                        "name": "sysparm_fields",
+                        "in": "query",
+                        "description": "Fields to return in response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sysparm_input_display_value",
+                        "in": "query",
+                        "description": "Flag that indicates whether to set field values using the display value or the actual value",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body-1"
+                            },
+                            "example": {
+                                "upon_approval": "string",
+                                "location": "string",
+                                "expected_start": "string",
+                                "reopen_count": "string",
+                                "additional_assignee_list": "string",
+                                "impact": "string",
+                                "urgency": "string",
+                                "correlation_id": "string",
+                                "sys_tags": "string",
+                                "sys_domain": "string",
+                                "description": "string",
+                                "group_list": "string",
+                                "priority": "string",
+                                "delivery_plan": "string",
+                                "work_notes_list": "string",
+                                "business_service": "string",
+                                "follow_up": "string",
+                                "closed_at": "string",
+                                "sla_due": "string",
+                                "delivery_task": "string",
+                                "sys_updated_on": "string",
+                                "parent": "string",
+                                "work_end": "string",
+                                "number": "string",
+                                "closed_by": "string",
+                                "work_start": "string",
+                                "category": "string",
+                                "business_duration": "string",
+                                "incident_state": "string",
+                                "activity_due": "string",
+                                "correlation_display": "string",
+                                "company": "string",
+                                "active": "string",
+                                "due_date": "string",
+                                "assignment_group": "string",
+                                "caller_id": "string",
+                                "knowledge": "string",
+                                "made_sla": "string",
+                                "comments_and_work_notes": "string",
+                                "parent_incident": "string",
+                                "state": "string",
+                                "user_input": "string",
+                                "sys_created_on": "string",
+                                "approval_set": "string",
+                                "reassignment_count": "string",
+                                "child_incidents": "string",
+                                "opened_at": "string",
+                                "short_description": "string",
+                                "order": "string",
+                                "sys_updated_by": "string",
+                                "resolved_by": "string",
+                                "notify": "string",
+                                "upon_reject": "string",
+                                "approval_history": "string",
+                                "problem_id": "string",
+                                "work_notes": "string",
+                                "calendar_duration": "string",
+                                "sys_id": "string",
+                                "approval": "string",
+                                "caused_by": "string",
+                                "severity": "string",
+                                "sys_created_by": "string",
+                                "resolved_at": "string",
+                                "assigned_to": "string",
+                                "sys_domain_path": "string",
+                                "opened_by": "string",
+                                "subcategory": "string",
+                                "watch_list": "string",
+                                "time_worked": "string",
+                                "contact_type": "string",
+                                "escalation": "string",
+                                "comments": "string",
+                                "hold_reason": "string",
+                                "task_effective_number": "string",
+                                "contract": "string",
+                                "universal_request": "string",
+                                "service_offering": "string",
+                                "close_code": "string",
+                                "close_notes": "string",
+                                "route_reason": "string"
                             }
                         }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/api/now/v2/table/incident/{sys_id}": {
+            "get": {
+                "summary": "Get Incident",
+                "description": "Retrieves the specific incident record using the provided Id parameter.",
+                "operationId": "GetIncident",
+                "parameters": [
+                    {
+                        "name": "sys_id",
+                        "in": "path",
+                        "description": "System ID of the record",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sysparm_exclude_reference_link",
+                        "in": "query",
+                        "description": "Determines if reference links should be excluded",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    {
+                        "name": "sysparm_fields",
+                        "in": "query",
+                        "description": "Fields to return in response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sysparm_display_value",
+                        "in": "query",
+                        "description": "Determines if system references should be included",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
                     }
                 }
             }
@@ -102,117 +318,7 @@
             }
         }
     },
-    "components": {
-        "schemas": {
-            "ListJsonResponse": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                },
-                "description": "a list of available timezones"
-            },
-            "ListTextResponse": {
-                "type": "string",
-                "description": "a list of available timezones, one per line"
-            },
-            "DateTimeJsonResponse": {
-                "required": [
-                    "abbreviation",
-                    "client_ip",
-                    "datetime",
-                    "day_of_week",
-                    "day_of_year",
-                    "dst",
-                    "dst_offset",
-                    "timezone",
-                    "unixtime",
-                    "utc_datetime",
-                    "utc_offset",
-                    "week_number"
-                ],
-                "properties": {
-                    "abbreviation": {
-                        "type": "string",
-                        "description": "the abbreviated name of the timezone"
-                    },
-                    "client_ip": {
-                        "type": "string",
-                        "description": "the IP of the client making the request"
-                    },
-                    "datetime": {
-                        "type": "string",
-                        "description": "an ISO8601-valid string representing the current, local date/time"
-                    },
-                    "day_of_week": {
-                        "type": "integer",
-                        "description": "current day number of the week, where sunday is 0"
-                    },
-                    "day_of_year": {
-                        "type": "integer",
-                        "description": "ordinal date of the current year"
-                    },
-                    "dst": {
-                        "type": "boolean",
-                        "description": "flag indicating whether the local time is in daylight savings"
-                    },
-                    "dst_from": {
-                        "type": "string",
-                        "description": "an ISO8601-valid string representing the datetime when daylight savings started for this timezone"
-                    },
-                    "dst_offset": {
-                        "type": "integer",
-                        "description": "the difference in seconds between the current local time and daylight saving time for the location"
-                    },
-                    "dst_until": {
-                        "type": "string",
-                        "description": "an ISO8601-valid string representing the datetime when daylight savings will end for this timezone"
-                    },
-                    "raw_offset": {
-                        "type": "integer",
-                        "description": "the difference in seconds between the current local time and the time in UTC, excluding any daylight saving difference (see dst_offset)"
-                    },
-                    "timezone": {
-                        "type": "string",
-                        "description": "timezone in `Area/Location` or `Area/Location/Region` format"
-                    },
-                    "unixtime": {
-                        "type": "integer",
-                        "description": "number of seconds since the Epoch"
-                    },
-                    "utc_datetime": {
-                        "type": "string",
-                        "description": "an ISO8601-valid string representing the current date/time in UTC"
-                    },
-                    "utc_offset": {
-                        "type": "string",
-                        "description": "an ISO8601-valid string representing the offset from UTC"
-                    },
-                    "week_number": {
-                        "type": "integer",
-                        "description": "the current week number"
-                    }
-                }
-            },
-            "DateTimeTextResponse": {
-                "type": "string",
-                "description": "time zone details, as per the DateTimeJsonResponse response, in the format `key: value`, one item per line"
-            },
-            "ErrorJsonResponse": {
-                "required": [
-                    "error"
-                ],
-                "properties": {
-                    "error": {
-                        "type": "string",
-                        "description": "details about the error encountered"
-                    }
-                }
-            },
-            "ErrorTextResponse": {
-                "type": "string",
-                "description": "details about the error encountered in plain text"
-            }
-        },
+    "components":{
         "securitySchemes": {
             "apiKeyHeader": {
                 "type": "apiKey",
