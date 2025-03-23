@@ -2,5 +2,12 @@
     "python.analysis.extraPaths": ["./shared"],
     "[markdown]": {
         "files.trimTrailingWhitespace": false
-    }
+    },
+    "azureFunctions.deploySubpath": "labs\\function-calling",
+    "azureFunctions.scmDoBuildDuringDeployment": true,
+    "azureFunctions.pythonVenv": ".venv",
+    "azureFunctions.projectLanguage": "Python",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.projectLanguageModel": 2
 }

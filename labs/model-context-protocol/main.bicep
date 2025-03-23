@@ -17,6 +17,7 @@ param location string = resourceGroup().location
 
 param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
+param timeAPIPath string = 'time'
 // ------------------
 //    VARIABLES
 // ------------------
@@ -226,6 +227,49 @@ resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
   }
 }
 
+resource timeMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-time-${resourceSuffix}'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppUAI.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        allowInsecure: false
+      }
+      registries: [
+        {
+          identity: containerAppUAI.id
+          server: containerRegistry.properties.loginServer
+        }
+      ]      
+    }
+    template: {
+      containers: [
+        {
+          name: 'aca-${resourceSuffix}'
+          image: 'docker.io/jfxs/hello-world:latest'
+          resources: {
+            cpu: json('.5')
+            memory: '1Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
+      }
+    }
+  }
+}
+
 
 // 1. Log Analytics Workspace
 module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
@@ -333,6 +377,15 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
   }
 }
 
+module timeAPIModule 'src/time/apim-api/api.bicep' = {
+  name: 'timeAPIModule'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: timeAPIPath
+    APIServiceURL: 'https://${timeMCPServerContainerApp.properties.configuration.ingress.fqdn}/${timeAPIPath}'
+  }
+}
+
 
 // Ignore the subscription that gets created in the APIM module and create three new ones for this lab.
 resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
@@ -371,6 +424,9 @@ output gitHubMCPServerContainerAppFQDN string = gitHubMCPServerContainerApp.prop
 
 output weatherMCPServerContainerAppResourceName string = weatherMCPServerContainerApp.name
 output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.properties.configuration.ingress.fqdn
+
+output timeMCPServerContainerAppResourceName string = timeMCPServerContainerApp.name
+output timeMCPServerContainerAppFQDN string = timeMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName

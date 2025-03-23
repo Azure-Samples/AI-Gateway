@@ -1,0 +1,234 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Time MCP",
+        "description": "",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://apim-rocks.azure-api.net/time"
+    }],
+    "paths": {
+        "/timezone": {
+            "get": {
+                "summary": "a listing of all timezones.",
+                "description": "a listing of all timezones.",
+                "operationId": "get-timezone",
+                "responses": {
+                    "200": {
+                        "description": "the list of available timezones in JSON format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListJsonResponse"
+                                },
+                                "example": [
+                                    "string"
+                                ]
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "the list of available timezones in JSON format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListJsonResponse"
+                                },
+                                "example": [
+                                    "string"
+                                ]
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "the list of available timezones in JSON format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListJsonResponse"
+                                },
+                                "example": [
+                                    "string"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/": {
+            "post": {
+                "tags": ["MCP"],
+                "summary": "messages",
+                "description": "messages",
+                "operationId": "messages",
+                "parameters": [{
+                    "name": "Content-Type",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "enum": [""],
+                        "type": ""
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/sse": {
+            "get": {
+                "tags": ["MCP"],
+                "summary": "sse",
+                "description": "sse",
+                "operationId": "sse",
+                "parameters": [{
+                    "name": "Content-Type",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "enum": [""],
+                        "type": ""
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ListJsonResponse": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "a list of available timezones"
+            },
+            "ListTextResponse": {
+                "type": "string",
+                "description": "a list of available timezones, one per line"
+            },
+            "DateTimeJsonResponse": {
+                "required": [
+                    "abbreviation",
+                    "client_ip",
+                    "datetime",
+                    "day_of_week",
+                    "day_of_year",
+                    "dst",
+                    "dst_offset",
+                    "timezone",
+                    "unixtime",
+                    "utc_datetime",
+                    "utc_offset",
+                    "week_number"
+                ],
+                "properties": {
+                    "abbreviation": {
+                        "type": "string",
+                        "description": "the abbreviated name of the timezone"
+                    },
+                    "client_ip": {
+                        "type": "string",
+                        "description": "the IP of the client making the request"
+                    },
+                    "datetime": {
+                        "type": "string",
+                        "description": "an ISO8601-valid string representing the current, local date/time"
+                    },
+                    "day_of_week": {
+                        "type": "integer",
+                        "description": "current day number of the week, where sunday is 0"
+                    },
+                    "day_of_year": {
+                        "type": "integer",
+                        "description": "ordinal date of the current year"
+                    },
+                    "dst": {
+                        "type": "boolean",
+                        "description": "flag indicating whether the local time is in daylight savings"
+                    },
+                    "dst_from": {
+                        "type": "string",
+                        "description": "an ISO8601-valid string representing the datetime when daylight savings started for this timezone"
+                    },
+                    "dst_offset": {
+                        "type": "integer",
+                        "description": "the difference in seconds between the current local time and daylight saving time for the location"
+                    },
+                    "dst_until": {
+                        "type": "string",
+                        "description": "an ISO8601-valid string representing the datetime when daylight savings will end for this timezone"
+                    },
+                    "raw_offset": {
+                        "type": "integer",
+                        "description": "the difference in seconds between the current local time and the time in UTC, excluding any daylight saving difference (see dst_offset)"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "description": "timezone in `Area/Location` or `Area/Location/Region` format"
+                    },
+                    "unixtime": {
+                        "type": "integer",
+                        "description": "number of seconds since the Epoch"
+                    },
+                    "utc_datetime": {
+                        "type": "string",
+                        "description": "an ISO8601-valid string representing the current date/time in UTC"
+                    },
+                    "utc_offset": {
+                        "type": "string",
+                        "description": "an ISO8601-valid string representing the offset from UTC"
+                    },
+                    "week_number": {
+                        "type": "integer",
+                        "description": "the current week number"
+                    }
+                }
+            },
+            "DateTimeTextResponse": {
+                "type": "string",
+                "description": "time zone details, as per the DateTimeJsonResponse response, in the format `key: value`, one item per line"
+            },
+            "ErrorJsonResponse": {
+                "required": [
+                    "error"
+                ],
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "details about the error encountered"
+                    }
+                }
+            },
+            "ErrorTextResponse": {
+                "type": "string",
+                "description": "details about the error encountered in plain text"
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }, {
+        "apiKeyQuery": []
+    }]
+}
