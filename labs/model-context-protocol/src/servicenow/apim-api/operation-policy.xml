@@ -8,7 +8,11 @@
     <!-- Throttle, authorize, validate, cache, or transform the requests -->
     <inbound>
         <base />
-        <set-backend-service base-url="http://worldtimeapi.org/api" />
+        <get-authorization-context provider-id="@(context.Request.Headers["providerId"][0])" authorization-id="@(context.Request.Headers["authorizationId"][0])" context-variable-name="auth-context" identity-type="managed" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + ((Authorization)context.Variables.GetValueOrDefault("auth-context"))?.AccessToken)</value>
+        </set-header>
+        <set-backend-service base-url="https://@(context.Request.Headers["servicenowId"][0]).service-now.com/" />
     </inbound>
     <!-- Control if and how the requests are forwarded to services  -->
     <backend>

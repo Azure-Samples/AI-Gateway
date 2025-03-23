@@ -17,7 +17,7 @@ param location string = resourceGroup().location
 
 param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
-param timeAPIPath string = 'time'
+param servicenowAPIPath string = 'servicenow'
 // ------------------
 //    VARIABLES
 // ------------------
@@ -227,8 +227,8 @@ resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
   }
 }
 
-resource timeMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: 'aca-time-${resourceSuffix}'
+resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-servicenow-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -377,12 +377,12 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
   }
 }
 
-module timeAPIModule 'src/time/apim-api/api.bicep' = {
-  name: 'timeAPIModule'
+module servicenowAPIModule 'src/servicenow/apim-api/api.bicep' = {
+  name: 'servicenowAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: timeAPIPath
-    APIServiceURL: 'https://${timeMCPServerContainerApp.properties.configuration.ingress.fqdn}/${timeAPIPath}'
+    APIPath: servicenowAPIPath
+    APIServiceURL: 'https://${servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn}/${servicenowAPIPath}'
   }
 }
 
@@ -425,8 +425,8 @@ output gitHubMCPServerContainerAppFQDN string = gitHubMCPServerContainerApp.prop
 output weatherMCPServerContainerAppResourceName string = weatherMCPServerContainerApp.name
 output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.properties.configuration.ingress.fqdn
 
-output timeMCPServerContainerAppResourceName string = timeMCPServerContainerApp.name
-output timeMCPServerContainerAppFQDN string = timeMCPServerContainerApp.properties.configuration.ingress.fqdn
+output servicenowMCPServerContainerAppResourceName string = servicenowMCPServerContainerApp.name
+output servicenowMCPServerContainerAppFQDN string = servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
