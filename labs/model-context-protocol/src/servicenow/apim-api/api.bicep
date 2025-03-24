@@ -53,7 +53,7 @@ resource authorizationProvider 'Microsoft.ApiManagement/service/authorizationPro
         authorizationCode: {
           clientId: 'a4833605f6f14eba8d2a7f279110e1d5'
           clientSecret: 'redacted'
-          scopes: 'null'
+          scopes: ''
           instanceName: 'dev306445'
         }
       }

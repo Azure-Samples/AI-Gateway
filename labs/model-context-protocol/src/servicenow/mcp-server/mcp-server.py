@@ -153,7 +153,7 @@ async def create_incident(ctx: Context) -> str:
         "providerId": provider_id
     }
 
-    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders)
+    serviceNowResponse = httpx.post(serviceNowIncidentUrl, headers=serviceNowHeaders)
     if (serviceNowResponse.status_code == 200):
         incident = serviceNowResponse.json()
         return f"Incident Created: {incident}"
