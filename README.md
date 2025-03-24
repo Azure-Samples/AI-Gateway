@@ -52,7 +52,7 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 ## 🧪 Labs with AI Agents
 
 <!-- Model Context Protocol (MCP) -->
-### [**🧪 Model Context Protocol (MCP)**](labs/model-context-protocol.ipynb)
+### [**🧪 Model Context Protocol (MCP)**](labs/model-context-protocol/model-context-protocol.ipynb)
 
 Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) with Azure API Management to enable plug & play of tools to LLMs. Leverages the [credential manager](https://learn.microsoft.com/en-us/azure/api-management/credentials-overview) for  managing OAuth 2.0 tokens to backend tools and [client token validation](https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy) to ensure end-to-end authentication and authorization.  
 
