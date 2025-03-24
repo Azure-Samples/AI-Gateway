@@ -188,7 +188,7 @@ async def list_incidents(ctx: Context) -> str:
     
     print(f"SessionId: {session_id}")
 
-    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident?sysparm_exclude_reference_link=True&sysparm_display_value=False"
+    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident?sysparm_exclude_reference_link=True&sysparm_display_value=False&sysparm_limit=5"
     #We need to get servicenowId for the policy
     serviceNowHeaders = {
         "Content-Type": "application/json",
