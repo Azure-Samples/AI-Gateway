@@ -133,13 +133,12 @@ async def authorize_servicenow(ctx: Context) -> str:
 
 # Update tools to list incidents, get incident and create incident
 @mcp.tool()
-async def get_user(ctx: Context) -> str:
-    """Get user associated with GitHub access token.
+async def create_incident(ctx: Context) -> str:
+    """Create an incident on Service Now.
 
     Returns:
-        GitHub user information
-    """    
-    print("Getting user info...")
+        Service now incident
+    """
 
     session_id = str(id(ctx.session))
     provider_id = idp.lower()
@@ -147,32 +146,32 @@ async def get_user(ctx: Context) -> str:
     
     print(f"SessionId: {session_id}")
 
-    githubUserUrl = f"{APIM_GATEWAY_URL}/user"
-    githubHeaders = {
+    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident"
+    serviceNowHeaders = {
         "Content-Type": "application/json",
         "authorizationId": authorization_id,
         "providerId": provider_id
     }
 
-    githubResponse = httpx.get(githubUserUrl, headers=githubHeaders)
-    if (githubResponse.status_code == 200):
-        user = githubResponse.json()
-        return f"User: {user}"
+    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders)
+    if (serviceNowResponse.status_code == 200):
+        incident = serviceNowResponse.json()
+        return f"Incident Created: {incident}"
     else:
-        return f"Unable to get user info. Status code: {githubResponse.status_code}, Response: {githubResponse.text}"
+        return f"Unable to create incident. Status code: {serviceNowResponse.status_code}, Response: {serviceNowResponse.text}"
     
 @mcp.tool()
-async def get_issues(ctx: Context, username: str, repo: str) -> str:
-    """Get all issues for the specified repository for the authenticated user.
+async def list_incidents(ctx: Context, recordLimit: int , fields:str) -> str:
+    """Get all incidents in this service now incident.
     
     Args:
-        username: The GitHub username
-        repo: The repository name
+        recordLimit: Maximum number of records to return
+        fields: Fields to return in response
     
     Returns:
-        A list of issues
+        A list of incidents
     """
-    print("Getting the list of issues...")
+    print("Getting the list of incidents...")
 
     session_id = str(id(ctx.session))
     provider_id = idp.lower()
@@ -180,20 +179,63 @@ async def get_issues(ctx: Context, username: str, repo: str) -> str:
     
     print(f"SessionId: {session_id}")
 
-    githubIssuesUrl = f"{APIM_GATEWAY_URL}/repos/{username}/{repo}/issues"
+    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident"
     #We need to get servicenowId for the policy
-    githubHeaders = {
+    serviceNowHeaders = {
         "Content-Type": "application/json",
         "authorizationId": authorization_id,
         "providerId": provider_id 
     }
 
-    githubResponse = httpx.get(githubIssuesUrl, headers=githubHeaders)
-    if (githubResponse.status_code == 200):
-        issues = githubResponse.json()
-        return f"Issues: {issues}"
+    params = {
+        "sysparm_fields": fields,
+        "sysparm_limit": recordLimit
+    }
+
+    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders, params=params)
+    if (serviceNowResponse.status_code == 200):
+        incidents = serviceNowResponse.json()
+        return f"Incidents: {incidents}"
     else:
-        return f"Unable to get issues. Status code: {githubResponse.status_code}, Response: {githubResponse.text}"
+        return f"Unable to List Incidents. Status code: {serviceNowResponse.status_code}, Response: {serviceNowResponse.text}"
+
+@mcp.tool()
+async def get_incident(ctx: Context, recordSystemId: str, fields:str) -> str:
+    """Get incident with specific record system id
+    
+    Args:
+        recordSystemId: record system identifier for the incident
+        fields: Fields to return in response
+    
+    Returns:
+        A specific incidents
+    """
+    print("Getting the incident...")
+
+    session_id = str(id(ctx.session))
+    provider_id = idp.lower()
+    authorization_id = f"{provider_id}-{session_id}"
+    
+    print(f"SessionId: {session_id}")
+
+    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident/{recordSystemId}"
+    #We need to get servicenowId for the policy
+    serviceNowHeaders = {
+        "Content-Type": "application/json",
+        "authorizationId": authorization_id,
+        "providerId": provider_id 
+    }
+
+    params = {
+        "sysparm_fields": fields
+    }
+
+    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders, params=params)
+    if (serviceNowResponse.status_code == 200):
+        incident = serviceNowResponse.json()
+        return f"Incident: {incident}"
+    else:
+        return f"Unable to Get Incidents. Status code: {serviceNowResponse.status_code}, Response: {serviceNowResponse.text}"
 
 # Keep - no change needed
 def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlette:
