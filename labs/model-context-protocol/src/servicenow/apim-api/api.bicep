@@ -51,7 +51,7 @@ resource authorizationProvider 'Microsoft.ApiManagement/service/authorizationPro
       redirectUrl: 'https://authorization-manager.consent.azure-apim.net/redirect/apim/${apim.name}'
       grantTypes: {
         authorizationCode: {
-          clientId: 'a4833605f6f14eba8d2a7f279110e1d5'
+          clientId: '54c92d51cee94dd59a5ff2761f1908b0'
           clientSecret: 'redacted'
           scopes: ''
           instanceName: 'dev306445'

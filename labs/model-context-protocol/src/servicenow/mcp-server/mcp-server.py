@@ -133,8 +133,10 @@ async def authorize_servicenow(ctx: Context) -> str:
 
 # Update tools to list incidents, get incident and create incident
 @mcp.tool()
-async def create_incident(ctx: Context) -> str:
+async def create_incident(ctx: Context, description: str) -> str:
     """Create an incident on Service Now.
+    Args:
+        description: description for the incident
 
     Returns:
         Service now incident
@@ -146,14 +148,25 @@ async def create_incident(ctx: Context) -> str:
     
     print(f"SessionId: {session_id}")
 
-    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident"
+    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident?sysparm_exclude_reference_link=True&sysparm_display_value=False&sysparm_input_display_value=False"
     serviceNowHeaders = {
         "Content-Type": "application/json",
         "authorizationId": authorization_id,
         "providerId": provider_id
     }
 
-    serviceNowResponse = httpx.post(serviceNowIncidentUrl, headers=serviceNowHeaders)
+    json_data = [
+        {
+            "default": {
+                "value": {
+                    "short_description": description,
+                    "caller_id": "1234567890"
+                }
+            }
+        }
+    ]
+
+    serviceNowResponse = httpx.post(serviceNowIncidentUrl, headers=serviceNowHeaders, json=json_data)
     if (serviceNowResponse.status_code == 200):
         incident = serviceNowResponse.json()
         return f"Incident Created: {incident}"
@@ -161,13 +174,9 @@ async def create_incident(ctx: Context) -> str:
         return f"Unable to create incident. Status code: {serviceNowResponse.status_code}, Response: {serviceNowResponse.text}"
     
 @mcp.tool()
-async def list_incidents(ctx: Context, recordLimit: int , fields:str) -> str:
+async def list_incidents(ctx: Context) -> str:
     """Get all incidents in this service now incident.
-    
-    Args:
-        recordLimit: Maximum number of records to return
-        fields: Fields to return in response
-    
+     
     Returns:
         A list of incidents
     """
@@ -179,7 +188,7 @@ async def list_incidents(ctx: Context, recordLimit: int , fields:str) -> str:
     
     print(f"SessionId: {session_id}")
 
-    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident"
+    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident?sysparm_exclude_reference_link=True&sysparm_display_value=False"
     #We need to get servicenowId for the policy
     serviceNowHeaders = {
         "Content-Type": "application/json",
@@ -187,12 +196,7 @@ async def list_incidents(ctx: Context, recordLimit: int , fields:str) -> str:
         "providerId": provider_id 
     }
 
-    params = {
-        "sysparm_fields": fields,
-        "sysparm_limit": recordLimit
-    }
-
-    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders, params=params)
+    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders)
     if (serviceNowResponse.status_code == 200):
         incidents = serviceNowResponse.json()
         return f"Incidents: {incidents}"
@@ -200,13 +204,11 @@ async def list_incidents(ctx: Context, recordLimit: int , fields:str) -> str:
         return f"Unable to List Incidents. Status code: {serviceNowResponse.status_code}, Response: {serviceNowResponse.text}"
 
 @mcp.tool()
-async def get_incident(ctx: Context, recordSystemId: str, fields:str) -> str:
+async def get_incident(ctx: Context, recordSystemId: str) -> str:
     """Get incident with specific record system id
     
     Args:
         recordSystemId: record system identifier for the incident
-        fields: Fields to return in response
-    
     Returns:
         A specific incidents
     """
@@ -218,19 +220,14 @@ async def get_incident(ctx: Context, recordSystemId: str, fields:str) -> str:
     
     print(f"SessionId: {session_id}")
 
-    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident/{recordSystemId}"
+    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident/{recordSystemId}?sysparm_exclude_reference_link=True&sysparm_display_value=False"
     #We need to get servicenowId for the policy
     serviceNowHeaders = {
         "Content-Type": "application/json",
         "authorizationId": authorization_id,
         "providerId": provider_id 
     }
-
-    params = {
-        "sysparm_fields": fields
-    }
-
-    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders, params=params)
+    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders)
     if (serviceNowResponse.status_code == 200):
         incident = serviceNowResponse.json()
         return f"Incident: {incident}"

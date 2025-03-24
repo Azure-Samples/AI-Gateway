@@ -259,7 +259,7 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
           env: [
             {
               name: 'APIM_GATEWAY_URL'
-              value: '${apimService.properties.gatewayUrl}/${githubAPIPath}'
+              value: '${apimService.properties.gatewayUrl}/${servicenowAPIPath}'
             }
             {
               name: 'AZURE_CLIENT_ID'
