@@ -17,6 +17,9 @@ param location string = resourceGroup().location
 
 param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
+param servicenowAPIPath string = 'servicenow'
+param serviceNowInstanceName string
+
 // ------------------
 //    VARIABLES
 // ------------------
@@ -226,6 +229,83 @@ resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
   }
 }
 
+resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = if (length(serviceNowInstanceName) > 0) {
+  name: 'aca-servicenow-${resourceSuffix}'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppUAI.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        allowInsecure: false
+      }
+      registries: [
+        {
+          identity: containerAppUAI.id
+          server: containerRegistry.properties.loginServer
+        }
+      ]      
+    }
+    template: {
+      containers: [
+        {
+          name: 'aca-${resourceSuffix}'
+          image: 'docker.io/jfxs/hello-world:latest'
+          env: [
+            {
+              name: 'APIM_GATEWAY_URL'
+              value: '${apimService.properties.gatewayUrl}/${servicenowAPIPath}'
+            }
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: containerAppUAI.properties.clientId
+            }                         
+            {
+              name: 'AZURE_TENANT_ID'
+              value: subscription().tenantId
+            }                         
+            {
+              name: 'SUBSCRIPTION_ID'
+              value: subscription().subscriptionId
+            }                         
+            {
+              name: 'RESOURCE_GROUP_NAME'
+              value: resourceGroup().name
+            }                         
+            {
+              name: 'APIM_SERVICE_NAME'
+              value: apimService.name
+            }                         
+            {
+              name: 'POST_LOGIN_REDIRECT_URL'
+              value: 'http://www.bing.com'
+            }                         
+            {
+              name: 'APIM_IDENTITY_OBJECT_ID'
+              value: apimService.identity.principalId
+            }                                     
+          ]
+          resources: {
+            cpu: json('.5')
+            memory: '1Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
+      }
+    }
+  }
+}
+
 
 // 1. Log Analytics Workspace
 module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
@@ -333,6 +413,16 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
   }
 }
 
+module serviceNowAPIModule 'src/servicenow/apim-api/api.bicep' = if(length(serviceNowInstanceName) > 0) {
+  name: 'servicenowAPIModule'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: servicenowAPIPath
+    APIServiceURL: 'https://${servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn}/${servicenowAPIPath}'
+    serviceNowInstanceName: serviceNowInstanceName
+  }
+}
+
 
 // Ignore the subscription that gets created in the APIM module and create three new ones for this lab.
 resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
@@ -371,6 +461,9 @@ output gitHubMCPServerContainerAppFQDN string = gitHubMCPServerContainerApp.prop
 
 output weatherMCPServerContainerAppResourceName string = weatherMCPServerContainerApp.name
 output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.properties.configuration.ingress.fqdn
+
+output servicenowMCPServerContainerAppResourceName string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.name: ''
+output servicenowMCPServerContainerAppFQDN string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn: ''
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
