@@ -13,7 +13,7 @@
             <value>@("Bearer " + ((Authorization)context.Variables.GetValueOrDefault("auth-context"))?.AccessToken)</value>
         </set-header>
           <!-- hard code for now  -->
-        <set-backend-service base-url="https://dev306445.service-now.com/" />
+        <set-backend-service backend-id="servicenow-backend" />
     </inbound>
     <!-- Control if and how the requests are forwarded to services  -->
     <backend>

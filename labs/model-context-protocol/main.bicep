@@ -18,6 +18,8 @@ param location string = resourceGroup().location
 param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
 param servicenowAPIPath string = 'servicenow'
+param serviceNowInstanceName string
+
 // ------------------
 //    VARIABLES
 // ------------------
@@ -411,12 +413,13 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
   }
 }
 
-module servicenowAPIModule 'src/servicenow/apim-api/api.bicep' = {
+module serviceNowAPIModule 'src/servicenow/apim-api/api.bicep' = {
   name: 'servicenowAPIModule'
   params: {
     apimServiceName: apimService.name
     APIPath: servicenowAPIPath
     APIServiceURL: 'https://${servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn}/${servicenowAPIPath}'
+    serviceNowInstanceName: serviceNowInstanceName
   }
 }
 

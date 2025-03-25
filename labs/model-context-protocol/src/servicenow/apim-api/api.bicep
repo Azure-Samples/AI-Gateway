@@ -1,10 +1,22 @@
 param apimServiceName string
 param APIServiceURL string
 param APIPath string = 'servicenow'
+param serviceNowInstanceName string
 
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apimServiceName
 }
+
+resource servicenowBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
+  name: 'servicenow-backend'
+  parent: apim
+  properties: {
+    description: 'Backend for ServiceNow API'
+    url: 'https://${serviceNowInstanceName}.service-now.com'
+    protocol: 'http'
+  }
+}
+ 
 
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   parent: apim
@@ -51,10 +63,10 @@ resource authorizationProvider 'Microsoft.ApiManagement/service/authorizationPro
       redirectUrl: 'https://authorization-manager.consent.azure-apim.net/redirect/apim/${apim.name}'
       grantTypes: {
         authorizationCode: {
-          clientId: '54c92d51cee94dd59a5ff2761f1908b0'
-          clientSecret: 'redacted'
+          clientId: 'changeme'
+          clientSecret: 'changeme'
           scopes: ''
-          instanceName: 'dev306445'
+          instanceName: serviceNowInstanceName
         }
       }
     }
