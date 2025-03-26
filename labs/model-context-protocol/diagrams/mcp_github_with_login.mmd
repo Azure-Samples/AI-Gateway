@@ -1,0 +1,31 @@
+sequenceDiagram
+    participant MCP Client as MCP Client<br>(VSCode)
+    participant APIM
+    participant ApiHub
+    participant MCP Server as MCP Server<br>(Container Apps)
+    participant Backend as Backend<br>(Github)
+
+    MCP Client->>APIM: /sse
+    APIM->>MCP Client: existing backend tools<br/> + "authorize" tool
+    MCP Client->>MCP Client: process prompt
+    MCP Client->>MCP Server: /authorize_github
+    MCP Server->>MCP Server: generate `authorization_id` <br>based on the current session
+    MCP Server->>APIM: Check `authorization_id` status
+    APIM->>MCP Server: (First time) "Post Login Redirect URL"
+    MCP Server->>MCP Client: Login URL
+    MCP Client->>Backend: Login
+    Backend->>MCP Client: Redirect to "Post Login Redirect URL"<br>(with Authorization Code)
+    MCP Client->>ApiHub: Redirect (with Authorization Code)
+    ApiHub->>Github: Get token using Authorization Code
+    Github->>ApiHub: Access Token + Refresh Token
+    ApiHub->>ApiHub: Save tokens
+    ApiHub->>MCP Client: Indicate login success
+    MCP Client->>MCP Server: /get_issues (no token)
+    MCP Server->>MCP Server: attach `authorization_id` as request header
+    MCP Server->>APIM: /get_issues (no token)
+    APIM->>ApiHub: get token for the `authorization_id`
+    ApiHub->>APIM: token
+    APIM->>Backend: /get_issues (with token)
+    Backend->>APIM: result
+    APIM->>MCP Server: result
+    MCP Server->>MCP Client: result
