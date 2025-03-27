@@ -17,6 +17,7 @@ azure-identity
 opentelemetry-api
 opentelemetry-sdk
 azure-monitor-opentelemetry
+azure-monitor-ingestion
 azure-ai-projects
 azure-ai-inference[prompts]
 azure-search-documents
