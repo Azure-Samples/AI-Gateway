@@ -95,3 +95,37 @@ resource issuesOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/
     apim
   ]
 }
+
+resource sseOperation 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' existing = {
+  parent: api
+  name: 'sse'
+}
+
+resource sseOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-06-01-preview' = {
+  parent: sseOperation
+  name: 'policy'
+  properties: {
+    value: loadTextContent('mcp-policy.xml')
+    format: 'rawxml'
+  }
+  dependsOn: [
+    apim
+  ]
+}
+
+resource messagesOperation 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' existing = {
+  parent: api
+  name: 'messages'
+}
+
+resource messagesOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-06-01-preview' = {
+  parent: messagesOperation
+  name: 'policy'
+  properties: {
+    value: loadTextContent('mcp-policy.xml')
+    format: 'rawxml'
+  }
+  dependsOn: [
+    apim
+  ]
+}
