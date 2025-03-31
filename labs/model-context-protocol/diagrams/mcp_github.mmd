@@ -11,15 +11,8 @@ sequenceDiagram
     MCP Client->>MCP Server: /authorize_github
     MCP Server->>MCP Server: generate `authorization_id` <br>based on the current session
     MCP Server->>APIM: Check `authorization_id` status
-    APIM->>MCP Server: (First time) "Post Login Redirect URL"
-    MCP Server->>MCP Client: Login URL
-    MCP Client->>Backend: Login
-    Backend->>MCP Client: Redirect to "Post Login Redirect URL"<br>(with Authorization Code)
-    MCP Client->>ApiHub: Redirect (with Authorization Code)
-    ApiHub->>Github: Get token using Authorization Code
-    Github->>ApiHub: Access Token + Refresh Token
-    ApiHub->>ApiHub: Save tokens
-    ApiHub->>MCP Client: Indicate login success
+    APIM->>MCP Server: Connected
+    MCP Server->>MCP Client: Connected
     MCP Client->>MCP Server: /get_issues (no token)
     MCP Server->>MCP Server: attach `authorization_id` as request header
     MCP Server->>APIM: /get_issues (no token)
