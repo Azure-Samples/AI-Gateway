@@ -1,0 +1,36 @@
+<!--
+    OAUTH METADATA OPTIONS POLICY
+    This policy handles OPTIONS requests to the OAuth metadata endpoint, implementing CORS support
+    for cross-origin requests to the OAuth authorization server.
+-->
+<policies>
+    <inbound>
+        <!-- Return CORS headers for OPTIONS requests -->
+        <return-response>
+            <set-status code="200" reason="OK" />
+            <set-header name="Access-Control-Allow-Origin" exists-action="override">
+                <value>*</value>
+            </set-header>
+            <set-header name="Access-Control-Allow-Methods" exists-action="override">
+                <value>GET, OPTIONS</value>
+            </set-header>
+            <set-header name="Access-Control-Allow-Headers" exists-action="override">
+                <value>Content-Type, Authorization</value>
+            </set-header>
+            <set-header name="Access-Control-Max-Age" exists-action="override">
+                <value>86400</value>
+            </set-header>
+            <set-body />
+        </return-response>
+        <base />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

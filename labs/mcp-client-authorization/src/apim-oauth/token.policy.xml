@@ -1,0 +1,151 @@
+<!--
+    TOKEN POLICY
+    This policy implements the token endpoint for PKCE OAuth2 flow.
+    
+    Flow:
+    1. MCP client sends token request with code and code_verifier
+    2. We validate the code_verifier against the stored code_challenge
+    3. We retrieve the cached access token and return it to the client
+-->
+<policies>
+    <inbound>
+        <base />
+        <!-- STEP 1: Extract parameters from token request -->
+        <!-- Read the request body as a string while preserving it for later processing -->
+        <set-variable name="tokenRequestBody" value="@((string)context.Request.Body.As<string>(preserveContent: true))" />
+        
+        <!-- Extract the confirmation code from the request -->
+        <set-variable name="mcpConfirmConsentCode" value="@{
+            // Retrieve the raw body string
+            var body = context.Variables.GetValueOrDefault<string>("tokenRequestBody");
+            if (!string.IsNullOrEmpty(body))
+            {
+                // Split the body into name/value pairs
+                var pairs = body.Split('&');
+                foreach (var pair in pairs)
+                {
+                    var keyValue = pair.Split('=');
+                    if (keyValue.Length == 2)
+                    {
+                        if(keyValue[0] == "code")
+                        {
+                            return keyValue[1];
+                        }
+                    }
+                }
+            }
+            return "";
+        }" />            
+        <!-- Extract the code_verifier from the request -->        
+         <set-variable name="mcpClientCodeVerifier" value="@{
+            // Retrieve the raw body string
+            var body = context.Variables.GetValueOrDefault<string>("tokenRequestBody");
+            if (!string.IsNullOrEmpty(body))
+            {
+                // Split the body into name/value pairs
+                var pairs = body.Split('&');
+                foreach (var pair in pairs)
+                {
+                    var keyValue = pair.Split('=');
+                    if (keyValue.Length == 2)
+                    {
+                        if(keyValue[0] == "code_verifier")
+                        {
+                            return keyValue[1];
+                        }
+                    }
+                }
+            }
+            return "";
+        }" />
+            
+            <!-- STEP 2: Extract state parameters -->
+            <set-variable name="mcpState" value="@((string)context.Request.Url.Query.GetValueOrDefault("state", ""))" />
+            <set-variable name="stateSession" value="@((string)context.Request.Url.Query.GetValueOrDefault("state_session", ""))" />        
+    </inbound>
+    <backend />
+    <outbound>
+        <base />
+        <!-- STEP 3: Retrieve stored MCP client data -->
+        <!-- Lookup the stored MCP client code challenge and challenge method from the cache -->
+        <cache-lookup-value key="@($"McpClientAuthData-{context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}")" variable-name="mcpClientAuthData" />
+        
+        <!-- Extract the stored code challenge from the cached data -->
+        <set-variable name="storedMcpClientCodeChallenge" value="@{
+            var mcpAuthDataAsJObject = JObject.Parse((string)context.Variables["mcpClientAuthData"]);
+            return (string)mcpAuthDataAsJObject["mcpClientCodeChallenge"];
+        }" />            
+        <!-- STEP 4: Compute and validate the code challenge -->
+        <!-- Generate a challenge from the incoming code_verifier using the stored challenge method -->
+        <set-variable name="mcpServerComputedCodeChallenge" value="@{
+            var mcpAuthDataAsJObject = JObject.Parse((string)context.Variables["mcpClientAuthData"]);
+            string codeVerifier = (string)context.Variables.GetValueOrDefault("mcpClientCodeVerifier", "");
+            string codeChallengeMethod = ((string)mcpAuthDataAsJObject["mcpClientCodeChallengeMethod"]).ToLower();
+            
+            if(string.IsNullOrEmpty(codeVerifier)){
+                return string.Empty;
+            }
+            
+            if(codeChallengeMethod == "plain"){
+                // For "plain", no transformation is applied
+                return codeVerifier;
+            } else if(codeChallengeMethod == "s256"){
+                // For S256, compute the SHA256 hash, Base64 encode it, and convert to URL-safe format
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var bytes = System.Text.Encoding.UTF8.GetBytes(codeVerifier);
+                    var hash = sha256.ComputeHash(bytes);
+                    
+                    // Convert the hash to a Base64 string
+                    string base64 = Convert.ToBase64String(hash);
+
+                    // Convert Base64 string into a URL-safe variant
+                    // Replace '+' with '-', '/' with '_', and remove any '=' padding
+                    return base64.Replace("+", "-").Replace("/", "_").Replace("=", "");
+                }
+            } else {
+                // Unsupported method
+                return string.Empty;
+            }
+        }" />            
+        <!-- STEP 5: Verify code challenge matches -->
+        <choose>
+            <when condition="@(string.Compare((string)context.Variables.GetValueOrDefault("mcpServerComputedCodeChallenge", ""), (string)context.Variables.GetValueOrDefault("storedMcpClientCodeChallenge", "")) != 0)">
+                <!-- If they don't match, return an error -->
+                <return-response>
+                    <set-status code="400" reason="Bad Request" />
+                    <set-body>@("{\"error\": \"code_verifier does not match.\"}")</set-body>
+                </return-response>
+            </when>
+        </choose>
+        
+        <!-- STEP 6: Retrieve cached tokens -->
+        <!-- Get the access token stored during the authorization process -->
+        <cache-lookup-value key="@($"AccessToken-{context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}")" variable-name="cachedSessionToken" />
+        
+        <!-- STEP 7: Generate token response -->
+        <set-variable name="jsonPayload" value="@{
+            var accessToken = context.Variables.GetValueOrDefault<string>("cachedSessionToken");
+            var payloadObject = new
+            {
+                access_token = accessToken,
+                token_type = "Bearer",
+                expires_in = 3600,
+                refresh_token = "",
+                scope = "openid profile email"
+            };
+
+            // Serialize the object to a JSON string.
+            return Newtonsoft.Json.JsonConvert.SerializeObject(payloadObject);
+        }" />
+        <set-body template="none">@{
+            return (string)context.Variables.GetValueOrDefault("jsonPayload", "");
+        }</set-body>
+        <set-header name="access-control-allow-origin" exists-action="override">
+            <value>*</value>
+        </set-header>
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
