@@ -2,9 +2,7 @@
 
 ## [MCP Client Authorization lab](mcp-client-authorization.ipynb)
 
-[![flow](../../images/model-context-protocol.gif)](mcp-client-authorization.ipynb)
-
-Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) client authorization flow.
+Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) with [client authorization flow](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization#2-10-third-party-authorization-flow).
 
 ### Prerequisites
 
@@ -13,7 +11,6 @@ Playground to experiment the [Model Context Protocol](https://modelcontextprotoc
 - [Python environment](https://code.visualstudio.com/docs/python/environments#_creating-environments) with the [requirements.txt](../../requirements.txt) or run `pip install -r requirements.txt` in your terminal
 - [An Azure Subscription](https://azure.microsoft.com/free/) with [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor) + [RBAC Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator) or [Owner](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#owner) roles
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and [Signed into your Azure subscription](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
-- [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-python#install-the-azure-functions-core-tools) installed
 
 ### 🚀 Get started
 
