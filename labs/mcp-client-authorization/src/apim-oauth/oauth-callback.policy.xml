@@ -23,7 +23,7 @@
         <set-variable name="redirectUri" value="{{OAuthCallbackUri}}" />
         <set-variable name="clientId" value="{{EntraIDClientId}}" />
         <set-variable name="clientSecret" value="{{EntraIDClientSecret}}" />
-        
+         
         <!-- STEP 4: Configure token request to Entra ID -->
         <set-method>POST</set-method>
         <set-header name="Content-Type" exists-action="override">

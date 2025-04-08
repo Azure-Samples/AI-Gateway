@@ -2,7 +2,26 @@
 //    PARAMETERS
 // ------------------
 
-// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
+@description('The client ID for Entra ID app registration')
+param entraIDClientId string
+
+@description('The client secret for Entra ID app registration')
+@secure()
+param entraIDClientSecret string
+
+@description('The required scopes for authorization')
+param oauthScopes string
+
+@description('The encryption IV for session token')
+@secure()
+param encryptionIV string
+
+@description('The encryption key for session token')
+@secure()
+param encryptionKey string
+
+@description('The MCP client ID')
+param mcpClientId string
 
 param apimSku string
 param apimLoggerName string = 'apim-logger'
@@ -37,74 +56,118 @@ var storageContainers = [{name: deploymentStorageContainerName}, {name: 'snippet
 //    RESOURCES
 // ------------------
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: 'storage${resourceSuffix}'
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
+  name: 'acr${resourceSuffix}'
   location: location
   sku: {
-    name: 'Standard_LRS'
+    name: 'Basic'
   }
-  kind: 'StorageV2'
   properties: {
-    minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: true
-    publicNetworkAccess: 'Enabled'
-    allowSharedKeyAccess: false
-    networkAcls: {
-      bypass: 'AzureServices'
-      defaultAction: 'Allow'
-    }      
-  }
-
-  resource blobServices 'blobServices' = {
-    name: 'default'
-    resource container 'containers' = [for container in storageContainers: {
-      name: container.name
-      properties: {
-        publicAccess: 'Container'
+    adminUserEnabled: true
+    anonymousPullEnabled: false
+    dataEndpointEnabled: false
+    encryption: {
+      status: 'disabled'
+    }
+    metadataSearch: 'Disabled'
+    networkRuleBypassOptions: 'AzureServices'
+    policies:{
+      quarantinePolicy: {
+        status: 'disabled'
       }
-    }]
-  }  
+      trustPolicy: {
+        type: 'Notary'
+        status: 'disabled'
+      }
+      retentionPolicy: {
+        days: 7
+        status: 'disabled'
+      }
+      exportPolicy: {
+        status: 'enabled'
+      }
+      azureADAuthenticationAsArmPolicy: {
+        status: 'enabled'
+      }
+      softDeletePolicy: {
+        retentionDays: 7
+        status: 'disabled'
+      }
+    }
+    publicNetworkAccess: 'Enabled'
+    zoneRedundancy: 'Disabled'
+  }
 }
 
-resource hostingPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
-  name: 'function-asp-${resourceSuffix}'
+resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
+  name: 'aca-env-${resourceSuffix}'
   location: location
-  kind: ''
-  sku: {
-    name: 'FC1'
-    tier: 'FlexConsumption'
-  }
   properties: {
-    reserved: true
+    appLogsConfiguration: {
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: lawModule.outputs.customerId
+        sharedKey: lawModule.outputs.primarySharedKey
+      }
+    }
   }
 }
 
-resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
-  name: 'function-${resourceSuffix}'
+resource containerAppUAI 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+  name: 'aca-mi-${resourceSuffix}'
   location: location
-  kind: 'functionapp,linux'
+}
+var acrPullRole = resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+@description('This allows the managed identity of the container app to access the registry, note scope is applied to the wider ResourceGroup not the ACR')
+resource containerAppUAIRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, containerAppUAI.id, acrPullRole)
+  properties: {
+    roleDefinitionId: acrPullRole
+    principalId: containerAppUAI.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+
+resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-weather-${resourceSuffix}'
+  location: location
   identity: {
-    type: 'SystemAssigned'
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppUAI.id}': {}
+    }
   }
   properties: {
-    serverFarmId: hostingPlan.id
-    functionAppConfig: {
-      deployment: {
-        storage: {
-          type: 'blobContainer'
-          value: '${storageAccount.properties.primaryEndpoints.blob}${deploymentStorageContainerName}'
-          authentication: {
-            type: 'SystemAssigned'
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        allowInsecure: false
+      }
+      registries: [
+        {
+          identity: containerAppUAI.id
+          server: containerRegistry.properties.loginServer
+        }
+      ]      
+    }
+    template: {
+      containers: [
+        {
+          name: 'aca-${resourceSuffix}'
+          image: 'docker.io/jfxs/hello-world:latest'
+          resources: {
+            cpu: json('.5')
+            memory: '1Gi'
           }
         }
-      }
-      scaleAndConcurrency: {
-        instanceMemoryMB: 2048
-        maximumInstanceCount: 100
-      }
-      runtime: {
-        name: 'python'
-        version: '3.11'
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
       }
     }
   }
@@ -126,7 +189,6 @@ module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
     customMetricsOptedInType: 'WithDimensions'
   }
 }
-
 
 // ------------------
 //    RESOURCES
@@ -198,13 +260,27 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing 
   ]
 }
 
+module oauthAPIModule 'src/apim-oauth/oauth.bicep' = {
+  name: 'oauthAPIModule'
+  params: {    
+    apimServiceName: apimService.name
+    entraIDTenantId: subscription().tenantId
+    entraIDClientId: entraIDClientId
+    entraIDClientSecret: entraIDClientSecret
+    oauthScopes: oauthScopes
+    encryptionIV: encryptionIV
+    encryptionKey: encryptionKey
+    mcpClientId: mcpClientId
+  }
+}
+
 
 module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
   name: 'weatherAPIModule'
   params: {
     apimServiceName: apimService.name
     APIPath: weatherAPIPath
-    APIServiceURL: 'https://${functionApp.properties.defaultHostName}/api/weather'    
+    APIServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
   }
 }
 
@@ -225,11 +301,15 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06
 }
 
 
+
 // ------------------
 //    OUTPUTS
 // ------------------
 
-output functionAppResourceName string = functionApp.name
+output containerRegistryName string = containerRegistry.name
+
+output weatherMCPServerContainerAppResourceName string = weatherMCPServerContainerApp.name
+output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
