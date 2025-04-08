@@ -1,0 +1,96 @@
+<!--
+    OAUTH CALLBACK POLICY
+    This policy implements the callback endpoint for PKCE OAuth2 flow with Entra ID.
+    
+    Flow:
+    1. Entra ID redirects to this endpoint with authorization code after user login
+    2. We exchange the authorization code for an access token
+    3. We retrieve the stored MCP client data and generate a session key
+    4. We redirect back to the MCP client with a confirmation code
+-->
+<policies>
+    <inbound>
+        <base />
+        <!-- STEP 1: Extract the authorization code and state from Entra ID callback -->
+        <set-variable name="authCode" value="@((string)context.Request.Url.Query.GetValueOrDefault("code", ""))" />
+        <set-variable name="entraState" value="@((string)context.Request.Url.Query.GetValueOrDefault("state", ""))" />
+        <set-variable name="sessionState" value="@((string)context.Request.Url.Query.GetValueOrDefault("session_state", ""))" />
+        
+        <!-- STEP 2: Retrieve stored PKCE code verifier using the state parameter -->
+        <cache-lookup-value key="CodeVerifier-@(context.Variables.GetValueOrDefault("entraState", ""))" variable-name="codeVerifier" />
+        <!-- STEP 3: Set token request parameters -->
+        <set-variable name="codeChallengeMethod" value="S256" />
+        <set-variable name="redirectUri" value="{{OAuthCallbackUri}}" />
+        <set-variable name="clientId" value="{{EntraIDClientId}}" />
+        <set-variable name="clientSecret" value="{{EntraIDClientSecret}}" />
+        
+        <!-- STEP 4: Configure token request to Entra ID -->
+        <set-method>POST</set-method>
+        <set-header name="Content-Type" exists-action="override">
+            <value>application/x-www-form-urlencoded</value>
+        </set-header>
+        <set-body>@{
+            return $"client_id={context.Variables.GetValueOrDefault("clientId")}&grant_type=authorization_code&code={context.Variables.GetValueOrDefault("authCode")}&redirect_uri={context.Variables.GetValueOrDefault("redirectUri")}&scope=https://graph.microsoft.com/.default";
+        }</set-body>
+        <rewrite-uri template="/token" />
+    </inbound>
+
+    <backend>
+        <base />
+    </backend>
+
+    <outbound>
+        <base />
+        <!-- STEP 5: Process the token response from Entra ID -->
+        <trace source="apim-policy">
+            <message>@("Token response received: " + context.Response.Body.As<string>(preserveContent: true))</message>
+        </trace>        
+        <!-- STEP 6: Lookup MCP client redirect URI stored during authorization -->
+        <cache-lookup-value key="@($"McpClientAuthData-{context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}")" variable-name="mcpClientData" />
+          <!-- Retrieve the client's redirect URI from cache -->
+        <cache-lookup-value key="ClientRedirectUri" variable-name="callbackRedirectUri" />
+          <!-- STEP 7: Generate secure session token for MCP client -->
+        <set-variable name="IV" value="{{EncryptionIV}}" />
+        <set-variable name="key" value="{{EncryptionKey}}" />
+        <set-variable name="encryptedSessionKey" value="@{
+            // Generate a unique session ID
+            string sessionId = "sessionId123";
+            byte[] sessionIdBytes = Encoding.UTF8.GetBytes(sessionId);
+            
+            // Encrypt the session ID using AES
+            byte[] IV = Convert.FromBase64String((string)context.Variables["IV"]);
+            byte[] key = Convert.FromBase64String((string)context.Variables["key"]);
+            
+            byte[] encryptedBytes = sessionIdBytes.Encrypt("Aes", key, IV);
+            
+            return Convert.ToBase64String(encryptedBytes);
+        }" />
+
+        <!-- STEP 8: Generate new state for MCP client -->
+        <set-variable name="mcpState" value="@((string)Guid.NewGuid().ToString())" />
+        <cache-lookup-value key="@((string)context.Variables.GetValueOrDefault("entraState"))" variable-name="mcpConfirmConsentCode" />
+        
+        <!-- STEP 9: Store the encrypted session key and Entra token in cache -->
+        <!-- Store the encrypted session key with the MCP confirmation code as key -->
+        <cache-store-value duration="700" 
+            key="@($"AccessToken-{context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}")" 
+            value="@($"{context.Variables.GetValueOrDefault("encryptedSessionKey")}")" />
+        
+        <!-- Store the Entra token for later use -->
+        <cache-store-value duration="700" 
+            key="@($"EntraToken-{context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}")" 
+            value="@(context.Response.Body.As<JObject>(preserveContent: true).ToString())" />
+        
+        <!-- STEP 10: Redirect back to MCP client with confirmation code -->
+        <return-response>
+            <set-status code="302" reason="Found" />
+            <set-header name="Location" exists-action="override">
+                <value>@($"{context.Variables.GetValueOrDefault("callbackRedirectUri")}?code={context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}&state={context.Variables.GetValueOrDefault("mcpState")}&state_session=statesession123")</value>
+            </set-header>
+            <set-body />
+        </return-response>
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
