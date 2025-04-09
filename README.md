@@ -1,11 +1,12 @@
 <!-- markdownlint-disable MD033 -->
 
-# APIM ❤️ OpenAI - 🧪 Labs for the [GenAI Gateway capabilities](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/introducing-genai-gateway-capabilities-in-azure-api-management/ba-p/4146525) of [Azure API Management](https://learn.microsoft.com/azure/api-management/api-management-key-concepts)
+# 🧪 [AI Gateway](https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities) Labs with [Azure API Management](https://aka.ms/apimlove)
 
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
 ## What's new ✨
-
+ 
+➕ **Model Context Protocol (MCP) ⚙️** experiments with the [**client authorization flow**](labs/mcp-client-authorization/mcp-client-authorization.ipynb)  
 ➕ the [**FinOps Framework**](labs/finops-framework/finops-framework.ipynb) lab to manage AI budgets effectively 💰  
 ➕ **Agentic ✨** experiments with [**Model Context Protocol (MCP)**](labs/model-context-protocol/model-context-protocol.ipynb).  
 ➕ **Agentic ✨** experiments with [**OpenAI Agents SDK**](labs/openai-agents/openai-agents.ipynb).  
@@ -52,6 +53,15 @@ Acknowledging the rising dominance of Python, particularly in the realm of AI, a
 
 ## 🧪 Labs with AI Agents
 
+<!-- MCP Client Authorization -->
+### [**🧪 MCP Client Authorization**](labs/mcp-client-authorization/mcp-client-authorization.ipynb)
+
+Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) with the [client authorization flow](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization#2-10-third-party-authorization-flow). In this flow, Azure API Management act both as an OAuth client connecting to the [Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/architecture/auth-oauth2) authorization server and as an OAuth authorization server for the MCP client ([MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector) in this lab).
+
+[<img src="images/mcp-client-authorization-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/mcp-client-authorization/mcp-client-authorization.ipynb)
+
+[🦾 Bicep](labs/mcp-client-authorization/main.bicep) ➕ [⚙️ Policy](labs/mcp-client-authorization/src/weather/apim-api/policy.xml) ➕ [🧾 Notebook](labs/mcp-client-authorization/mcp-client-authorization.ipynb)
+
 <!-- Model Context Protocol (MCP) -->
 ### [**🧪 Model Context Protocol (MCP)**](labs/model-context-protocol/model-context-protocol.ipynb)
 
@@ -60,7 +70,6 @@ Playground to experiment the [Model Context Protocol](https://modelcontextprotoc
 [<img src="images/model-context-protocol-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/model-context-protocol/model-context-protocol.ipynb)
 
 [🦾 Bicep](labs/model-context-protocol/main.bicep) ➕ [⚙️ Policy](labs/model-context-protocol/inference-policy.xml) ➕ [🧾 Notebook](labs/model-context-protocol/model-context-protocol.ipynb)
-
 
 <!-- OpenAI Agents -->
 ### [**🧪 OpenAI Agents**](labs/openai-agents/openai-agents.ipynb)

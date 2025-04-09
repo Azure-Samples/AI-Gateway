@@ -1,8 +1,12 @@
-# APIM ❤️ AI Agents
+# APIM ❤️ MCP
 
 ## [MCP Client Authorization lab](mcp-client-authorization.ipynb)
 
-Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) with [client authorization flow](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization#2-10-third-party-authorization-flow).
+[![flow](../../images/mcp-client-authorization.gif)](mcp-client-authorization.ipynb)
+
+Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) with the [client authorization flow](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization#2-10-third-party-authorization-flow). In this flow, Azure API Management act both as an OAuth client connecting to the [Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/architecture/auth-oauth2) authorization server and as an OAuth authorization server for the MCP client ([MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector) in this lab).
+
+⚠️ Due to the evolving nature of the [MCP Authorization proposal](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization), direct use of this implementation in production environments is not yet recommended.
 
 ### Prerequisites
 
