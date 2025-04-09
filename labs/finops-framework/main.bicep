@@ -259,7 +259,7 @@ resource openAIUsageWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   kind: 'shared'
   properties: {
     displayName: 'Cost Analysis'
-    serializedData: replace(replace(loadTextContent('workbooks/cost-analysis.json'), '{workspace-id}', logAnalytics.id), '{app-id}', applicationInsights.properties.AppId)
+    serializedData: replace(loadTextContent('workbooks/cost-analysis.json'), '{workspace-id}', logAnalytics.id)
     sourceId: logAnalytics.id
     category: 'workbook'
   }
@@ -872,7 +872,7 @@ resource ruleSuspendSub 'microsoft.insights/scheduledqueryrules@2024-01-01-previ
     criteria: {
       allOf: [
         {
-          query: 'app(\'${applicationInsights.properties.AppId}\').customMetrics\n| where timestamp >= startofmonth(now()) and timestamp <= endofmonth(now())\n| where name == "Prompt Tokens" or name == "Completion Tokens"\n| extend SubscriptionName = tostring(customDimensions["Subscription ID"])\n| extend ProductName = tostring(customDimensions["Product"])\n| extend ModelName = tostring(customDimensions["Model"])\n| extend Region = tostring(customDimensions["Region"])\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.ModelName == $right.Model\n| summarize\n    PromptTokens = sumif(value, name == "Prompt Tokens"),\n    CompletionTokens = sumif(value, name == "Completion Tokens")\n    by SubscriptionName, InputTokensPrice, OutputTokensPrice\n| extend InputCost = PromptTokens / 1000 * InputTokensPrice\n| extend OutputCost = CompletionTokens / 1000 * OutputTokensPrice\n| extend TotalCost = InputCost + OutputCost\n| summarize TotalCost = sum(TotalCost) by SubscriptionName\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n) on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n| where TotalCost > CostQuota\n\n'
+          query: 'AppMetrics\n| where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\n| where Name == "Prompt Tokens" or Name == "Completion Tokens"\n| extend SubscriptionName = tostring(Properties["Subscription ID"])\n| extend ProductName = tostring(Properties["Product"])\n| extend ModelName = tostring(Properties["Model"])\n| extend Region = tostring(Properties["Region"])\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.ModelName == $right.Model\n| summarize\n    PromptTokens = sumif(Sum, Name == "Prompt Tokens"),\n    CompletionTokens = sumif(Sum, Name == "Completion Tokens")\n    by SubscriptionName, InputTokensPrice, OutputTokensPrice\n| extend InputCost = PromptTokens / 1000 * InputTokensPrice\n| extend OutputCost = CompletionTokens / 1000 * OutputTokensPrice\n| extend TotalCost = InputCost + OutputCost\n| summarize TotalCost = sum(TotalCost) by SubscriptionName\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n) on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n| where TotalCost > CostQuota\n'
           timeAggregation: 'Count'
           dimensions: [
             {
@@ -923,7 +923,7 @@ resource ruleActivateSub 'microsoft.insights/scheduledqueryrules@2024-01-01-prev
     criteria: {
       allOf: [
         {
-          query: 'app(\'${applicationInsights.properties.AppId}\').customMetrics\n| where timestamp >= startofmonth(now()) and timestamp <= endofmonth(now())\n| where name == "Prompt Tokens" or name == "Completion Tokens"\n| extend SubscriptionName = tostring(customDimensions["Subscription ID"])\n| extend ProductName = tostring(customDimensions["Product"])\n| extend ModelName = tostring(customDimensions["Model"])\n| extend Region = tostring(customDimensions["Region"])\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.ModelName == $right.Model\n| summarize\n    PromptTokens = sumif(value, name == "Prompt Tokens"),\n    CompletionTokens = sumif(value, name == "Completion Tokens")\n    by SubscriptionName, InputTokensPrice, OutputTokensPrice\n| extend InputCost = PromptTokens / 1000 * InputTokensPrice\n| extend OutputCost = CompletionTokens / 1000 * OutputTokensPrice\n| extend TotalCost = InputCost + OutputCost\n| summarize TotalCost = sum(TotalCost) by SubscriptionName\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n) on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n| where TotalCost <= CostQuota\n\n'
+          query: 'AppMetrics\n| where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\n| where Name == "Prompt Tokens" or Name == "Completion Tokens"\n| extend SubscriptionName = tostring(Properties["Subscription ID"])\n| extend ProductName = tostring(Properties["Product"])\n| extend ModelName = tostring(Properties["Model"])\n| extend Region = tostring(Properties["Region"])\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.ModelName == $right.Model\n| summarize\n    PromptTokens = sumif(Sum, Name == "Prompt Tokens"),\n    CompletionTokens = sumif(Sum, Name == "Completion Tokens")\n    by SubscriptionName, InputTokensPrice, OutputTokensPrice\n| extend InputCost = PromptTokens / 1000 * InputTokensPrice\n| extend OutputCost = CompletionTokens / 1000 * OutputTokensPrice\n| extend TotalCost = InputCost + OutputCost\n| summarize TotalCost = sum(TotalCost) by SubscriptionName\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n) on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n| where TotalCost <= CostQuota\n'
           timeAggregation: 'Count'
           dimensions: [
             {
@@ -965,7 +965,6 @@ module finOpsDashboardModule 'dashboard.bicep' = {
       workspaceOpenAIDimenstion: 'openai'
       appInsightsId: applicationInsights.id
       appInsightsName: applicationInsights.name
-      appInsightsAppId: applicationInsights.properties.AppId
     }
 }
 
