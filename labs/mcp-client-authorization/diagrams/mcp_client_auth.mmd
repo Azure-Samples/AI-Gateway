@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant UserAgent as User agent (browser)
+    participant MCPClient as MCP Client (MCP Inspector)
+    participant MCPGateway as MCP/AI Gateway (APIM)
+    participant UpstreamServices as Entra (third-party IDP)
+    participant MCPServer as MCP Server (Resource Server)
+
+    UserAgent->>MCPClient: Open browser
+    MCPClient->>MCPServer: Connect to MCP server with /sse protocol
+    MCPServer->>MCPClient: Returns 401 Unauthorized
+    MCPClient->>MCPGateway: GET /.well-known/oauth-authorization-server
+    alt Server supports discovery endpoint
+        MCPGateway->>MCPClient: Authorization server Metadata
+    else No discovery
+        MCPGateway->>MCPClient: 404 (use default endpoints)
+    end
+    MCPClient->>MCPGateway: POST /register endpoint
+    Note over MCPGateway: Does dynamic client registration
+    MCPGateway-->>MCPClient: Return client_credentials (client identifier and client_secret(if supported))
+    Note over MCPClient: Generate PKCE parameters (Code_Verifier, Code Challenge) and constructs the authorization URL
+    MCPClient->>UserAgent: Open browser with authorization URL + code_challenge
+    Note over UserAgent: Initiate authorization code flow using PKCE (Proof Key for Code Exchange)
+    UserAgent->>MCPGateway: GET /authorize?response_type=code&client_id=client_id&redirect_uri=client_callback_url&code_challenge=code_challenge&code_challenge_method=S256
+    Note over MCPGateway: Works as confidential client and<br> 1. Generate an mcpServerAuthCode for client<br> 2. generates the authorization URL for Entra with:<br> scope and redirect_uri=mcpServer_callback_url
+    MCPGateway-->>UpstreamServices: Redirect to upstream (Entra) authorization endpoint
+    Note over UpstreamServices: User logs in and authorizes on upstream
+    UpstreamServices-->>MCPGateway: Redirect with upstream (Entra) auth_code to mcpServer_callback_url (APIM /callback endpoint)
+    MCPGateway-->>UpstreamServices: Exchange auth_code for upstream (Entra) access token<br><br> POST /token
+    UpstreamServices-->>MCPGateway: Upstream (Entra) access token
+    Note over MCPGateway: Generate MCP specific token
+    MCPGateway->>MCPClient: Redirect to mcpClient_callback URL with mcpServerAuthCode
+    Note over MCPClient: Exchange mcpServerAuthCode + code_verifier for mcpServerAccessToken
+    MCPClient->>MCPGateway: POST /token endpoint with mcpServerAuthCode + code_verifier
+    Note over MCPGateway: Validate code_verifier and code_challenge
+    MCPGateway->>MCPClient: Return Access Token if validation is successful
+    Note over MCPClient: Caches mcpServerAccessToken
+    MCPClient ->>MCPGateway: /sse endpoint with mcpServerAccessToken
+    MCPGateway->>MCPServer: Forward request to MCP server with session ID
+    MCPServer->>MCPClient: Return 200 OK with session ID
+    Note over MCPClient,MCPServer: Begin standard MCP message exchange using session ID
+
