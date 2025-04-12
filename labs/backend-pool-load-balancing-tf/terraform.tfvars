@@ -1,5 +1,5 @@
 
-resource_group_name     = "lab-backend-pool-load-balancing-terraform"
+resource_group_name     = "lab-backend-pool-load-balancing-tf"
 resource_group_location = "westeurope"
 apim_sku                = "BasicV2"
 openai_deployment_name  = "gpt-4o"
