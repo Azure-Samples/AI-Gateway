@@ -1,8 +1,87 @@
-# Token Rate Limit 
+# Control and monitor your token consumption: Part I  
 
 Once you bring an LLM to production and exposes it as an API Endpoint, you need to consider how you "manage" such an API. There are many considerations to be made everything from caching, scaling, error management, rate limiting, monitoring and more. 
 
 In this lesson we will use the Azure service, Azure API Management and show how by adding one of its policies to an LLM endpoint; you can control the usage of tokens.
+
+## Scenario: Manage your token consumption
+
+Manage your token consumption is important for many reasons:
+
+- **Cost**, you want to stay on top of how much token you spend as this ultimately decides how much you are charged.
+- **Fairness**. You want to ensure your apps gets a fair amount of token. This also leads to a better user experience as the end user will be able to get a response when they expect.
+
+## Video
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/tc-rUS_-FN0?si=TN6V6JYoLpQ9qnAM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+## How to approach it?
+
+To control token spend, here's how we need to implement this at high level:
+
+- Create an Azure Open AI instance.
+  - Create a deployment for above instance.
+- Create an Azure API Management instance.
+  - Create an API on above Azure API Management instance (we can import it throught the UI).
+  - Map the Aure Open instance to Azure API Management backend instances.
+  - Configure the policy on the API manage the token consumption.
+
+Now that we understand the plan, let's execute said plan.
+ 
+## Exercise: Create Azure Open AI instance
+ 
+### -1- Create an Azure Open AI instance
+
+- Navigate to [Azure Portal](https://portal.azure.com).
+
+- Search for **Azure Open AI** and select "Create" button.
+
+  ![Create Azure Open AI](/img/token-limit-1.png)
+ 
+- Fill out all the values and create the resource.
+
+  ![Fill out Azure Open AI information](/img/token-limit-2.png)
+
+h2: Exercise: Track token consumption
+ 
+A step by step guide how to set this up in Azure Portal including cloud resource creation and needed configuration
+ 
+### -2- Create a deployment on your Azure Open AI instance
+
+- Navigate to your deployed Azure Open AI instance and select "Go to Azure AI Foundry Portal". 
+
+  ![Go to Azure AI Foundry](/img/token-limit-3.png)
+
+  You should now see a user interfance like so:
+
+  ![Azure AI Foundry](/img/token-limit-4.png)
+
+- Select "Deployments" in the left menu and select "+ Deploy model" and select "base model"
+- Type **gpt-4o**, select the model from the list and click "Confirm".
+
+  Now you are all set. 
+
+## Exercise: Create and configure an Azure API Management instance
+
+In this exercise, we will create an Azure API Management instance and configure it to limit tokens.
+
+### -1- Create an Azure API Management instance
+
+- In Azure Portal, type **Azure API Management services**. 
+- Select "+ Create" and fill in the needed information to create a new Azure API Management instance.
+
+  ![Create Azure API Management resource](/img/token-limit-5.png)
+
+### -2- Import the Azure Open AI instance as API
+
+We've already created the Azure Open AI instance, next step is to import to our Azure Open AI istance
+
+### -1- Map the Azure Open AI instance to Azure API management backend instances.
+
+### -2- Configure the policy on the API
+
+### -3- Test out the policy
+
 
 ## Resources
 
@@ -14,63 +93,8 @@ Here's a list of resources that you might find useful:
 
 - [Azure Gateway](https://github.com/Azure-Samples/AI-Gateway)
 
-## Video
+## Infrastructure as Code
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/tc-rUS_-FN0?si=TN6V6JYoLpQ9qnAM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+To deploy this in production, you need to specify your cloud resources in Bicep files and use either Azure CLI or Azure Developer CLI, azd. Follow below lab to learn how.
 
-## What is a token limit policy?
-
-A token limit policy is something you can apply to your API to limit the number of tokens that can be requested from it. The idea is that you configure the policy to allow a certain number of tokens to be requested within a certain time frame. If the limit is exceeded, the API will return an error message. Typically, you write a policy that specifies the number of tokens allowed and the time frame in which they can be requested.
-
-![Token rate limiting](https://github.com/Azure-Samples/AI-Gateway/raw/main/images/token-rate-limiting-small.gif)
-
-## Why do we need a token limit policy?
-There are a few reasons why you might want to limit the number of tokens that can be requested from your API:
-
-- **To prevent abuse of the API**, such as a single user making too many requests in a short period of time.
-
-- **Availability**, to ensure that the API is available to all users, not just a few who are making too many requests. This is also known as rate limiting and the problem being addressed is called the "noisy neighbour" problem.
-
-- **Security**, to prevent denial of service attacks, where an attacker tries to overwhelm the API with too many requests.
-
-- **Cost**, to prevent excessive usage of the API, which could result in higher costs.
-
-As you can see, there are many good reasons to limit the number of tokens.
-
-## How it works
-
-The idea is to specify below XML and thereby _author_ a policy that decides what should happen when a request comes in. 
-
-```xml
-<policies> 
-  <inbound> 
-    <base /> 
-      <azure-openai-token-limit 
-        counter-key="@(context.Subscription.Id)" 
-        tokens-per-minute="400" 
-        estimate-prompt-tokens="false" 
-        retry-after-variable-name="token-limit-retry-after" 
-      /> 
-  </inbound> 
-  <backend> 
-    <base /> 
-  </backend> 
-  <outbound> 
-    <base /> 
-  </outbound> 
-  <on-error> 
-  <base /> 
-  </on-error>
-```
-
-- **azure-openai-token-limit** policy is the element that limits the number of tokens that can be requested from the Open AI API. 
-
-- **counter-key** attribute is used to specify the key that is used to track the number of tokens requested. In this case, we are using the `subscription ID` as the key. You can also use other keys, such as the User ID or the IP Address. Why you would use one key over another depends on your specific use case, for example, if you want to limit the number of tokens requested by a single user or by a single subscription.
-
-- **tokens-per-minute** is the number of tokens that can be requested within a minute. In this case, we are allowing _400_ tokens per minute. Any attempt to use more than that would lead to an error message, specifically `429 Too Many Requests`
-
-- **estimate-prompt-tokens** is a boolean value that specifies whether to estimate the number of tokens that will be requested in the future. If set to true, the policy will estimate the number of tokens that will be requested in the future and adjust the rate limit accordingly. If set to false, the policy will not estimate the number of tokens that will be requested in the future and will use the rate limit specified in the policy.
-
-- **retry-after-variable-name** is the name of the variable that will be used to specify the number of seconds to wait before making another request. There's also the option to use the "retry-after" header to specify the number of seconds to wait before making another request. The reason to use a variable is that it allows you to customize the number of seconds to wait rather than using a fixed value.
-
-## Lab
+TODO: add link to lab
