@@ -20,20 +20,45 @@ param openAIModelCapacity int
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var policyXml = loadTextContent('policy.xml')
 var apiManagementName = 'apim-${resourceSuffix}'
+var logSettings = {
+  headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
+  body: { bytes: 0 }
+}
 
 // ------------------
 //    RESOURCES
 // ------------------
 
-// 1. API Management
+// 1. Log Analytics Workspace
+module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
+  name: 'lawModule'
+}
+
+var lawId = lawModule.outputs.id
+
+// 2. Application Insights
+module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
+  name: 'appInsightsModule'
+  params: {
+    lawId: lawId
+    customMetricsOptedInType: 'WithDimensions'
+  }
+}
+
+var appInsightsId = appInsightsModule.outputs.id
+var appInsightsInstrumentationKey = appInsightsModule.outputs.instrumentationKey
+
+// 3. API Management
 module apimModule '../../modules/apim/v1/apim.bicep' = {
   name: 'apimModule'
   params: {
     apimSku: apimSku
+    appInsightsInstrumentationKey: appInsightsInstrumentationKey
+    appInsightsId: appInsightsId
   }
 }
 
-// 2. Cognitive Services
+// 4. Cognitive Services
 module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
   name: 'openAIModule'
   params: {
@@ -47,7 +72,7 @@ module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
   }
 }
 
-// 3. APIM OpenAI-RT Websocket API
+// 5. APIM OpenAI-RT Websocket API
 resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apiManagementName
 }
@@ -89,6 +114,31 @@ resource rtPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024
   }
 }
 
+// Create diagnostics only if we have an App Insights ID and instrumentation key.
+resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
+  name: 'applicationinsights'
+  parent: api
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apiManagementName, 'apim-logger')
+    metrics: true
+    verbosity: 'verbose'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+    frontend: {
+      request: logSettings
+      response: logSettings
+    }
+    backend: {
+      request: logSettings
+      response: logSettings
+    }
+  }
+}
 
 resource apimSubscriptionResource 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
   name: 'realtime-client-sub'
@@ -107,5 +157,7 @@ resource apimSubscriptionResource 'Microsoft.ApiManagement/service/subscriptions
 // ------------------
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
+
+#disable-next-line outputs-should-not-contain-secrets
 output apimSubscriptionKey string = apimSubscriptionResource.listSecrets().primaryKey
 output openAIEndpoint string = openAIModule.outputs.extendedOpenAIConfig[0].endpoint
