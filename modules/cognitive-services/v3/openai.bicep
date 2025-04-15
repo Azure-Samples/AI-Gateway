@@ -123,12 +123,13 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
 }]
 
 // Create private endpoint if enabled
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-07-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && enablePrivateEndpoint) {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-05-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && enablePrivateEndpoint) {
   name: '${config.name}-${resourceSuffix}-privateEndpoint'
-  location: config.location
+  location: resourceGroup().location
   properties: {
     subnet: {
-      id: subnetId    }
+      id: subnetId    
+    }
     privateLinkServiceConnections: [
       {
         name: '${config.name}-${resourceSuffix}-privateLinkServiceConnection'
@@ -165,12 +166,30 @@ resource pvtEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   parent: privateEndpoint[i]
   properties: {
     privateDnsZoneConfigs: [
-      {
-        name: 'config1'
+      for (privateDnsZoneName, j) in privateDnsZoneNamesAiServices: {
+        name: 'config${j}'
         properties: {
-          privateDnsZoneId: privateDnsZone[i].id
+          privateDnsZoneId: privateDnsZone[j].id
         }
       }
+      // {
+      //   name: 'config1'
+      //   properties: {
+      //     privateDnsZoneId: privateDnsZone[i].id
+      //   }
+      // }
+      // {
+      //   name: 'config2'
+      //   properties: {
+      //     privateDnsZoneId: privateDnsZone[i].id
+      //   }
+      // }
+      // {
+      //   name: 'config3'
+      //   properties: {
+      //     privateDnsZoneId: privateDnsZone[i].id
+      //   }
+      // }
     ]
   }
 }]
