@@ -1,0 +1,6 @@
+aiohttp
+openai==1.71.0
+openai[realtime]
+fastrtc[vad]
+azure-identity
+mcp
