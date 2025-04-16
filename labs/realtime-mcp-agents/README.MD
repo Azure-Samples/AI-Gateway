@@ -1,7 +1,8 @@
 # APIM ❤️ AI Agents
 
-## Azure OpenAI Realtime Audio + MCP lab
-![flow](../../images/realtime-audio.gif)
+## [Realtime Audio with MCP tools and Agents lab lab](realtime-mcp-agents.ipynb)
+
+[![flow](../../images/realtime-mcp-agents.gif)](realtime-mcp-agents.ipynb)
 
 Playground to experiment the with [Azure OpenAI Realtime API](https://learn.microsoft.com/en-us/azure/ai-services/openai/realtime-audio-reference) for text and audio with integrations via [Model Context Protocol](https://modelcontextprotocol.io/) with Azure API Management to enable plug & play of tools to LLMs. Leverages the [credential manager](https://learn.microsoft.com/en-us/azure/api-management/credentials-overview) for  managing OAuth 2.0 tokens to backend tools and [client token validation](https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy) to ensure end-to-end authentication and authorization.   
 This lab includes the following MCP servers:
@@ -10,6 +11,7 @@ This lab includes the following MCP servers:
 - ServiceNow incidents MCP Server: provides tools to authenticates on ServiceNow using the APIM Credential Manager, lists incidents, retrieves a particular incident and create a new one.
 
 ### Result
+
 ![result](result.png)
 
 ### Prerequisites
