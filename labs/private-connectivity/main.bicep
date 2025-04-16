@@ -15,6 +15,8 @@ param openAIAPIVersion string
 var virtualNetworkName = 'vnet-spoke'
 var subnetAiServicesName = 'snet-aiservices'
 var subnetApimName = 'snet-apim'
+var subnetBastionName = 'AzureBastionSubnet'
+var subnetVmName = 'snet-vm'
 // ------------------
 //    VARIABLES
 // ------------------
@@ -71,6 +73,18 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
           ]
         }
       }
+      {
+        name: subnetVmName
+        properties: {
+          addressPrefix: '10.0.2.0/24'
+        }
+      }
+      {
+        name: subnetBastionName
+        properties: {
+          addressPrefix: '10.0.3.0/24'
+        }
+      }
     ]
   }
 
@@ -80,6 +94,14 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
 
   resource subnetApim 'subnets' existing = {
     name: subnetApimName
+  }
+
+  resource subnetBastion 'subnets' existing = {
+    name: subnetBastionName
+  }
+
+  resource subnetVm 'subnets' existing = {
+    name: subnetVmName
   }
 }
 
@@ -130,6 +152,29 @@ module frontDoorModule '../../modules/frontdoor/v1/frontdoor.bicep' = {
   params: {
     hostName: replace(apimModule.outputs.gatewayUrl, 'https://', '')
     privateLinkBackendId: apimModule.outputs.id
+  }
+}
+
+// Bastion Host
+module bastionModule '../../modules/bastion/v1/bastion.bicep' = {
+  name: 'bastionModule'
+  params: {
+    bastionHostName: 'bastion-host'
+    subnetId: virtualNetwork::subnetBastion.id
+    location: resourceGroup().location
+  }
+}
+
+// VM
+module vmModule '../../modules/virtual-machine/vm.bicep' = {
+  name: 'vmModule'
+  params: {
+    vmName: 'vm-win11'
+    location: resourceGroup().location
+    vmSize: 'Standard_D2ads_v5'
+    subnetVmId: virtualNetwork::subnetVm.id
+    vmAdminUsername: 'azureuser'
+    vmAdminPassword: '@Aa123456789'
   }
 }
 
