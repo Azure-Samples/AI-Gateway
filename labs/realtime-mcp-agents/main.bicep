@@ -12,10 +12,13 @@ param openAIModelVersion string
 param openAIModelSKU string
 param openAIDeploymentName string
 param openAIAPIVersion string = '2024-02-01'
+param openAIModelCapacity int
+param serviceNowInstanceName string
 
 param location string = resourceGroup().location
 
 param spotifyAPIPath string = 'spotify'
+param weatherAPIPath string = 'weather'
 
 // ------------------
 //    VARIABLES
@@ -23,7 +26,6 @@ param spotifyAPIPath string = 'spotify'
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var apiManagementName = 'apim-${resourceSuffix}'
-var openAIAPIName = 'openai'
 
 // Account for all placeholders in the polixy.xml file.
 var policyXml = loadTextContent('policy.xml')
@@ -182,6 +184,49 @@ resource spotifyMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
   }
 }
 
+resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-weather-${resourceSuffix}'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppUAI.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        allowInsecure: false
+      }
+      registries: [
+        {
+          identity: containerAppUAI.id
+          server: containerRegistry.properties.loginServer
+        }
+      ]      
+    }
+    template: {
+      containers: [
+        {
+          name: 'aca-${resourceSuffix}'
+          image: 'docker.io/jfxs/hello-world:latest'
+          resources: {
+            cpu: json('.5')
+            memory: '1Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
+      }
+    }
+  }
+}
+
 // 1. Log Analytics Workspace
 module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
   name: 'lawModule'
@@ -237,37 +282,56 @@ resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview'
 
 // 4. Cognitive Services
 module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
-    name: 'openAIModule'
-    params: {
-      openAIConfig: openAIConfig
-      openAIDeploymentName: openAIDeploymentName
-      openAIModelName: openAIModelName
-      openAIModelVersion: openAIModelVersion
-      openAIModelSKU: openAIModelSKU
-      apimPrincipalId: apimService.identity.principalId
-      lawId: lawId
-    }
-  }
-
-// 5. APIM OpenAI API
-module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
-  name: 'openAIAPIModule'
+  name: 'openAIModule'
   params: {
-    policyXml: updatedPolicyXml
-    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
-    openAIAPIVersion: openAIAPIVersion
-    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
-    appInsightsId: appInsightsModule.outputs.id
+    openAIConfig: openAIConfig
+    openAIDeploymentName: openAIDeploymentName
+    openAIModelName: openAIModelName
+    openAIModelVersion: openAIModelVersion
+    openAIModelSKU: openAIModelSKU
+    openAIModelCapacity: openAIModelCapacity
+    apimPrincipalId: apimService.identity.principalId
   }
 }
 
-resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing = {
+// 5. APIM OpenAI-RT Websocket API
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
+resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
+  name: 'realtime-audio'
   parent: apimService
-  name: openAIAPIName
-  dependsOn: [
-    openAIAPIModule
-  ]
+  properties: {
+    apiType: 'websocket'
+    description: 'Inference API for Azure OpenAI Realtime'
+    displayName: 'InferenceAPI'
+    path: 'rt-audio/openai/realtime'
+    serviceUrl: concat(replace(openAIModule.outputs.extendedOpenAIConfig[0].endpoint, 'https:', 'wss:'),'openai/realtime')
+    type: 'websocket'
+    protocols: [
+      'wss'
+    ]
+    subscriptionKeyParameterNames: {
+      header: 'api-key'
+      query: 'api-key'
+    }
+    subscriptionRequired: true
+  }
 }
+
+resource rtOperation 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' existing = {
+  name: 'onHandshake'
+  parent: api
+}
+
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/policies
+resource rtPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-06-01-preview' = {
+  name: 'policy'
+  parent: rtOperation
+  properties: {
+    format: 'rawxml'
+    value: policyXml
+  }
+}
+
 
 module spotifyAPIModule 'src/spotify/apim-api/api.bicep' = {
   name: 'spotifyAPIModule'
@@ -278,6 +342,14 @@ module spotifyAPIModule 'src/spotify/apim-api/api.bicep' = {
   }
 }
 
+module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
+  name: 'weatherAPIModule'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: weatherAPIPath
+    APIServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
+  }
+}
 
 // Ignore the subscription that gets created in the APIM module and create three new ones for this lab.
 resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
@@ -289,9 +361,6 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06
     scope: '/apis'
     state: 'active'
   }
-  dependsOn: [
-    api
-  ]
 }
 
 var apimContributorRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '312a565d-c81f-4fd8-895a-4e21e48d571c')
@@ -313,6 +382,9 @@ output containerRegistryName string = containerRegistry.name
 
 output spotifyMCPServerContainerAppResourceName string = spotifyMCPServerContainerApp.name
 output spotifyMCPServerContainerAppFQDN string = spotifyMCPServerContainerApp.properties.configuration.ingress.fqdn
+
+output weatherMCPServerContainerAppResourceName string = weatherMCPServerContainerApp.name
+output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName

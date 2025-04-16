@@ -1,10 +1,16 @@
 # APIM ❤️ AI Agents
 
-## [Model Context Protocol (MCP) lab](model-context-protocol.ipynb)
+## Azure OpenAI Realtime Audio + MCP lab
+![flow](../../images/realtime-audio.gif)
 
-[![flow](../../images/model-context-protocol.gif)](model-context-protocol.ipynb)
+Playground to experiment the with [Azure OpenAI Realtime API](https://learn.microsoft.com/en-us/azure/ai-services/openai/realtime-audio-reference) for text and audio with integrations via [Model Context Protocol](https://modelcontextprotocol.io/) with Azure API Management to enable plug & play of tools to LLMs. Leverages the [credential manager](https://learn.microsoft.com/en-us/azure/api-management/credentials-overview) for  managing OAuth 2.0 tokens to backend tools and [client token validation](https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy) to ensure end-to-end authentication and authorization.   
+This lab includes the following MCP servers:
+- Basic weather service: provide tools to get cities for a given country and retrieve random weather information for a specified city.
+- Spotify service: provide tools to authenticate on Spotify using the APIM Credential Manager, retrieves Playlists, Latest releases, start/stop music playing, and more. 
+- ServiceNow incidents MCP Server: provides tools to authenticates on ServiceNow using the APIM Credential Manager, lists incidents, retrieves a particular incident and create a new one.
 
-Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) with Azure API Management to enable plug & play of tools to LLMs. Leverages the [credential manager](https://learn.microsoft.com/en-us/azure/api-management/credentials-overview) for  managing OAuth 2.0 tokens to backend tools and [client token validation](https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy) to ensure end-to-end authentication and authorization.  
+### Result
+![result](result.png)
 
 ### Prerequisites
 
@@ -16,7 +22,7 @@ Playground to experiment the [Model Context Protocol](https://modelcontextprotoc
 
 ### 🚀 Get started
 
-Proceed by opening the [Jupyter notebook](model-context-protocol.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](realtime-mcp-agents.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 
