@@ -31,6 +31,29 @@ var updatedPolicyXml = replace(
 //    RESOURCES
 // ------------------
 
+// NSG for APIM Subnet
+resource nsgApim 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
+  name: 'nsg-apim'
+  location: resourceGroup().location
+  // properties: {
+  //   securityRules: [
+  //     {
+  //       name: 'Allow-APIM'
+  //       properties: {
+  //         protocol: 'Tcp'
+  //         sourcePortRange: '*'
+  //         destinationPortRange: '443'
+  //         sourceAddressPrefix: '*'
+  //         destinationAddressPrefix: '*'
+  //         access: 'Allow'
+  //         priority: 1000
+  //         direction: 'Inbound'
+  //       }
+  //     }
+  //   ]
+  // }
+}
+
 // 1. VNET and Subnet
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   name: virtualNetworkName
@@ -52,6 +75,17 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
         name: subnetApimName
         properties: {
           addressPrefix: '10.0.1.0/24'
+          networkSecurityGroup: {
+            id: nsgApim.id
+          }
+          delegations: [
+            {
+              name: 'Microsoft.Web/serverFarms'
+              properties: {
+                serviceName: 'Microsoft.Web/serverFarms'
+              }
+            }
+          ]
         }
       }
     ]
@@ -70,10 +104,11 @@ output subnetAiServicesResourceId string = virtualNetwork::subnetAiServices.id
 output subnetApimResourceId string = virtualNetwork::subnetApim.id
 
 // 1. API Management
-module apimModule '../../modules/apim/v1/apim.bicep' = {
+module apimModule '../../modules/apim/v2/apim.bicep' = {
   name: 'apimModule'
   params: {
     apimSku: apimSku
+    subnetId: virtualNetwork::subnetApim.id
   }
 }
 

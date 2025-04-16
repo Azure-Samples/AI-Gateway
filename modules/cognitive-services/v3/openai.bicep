@@ -160,7 +160,7 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
   }
 }]
 
-// privateDnsZoneGroups for private endpoint
+// privateDnsZoneGroups for private endpoints
 resource pvtEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-05-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
   name: '${privateDnsZoneName}-dnsZoneGroup'
   parent: privateEndpoint[i]
@@ -172,24 +172,6 @@ resource pvtEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
           privateDnsZoneId: privateDnsZone[j].id
         }
       }
-      // {
-      //   name: 'config1'
-      //   properties: {
-      //     privateDnsZoneId: privateDnsZone[i].id
-      //   }
-      // }
-      // {
-      //   name: 'config2'
-      //   properties: {
-      //     privateDnsZoneId: privateDnsZone[i].id
-      //   }
-      // }
-      // {
-      //   name: 'config3'
-      //   properties: {
-      //     privateDnsZoneId: privateDnsZone[i].id
-      //   }
-      // }
     ]
   }
 }]
