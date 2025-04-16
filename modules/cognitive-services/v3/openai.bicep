@@ -72,7 +72,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
   kind: 'AIServices'
   properties: {
     customSubDomainName: toLower('${config.name}-${resourceSuffix}')
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     apiProperties: {
       statisticsEnabled: false
     }

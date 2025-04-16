@@ -141,6 +141,15 @@ module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
   }
 }
 
+// Front Door
+module frontDoorModule '../../modules/frontdoor/v1/frontdoor.bicep' = {
+  name: 'frontDoorModule'
+  params: {
+    hostName: replace(apimModule.outputs.gatewayUrl, 'https://', '')
+    privateLinkBackendId: apimModule.outputs.id
+  }
+}
+
 // ------------------
 //    MARK: OUTPUTS
 // ------------------
