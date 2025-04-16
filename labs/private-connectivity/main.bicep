@@ -156,3 +156,4 @@ module frontDoorModule '../../modules/frontdoor/v1/frontdoor.bicep' = {
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
 output apimSubscriptionKey string = openAIAPIModule.outputs.subscriptionPrimaryKey
+output frontDoorEndpointHostName string = frontDoorModule.outputs.frontDoorEndpointHostName

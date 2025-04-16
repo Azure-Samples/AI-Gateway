@@ -83,7 +83,7 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
     publisherEmail: publisherEmail
     publisherName: publisherName
     virtualNetworkType  : 'External' // "Internal" # Setting up 'Internal' Internal Virtual Network Type is not supported for Sku Type 'StandardV2'.
-    publicNetworkAccess : 'Enabled'  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
+    publicNetworkAccess : 'Disabled'  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
     // publicIpAddressId   : azurerm_public_ip.pip-apim.id
 
     virtualNetworkConfiguration : {
