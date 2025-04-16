@@ -35,23 +35,6 @@ var updatedPolicyXml = replace(
 resource nsgApim 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   name: 'nsg-apim'
   location: resourceGroup().location
-  // properties: {
-  //   securityRules: [
-  //     {
-  //       name: 'Allow-APIM'
-  //       properties: {
-  //         protocol: 'Tcp'
-  //         sourcePortRange: '*'
-  //         destinationPortRange: '443'
-  //         sourceAddressPrefix: '*'
-  //         destinationAddressPrefix: '*'
-  //         access: 'Allow'
-  //         priority: 1000
-  //         direction: 'Inbound'
-  //       }
-  //     }
-  //   ]
-  // }
 }
 
 // 1. VNET and Subnet
