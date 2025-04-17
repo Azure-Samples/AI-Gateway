@@ -1,4 +1,0 @@
-* Add Bastion Host module
-* Add Jumpbox VM module
-* Edit the python notebook
-* Create a module for VNET
