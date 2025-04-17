@@ -1,6 +1,6 @@
 # APIM ❤️ AI Agents
 
-## [Realtime Audio with MCP tools and Agents lab lab](realtime-mcp-agents.ipynb)
+## [Realtime Audio with MCP tools and Agents lab](realtime-mcp-agents.ipynb)
 
 [![flow](../../images/realtime-mcp-agents.gif)](realtime-mcp-agents.ipynb)
 

@@ -4,3 +4,5 @@ openai[realtime]
 fastrtc[vad]
 azure-identity
 mcp
+semantic-kernel[mcp]
+semantic-kernel[realtime]

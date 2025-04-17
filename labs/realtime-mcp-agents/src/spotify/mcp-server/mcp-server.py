@@ -26,6 +26,15 @@ POST_LOGIN_REDIRECT_URL = str(os.getenv("POST_LOGIN_REDIRECT_URL"))
 APIM_IDENTITY_OBJECT_ID = str(os.getenv("APIM_IDENTITY_OBJECT_ID"))
 idp = "spotify"
 
+def get_headers(ctx: Context):
+    headers = {
+        "Content-Type": "application/json",
+        "authorizationId": f"{idp.lower()}-{str(id(ctx.session))}",
+        "providerId": idp.lower() 
+    }
+    return headers
+
+
 @mcp.tool()
 async def authorize_spotify(ctx: Context) -> str:
     """Validate Credential Manager connection exists and is connected.
@@ -131,26 +140,59 @@ async def authorize_spotify(ctx: Context) -> str:
     print("Login URL: ", response.login_link)
     return f"Please authorize by opening this link: {response.login_link}"
 
+
+
 @mcp.tool()
-async def get_my_queue(ctx: Context) -> str:
-    """Get my playing queue.
+async def get_user_playlists(ctx: Context) -> str:
+    """Get user playlists
      
     Returns:
-        The playing queue
+        Playlists for the user
     """
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"    
-    haders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id 
-    }
-    response = httpx.get(f"{APIM_GATEWAY_URL}/me/player/queue", headers=haders)
+    response = httpx.get(f"{APIM_GATEWAY_URL}/me/playlists?limit=5", headers=get_headers(ctx))
     if (response.status_code == 200):
-        return f"Playing queue: {response.json()}"
+        return f"Playlists: {response.json()}"
     else:
-        return f"Unable to get playing queue. Status code: {response.status_code}, Response: {response.text}"
+        return f"Unable to get playlists. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def get_player_queue(ctx: Context) -> str:
+    """Get playback queue
+     
+    Returns:
+        Playback queue
+    """
+    response = httpx.get(f"{APIM_GATEWAY_URL}/me/player/queue", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playback queue: {response.json()}"
+    else:
+        return f"Unable to get playback queue. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def get_playback_status(ctx: Context) -> str:
+    """Get playback status
+     
+    Returns:
+        Playback status
+    """
+    response = httpx.get(f"{APIM_GATEWAY_URL}/me/player", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playback status: {response.json()}"
+    else:
+        return f"Unable to get playback status. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def start_playback(ctx: Context) -> str:
+    """Start playback
+     
+    Returns:
+        Confirmation that the playback was started
+    """
+    response = httpx.put(f"{APIM_GATEWAY_URL}/me/player/play", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playback was started!"
+    else:
+        return f"Unable to start playback. Status code: {response.status_code}, Response: {response.text}"
 
 @mcp.tool()
 async def pause_playback(ctx: Context) -> str:
@@ -159,19 +201,24 @@ async def pause_playback(ctx: Context) -> str:
     Returns:
         Confirmation of pause
     """
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"    
-    haders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id 
-    }
-    response = httpx.put(f"{APIM_GATEWAY_URL}/me/player/pause", headers=haders)
+    response = httpx.put(f"{APIM_GATEWAY_URL}/me/player/pause", headers=get_headers(ctx))
     if (response.status_code == 200):
-        return f"Playback was paused: {response.json()}"
+        return f"Playback was paused!"
     else:
         return f"Unable to pause playback. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def get_my_queue(ctx: Context) -> str:
+    """Get my playing queue.
+     
+    Returns:
+        The playing queue
+    """
+    response = httpx.get(f"{APIM_GATEWAY_URL}/me/player/queue", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playing queue: {response.json()}"
+    else:
+        return f"Unable to get playing queue. Status code: {response.status_code}, Response: {response.text}"
 
 @mcp.tool()
 async def browse_new_releases(ctx: Context) -> str:
@@ -180,39 +227,23 @@ async def browse_new_releases(ctx: Context) -> str:
     Returns:
         A list of releases
     """
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"    
-    haders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id 
-    }
-    response = httpx.get(f"{APIM_GATEWAY_URL}/browse/new-releases?limit=10", headers=haders)
+    response = httpx.get(f"{APIM_GATEWAY_URL}/browse/new-releases?limit=5", headers=get_headers(ctx))
     if (response.status_code == 200):
         return f"New Releases: {response.json()}"
     else:
         return f"Unable to List Releases. Status code: {response.status_code}, Response: {response.text}"
 
 @mcp.tool()
-async def search(ctx: Context, query: str, type: list[str]) -> str:
-    """Get items that match the search query and type.
+async def search(ctx: Context, query: str) -> str:
+    """Get items that match the search query.
     
     Args:
-        query: search query (e.g. 'The Beatles')
-        type: list of types to search for (e.g. ['album', 'artist', 'playlist'])
+        query: search query for an artist, album, or track
     Returns:
         Seach results
     """
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"    
-    haders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id 
-    }
-    response = httpx.get(f"{APIM_GATEWAY_URL}/search?q={query}&type={type}", headers=haders)
+    response = httpx.get(f"{APIM_GATEWAY_URL}/search?q={query}&type=artist%2Calbum%2Ctrack&limit=5&market=US", headers=get_headers(ctx))
+    print("SEARCH RESULT:", response)
     if (response.status_code == 200):
         return f"Search results: {response.json()}"
     else:
