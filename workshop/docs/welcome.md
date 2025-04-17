@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Welcome
 
-TODO: Welcome message
+Welcome to this workshop. Start with [prerequisites section](/docs/define/prerequisites)
 
 ## You'll learn how to ...
 
