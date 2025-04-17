@@ -42,12 +42,7 @@ module nsgApimModule '../../modules/network/v1/nsg.bicep' = {
   }
 }
 
-// resource nsgApim 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
-//   name: 'nsg-apim'
-//   location: resourceGroup().location
-// }
-
-// 1. VNET and Subnets
+// VNET and Subnets
 module vnetModule '../../modules/network/v1/vnet.bicep' = {
   name: 'vnetModule'
   params: {
@@ -72,7 +67,7 @@ module vnetModule '../../modules/network/v1/vnet.bicep' = {
   }
 }
 
-// 1. API Management
+// API Management
 module apimModule '../../modules/apim/v2/apim.bicep' = {
   name: 'apimModule'
   params: {
@@ -81,7 +76,7 @@ module apimModule '../../modules/apim/v2/apim.bicep' = {
   }
 }
 
-// 2. Cognitive Services
+// Cognitive Services and LLM models
 module openAIModule '../../modules/cognitive-services/v3/openai.bicep' = {
   name: 'openAIModule'
   params: {
@@ -97,7 +92,7 @@ module openAIModule '../../modules/cognitive-services/v3/openai.bicep' = {
   }
 }
 
-// 3. APIM OpenAI API
+// APIM OpenAI API
 module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
   name: 'openAIAPIModule'
   params: {
@@ -111,7 +106,7 @@ module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
 module frontDoorModule '../../modules/frontdoor/v1/frontdoor.bicep' = {
   name: 'frontDoorModule'
   params: {
-    hostName: replace(apimModule.outputs.gatewayUrl, 'https://', '')
+    backendHostName: replace(apimModule.outputs.gatewayUrl, 'https://', '')
     privateLinkBackendId: apimModule.outputs.id
   }
 }
@@ -126,7 +121,7 @@ module bastionModule '../../modules/bastion/v1/bastion.bicep' = {
   }
 }
 
-// VM
+// Jumpbox VM
 module vmModule '../../modules/virtual-machine/vm.bicep' = {
   name: 'vmModule'
   params: {

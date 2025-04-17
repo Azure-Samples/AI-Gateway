@@ -1,3 +1,7 @@
+// ------------------
+//    PARAMETERS
+// ------------------
+
 @description('Name of the virtual machine')
 param vmName string = 'vm-jumpbox'
 
@@ -16,6 +20,10 @@ param vmAdminUsername string = 'azureuser'
 @secure()
 @description('The admin password for the virtual machine')
 param vmAdminPassword string = ''
+
+// ------------------
+//    RESOURCES
+// ------------------
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
   name: 'nic-${vmName}'

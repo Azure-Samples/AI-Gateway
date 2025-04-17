@@ -1,3 +1,7 @@
+// ------------------
+//    PARAMETERS
+// ------------------
+
 @description('The name of the Front Door endpoint to create. This must be globally unique.')
 param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
 
@@ -9,15 +13,23 @@ param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
 param frontDoorSkuName string = 'Premium_AzureFrontDoor'
 
 @description('The FQDN of the Service to use as the backend for the Front Door.')
-param hostName string = ''
+param backendHostName string = ''
 
 @description('The name of the Private Link Service to use as the backend for the Front Door.')
 param privateLinkBackendId string = ''
+
+// ------------------
+//    VARIABLES
+// ------------------
 
 var frontDoorProfileName = 'FrontDoor'
 var frontDoorOriginGroupName = 'OriginGroup'
 var frontDoorOriginName = 'FrontDoorOrigin'
 var frontDoorRouteName = 'FrontDoorRoute'
+
+// ------------------
+//    RESOURCES
+// ------------------
 
 resource frontDoorProfile 'Microsoft.Cdn/profiles@2021-06-01' = {
   name: frontDoorProfileName
@@ -57,10 +69,10 @@ resource frontDoorOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01
   name: frontDoorOriginName
   parent: frontDoorOriginGroup
   properties: {
-    hostName: hostName
+    hostName: backendHostName
     httpPort: 80
     httpsPort: 443
-    originHostHeader: hostName
+    originHostHeader: backendHostName
     priority: 1
     weight: 1000
     enabledState: 'Enabled'

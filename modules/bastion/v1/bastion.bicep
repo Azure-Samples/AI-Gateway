@@ -1,3 +1,7 @@
+// ------------------
+//    PARAMETERS
+// ------------------
+
 @description('Name of Azure Bastion resource')
 param bastionHostName string = 'bastion-host'
 
@@ -6,6 +10,10 @@ param vnetId string = ''
 
 @description('Azure region for Bastion and virtual network')
 param location string = resourceGroup().location
+
+// ------------------
+//    RESOURCES
+// ------------------
 
 resource bastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
   name: bastionHostName

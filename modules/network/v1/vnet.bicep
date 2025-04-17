@@ -1,3 +1,7 @@
+// ------------------
+//    PARAMETERS
+// ------------------
+
 @description('Name of the virtual network to create')
 param virtualNetworkName string = 'vnet-spoke'
 
@@ -6,6 +10,10 @@ param addressPrefixes array = ['10.0.0.0/16']
 
 @description('Array of subnets to create within the virtual network')
 param subnets subnetType[]?
+
+// ------------------
+//    RESOURCES
+// ------------------
 
 // 1. VNET and Subnets
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
