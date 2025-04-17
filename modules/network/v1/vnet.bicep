@@ -1,16 +1,11 @@
 @description('Name of the virtual network to create')
 param virtualNetworkName string = 'vnet-spoke'
 
-@description('The name of the API Management instance. Defaults to "apim-<resourceSuffix>".')
-param subnetAiServicesName string = 'snet-aiservices'
-param subnetApimName string = 'snet-apim'
-param subnetVmName string = 'snet-vm'
+@description('The CIDR range of the virtual network')
+param addressPrefixes array = ['10.0.0.0/16'] 
 
-// NSG for APIM Subnet
-resource nsgApim 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
-  name: 'nsg-apim'
-  location: resourceGroup().location
-}
+@description('Array of subnets to create within the virtual network')
+param subnets subnetType[]?
 
 // 1. VNET and Subnets
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
@@ -18,55 +13,48 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   location: resourceGroup().location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/16'
-      ]
+      addressPrefixes: addressPrefixes
     }
-    subnets: [
-      {
-        name: subnetAiServicesName
-        properties: {
-          addressPrefix: '10.0.0.0/24'
-        }
-      }
-      {
-        name: subnetApimName
-        properties: {
-          addressPrefix: '10.0.1.0/24'
-          networkSecurityGroup: {
-            id: nsgApim.id
+    subnets: [ for (subnet, index) in (subnets ?? []): {
+      name: subnet.?name
+      properties: {
+        addressPrefix: subnet.?addressPrefix
+        networkSecurityGroup: !empty(subnet.?networkSecurityGroupId)
+        ? {
+            id: subnet.?networkSecurityGroupId
           }
-          delegations: [
+        : null
+        delegations: !empty(subnet.?delegation)
+        ? [
             {
-              name: 'Microsoft.Web/serverFarms'
+              name: subnet.?delegation
               properties: {
-                serviceName: 'Microsoft.Web/serverFarms'
+                serviceName: subnet.?delegation
               }
             }
           ]
-        }
+        : []
       }
-      {
-        name: subnetVmName
-        properties: {
-          addressPrefix: '10.0.2.0/24'
-        }
-      }
-    ]
-  }
-
-  resource subnetAiServices 'subnets' existing = {
-    name: subnetAiServicesName
-  }
-
-  resource subnetApim 'subnets' existing = {
-    name: subnetApimName
-  }
-
-  resource subnetVm 'subnets' existing = {
-    name: subnetVmName
+    }]
   }
 }
 
-output subnetAiServicesResourceId string = virtualNetwork::subnetAiServices.id
-output subnetApimResourceId string = virtualNetwork::subnetApim.id
+type subnetType = {
+  @description('Required. The Name of the subnet resource.')
+  name: string
+
+  @description('Conditional. List of address prefixes for the subnet. Required if `addressPrefix` is empty.')
+  addressPrefix: string
+
+  @description('Optional. The resource ID of the network security group to assign to the subnet.')
+  networkSecurityGroupId: string?
+
+  @description('Optional. The delegation to enable on the subnet.')
+  delegation: string?
+}
+
+output id string = virtualNetwork.id
+output subnets array = [ for (subnet, index) in (subnets ?? []): {
+  name: subnet.?name
+  id: virtualNetwork.properties.subnets[index].id
+}]
