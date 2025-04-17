@@ -1,42 +1,21 @@
 @description('Name of Azure Bastion resource')
-param bastionHostName string
+param bastionHostName string = 'bastion-host'
 
-@description('Subnet ID for the Bastion host')
-param subnetId string = ''
+@description('Virtual Network ID for the Bastion host')
+param vnetId string = ''
 
 @description('Azure region for Bastion and virtual network')
 param location string = resourceGroup().location
 
-resource publicIp 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
-  name: 'pip-${bastionHostName}'
-  location: location
-  sku: {
-    name: 'Standard'
-  }
-  properties: {
-    publicIPAllocationMethod: 'Static'
-  }
-}
-
-resource bastionHost 'Microsoft.Network/bastionHosts@2022-01-01' = {
+resource bastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
   name: bastionHostName
   location: location
   sku: {
-    name: 'Basic'
+    name: 'Developer'
   }
   properties: {
-    ipConfigurations: [
-      {
-        name: 'IpConf'
-        properties: {
-          subnet: {
-            id: subnetId
-          }
-          publicIPAddress: {
-            id: publicIp.id
-          }
-        }
-      }
-    ]
+    virtualNetwork: {
+      id: vnetId
+    }
   }
 }

@@ -10,12 +10,10 @@ param openAIModelName string
 param openAIModelVersion string
 param openAIDeploymentName string
 param openAIModelSKU string
-// param openAIModelCapacity int
 param openAIAPIVersion string
 var virtualNetworkName = 'vnet-spoke'
 var subnetAiServicesName = 'snet-aiservices'
 var subnetApimName = 'snet-apim'
-var subnetBastionName = 'AzureBastionSubnet'
 var subnetVmName = 'snet-vm'
 // ------------------
 //    VARIABLES
@@ -39,7 +37,7 @@ resource nsgApim 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   location: resourceGroup().location
 }
 
-// 1. VNET and Subnet
+// 1. VNET and Subnets
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   name: virtualNetworkName
   location: resourceGroup().location
@@ -79,12 +77,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
           addressPrefix: '10.0.2.0/24'
         }
       }
-      {
-        name: subnetBastionName
-        properties: {
-          addressPrefix: '10.0.3.0/24'
-        }
-      }
     ]
   }
 
@@ -94,10 +86,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
 
   resource subnetApim 'subnets' existing = {
     name: subnetApimName
-  }
-
-  resource subnetBastion 'subnets' existing = {
-    name: subnetBastionName
   }
 
   resource subnetVm 'subnets' existing = {
@@ -160,7 +148,7 @@ module bastionModule '../../modules/bastion/v1/bastion.bicep' = {
   name: 'bastionModule'
   params: {
     bastionHostName: 'bastion-host'
-    subnetId: virtualNetwork::subnetBastion.id
+    vnetId: virtualNetwork.id
     location: resourceGroup().location
   }
 }
