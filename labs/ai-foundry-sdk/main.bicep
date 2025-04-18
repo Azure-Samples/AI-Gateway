@@ -105,7 +105,7 @@ param applicationInsightsLocation string = resourceGroup().location
 param apimLoggerName string = 'apim-logger'
 
 @description('Description of the APIM Logger')
-param apimLoggerDescription string  = 'APIM Logger for OpenAI API'
+param apimLoggerDescription string = 'APIM Logger for OpenAI API'
 
 @description('Number of bytes to log for API diagnostics')
 param apiDiagnosticsLogBytes int = 8192
@@ -178,27 +178,29 @@ param searchServiceReplicaCount int = 1
 ])
 param searchServicePartitionCount int = 1
 
-
 // ai foundry: additions END
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 
-resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [for config in openAIConfig: if(length(openAIConfig) > 0) {
-  name: '${config.name}-${resourceSuffix}'
-  location: config.location
-  sku: {
-    name: openAISku
-  }
-  kind: 'OpenAI'
-  properties: {
-    apiProperties: {
-      statisticsEnabled: false
+resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2021-10-01' = [
+  for config in openAIConfig: if (length(openAIConfig) > 0) {
+    name: '${config.name}-${resourceSuffix}'
+    location: config.location
+    sku: {
+      name: openAISku
     }
-    customSubDomainName: toLower('${config.name}-${resourceSuffix}')
+    kind: 'OpenAI'
+    properties: {
+      apiProperties: {
+        statisticsEnabled: false
+      }
+      customSubDomainName: toLower('${config.name}-${resourceSuffix}')
+    }
   }
-}]
+]
 
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'  =  [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [
+  for (config, i) in openAIConfig: if (length(openAIConfig) > 0) {
     name: openAIDeploymentName
     parent: cognitiveServices[i]
     properties: {
@@ -209,26 +211,29 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01
       }
     }
     sku: {
-        name: 'Standard'
-        capacity: openAIModelCapacity
-    }
-}]
-
-resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && !empty(deployment[i].id)) {
-  name: openAIEmbeddingsDeploymentName
-  parent: cognitiveServices[i]
-  properties: {
-    model: {
-      format: 'OpenAI'
-      name: openAIEmbeddingsModelName
-      version: openAIEmbeddingsModelVersion
-    }
-  }
-  sku: {
       name: 'Standard'
       capacity: openAIModelCapacity
+    }
   }
-}]
+]
+
+resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [
+  for (config, i) in openAIConfig: if (length(openAIConfig) > 0 && !empty(deployment[i].id)) {
+    name: openAIEmbeddingsDeploymentName
+    parent: cognitiveServices[i]
+    properties: {
+      model: {
+        format: 'OpenAI'
+        name: openAIEmbeddingsModelName
+        version: openAIEmbeddingsModelVersion
+      }
+    }
+    sku: {
+      name: 'Standard'
+      capacity: openAIModelCapacity
+    }
+  }
+]
 
 resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
   name: '${apimResourceName}-${resourceSuffix}'
@@ -247,37 +252,39 @@ resource apimService 'Microsoft.ApiManagement/service@2023-05-01-preview' = {
 }
 
 var roleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for (config, i) in openAIConfig: if (length(openAIConfig) > 0) {
     scope: cognitiveServices[i]
     name: guid(subscription().id, resourceGroup().id, config.name, roleDefinitionID)
     properties: {
-        roleDefinitionId: roleDefinitionID
-        principalId: apimService.identity.principalId
-        principalType: 'ServicePrincipal'
-    }
-}]
-
-resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
-    name: openAIAPIName
-    parent: apimService
-    properties: {
-      apiType: 'http'
-      description: openAIAPIDescription
-      displayName: openAIAPIDisplayName
-      format: 'openapi-link'
-      path: openAIAPIPath
-      protocols: [
-        'https'
-      ]
-      subscriptionKeyParameterNames: {
-        header: 'api-key'
-        query: 'api-key'
-      }
-      subscriptionRequired: true
-      type: 'http'
-      value: openAIAPISpecURL
+      roleDefinitionId: roleDefinitionID
+      principalId: apimService.identity.principalId
+      principalType: 'ServicePrincipal'
     }
   }
+]
+
+resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
+  name: openAIAPIName
+  parent: apimService
+  properties: {
+    apiType: 'http'
+    description: openAIAPIDescription
+    displayName: openAIAPIDisplayName
+    format: 'openapi-link'
+    path: openAIAPIPath
+    protocols: [
+      'https'
+    ]
+    subscriptionKeyParameterNames: {
+      header: 'api-key'
+      query: 'api-key'
+    }
+    subscriptionRequired: true
+    type: 'http'
+    value: openAIAPISpecURL
+  }
+}
 
 resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-preview' = {
   name: 'policy'
@@ -288,78 +295,83 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
   }
 }
 
-resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: config.name
-  parent: apimService
-  properties: {
-    description: 'backend description'
-    url: '${cognitiveServices[i].properties.endpoint}/openai'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 3
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
+resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [
+  for (config, i) in openAIConfig: if (length(openAIConfig) > 0) {
+    name: config.name
+    parent: apimService
+    properties: {
+      description: 'backend description'
+      url: '${cognitiveServices[i].properties.endpoint}/openai'
+      protocol: 'http'
+      circuitBreaker: {
+        rules: [
+          {
+            failureCondition: {
+              count: 3
+              errorReasons: [
+                'Server errors'
+              ]
+              interval: 'PT5M'
+              statusCodeRanges: [
+                {
+                  min: 429
+                  max: 429
+                }
+              ]
+            }
+            name: 'openAIBreakerRule'
+            tripDuration: 'PT1M'
           }
-          name: 'openAIBreakerRule'
-          tripDuration: 'PT1M'
-        }
-      ]
+        ]
+      }
     }
   }
-}]
+]
 
-resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (mock, i) in mockWebApps: if(length(openAIConfig) == 0 && length(mockWebApps) > 0) {
-  name: mock.name
-  parent: apimService
-  properties: {
-    description: 'backend description'
-    url: '${mock.endpoint}/openai'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 3
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
+resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [
+  for (mock, i) in mockWebApps: if (length(openAIConfig) == 0 && length(mockWebApps) > 0) {
+    name: mock.name
+    parent: apimService
+    properties: {
+      description: 'backend description'
+      url: '${mock.endpoint}/openai'
+      protocol: 'http'
+      circuitBreaker: {
+        rules: [
+          {
+            failureCondition: {
+              count: 3
+              errorReasons: [
+                'Server errors'
+              ]
+              interval: 'PT5M'
+              statusCodeRanges: [
+                {
+                  min: 429
+                  max: 429
+                }
+              ]
+            }
+            name: 'mockBreakerRule'
+            tripDuration: 'PT1M'
           }
-          name: 'mockBreakerRule'
-          tripDuration: 'PT1M'
-        }
-      ]
+        ]
+      }
     }
   }
-}]
+]
 
-resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) > 1) {
+resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if (length(openAIConfig) > 1) {
   name: openAIBackendPoolName
   parent: apimService
   properties: {
     description: openAIBackendPoolDescription
     type: 'Pool'
-//    protocol: 'http'  // the protocol is not needed in the Pool type
-//    url: '${cognitiveServices[0].properties.endpoint}/openai'   // the url is not needed in the Pool type
+    //    protocol: 'http'  // the protocol is not needed in the Pool type
+    //    url: '${cognitiveServices[0].properties.endpoint}/openai'   // the url is not needed in the Pool type
     pool: {
-      services: [for (config, i) in openAIConfig: {
+      services: [
+        for (config, i) in openAIConfig: {
           id: '/backends/${backendOpenAI[i].name}'
         }
       ]
@@ -367,16 +379,17 @@ resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-
   }
 }
 
-resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if(length(openAIConfig) == 0 && length(mockWebApps) > 1) {
+resource backendPoolMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if (length(openAIConfig) == 0 && length(mockWebApps) > 1) {
   name: mockBackendPoolName
   parent: apimService
   properties: {
     description: mockBackendPoolDescription
     type: 'Pool'
-//    protocol: 'http'  // the protocol is not needed in the Pool type
-//    url: '${mockWebApps[0].endpoint}/openai'   // the url is not needed in the Pool type
+    //    protocol: 'http'  // the protocol is not needed in the Pool type
+    //    url: '${mockWebApps[0].endpoint}/openai'   // the url is not needed in the Pool type
     pool: {
-      services: [for (webApp, i) in mockWebApps: {
+      services: [
+        for (webApp, i) in mockWebApps: {
           id: '/backends/${backendMock[i].name}'
         }
       ]
@@ -454,7 +467,13 @@ resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview'
 }
 
 var logSettings = {
-  headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
+  headers: [
+    'Content-type'
+    'User-agent'
+    'x-ms-region'
+    'x-ratelimit-remaining-tokens'
+    'x-ratelimit-remaining-requests'
+  ]
   body: { bytes: apiDiagnosticsLogBytes }
 }
 resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(apimLogger.name)) {
@@ -504,11 +523,13 @@ resource keyVaultAccessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2022-0
   parent: keyVault
   name: 'add'
   properties: {
-    accessPolicies: [ {
+    accessPolicies: [
+      {
         objectId: hub.identity.principalId
         tenantId: subscription().tenantId
-        permissions: { secrets: [ 'get', 'list' ] }
-      } ]
+        permissions: { secrets: ['get', 'list'] }
+      }
+    ]
   }
 }
 
@@ -527,7 +548,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-pr
     }
     metadataSearch: 'Disabled'
     networkRuleBypassOptions: 'AzureServices'
-    policies:{
+    policies: {
       quarantinePolicy: {
         status: 'disabled'
       }
@@ -556,24 +577,24 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-pr
 }
 
 resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-    name: '${storageAccountName}${resourceSuffix}'
-    location: storageAccountLocation
-    kind: 'StorageV2'
-    sku: { name: 'Standard_LRS' }
-    properties: {
-      accessTier: 'Hot'
-      allowBlobPublicAccess: true
-      allowCrossTenantReplication: true
-      allowSharedKeyAccess: true
-      defaultToOAuthAuthentication: false
-      dnsEndpointType: 'Standard'
-      minimumTlsVersion: 'TLS1_2'
-      networkAcls: {
-        bypass: 'AzureServices'
-        defaultAction: 'Allow'
-      }
-      publicNetworkAccess: 'Enabled'
-      supportsHttpsTrafficOnly: true
+  name: '${storageAccountName}${resourceSuffix}'
+  location: storageAccountLocation
+  kind: 'StorageV2'
+  sku: { name: 'Standard_LRS' }
+  properties: {
+    accessTier: 'Hot'
+    allowBlobPublicAccess: true
+    allowCrossTenantReplication: true
+    allowSharedKeyAccess: true
+    defaultToOAuthAuthentication: false
+    dnsEndpointType: 'Standard'
+    minimumTlsVersion: 'TLS1_2'
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Allow'
+    }
+    publicNetworkAccess: 'Enabled'
+    supportsHttpsTrafficOnly: true
   }
 
   resource blobServices 'blobServices' = {
@@ -666,9 +687,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 
   resource queueServices 'queueServices' = {
     name: 'default'
-    properties: {
-
-    }
+    properties: {}
     resource queue 'queues' = {
       name: 'default'
       properties: {
@@ -700,25 +719,31 @@ resource searchService 'Microsoft.Search/searchServices@2023-11-01' = {
   }
 }
 
-var roleDefinitionIDAISearchService = resourceId('Microsoft.Authorization/roleDefinitions', '7ca78c08-252a-4471-8644-bb5ff32d4ba0') // Search Service Contributor
+var roleDefinitionIDAISearchService = resourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
+) // Search Service Contributor
 resource roleAssignmentAISearchService 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: searchService
   name: guid(subscription().id, resourceGroup().id, searchService.name, roleDefinitionIDAISearchService)
   properties: {
-      roleDefinitionId: roleDefinitionIDAISearchService
-      principalId: apimService.identity.principalId
-      principalType: 'ServicePrincipal'
+    roleDefinitionId: roleDefinitionIDAISearchService
+    principalId: apimService.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 
-var roleDefinitionIDAISearchIndex = resourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7') // Search Index Data Contributor
+var roleDefinitionIDAISearchIndex = resourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
+) // Search Index Data Contributor
 resource roleAssignmentAISearchIndex 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: searchService
   name: guid(subscription().id, resourceGroup().id, searchService.name, roleDefinitionIDAISearchIndex)
   properties: {
-      roleDefinitionId: roleDefinitionIDAISearchIndex
-      principalId: apimService.identity.principalId
-      principalType: 'ServicePrincipal'
+    roleDefinitionId: roleDefinitionIDAISearchIndex
+    principalId: apimService.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 
@@ -783,9 +808,7 @@ resource hub 'Microsoft.MachineLearningServices/workspaces@2024-01-01-preview' =
       }
     }
   }
-
 }
-
 
 resource project 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' = {
   name: '${aiStudioProjectName}-${resourceSuffix}'
@@ -808,7 +831,6 @@ resource project 'Microsoft.MachineLearningServices/workspaces@2024-07-01-previe
   }
 }
 
-
 output projectName string = project.name
 output projectId string = project.id
 
@@ -816,7 +838,6 @@ var projectEndoint = replace(replace(project.properties.discoveryUrl, 'https://'
 output projectConnectionString string = '${projectEndoint};${subscription().subscriptionId};${resourceGroup().name};${project.name}'
 
 // ai foundry: additions END
-
 
 output apimServiceId string = apimService.id
 

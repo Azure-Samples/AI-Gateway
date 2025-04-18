@@ -16,6 +16,7 @@ param openAIAPIVersion string
 //    VARIABLES
 // ------------------
 
+var suffix = uniqueString(subscription().id, resourceGroup().id)
 var virtualNetworkName = 'vnet-spoke'
 var subnetAiServicesName = 'snet-aiservices'
 var subnetApimName = 'snet-apim'
@@ -28,53 +29,122 @@ var updatedPolicyXml = replace(
   '{backend-id}',
   (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name
 )
+var azureRoles = loadJsonContent('../../modules/azure-roles.json')
+var cognitiveServicesOpenAIUserRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesOpenAIUser)
+
+var privateDnsZoneNamesAiServices = [
+  'privatelink.cognitiveservices.azure.com'
+  'privatelink.openai.azure.com'
+  'privatelink.services.ai.azure.com'
+]
 
 // ------------------
 //    RESOURCES
 // ------------------
 
 // NSG for APIM Subnet
-module nsgApimModule '../../modules/network/v1/nsg.bicep' = {
-  name: 'nsgApim'
-  params: {
-    nsgName: 'nsg-apim'
-    location: resourceGroup().location
-  }
+resource nsgApim 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
+  name: 'nsg-apim'
+  location: resourceGroup().location
 }
 
 // VNET and Subnets
-module vnetModule '../../modules/network/v1/vnet.bicep' = {
-  name: 'vnetModule'
-  params: {
-    virtualNetworkName: virtualNetworkName
-    addressPrefixes: ['10.0.0.0/16']
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
+  name: virtualNetworkName
+  location: resourceGroup().location
+  properties: {
+    addressSpace: {
+      addressPrefixes: ['10.0.0.0/16']
+    }
     subnets: [
       {
         name: subnetAiServicesName
-        addressPrefix: '10.0.0.0/24'
+        properties: {
+          addressPrefix: '10.0.0.0/24'
+        }
       }
       {
         name: subnetApimName
-        addressPrefix: '10.0.1.0/24'
-        networkSecurityGroupId: nsgApimModule.outputs.id
-        delegation:'Microsoft.Web/serverFarms'
+        properties: {
+          addressPrefix: '10.0.1.0/24'
+          networkSecurityGroup: nsgApim
+          delegations: [
+            {
+              name: 'Microsoft.Web/serverFarms'
+              properties: {
+                serviceName: 'Microsoft.Web/serverFarms'
+              }
+            }
+          ]
+        }
       }
       {
         name: subnetVmName
-        addressPrefix: '10.0.2.0/24'
+        properties: {
+          addressPrefix: '10.0.2.0/24'
+        }
       }
     ]
+  }
+
+  resource subnetAiServices 'subnets' existing = {
+    name: subnetAiServicesName
+  }
+
+  resource subnetApim 'subnets' existing = {
+    name: subnetApimName
+  }
+
+  resource subnetVm 'subnets' existing = {
+    name: subnetVmName
   }
 }
 
 // API Management
-module apimModule '../../modules/apim/v2/apim.bicep' = {
-  name: 'apimModule'
-  params: {
-    apimSku: apimSku
-    subnetId: '${vnetModule.outputs.id}/subnets/${subnetApimName}' // resourceId('Microsoft.Network/virtualNetworks/subnets', vnetModule.outputs.subnets[1].id) // vnetModule.outputs.subnets[1].id // 
+
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
+  name: 'apim-${suffix}'
+  location: resourceGroup().location
+  sku: {
+    name: apimSku
+    capacity: 1
+  }
+  properties: {
+    publisherEmail: 'noreply@microsoft.com'
+    publisherName: 'Microsoft'
+    virtualNetworkType  : 'External' // "Internal" # Setting up 'Internal' Internal Virtual Network Type is not supported for Sku Type 'StandardV2'.
+    publicNetworkAccess : 'Enabled'  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
+    virtualNetworkConfiguration : {
+      subnetResourceId: virtualNetwork::subnetApim.id
+    }
+  }
+  identity: {
+    type: 'SystemAssigned'
   }
 }
+
+// // Create a logger only if we have an App Insights ID and instrumentation key.
+// resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = if (!empty(appInsightsId) && !empty(appInsightsInstrumentationKey)) {
+//   name: 'apim-logger'
+//   parent: apimService
+//   properties: {
+//     credentials: {
+//       instrumentationKey: appInsightsInstrumentationKey
+//     }
+//     description: apimLoggerDescription
+//     isBuffered: false
+//     loggerType: 'applicationInsights'
+//     resourceId: appInsightsId
+//   }
+// }
+// module apimModule '../../modules/apim/v2/apim.bicep' = {
+//   name: 'apimModule'
+//   params: {
+//     apimSku: apimSku
+//     subnetId: '${vnetModule.outputs.id}/subnets/${subnetApimName}' // resourceId('Microsoft.Network/virtualNetworks/subnets', vnetModule.outputs.subnets[1].id) // vnetModule.outputs.subnets[1].id // 
+//   }
+// }
 
 // Cognitive Services and LLM models
 module openAIModule '../../modules/cognitive-services/v3/openai.bicep' = {
@@ -85,10 +155,10 @@ module openAIModule '../../modules/cognitive-services/v3/openai.bicep' = {
     openAIModelName: openAIModelName
     openAIModelVersion: openAIModelVersion
     openAIModelSKU: openAIModelSKU
-    apimPrincipalId: apimModule.outputs.principalId
+    apimPrincipalId: apimService.identity.principalId
     enablePrivateEndpoint: true
-    vnetId: vnetModule.outputs.id
-    subnetId: '${vnetModule.outputs.id}/subnets/${subnetAiServicesName}' // vnetModule.outputs.subnets[0].id
+    vnetId: virtualNetwork.id
+    subnetId: subnetAiServicesName
   }
 }
 
@@ -116,7 +186,7 @@ module bastionModule '../../modules/bastion/v1/bastion.bicep' = {
   name: 'bastionModule'
   params: {
     bastionHostName: 'bastion-host'
-    vnetId: vnetModule.outputs.id
+    vnetId: virtualNetwork.id
     location: resourceGroup().location
   }
 }
@@ -128,9 +198,23 @@ module vmModule '../../modules/virtual-machine/vm.bicep' = {
     vmName: 'vm-win11'
     location: resourceGroup().location
     vmSize: 'Standard_D2ads_v5'
-    subnetVmId: '${vnetModule.outputs.id}/subnets/${subnetVmName}' // vnetModule.outputs.subnets[2].id
+    subnetVmId: virtualNetwork::subnetVm.id
     vmAdminUsername: 'azureuser'
     vmAdminPassword: '@Aa123456789' // should be secured in real world
+  }
+}
+
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+  name: 'log-alanalytics-${suffix}'
+  location: resourceGroup().location
+  properties: {
+    retentionInDays: 30
+    features: {
+      searchVersion: 1
+    }
+    sku: {
+      name: 'PerGB2018'
+    }
   }
 }
 
