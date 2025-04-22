@@ -32,7 +32,11 @@ To control token spend, here's how we need to implement this at high level:
 
 Now that we understand the plan, let's execute said plan.
  
-## -1- Import the Azure Open AI instance as API
+## Exercise: Import the Azure Open AI instance as API
+
+:::important
+Make sure you have completed the lesson on [setting up cloud resources](./create-resources.md) before continuing.
+:::
 
 - Navigate to your newly created Azure API Management instance and select "API" in the menu like indicated in the image:
 
@@ -48,7 +52,7 @@ Now that we understand the plan, let's execute said plan.
 
   Great, now it's time to configure the remaining parts, almost there!
 
-### -2- Inspect the import
+### -1- Inspect the import
 
 Importing Azure Open AI like this through the guide did somethings for us, so let's see what that was.
 
@@ -56,11 +60,11 @@ Importing Azure Open AI like this through the guide did somethings for us, so le
 
 TODO, show the xml you are adding to inbound policy and what it does
 
-### -3- Test out the policy
+### -4- Test out the policy
 
 TODO, make a request, make sure you get rate limited and show the 400 error.
 
-## Resources
+## Additional Resources
 
 Here's a list of resources that you might find useful:
 

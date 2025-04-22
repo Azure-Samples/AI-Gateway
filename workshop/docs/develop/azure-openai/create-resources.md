@@ -6,11 +6,11 @@ sidebar_position: 1
 
 Here we will create the needed Azure resources that we will use throughout this section.
 
-## Exercise: Create Azure Open AI instance
+## Exercise: Create Azure Open AI
  
 Let's create an Azure Open AI cloud resource.
 
-## -1- Create an Azure Open AI instance
+### -1- Create an Azure Open AI instance
 
 - Navigate to [Azure Portal](https://portal.azure.com).
 
@@ -22,7 +22,7 @@ Let's create an Azure Open AI cloud resource.
 
   ![Fill out Azure Open AI information](/img/token-limit-2.png)
  
-## -2- Create a deployment on your Azure Open AI instance
+### -2- Create a deployment on your Azure Open AI instance
 
 - Navigate to your deployed Azure Open AI instance and select "Go to Azure AI Foundry Portal". 
 
@@ -37,7 +37,7 @@ Let's create an Azure Open AI cloud resource.
 
   Now you are all set. 
 
-## -3- Create an Azure API Management instance
+## Exercise: Create an Azure API Management instance
 
 - In Azure Portal, type **Azure API Management services**. 
 - Select "+ Create" and fill in the needed information to create a new Azure API Management instance.
@@ -47,6 +47,29 @@ Let's create an Azure Open AI cloud resource.
 
   Great, now that we Azure Open AI deployments and Azure API Management created, we can move on to the next activity which is to load balance between Azure Open AI instances.
 
-## Resources
+## Exercise: Create Application Insights instance 
+
+1. Sign in to the Azure portal and create an Application Insights resource.
+1. ![Select Application Insights](https://learn.microsoft.com/en-us/previous-versions/azure/azure-monitor/app/media/create-new-resource/new-app-insights.png)
+1. Fill in the following values:
+
+   | Settings | Value | Description |
+   |--|--|--|
+   | Name | Unique value | Fill in a unique value |
+   | Resource group | New or existing resource group | Fill in new or existing resource group |
+   | Region | Fill in region | Fill in a region close to you |
+   | Resource mode | Classic or workspace-based | Workspace-based resources allow you to send your Application Insights telemetry to a common Log Analytics workspace |
+
+1. Here's how you can fill it out:
+
+  ![Example of fille in resource blade](https://learn.microsoft.com/en-us/previous-versions/azure/azure-monitor/app/media/create-new-resource/review-create.png)
+
+Learn more how to [provision an Application Insights resource here](https://learn.microsoft.com/previous-versions/azure/azure-monitor/app/create-new-resource?tabs=net). 
+
+## Additional Resources
+
+TODO
+
+## Infrastructure as Code
 
 TODO

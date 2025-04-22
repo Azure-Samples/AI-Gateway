@@ -23,35 +23,91 @@ Monitor your token consumption is important for many reasons:
 - Import an Azure Open AI instance as an API to your Azure API Management instance.
 - Configure your Azure API Management API and its policy
 
-## Exercise: Create App Insights instance 
-
-TODO, https://learn.microsoft.com/en-us/previous-versions/azure/azure-monitor/app/create-new-resource?tabs=net
-
 ## Exercise: Import Azure Open AI as API
 
-https://learn.microsoft.com/en-us/azure/api-management/azure-openai-api-from-specification
+:::important
+Make sure you have completed the lesson on [setting up cloud resources](./create-resources.md) before continuing.
+:::
 
-TODO, should describe import process, and to tick the monitoring box
+1. In the Azure portal, navigate to your API Management instance.
 
-## Exercise: configure Azure API Management for monitoring
+1. In the left menu, under APIs, select APIs > + Add API.
 
-See to what extent we need to do this or the import does it for us
+1. Under **Create from Azure resource**, select Azure OpenAI Service.
 
-https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-app-insights?tabs=rest
+   ![Import tile](https://learn.microsoft.com/en-us/azure/api-management/media/azure-openai-api-from-specification/azure-openai-api.png)
 
-### Validate import
+1. On the Basics tab:
 
-What did it to for us
+    a. Select the Azure OpenAI resource that you want to import.
 
-### Configure policy
+    b. Optionally select an Azure OpenAI API version. If you don't select one, the latest production-ready REST API version is used by default. Make a note of the version you selected. You'll need it to test the API.
 
-https://learn.microsoft.com/en-us/azure/api-management/azure-openai-emit-token-metric-policy#prerequisites
+    c. Enter a Display name and optional Description for the API, for example **aoai** and **My Azure Open AI** respectively.
 
-## Test monitoring
+1. In **Base URL**, append a path that your API Management instance uses to access the Azure OpenAI API endpoints. If you enable Ensure OpenAI SDK compatibility (recommended), /openai is automatically appended to the base URL.
 
-TODO, should show how to make requests and how it shows up in monitoring.
+    For example, if your API Management gateway endpoint is https://contoso.azure-api.net, set a Base URL similar to https://contoso.azure-api.net/my-openai-api/openai.
 
-## Resources
+1. Optionally select one or more products to associate with the API. Select **Next**.
+
+1. On the **Policies tab**, optionally enable policies to monitor and manage Azure OpenAI API token consumption. You can also set or edit policies later.
+
+    ![Select track during import](/img/monitor-import-select-monitor.png)
+
+    If selected, enter settings or accept defaults that define the following policies (see linked articles for prerequisites and configuration details):
+
+    - Manage token consumption
+    - Track token usage
+
+1. Add dimensions you want to track, you can also do this at a later stage. Here's how you can add dimensions:
+
+    ![Add dimensions](/img/monitor-import-setup-dimensions.png)
+
+    
+1. Select **Review + Create**.
+
+1. After settings are validated, select **Create**.
+
+Great, now the import is complete, let's test out our API.
+
+### -1- Enable monitoring on the API
+
+Now that we have imported our Azure Open AI instance, let's inspect what we got and test the API to make sure everything works.
+
+1. Select your API **aoai** and select the **Settings** tab
+
+    ![Select settings on the API](/img/monitor-enable.png)
+
+1. Check *enable* checkbox and leave the rest as is.
+1. Select **Save**
+
+### -2- Inspect the API and policy on the API
+
+1. Select **Design** tab.
+
+    You should see a policy and all the dimensions you've select during import. You can add further dimensions if you wish. 
+
+    ![Inspect policy](/img/monitor-inspect-policy.png)
+
+1. Let's test the API by navigating to **Test** tab. 
+1. Fill in the following values:
+
+    | Settings | Value | Description |
+    |--|--|--|
+    | deployment-id | gpt-4o | your deployment ID, double check the name in Azure AI Foundry |
+    | api version | 2024-02-01 | a supported schema
+    | request body | ```{"messages":[{"role":"system", "content": "you are a friendly assistant"}, { "role": "user", "content": "how is the weather in London?" }]} ``` | a JSON request body that contains messages for the AI model. |
+
+1. Select **Send**, you should see a request response coming back.
+
+    ![Send request](/img/monitor-test-import.png)
+
+## Exercise: Test monitoring
+
+You should see your request by TBC
+
+## Additional Resources
 
 TODO
 
