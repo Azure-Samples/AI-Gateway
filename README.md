@@ -71,7 +71,7 @@ Playground to experiment the [Model Context Protocol](https://modelcontextprotoc
 
 [<img src="images/model-context-protocol-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/model-context-protocol/model-context-protocol.ipynb)
 
-[🦾 Bicep](labs/model-context-protocol/main.bicep) ➕ [⚙️ Policy](labs/model-context-protocol/inference-policy.xml) ➕ [🧾 Notebook](labs/model-context-protocol/model-context-protocol.ipynb)
+[🦾 Bicep](labs/model-context-protocol/main.bicep) ➕ [⚙️ Policy](labs/model-context-protocol/policy.xml) ➕ [🧾 Notebook](labs/model-context-protocol/model-context-protocol.ipynb)
 
 <!-- OpenAI Agents -->
 ### [**🧪 OpenAI Agents**](labs/openai-agents/openai-agents.ipynb)
@@ -80,7 +80,7 @@ Playground to try the [OpenAI Agents](https://openai.github.io/openai-agents-pyt
 
 [<img src="images/openai-agents-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/openai-agents/openai-agents.ipynb)
 
-[🦾 Bicep](labs/openai-agents/main.bicep) ➕ [⚙️ Policy](labs/openai-agents/inference-policy.xml) ➕ [🧾 Notebook](labs/openai-agents/openai-agents.ipynb)
+[🦾 Bicep](labs/openai-agents/main.bicep) ➕ [⚙️ Policy](labs/openai-agents/policy.xml) ➕ [🧾 Notebook](labs/openai-agents/openai-agents.ipynb)
 
 <!-- AI Agent Service -->
 ### [**🧪 AI Agent Service**](labs/ai-agent-service/ai-agent-service.ipynb)
