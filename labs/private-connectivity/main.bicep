@@ -84,7 +84,6 @@ var frontDoorOriginGroupName = 'OriginGroup'
 var frontDoorOriginName = 'FrontDoorOrigin'
 var frontDoorRouteName = 'FrontDoorRoute'
 
-
 // Account for all placeholders in the polixy.xml file.
 var policyXml = loadTextContent('policy.xml')
 var updatedPolicyXml = replace(
@@ -186,7 +185,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
 //     subnetId: '${vnetModule.outputs.id}/subnets/${subnetApimName}' // resourceId('Microsoft.Network/virtualNetworks/subnets', vnetModule.outputs.subnets[1].id) // vnetModule.outputs.subnets[1].id // 
 //   }
 // }
-
 
 resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
   for config in openAIConfig: if(length(openAIConfig) > 0) {
