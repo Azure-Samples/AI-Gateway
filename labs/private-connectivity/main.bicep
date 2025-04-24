@@ -252,6 +252,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-05-01' = [for 
   name: '${config.name}-${suffix}-privateEndpoint'
   location: resourceGroup().location
   properties: {
+    customNetworkInterfaceName: '${config.name}-${suffix}-nic'
     subnet: {
       id: virtualNetwork::subnetAiServices.id    
     }
@@ -433,6 +434,21 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
   }
 }
 
+resource apiTestConnection 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
+  name: 'test-connection'
+  parent: apimService
+  properties: {
+    apiType: 'http'
+    description: 'Test connection to APIM from public and private network'
+    displayName: 'Test Connection API'
+    path: 'ip'
+    protocols: ['http','https']
+    type: 'http'
+    serviceUrl: 'https://ifconfig.me/ip'
+    subscriptionRequired: false
+  }
+}
+
 // // APIM OpenAI API
 // module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
 //   name: 'openAIAPIModule'
@@ -443,6 +459,60 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
 //   }
 // }
 
+// Private Endpoint for APIM
+resource privateEndpointApim 'Microsoft.Network/privateEndpoints@2021-05-01' = {
+  name: 'privateEndpoint-apim'
+  location: resourceGroup().location
+  properties: {
+    customNetworkInterfaceName: 'nic-pe-apim'
+    subnet: {
+      id: virtualNetwork::subnetVm.id
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'pe-apim'
+        properties: {
+          privateLinkServiceId: apimService.id
+          groupIds: ['Gateway']
+        }
+      }
+    ]
+  }
+}
+
+resource privateDnsZoneApim 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+  name: 'privatelink.azure-api.net'
+  location: 'global'
+}
+
+resource privateDnsZoneLinkApim 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  name: 'link-apim'
+  location: 'global'
+  parent: privateDnsZoneApim
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: virtualNetwork.id
+    }
+  }
+}
+
+resource privateDnsZoneGroupApim 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-05-01' = {
+  name: 'dnsZoneGroup-apim'
+  parent: privateEndpointApim
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'config-apim'
+        properties: {
+          privateDnsZoneId: privateDnsZoneApim.id
+        }
+      }
+    ]
+  }
+}
+
+// Azure Front Door
 resource frontDoorProfile 'Microsoft.Cdn/profiles@2021-06-01' = {
   name: frontDoorProfileName
   location: 'global'
@@ -585,6 +655,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
         version: 'latest'
       }
       osDisk: {
+        name: 'osdisk-${vmName}'
         createOption: 'FromImage'
       }
     }
