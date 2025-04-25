@@ -331,7 +331,7 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
     publisherEmail: 'noreply@microsoft.com'
     publisherName: 'Microsoft'
     virtualNetworkType  : 'External' // "Internal" # Setting up 'Internal' Internal Virtual Network Type is not supported for Sku Type 'StandardV2'.
-    publicNetworkAccess : 'Enabled'  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
+    publicNetworkAccess : 'Disabled'  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
     virtualNetworkConfiguration : {
       subnetResourceId: virtualNetwork::subnetApim.id
     }
@@ -449,6 +449,17 @@ resource apiTestConnection 'Microsoft.ApiManagement/service/apis@2023-05-01-prev
   }
 }
 
+// API Test Connection GET Operation
+resource apiTestConnectionOperation 'Microsoft.ApiManagement/service/apis/operations@2023-05-01-preview' = {
+  name: 'GET-ip'
+  parent: apiTestConnection
+  properties: {
+    displayName: 'GET IP'
+    method: 'GET'
+    urlTemplate: '/'
+  }
+}
+
 // // APIM OpenAI API
 // module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
 //   name: 'openAIAPIModule'
@@ -563,7 +574,7 @@ resource frontDoorOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01
       groupId: 'Gateway'
       privateLinkLocation: resourceGroup().location
       requestMessage: 'Please validate PE connection'
-      // status: 'Approved'
+      status: 'Approved'
       privateLink: {
         id: apimService.id
       }
@@ -590,9 +601,9 @@ resource frontDoorRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' 
   }
 }
 
-// Frontdoor WAF configuration
+// Frontdoor WAF Policy configuration
 resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2024-02-01' = {
-  name: 'waf-policy-frontddor'
+  name: 'wafPolicyFrontdoor'
   location: 'global'
   sku: {
     name: 'Premium_AzureFrontDoor'
@@ -641,6 +652,19 @@ resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2021-06-01' = {
     }
   }
 }
+
+// // Approve private link connection for APIM
+// resource approvePrivateLinkConnectionApim 'Microsoft.ApiManagement/service/privateEndpointConnections@2024-05-01' = {
+//   name: '5fd05395-63f4-4964-8aee-9715fe5c3ce1'
+//   parent: apimService
+//   properties: {
+//     privateLinkServiceConnectionState: {
+//       status: 'Approved'
+//       description: 'Auto-approved by Terraform'
+//       actionsRequired: 'Nothing to change'
+//     }
+//   }
+// }
 
 // Azure Bastion Host
 resource bastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
@@ -764,6 +788,20 @@ resource logAnalyticsWorkspaceDiagnostics 'Microsoft.Insights/diagnosticSettings
     logs: [
       {
         category: 'FrontDoorWebApplicationFirewallLog'
+        enabled: true
+      }
+      {
+        category: 'FrontDoorAccessLog'
+        enabled: true
+      }
+      {
+        category: 'FrontDoorHealthProbeLog'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
         enabled: true
       }
     ]
