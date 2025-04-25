@@ -178,13 +178,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
 //     resourceId: appInsightsId
 //   }
 // }
-// module apimModule '../../modules/apim/v2/apim.bicep' = {
-//   name: 'apimModule'
-//   params: {
-//     apimSku: apimSku
-//     subnetId: '${vnetModule.outputs.id}/subnets/${subnetApimName}' // resourceId('Microsoft.Network/virtualNetworks/subnets', vnetModule.outputs.subnets[1].id) // vnetModule.outputs.subnets[1].id // 
-//   }
-// }
 
 resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
   for config in openAIConfig: if(length(openAIConfig) > 0) {
