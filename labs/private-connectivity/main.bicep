@@ -720,9 +720,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
     }
     storageProfile: {
       imageReference: {
-        publisher: 'MicrosoftWindowsDesktop'
-        offer: 'windows-11'
-        sku: 'win11-24h2-pro'
+        publisher: 'canonical'
+        offer: 'ubuntu-25_04' // '0001-com-ubuntu-server-jammy'
+        sku: 'minimal' // '22_04-lts-gen2'
+        // publisher: 'MicrosoftWindowsDesktop'
+        // offer: 'windows-11'
+        // sku: 'win11-24h2-pro'
         version: 'latest'
       }
       osDisk: {
@@ -745,16 +748,48 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
   }
 }
 
-// // Jumpbox VM
-// module vmModule '../../modules/virtual-machine/vm.bicep' = {
-//   name: 'vmModule'
-//   params: {
-//     vmName: 'vm-win11'
-//     location: resourceGroup().location
-//     vmSize: 'Standard_D2ads_v5'
-//     subnetVmId: virtualNetwork::subnetVm.id
-//     vmAdminUsername: 'azureuser'
-//     vmAdminPassword: '@Aa123456789' // should be secured in real world
+// // Linux VM
+// resource vmLinux 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
+//   name: vmName
+//   location: resourceGroup().location
+//   properties: {
+//     priority: 'Spot'
+//     evictionPolicy: 'Deallocate'
+//     billingProfile: {
+//       maxPrice: -1
+//     }
+//     hardwareProfile: {
+//       vmSize: vmSize
+//     }
+//     osProfile: {
+//       computerName: vmName
+//       adminUsername: vmAdminUsername
+//       adminPassword: vmAdminPassword
+//     }
+//     storageProfile: {
+//       imageReference: {
+//         publisher: 'Canonical'
+//         offer: '0001-com-ubuntu-server-jammy'
+//         sku: '22.04-lts'
+//         version: 'latest'
+//       }
+//       osDisk: {
+//         name: 'osdisk-${vmName}'
+//         createOption: 'FromImage'
+//       }
+//     }
+//     networkProfile: {
+//       networkInterfaces: [
+//         {
+//           id: networkInterface.id
+//         }
+//       ]
+//     }
+//     diagnosticsProfile: {
+//       bootDiagnostics: {
+//         enabled: false
+//       }
+//     }
 //   }
 // }
 
