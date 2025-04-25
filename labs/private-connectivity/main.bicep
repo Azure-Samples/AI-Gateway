@@ -560,12 +560,13 @@ resource frontDoorOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01
     enabledState: 'Enabled'
 
     sharedPrivateLinkResource: {
-      privateLink: {
-        id: apimService.id
-      }
       groupId: 'Gateway'
       privateLinkLocation: resourceGroup().location
       requestMessage: 'Please validate PE connection'
+      // status: 'Approved'
+      privateLink: {
+        id: apimService.id
+      }
     }
   }
 }
@@ -589,6 +590,59 @@ resource frontDoorRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' 
   }
 }
 
+// Frontdoor WAF configuration
+resource wafPolicy 'Microsoft.Network/FrontDoorWebApplicationFirewallPolicies@2024-02-01' = {
+  name: 'waf-policy-frontddor'
+  location: 'global'
+  sku: {
+    name: 'Premium_AzureFrontDoor'
+  }
+  properties: {
+    policySettings: {
+      enabledState: 'Enabled'
+      mode: 'Prevention'
+    }
+    managedRules: {
+      managedRuleSets: [
+        {
+          ruleSetType: 'Microsoft_DefaultRuleSet'
+          ruleSetVersion: '1.1'
+        }
+        {
+          ruleSetType: 'Microsoft_BotManagerRuleSet'
+          ruleSetVersion: '1.0'
+        }
+      ]
+    }
+  }
+}
+
+resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2021-06-01' = {
+  parent: frontDoorProfile
+  name: 'security-policy'
+  properties: {
+    parameters: {
+      type: 'WebApplicationFirewall'
+      wafPolicy: {
+        id: wafPolicy.id
+      }
+      associations: [
+        {
+          domains: [
+            {
+              id: frontDoorEndpoint.id
+            }
+          ]
+          patternsToMatch: [
+            '/*'
+          ]
+        }
+      ]
+    }
+  }
+}
+
+// Azure Bastion Host
 resource bastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
   name: bastionHostName
   location: resourceGroup().location
@@ -698,6 +752,21 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-previ
     sku: {
       name: 'PerGB2018'
     }
+  }
+}
+
+// Collect logs from Frontdoor
+resource logAnalyticsWorkspaceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: frontDoorProfile
+  name: 'diagnosticSettings'
+  properties: {
+    workspaceId: logAnalytics.id
+    logs: [
+      {
+        category: 'FrontDoorWebApplicationFirewallLog'
+        enabled: true
+      }
+    ]
   }
 }
 
