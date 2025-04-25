@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 ---
 
 # Control and monitor your token consumption: Part II  
@@ -105,7 +105,38 @@ Now that we have imported our Azure Open AI instance, let's inspect what we got 
 
 ## Exercise: Test monitoring
 
-You should see your request by TBC
+To test the monitoring, we need to run a few requests, then navigate to it and inspect it.
+
+1. Run a few requests by going to your API, select the "Test" tab and fill in values for:
+
+  | Field | Value |
+  | -- | -- | 
+  | Deployment Id | gpt-4o |
+  | API Version | 2024-02-01 |
+  | Request body | `{"messages":[{"role":"system", "content": "you are a friendly assistant"}, { "role": "user", "content": "how is the weather in London?" }]}` | 
+
+1. In the menu, select Monitoring / Application Insights / Select your instance
+
+   That should take you to your application insights resource.
+
+1. Select Monitoring / Metrics
+
+   That takes you to your dashboard. 
+1. In Metrics namespace droplist, select **api management**, like so:
+
+   ![api management entry in namespace](/img/monitor-metrics.png)
+
+   Once you select that, Metrics droplist should filter down to some very interesting metrics like Completion Tokens, Prompt Tokens and Total Tokens.
+
+1. Add all three metrics and you should see something similar to below image:
+
+   ![metrics dashboard](/img/monitor-dashboard.png)
+
+   Now you can see your prompts token (23), the number of tokens used to present a response (77.17) and the total number of tokens (100.17)
+
+   If you want, try to test some more requests with different prompts and see how they show up on the dashboard. Below here's what it can look like with a new request, note how both the second smaller request (to the left in the screen) is present and the new request (to the right in the screen)
+
+   ![metrics dashboard](/img/monitor-dashboard-2.png)
 
 ## Additional Resources
 

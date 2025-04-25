@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 # Control and monitor your token consumption: Part I  
@@ -54,15 +54,63 @@ Make sure you have completed the lesson on [setting up cloud resources](./create
 
 ### -1- Inspect the import
 
-Importing Azure Open AI like this through the guide did somethings for us, so let's see what that was.
+When we imported the Azure Open AI API, the following was done for us:
 
-### -2- Configure the policy on the API
+- Managed identity was setup as security. This means all the call you do are more secure and that identity management is handled by Azure. This is our best recommendation for security.
+- A token limit policy was set up in for our API looking like so:
 
-TODO, show the xml you are adding to inbound policy and what it does
+  ```xml
+  <azure-openai-token-limit 
+    tokens-per-minute="1000" 
+    counter-key="@(context.Subscription.Id)" 
+    estimate-prompt-tokens="true" 
+  />
+  ```
 
-### -4- Test out the policy
+  Here we see how:
+    - We can spend 1000 tokens per minute `tokens-per-minute="1000"`
+    - How this is tracked by Subscription Id `counter-key="@(context.Subscription.Id)"`
+    - How it estimates the number of tokens we're using for prompting.
 
-TODO, make a request, make sure you get rate limited and show the 400 error.
+- A backend is setup pointing to our Azure Open AI API, you can find it by navigating to  APIs / Backends. The runtime url field should have a value similar to `https://<name>-aoai.openai.azure.com/openai`. 
+
+We've shown you the policy above but let's see how it works in the next section.
+
+### -2- Configure and test the policy on the API
+
+Now that we have everything setup, let's try see how we can configure the policy so we see how it works. Let's review our configuration:
+
+  ```xml
+  <azure-openai-token-limit 
+    tokens-per-minute="1000" 
+    counter-key="@(context.Subscription.Id)" 
+    estimate-prompt-tokens="true" 
+  />
+  ```
+
+  In the preceding XML, we need to spend more than 1000 tokens per minute to be rate limited. To make it easy to test, let's change this to 50 tokens and make several consecutive requests, this should make the policy react and stop as from making any further requests with in that minute, so witha policy like so:
+
+    ```xml
+  <azure-openai-token-limit 
+    tokens-per-minute="50" 
+    counter-key="@(context.Subscription.Id)" 
+    estimate-prompt-tokens="true" 
+  />
+  ```
+
+  and a JSON payload like so:
+
+```json
+{"messages":[{"role":"system", "content": "you are a friendly assistant"}, { "role": "user", "content": "how is the weather in London?" }]}
+```
+
+let's make a few requests, remember, we expect a 429 error to happen once we exhaust our allowed "tokens-per-minute value"
+
+![rate limited](/img/rate-limited.png)
+
+If you see the above image, that means the policy is working
+
+
 
 ## Additional Resources
 
