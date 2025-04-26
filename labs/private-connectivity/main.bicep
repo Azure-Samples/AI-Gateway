@@ -164,21 +164,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   }
 }
 
-// // Create a logger only if we have an App Insights ID and instrumentation key.
-// resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = if (!empty(appInsightsId) && !empty(appInsightsInstrumentationKey)) {
-//   name: 'apim-logger'
-//   parent: apimService
-//   properties: {
-//     credentials: {
-//       instrumentationKey: appInsightsInstrumentationKey
-//     }
-//     description: apimLoggerDescription
-//     isBuffered: false
-//     loggerType: 'applicationInsights'
-//     resourceId: appInsightsId
-//   }
-// }
-
 resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
   for config in openAIConfig: if(length(openAIConfig) > 0) {
   name: '${config.name}-${suffix}'
@@ -190,9 +175,9 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
   properties: {
     customSubDomainName: toLower('${config.name}-${suffix}')
     publicNetworkAccess: 'Disabled'
-    apiProperties: {
-      statisticsEnabled: false
-    }
+    // apiProperties: {
+    //   statisticsEnabled: false
+    // }
   }
 }]
 
@@ -324,7 +309,7 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
     publisherEmail: 'noreply@microsoft.com'
     publisherName: 'Microsoft'
     virtualNetworkType  : 'External' // "Internal" # Setting up 'Internal' Internal Virtual Network Type is not supported for Sku Type 'StandardV2'.
-    publicNetworkAccess : 'Disabled'  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
+    publicNetworkAccess : 'Enabled'  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
     virtualNetworkConfiguration : {
       subnetResourceId: virtualNetwork::subnetApim.id
     }
@@ -482,6 +467,10 @@ resource privateEndpointApim 'Microsoft.Network/privateEndpoints@2021-05-01' = {
       }
     ]
   }
+
+  dependsOn: [
+    frontDoorOrigin
+  ]
 }
 
 resource privateDnsZoneApim 'Microsoft.Network/privateDnsZones@2020-06-01' = {
@@ -803,6 +792,67 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-previ
     }
     sku: {
       name: 'PerGB2018'
+    }
+  }
+}
+
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: 'app-insights'
+  location: resourceGroup().location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    WorkspaceResourceId: logAnalytics.id
+    // CustomMetricsOptedInType: 'WithDimensions'
+  }
+}
+
+resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
+  name: 'apimLogger'
+  parent: apimService
+  properties: {
+    credentials: {
+      instrumentationKey: applicationInsights.properties.InstrumentationKey
+    }
+    description: 'APIM Logger for OpenAI API'
+    isBuffered: false
+    loggerType: 'applicationInsights'
+    resourceId: applicationInsights.id
+  }
+}
+
+var logSettings = {
+  headers: [
+    'Content-type'
+    'User-agent'
+    'x-ms-region'
+    'x-ratelimit-remaining-tokens'
+    'x-ratelimit-remaining-requests'
+  ]
+  body: { bytes: 8192 }
+}
+
+resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
+  name: 'applicationinsights'
+  parent: api
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: apimLogger.id
+    metrics: true
+    verbosity: 'verbose'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+    frontend: {
+      request: logSettings
+      response: logSettings
+    }
+    backend: {
+      request: logSettings
+      response: logSettings
     }
   }
 }
