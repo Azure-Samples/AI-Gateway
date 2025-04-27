@@ -637,7 +637,7 @@ resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2021-06-01' = {
 
 // // Approve private link connection for APIM
 // resource approvePrivateLinkConnectionApim 'Microsoft.ApiManagement/service/privateEndpointConnections@2024-05-01' = {
-//   name: '5fd05395-63f4-4964-8aee-9715fe5c3ce1'
+//   name: 'd7017edf-8819-4f84-a113-8c851cfe7805'
 //   parent: apimService
 //   properties: {
 //     privateLinkServiceConnectionState: {
@@ -661,16 +661,6 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
     }
   }
 }
-
-// // Bastion Host
-// module bastionModule '../../modules/bastion/v1/bastion.bicep' = {
-//   name: 'bastionModule'
-//   params: {
-//     bastionHostName: 'bastion-host'
-//     vnetId: virtualNetwork.id
-//     location: resourceGroup().location
-//   }
-// }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
   name: 'nic-${vmName}'
@@ -710,11 +700,8 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
     storageProfile: {
       imageReference: {
         publisher: 'canonical'
-        offer: 'ubuntu-25_04' // '0001-com-ubuntu-server-jammy'
-        sku: 'minimal' // '22_04-lts-gen2'
-        // publisher: 'MicrosoftWindowsDesktop'
-        // offer: 'windows-11'
-        // sku: 'win11-24h2-pro'
+        offer: 'ubuntu-25_04'
+        sku: 'minimal'
         version: 'latest'
       }
       osDisk: {
@@ -736,51 +723,6 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
     }
   }
 }
-
-// // Linux VM
-// resource vmLinux 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
-//   name: vmName
-//   location: resourceGroup().location
-//   properties: {
-//     priority: 'Spot'
-//     evictionPolicy: 'Deallocate'
-//     billingProfile: {
-//       maxPrice: -1
-//     }
-//     hardwareProfile: {
-//       vmSize: vmSize
-//     }
-//     osProfile: {
-//       computerName: vmName
-//       adminUsername: vmAdminUsername
-//       adminPassword: vmAdminPassword
-//     }
-//     storageProfile: {
-//       imageReference: {
-//         publisher: 'Canonical'
-//         offer: '0001-com-ubuntu-server-jammy'
-//         sku: '22.04-lts'
-//         version: 'latest'
-//       }
-//       osDisk: {
-//         name: 'osdisk-${vmName}'
-//         createOption: 'FromImage'
-//       }
-//     }
-//     networkProfile: {
-//       networkInterfaces: [
-//         {
-//           id: networkInterface.id
-//         }
-//       ]
-//     }
-//     diagnosticsProfile: {
-//       bootDiagnostics: {
-//         enabled: false
-//       }
-//     }
-//   }
-// }
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
   name: 'log-alanalytics-${suffix}'

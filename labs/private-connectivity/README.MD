@@ -1,11 +1,10 @@
 # APIM ❤️ OpenAI
 
-## [Backend pool Load Balancing lab](backend-pool-load-balancing.ipynb)
+## [Private Connectivity Lab](private-connectivity.ipynb)
 
 [![flow](../../images/backend-pool-load-balancing.gif)](backend-pool-load-balancing.ipynb)
 
-Playground to try the built-in load balancing [backend pool functionality of APIM](https://learn.microsoft.com/azure/api-management/backends?tabs=bicep) to a list of Azure OpenAI endpoints.
-**This is a typical prioritized PTU with fallback consumption scenario**. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.
+Playground to try the private connectivity [private connectivity functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/private-endpoint?tabs=v2) to a list of Azure OpenAI private endpoints.
 
 ### Result
 
@@ -22,7 +21,7 @@ Playground to try the built-in load balancing [backend pool functionality of API
 
 ### 🚀 Get started
 
-Proceed by opening the [Jupyter notebook](backend-pool-load-balancing.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](private-connectivity.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 
