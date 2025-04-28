@@ -225,10 +225,10 @@ You learnt how to set up automated load balancing and failover for your Azure Op
 
 ## Additional Resources
 
+- Docs: [Load balancing](https://learn.microsoft.com/en-us/azure/api-management/backends?tabs=portal)
 
-
-Blog post: [Improve LLM backend resiliency with load balancer and circuit breaker rules in Azure API Management](https://techcommunity.microsoft.com/blog/azuredevcommunityblog/improve-llm-backend-resiliency-with-load-balancer-and-circuit-breaker-rules-in-a/4394502)
+- Blog post: [Improve LLM backend resiliency with load balancer and circuit breaker rules in Azure API Management](https://techcommunity.microsoft.com/blog/azuredevcommunityblog/improve-llm-backend-resiliency-with-load-balancer-and-circuit-breaker-rules-in-a/4394502)
 
 ## Infrastructure as Code
 
-TODO
+- Lab: [load balancing](https://github.com/Azure-Samples/AI-Gateway/blob/main/labs/backend-pool-load-balancing/README.MD)

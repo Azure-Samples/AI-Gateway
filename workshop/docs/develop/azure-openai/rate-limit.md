@@ -116,14 +116,14 @@ If you see the above image, that means the policy is working
 
 Here's a list of resources that you might find useful:
 
-- [Policy docs page](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-token-limit-policy)
+- Docs: [Policy docs page](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-token-limit-policy)
 
-- [Azure Sample](https://github.com/Azure-Samples/genai-gateway-apim)
+- Sample: [Azure Sample](https://github.com/Azure-Samples/genai-gateway-apim)
 
-- [Azure Gateway](https://github.com/Azure-Samples/AI-Gateway)
+- Repo (with many demoes): [Azure Gateway](https://github.com/Azure-Samples/AI-Gateway)
  
 ## Infrastructure as Code
 
 To deploy this in production, you need to specify your cloud resources in Bicep files and use either Azure CLI or Azure Developer CLI, azd. Follow below lab to learn how.
 
-TODO: add link to lab
+- Lab: [Token rate limit Lab](https://github.com/Azure-Samples/AI-Gateway/blob/main/labs/token-rate-limiting/README.MD)

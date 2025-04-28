@@ -68,8 +68,10 @@ Learn more how to [provision an Application Insights resource here](https://lear
 
 ## Additional Resources
 
-TODO
+- Docs: [Create Azure API Management instance](https://learn.microsoft.com/en-us/azure/api-management/get-started-create-service-instance)
+- Docs: [Create Azure Open AI](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal)
+- Docs: [Create Azure Application Insight instance](https://learn.microsoft.com/en-us/azure/azure-monitor/app/create-workspace-resource?tabs=portal)
 
 ## Infrastructure as Code
 
-TODO
+- Lab: [Folder with Bicep recipes for different resources](https://github.com/Azure-Samples/AI-Gateway/tree/main/modules)

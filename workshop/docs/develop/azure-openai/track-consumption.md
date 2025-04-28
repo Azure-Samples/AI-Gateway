@@ -140,8 +140,9 @@ To test the monitoring, we need to run a few requests, then navigate to it and i
 
 ## Additional Resources
 
-TODO
+- Docs: [Emit token metric policy](https://learn.microsoft.com/en-us/azure/api-management/azure-openai-emit-token-metric-policy)
+- Docs: [Set up Azure Monitor](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-use-azure-monitor)
 
 ## Infrastructure as Code
 
-TODO, link to lab
+- Lab: [Token metrics emitting lab](https://github.com/Azure-Samples/AI-Gateway/blob/main/labs/token-metrics-emitting/README.MD)
