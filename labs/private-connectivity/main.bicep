@@ -181,22 +181,6 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
   }
 }]
 
-// // https://learn.microsoft.com/azure/templates/microsoft.insights/diagnosticsettings
-// resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0 && lawId != '') {
-//   name: '${cognitiveServices[i].name}-diagnostics'
-//   scope: cognitiveServices[i]
-//   properties: {
-//     workspaceId: lawId != '' ? lawId : null
-//     logs: []
-//     metrics: [
-//       {
-//         category: 'AllMetrics'
-//         enabled: true
-//       }
-//     ]
-//   }
-// }]
-
 @batchSize(1)
 resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [
   for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
@@ -279,22 +263,6 @@ resource pvtEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
     ]
   }
 }]
-
-// // Cognitive Services and LLM models
-// module openAIModule '../../modules/cognitive-services/v3/openai.bicep' = {
-//   name: 'openAIModule'
-//   params: {
-//     openAIConfig: openAIConfig
-//     openAIDeploymentName: openAIDeploymentName
-//     openAIModelName: openAIModelName
-//     openAIModelVersion: openAIModelVersion
-//     openAIModelSKU: openAIModelSKU
-//     apimPrincipalId: apimService.identity.principalId
-//     enablePrivateEndpoint: true
-//     vnetId: virtualNetwork.id
-//     subnetId: subnetAiServicesName
-//   }
-// }
 
 // API Management Service
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
@@ -437,16 +405,6 @@ resource apiTestConnectionOperation 'Microsoft.ApiManagement/service/apis/operat
     urlTemplate: '/'
   }
 }
-
-// // APIM OpenAI API
-// module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
-//   name: 'openAIAPIModule'
-//   params: {
-//     policyXml: updatedPolicyXml
-//     openAIConfig: openAIModule.outputs.extendedOpenAIConfig
-//     openAIAPIVersion: openAIAPIVersion
-//   }
-// }
 
 // Private Endpoint for APIM
 resource privateEndpointApim 'Microsoft.Network/privateEndpoints@2021-05-01' = {
@@ -748,6 +706,22 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
     // CustomMetricsOptedInType: 'WithDimensions'
   }
 }
+
+// https://learn.microsoft.com/azure/templates/microsoft.insights/diagnosticsettings
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+  name: '${cognitiveServices[i].name}-diagnostics'
+  scope: cognitiveServices[i]
+  properties: {
+    workspaceId: logAnalytics.id
+    logs: []
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}]
 
 resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
   name: 'apimLogger'
