@@ -48,7 +48,6 @@ param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
 
 @description('The name of the SKU to use when creating the Front Door profile.')
 @allowed([
-  'Standard_AzureFrontDoor'
   'Premium_AzureFrontDoor'
 ])
 param frontDoorSkuName string = 'Premium_AzureFrontDoor'
@@ -377,32 +376,6 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
     displayName: openAISubscriptionDescription
     scope: '/apis'
     state: 'active'
-  }
-}
-
-resource apiTestConnection 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
-  name: 'test-connection'
-  parent: apimService
-  properties: {
-    apiType: 'http'
-    description: 'Test connection to APIM from public and private network'
-    displayName: 'Test Connection API'
-    path: 'ip'
-    protocols: ['http','https']
-    type: 'http'
-    serviceUrl: 'https://ifconfig.me/ip'
-    subscriptionRequired: false
-  }
-}
-
-// API Test Connection GET Operation
-resource apiTestConnectionOperation 'Microsoft.ApiManagement/service/apis/operations@2023-05-01-preview' = {
-  name: 'GET-ip'
-  parent: apiTestConnection
-  properties: {
-    displayName: 'GET IP'
-    method: 'GET'
-    urlTemplate: '/'
   }
 }
 
