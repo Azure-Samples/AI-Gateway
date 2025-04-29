@@ -165,10 +165,10 @@ def run(command, ok_message = '', error_message = '', print_output = False, prin
     start_time = time.time()
 
     try:
-        output_text = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode("utf-8")
+        output_text = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode("latin-1")
         success = True
     except subprocess.CalledProcessError as e:
-        output_text = e.output.decode("utf-8")
+        output_text = e.output.decode("latin-1")
         success = False
 
     minutes, seconds = divmod(time.time() - start_time, 60)
