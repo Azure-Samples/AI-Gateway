@@ -186,3 +186,6 @@ terraform.rc
 
 # Ignore Gradio temp files
 .gradio
+
+# Ignore .infracost folders
+.infracost
