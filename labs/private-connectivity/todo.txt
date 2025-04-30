@@ -1,3 +1,0 @@
-- Remove the section for testing API with results focusing on load balancing
-- Private Subnet for APIM and AI Services
-- Approve private link connection
