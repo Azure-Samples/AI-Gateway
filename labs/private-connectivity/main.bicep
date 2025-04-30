@@ -19,29 +19,24 @@ param openAISku string = 'S0'
 @description('The relative path of the APIM API for OpenAI API')
 param openAIAPIPath string = 'openai'
 
-@description('The display name of the APIM API for OpenAI API')
-param openAIAPIDisplayName string = 'OpenAI'
-
-@description('The description of the APIM API for OpenAI API')
-param openAIAPIDescription string = 'Azure OpenAI API inferencing API'
-
 @description('Full URL for the OpenAI API spec')
 param openAIAPISpecURL string = 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.json'
 
 @description('The name of the APIM Subscription for OpenAI API')
 param openAISubscriptionName string = 'openai-subscription'
 
-@description('The description of the APIM Subscription for OpenAI API')
-param openAISubscriptionDescription string = 'OpenAI Subscription'
-
 @description('The name of the OpenAI backend pool')
 param openAIBackendPoolName string = 'openai-backend-pool'
 
-@description('The description of the OpenAI backend pool')
-param openAIBackendPoolDescription string = 'Load balancer for multiple OpenAI endpoints'
-
 @description('The name of the APIM API for OpenAI API')
 param openAIAPIName string = 'openai'
+
+@description('Public network access for APIM')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param apimPublicNetworkAccess string = 'Enabled'
 
 @description('The name of the Front Door endpoint to create. This must be globally unique.')
 param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
@@ -57,9 +52,6 @@ param bastionHostName string = 'bastion-host'
 
 @description('Name of the virtual machine')
 param vmName string = 'vm-jumpbox'
-
-@description('The size of the virtual machine')
-param vmSize string = 'Standard_D2ads_v5'
 
 @description('The admin username for the virtual machine')
 param vmAdminUsername string = 'azureuser'
@@ -77,11 +69,6 @@ var virtualNetworkName = 'vnet-spoke'
 var subnetAiServicesName = 'snet-aiservices'
 var subnetApimName = 'snet-apim'
 var subnetVmName = 'snet-vm'
-
-var frontDoorProfileName = 'FrontDoor'
-var frontDoorOriginGroupName = 'OriginGroup'
-var frontDoorOriginName = 'FrontDoorOrigin'
-var frontDoorRouteName = 'FrontDoorRoute'
 
 // Account for all placeholders in the polixy.xml file.
 var policyXml = loadTextContent('policy.xml')
@@ -181,7 +168,7 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
 }]
 
 @batchSize(1)
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [
+resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [
   for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
   name: openAIDeploymentName
   parent: cognitiveServices[i]
@@ -209,8 +196,8 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
 }]
 
 // Create private endpoint if enabled
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-05-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: '${config.name}-${suffix}-privateEndpoint'
+resource privateEndpointAiServices 'Microsoft.Network/privateEndpoints@2021-05-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
+  name: '${config.name}-${suffix}-privateendpoint'
   location: resourceGroup().location
   properties: {
     customNetworkInterfaceName: '${config.name}-${suffix}-nic'
@@ -229,16 +216,16 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-05-01' = [for 
   }
 }]
 
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
+resource privateDnsZoneAiServices 'Microsoft.Network/privateDnsZones@2020-06-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
   name: privateDnsZoneName
   location: 'global'
 }]
 
 // link private DNS zone to the virtual network
-resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
+resource privateDnsZoneAiServicesLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
   name: '${privateDnsZoneName}-link'
   location: 'global'
-  parent: privateDnsZone[i]
+  parent: privateDnsZoneAiServices[i]
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -248,15 +235,15 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
 }]
 
 // privateDnsZoneGroups for private endpoints
-resource pvtEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-05-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
+resource privateEndpointDnsGroupAiServices 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-05-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
   name: '${privateDnsZoneName}-dnsZoneGroup'
-  parent: privateEndpoint[i]
+  parent: privateEndpointAiServices[i]
   properties: {
     privateDnsZoneConfigs: [
       for (privateDnsZoneName, j) in privateDnsZoneNamesAiServices: {
         name: 'config${j}'
         properties: {
-          privateDnsZoneId: privateDnsZone[j].id
+          privateDnsZoneId: privateDnsZoneAiServices[j].id
         }
       }
     ]
@@ -276,7 +263,7 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
     publisherEmail: 'noreply@microsoft.com'
     publisherName: 'Microsoft'
     virtualNetworkType  : 'External' // "Internal" # Setting up 'Internal' Internal Virtual Network Type is not supported for Sku Type 'StandardV2'.
-    publicNetworkAccess : 'Enabled'  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
+    publicNetworkAccess : apimPublicNetworkAccess  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
     virtualNetworkConfiguration : {
       subnetResourceId: virtualNetwork::subnetApim.id
     }
@@ -291,8 +278,8 @@ resource api 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
   parent: apimService
   properties: {
     apiType: 'http'
-    description: openAIAPIDescription
-    displayName: openAIAPIDisplayName
+    description: 'Azure OpenAI API inferencing API'
+    displayName: 'OpenAI'
     format: 'openapi-link'
     path: openAIAPIPath
     protocols: [
@@ -354,7 +341,7 @@ resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-
   name: openAIBackendPoolName
   parent: apimService
   properties: {
-    description: openAIBackendPoolDescription
+    description: 'Load balancer for multiple OpenAI endpoints'
     type: 'Pool'
     //    protocol: 'http'  // the protocol is not needed in the Pool type
     //    url: '${cognitiveServices[0].properties.endpoint}/openai'   // the url is not needed in the Pool type
@@ -373,7 +360,7 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
   parent: apimService
   properties: {
     allowTracing: true
-    displayName: openAISubscriptionDescription
+    displayName: 'OpenAI Subscription'
     scope: '/apis'
     state: 'active'
   }
@@ -381,7 +368,7 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-05
 
 // Private Endpoint for APIM
 resource privateEndpointApim 'Microsoft.Network/privateEndpoints@2021-05-01' = {
-  name: 'privateEndpoint-apim'
+  name: 'privateendpoint-apim'
   location: resourceGroup().location
   properties: {
     customNetworkInterfaceName: 'nic-pe-apim'
@@ -438,7 +425,7 @@ resource privateDnsZoneGroupApim 'Microsoft.Network/privateEndpoints/privateDnsZ
 
 // Azure Front Door
 resource frontDoorProfile 'Microsoft.Cdn/profiles@2021-06-01' = {
-  name: frontDoorProfileName
+  name: 'FrontDoor'
   location: 'global'
   sku: {
     name: frontDoorSkuName
@@ -455,7 +442,7 @@ resource frontDoorEndpoint 'Microsoft.Cdn/profiles/afdEndpoints@2021-06-01' = {
 }
 
 resource frontDoorOriginGroup 'Microsoft.Cdn/profiles/originGroups@2021-06-01' = {
-  name: frontDoorOriginGroupName
+  name: 'OriginGroup'
   parent: frontDoorProfile
   properties: {
     loadBalancingSettings: {
@@ -472,7 +459,7 @@ resource frontDoorOriginGroup 'Microsoft.Cdn/profiles/originGroups@2021-06-01' =
 }
 
 resource frontDoorOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01' = {
-  name: frontDoorOriginName
+  name: 'FrontDoorOrigin'
   parent: frontDoorOriginGroup
   properties: {
     hostName: replace(apimService.properties.gatewayUrl, 'https://', '')
@@ -482,12 +469,10 @@ resource frontDoorOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01
     priority: 1
     weight: 1000
     enabledState: 'Enabled'
-
     sharedPrivateLinkResource: {
       groupId: 'Gateway'
       privateLinkLocation: resourceGroup().location
       requestMessage: 'Please validate PE connection'
-      status: 'Approved'
       privateLink: {
         id: apimService.id
       }
@@ -496,7 +481,7 @@ resource frontDoorOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01
 }
 
 resource frontDoorRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' = {
-  name: frontDoorRouteName
+  name: 'FrontDoorRoute'
   parent: frontDoorEndpoint
   dependsOn: [
     frontDoorOrigin // This explicit dependency is required to ensure that the origin group is not empty when the route is created.
@@ -567,8 +552,8 @@ resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2021-06-01' = {
 }
 
 // // Approve private link connection for APIM
-// resource approvePrivateLinkConnectionApim 'Microsoft.ApiManagement/service/privateEndpointConnections@2024-05-01' = {
-//   name: 'd7017edf-8819-4f84-a113-8c851cfe7805'
+// resource approvePrivateLinkConnectionApim 'Microsoft.ApiManagement/service/privateEndpointConnections@2024-06-01-preview' = {
+//   name: '4406a100-e485-4ed5-b3d6-911890f52e19'
 //   parent: apimService
 //   properties: {
 //     privateLinkServiceConnectionState: {
@@ -621,7 +606,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
       maxPrice: -1
     }
     hardwareProfile: {
-      vmSize: vmSize
+      vmSize: 'Standard_D2ads_v5'
     }
     osProfile: {
       computerName: vmName
@@ -778,6 +763,7 @@ resource logAnalyticsWorkspaceDiagnostics 'Microsoft.Insights/diagnosticSettings
 // ------------------
 //    MARK: OUTPUTS
 // ------------------
+output apimResourceId string = apimService.id
 output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 #disable-next-line outputs-should-not-contain-secrets
 output apimSubscriptionKey string = apimSubscription.listSecrets().primaryKey
