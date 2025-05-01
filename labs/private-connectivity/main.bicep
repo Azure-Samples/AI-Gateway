@@ -78,7 +78,10 @@ var updatedPolicyXml = replace(
   (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name
 )
 var azureRoles = loadJsonContent('../../modules/azure-roles.json')
-var cognitiveServicesOpenAIUserRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesOpenAIUser)
+var cognitiveServicesOpenAIUserRoleDefinitionID = resourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  azureRoles.CognitiveServicesOpenAIUser
+)
 
 var privateDnsZoneNamesAiServices = [
   'privatelink.cognitiveservices.azure.com'
@@ -151,104 +154,116 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
 }
 
 resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
-  for config in openAIConfig: if(length(openAIConfig) > 0) {
-  name: '${config.name}-${suffix}'
-  location: config.location
-  sku: {
-    name: openAISku
+  for config in openAIConfig: if (length(openAIConfig) > 0) {
+    name: '${config.name}-${suffix}'
+    location: config.location
+    sku: {
+      name: openAISku
+    }
+    kind: 'AIServices'
+    properties: {
+      customSubDomainName: toLower('${config.name}-${suffix}')
+      publicNetworkAccess: 'Disabled'
+      // apiProperties: {
+      //   statisticsEnabled: false
+      // }
+    }
   }
-  kind: 'AIServices'
-  properties: {
-    customSubDomainName: toLower('${config.name}-${suffix}')
-    publicNetworkAccess: 'Disabled'
-    // apiProperties: {
-    //   statisticsEnabled: false
-    // }
-  }
-}]
+]
 
 @batchSize(1)
 resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [
-  for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: openAIDeploymentName
-  parent: cognitiveServices[i]
-  properties: {
-    model: {
-      format: 'OpenAI'
-      name: openAIModelName
-      version: openAIModelVersion
+  for (config, i) in openAIConfig: if (length(openAIConfig) > 0) {
+    name: openAIDeploymentName
+    parent: cognitiveServices[i]
+    properties: {
+      model: {
+        format: 'OpenAI'
+        name: openAIModelName
+        version: openAIModelVersion
+      }
     }
-  }
-  sku: {
+    sku: {
       name: 'Standard'
       capacity: config.capacity
-  }
-}]
-
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  scope: cognitiveServices[i]
-  name: guid(subscription().id, resourceGroup().id, config.name, cognitiveServicesOpenAIUserRoleDefinitionID)
-    properties: {
-        roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
-        principalId: apimService.identity.principalId
-        principalType: 'ServicePrincipal'
     }
-}]
+  }
+]
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for (config, i) in openAIConfig: if (length(openAIConfig) > 0) {
+    scope: cognitiveServices[i]
+    name: guid(subscription().id, resourceGroup().id, config.name, cognitiveServicesOpenAIUserRoleDefinitionID)
+    properties: {
+      roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
+      principalId: apimService.identity.principalId
+      principalType: 'ServicePrincipal'
+    }
+  }
+]
 
 // Create private endpoint if enabled
-resource privateEndpointAiServices 'Microsoft.Network/privateEndpoints@2021-05-01' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: '${config.name}-${suffix}-privateendpoint'
-  location: resourceGroup().location
-  properties: {
-    customNetworkInterfaceName: '${config.name}-${suffix}-nic'
-    subnet: {
-      id: virtualNetwork::subnetAiServices.id    
-    }
-    privateLinkServiceConnections: [
-      {
-        name: '${config.name}-${suffix}-privateLinkServiceConnection'
-        properties: {
-          privateLinkServiceId: cognitiveServices[i].id
-          groupIds: ['account']
-        }
+resource privateEndpointAiServices 'Microsoft.Network/privateEndpoints@2021-05-01' = [
+  for (config, i) in openAIConfig: if (length(openAIConfig) > 0) {
+    name: '${config.name}-${suffix}-privateendpoint'
+    location: resourceGroup().location
+    properties: {
+      customNetworkInterfaceName: '${config.name}-${suffix}-nic'
+      subnet: {
+        id: virtualNetwork::subnetAiServices.id
       }
-    ]
+      privateLinkServiceConnections: [
+        {
+          name: '${config.name}-${suffix}-privateLinkServiceConnection'
+          properties: {
+            privateLinkServiceId: cognitiveServices[i].id
+            groupIds: ['account']
+          }
+        }
+      ]
+    }
   }
-}]
+]
 
-resource privateDnsZoneAiServices 'Microsoft.Network/privateDnsZones@2020-06-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
-  name: privateDnsZoneName
-  location: 'global'
-}]
+resource privateDnsZoneAiServices 'Microsoft.Network/privateDnsZones@2020-06-01' = [
+  for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if (length(privateDnsZoneNamesAiServices) > 0) {
+    name: privateDnsZoneName
+    location: 'global'
+  }
+]
 
 // link private DNS zone to the virtual network
-resource privateDnsZoneAiServicesLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
-  name: '${privateDnsZoneName}-link'
-  location: 'global'
-  parent: privateDnsZoneAiServices[i]
-  properties: {
-    registrationEnabled: false
-    virtualNetwork: {
-      id: virtualNetwork.id
+resource privateDnsZoneAiServicesLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = [
+  for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if (length(privateDnsZoneNamesAiServices) > 0) {
+    name: '${privateDnsZoneName}-link'
+    location: 'global'
+    parent: privateDnsZoneAiServices[i]
+    properties: {
+      registrationEnabled: false
+      virtualNetwork: {
+        id: virtualNetwork.id
+      }
     }
   }
-}]
+]
 
 // privateDnsZoneGroups for private endpoints
-resource privateEndpointDnsGroupAiServices 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-05-01' = [for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if(length(privateDnsZoneNamesAiServices) > 0) {
-  name: '${privateDnsZoneName}-dnsZoneGroup'
-  parent: privateEndpointAiServices[i]
-  properties: {
-    privateDnsZoneConfigs: [
-      for (privateDnsZoneName, j) in privateDnsZoneNamesAiServices: {
-        name: 'config${j}'
-        properties: {
-          privateDnsZoneId: privateDnsZoneAiServices[j].id
+resource privateEndpointDnsGroupAiServices 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-05-01' = [
+  for (privateDnsZoneName, i) in privateDnsZoneNamesAiServices: if (length(privateDnsZoneNamesAiServices) > 0) {
+    name: '${privateDnsZoneName}-dnsZoneGroup'
+    parent: privateEndpointAiServices[i]
+    properties: {
+      privateDnsZoneConfigs: [
+        for (privateDnsZoneName, j) in privateDnsZoneNamesAiServices: {
+          name: 'config${j}'
+          properties: {
+            privateDnsZoneId: privateDnsZoneAiServices[j].id
+          }
         }
-      }
-    ]
+      ]
+    }
   }
-}]
+]
 
 // API Management Service
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
@@ -262,9 +277,9 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
   properties: {
     publisherEmail: 'noreply@microsoft.com'
     publisherName: 'Microsoft'
-    virtualNetworkType  : 'External' // "Internal" # Setting up 'Internal' Internal Virtual Network Type is not supported for Sku Type 'StandardV2'.
-    publicNetworkAccess : apimPublicNetworkAccess  // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
-    virtualNetworkConfiguration : {
+    virtualNetworkType: 'External' // "Internal" # Setting up 'Internal' Internal Virtual Network Type is not supported for Sku Type 'StandardV2'.
+    publicNetworkAccess: apimPublicNetworkAccess // "Disabled" # Blocking all public network access by setting property `publicNetworkAccess` of API Management service is not enabled during service creation.
+    virtualNetworkConfiguration: {
       subnetResourceId: virtualNetwork::subnetApim.id
     }
   }
@@ -593,10 +608,10 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
         }
       }
     ]
-  } 
+  }
 }
 
-resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' =  {
+resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
   name: vmName
   location: resourceGroup().location
   properties: {
@@ -666,20 +681,22 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 // https://learn.microsoft.com/azure/templates/microsoft.insights/diagnosticsettings
-resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (config, i) in openAIConfig: if(length(openAIConfig) > 0) {
-  name: '${cognitiveServices[i].name}-diagnostics'
-  scope: cognitiveServices[i]
-  properties: {
-    workspaceId: logAnalytics.id
-    logs: []
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [
+  for (config, i) in openAIConfig: if (length(openAIConfig) > 0) {
+    name: '${cognitiveServices[i].name}-diagnostics'
+    scope: cognitiveServices[i]
+    properties: {
+      workspaceId: logAnalytics.id
+      logs: []
+      metrics: [
+        {
+          category: 'AllMetrics'
+          enabled: true
+        }
+      ]
+    }
   }
-}]
+]
 
 resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
   name: 'apimLogger'
