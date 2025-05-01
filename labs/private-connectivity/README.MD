@@ -2,13 +2,10 @@
 
 ## [Private Connectivity Lab](private-connectivity.ipynb)
 
-[![flow](../../images/backend-pool-load-balancing.gif)](backend-pool-load-balancing.ipynb)
+![architecture](architecture.png)
 
 Playground to try the private connectivity [private connectivity functionality of APIM](https://learn.microsoft.com/en-us/azure/api-management/private-endpoint?tabs=v2) to a list of Azure OpenAI private endpoints.
 
-### Result
-
-![result](result.png)
 
 ### Prerequisites
 
