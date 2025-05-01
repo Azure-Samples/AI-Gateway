@@ -47,9 +47,6 @@ param frontDoorEndpointName string = 'afd-${uniqueString(resourceGroup().id)}'
 ])
 param frontDoorSkuName string = 'Premium_AzureFrontDoor'
 
-@description('Name of Azure Bastion resource')
-param bastionHostName string = 'bastion-host'
-
 @description('Name of the virtual machine')
 param vmName string = 'vm-jumpbox'
 
@@ -581,7 +578,7 @@ resource securityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2021-06-01' = {
 
 // Azure Bastion Host
 resource bastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
-  name: bastionHostName
+  name: 'bastion-host'
   location: resourceGroup().location
   sku: {
     name: 'Developer'
