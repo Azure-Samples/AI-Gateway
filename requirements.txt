@@ -23,3 +23,10 @@ azure-ai-inference[prompts]
 azure-search-documents
 azure-functions
 azure-mgmt-apimanagement
+
+# MCP Labs
+mcp
+autogen-core 
+autogen-ext[openai,azure,mcp] 
+autogen-agentchat
+semantic-kernel[mcp]
