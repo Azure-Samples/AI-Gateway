@@ -189,3 +189,20 @@ terraform.rc
 
 # Ignore .infracost folders
 .infracost
+
+# Ignore specific files
+labs/private-connectivity/params.json
+labs/ai-foundry-sdk/params.json
+
+# Ignore all params.json files in any directory
+**/params.json
+
+# Ignore notebook checkpoints
+**/.ipynb_checkpoints/
+
+# Ignore private configuration files
+**/*.private.config
+
+# Ignore local environment files
+.env
+.env.local
