@@ -55,6 +55,8 @@ param vmAdminUsername string = 'azureuser'
 
 @secure()
 @description('The admin password for the virtual machine')
+// Ignoring the password warning as this is strictly for demo purposes and should be secured in a real-world scenario.
+#disable-next-line secure-parameter-default
 param vmAdminPassword string = '@Aa123456789' // should be secured in real world
 
 // ------------------
@@ -352,11 +354,11 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
 resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = if (length(openAIConfig) > 1) {
   name: openAIBackendPoolName
   parent: apimService
+  // BCP035: protocol and url are not needed in the Pool type. This is an incorrect error.
+  #disable-next-line BCP035
   properties: {
     description: 'Load balancer for multiple OpenAI endpoints'
     type: 'Pool'
-    //    protocol: 'http'  // the protocol is not needed in the Pool type
-    //    url: '${cognitiveServices[0].properties.endpoint}/openai'   // the url is not needed in the Pool type
     pool: {
       services: [
         for (config, i) in openAIConfig: {
