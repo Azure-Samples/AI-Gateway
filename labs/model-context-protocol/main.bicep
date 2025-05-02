@@ -17,6 +17,7 @@ param location string = resourceGroup().location
 
 param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
+param oncallAPIPath string = 'oncall'
 param servicenowAPIPath string = 'servicenow'
 param serviceNowInstanceName string
 
@@ -188,6 +189,49 @@ resource gitHubMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pre
 
 resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: 'aca-weather-${resourceSuffix}'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppUAI.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        allowInsecure: false
+      }
+      registries: [
+        {
+          identity: containerAppUAI.id
+          server: containerRegistry.properties.loginServer
+        }
+      ]      
+    }
+    template: {
+      containers: [
+        {
+          name: 'aca-${resourceSuffix}'
+          image: 'docker.io/jfxs/hello-world:latest'
+          resources: {
+            cpu: json('.5')
+            memory: '1Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
+      }
+    }
+  }
+}
+
+resource oncallMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-oncall-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -413,6 +457,15 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
   }
 }
 
+module oncallAPIModule 'src/oncall/apim-api/api.bicep' = {
+  name: 'oncallAPIModule'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: oncallAPIPath
+    APIServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}/${oncallAPIPath}'
+  }
+}
+
 module serviceNowAPIModule 'src/servicenow/apim-api/api.bicep' = if(length(serviceNowInstanceName) > 0) {
   name: 'servicenowAPIModule'
   params: {
@@ -461,6 +514,9 @@ output gitHubMCPServerContainerAppFQDN string = gitHubMCPServerContainerApp.prop
 
 output weatherMCPServerContainerAppResourceName string = weatherMCPServerContainerApp.name
 output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.properties.configuration.ingress.fqdn
+
+output oncallMCPServerContainerAppResourceName string = oncallMCPServerContainerApp.name
+output oncallMCPServerContainerAppFQDN string = oncallMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 output servicenowMCPServerContainerAppResourceName string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.name: ''
 output servicenowMCPServerContainerAppFQDN string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn: ''
