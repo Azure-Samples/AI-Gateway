@@ -15,6 +15,7 @@
         <!-- STEP 1: Retrieve PKCE parameters from MCP Client request -->
         <set-variable name="mcpClientCodeChallenge" value="@((string)context.Request.Url.Query.GetValueOrDefault("code_challenge", ""))" />
         <set-variable name="mcpClientCodeChallengeMethod" value="@((string)context.Request.Url.Query.GetValueOrDefault("code_challenge_method", ""))" />
+        
         <!-- STEP 2: Generate PKCE parameters for Entra ID authentication -->
         <!-- Generate a random code verifier for Entra ID -->
         <set-variable name="codeVerifier" value="@((string)Guid.NewGuid().ToString().Replace("-", ""))" />
@@ -31,7 +32,7 @@
             }" />
         <!-- STEP 3: Extract client information and create state parameter -->
         <set-variable name="clientId" value="@((string)context.Request.Url.Query.GetValueOrDefault("client_id", ""))" />
-        <set-variable name="state" value="@((string)Guid.NewGuid().ToString())" />
+        <set-variable name="entraState" value="@((string)Guid.NewGuid().ToString())" />
         <!-- STEP 4: Construct the Entra ID authorization URL -->
         <!-- Base URL for Entra ID authorization endpoint -->
         <set-variable name="baseAuthUrl" value="https://login.microsoftonline.com/{{EntraIDTenantId}}/oauth2/v2.0/authorize?response_type=code" />
@@ -45,7 +46,7 @@
         <!-- Add required scope parameter -->
         <set-variable name="scopeParam" value="@(string.Concat("&scope={{OAuthScopes}}"))" />
         <!-- Add state parameter for security -->
-        <set-variable name="stateParam" value="@(string.Concat("&state=", context.Variables.GetValueOrDefault("state", "")))" />
+        <set-variable name="stateParam" value="@(string.Concat("&state=", context.Variables.GetValueOrDefault("entraState", "")))" />
           <!-- Combine all parts to form the complete authorization URL with PKCE params -->
         <set-variable name="authUrl" value="@(string.Concat(
             context.Variables.GetValueOrDefault("baseAuthUrl", ""), 
@@ -61,22 +62,27 @@
         
         <!-- Store code verifier for token exchange -->
         <cache-store-value duration="700" 
-            key="CodeVerifier-@(context.Variables.GetValueOrDefault("state", ""))" 
+            key="CodeVerifier-@(context.Variables.GetValueOrDefault("entraState", ""))" 
             value="@(context.Variables.GetValueOrDefault("codeVerifier", ""))" />
         
+        <!-- Retrieve MCP Client State and Scope from request (Claude sends the state and scope param for binding the auth flow per request) -->
+        <set-variable name="mcpState" value="@((string)context.Request.Url.Query.GetValueOrDefault("state", ""))" />
+        <set-variable name="mcpScope" value="@((string)context.Request.Url.Query.GetValueOrDefault("scope", ""))" />
         <!-- Map state to MCP confirmation code for callback -->
         <cache-store-value duration="700" 
-            key="@((string)context.Variables.GetValueOrDefault("state"))" 
+            key="@((string)context.Variables.GetValueOrDefault("entraState"))" 
             value="@(context.Variables.GetValueOrDefault("mcpConfirmConsentCode", ""))" />
-        
-        <!-- Store MCP client PKCE data for verification during token exchange -->
+        <!-- Store MCP client PKCE and state data for verification during token exchange -->
         <cache-store-value duration="700" 
             key="@($"McpClientAuthData-{context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}")" 
             value="@{
                 // Create a JObject and populate it with values
                 return new JObject{
                     ["mcpClientCodeChallenge"] = (string)context.Variables.GetValueOrDefault("mcpClientCodeChallenge", ""),
-                    ["mcpClientCodeChallengeMethod"] = (string)context.Variables.GetValueOrDefault("mcpClientCodeChallengeMethod", "")
+                    ["mcpClientCodeChallengeMethod"] = (string)context.Variables.GetValueOrDefault("mcpClientCodeChallengeMethod", ""),
+                    ["mcpClientState"] = (string)context.Variables.GetValueOrDefault("mcpState", ""),
+                    ["mcpClientScope"] = (string)context.Variables.GetValueOrDefault("mcpScope", ""),
+                    ["mcpCallbackRedirectUri"] = Uri.UnescapeDataString(context.Request.Url.Query.GetValueOrDefault("redirect_uri", ""))
                 }.ToString();
             }" />
     </inbound>
