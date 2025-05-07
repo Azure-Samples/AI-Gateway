@@ -25,7 +25,8 @@ async def get_cities(ctx: Context, country: str) -> str:
         "uk": ["London", "Manchester", "Birmingham", "Leeds", "Glasgow"],
         "australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
         "india": ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai"],
-        "portugal": ["Lisbon", "Porto", "Braga", "Faro", "Coimbra"]
+        "portugal": ["Lisbon", "Porto", "Braga", "Faro", "Coimbra"],
+        "france": ["Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes"]
     }
 
     cities = cities_by_country.get(country.lower(), [])
