@@ -19,6 +19,10 @@ Playground to try the private connectivity [private connectivity functionality o
 
 Proceed by opening the [Jupyter notebook](private-connectivity.ipynb), and follow the steps provided.
 
+### 📺 Video tutorial
+
+If you prefer a video tutorial, you can watch the [YouTube video explaining the architecture](https://www.youtube.com/watch?v=sUchn_XjpaI) or this [YouTube video lab](https://www.youtube.com/watch?v=BN1aobzBapg) that walks you through the lab.
+
 ### 🗑️ Clean up resources
 
 When you're finished with the lab, you should remove all your deployed resources from Azure to avoid extra charges and keep your Azure subscription uncluttered.
