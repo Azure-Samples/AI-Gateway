@@ -1,0 +1,2402 @@
+[
+  {
+    "id": 1,
+    "category": "Animals",
+    "question": "True or False: A slug has four noses?",
+    "answer": "True"
+  },
+  {
+    "id": 2,
+    "category": "Human Body",
+    "question": "What is the only part of the human body that has no blood supply?",
+    "answer": "The cornea"
+  },
+  {
+    "id": 3,
+    "category": "Space",
+    "question": "True or False: Footprints left by astronauts on the Moon will likely stay there for millions of years.",
+    "answer": "True (due to no wind or water erosion)"
+  },
+  {
+    "id": 4,
+    "category": "Food & Drink",
+    "question": "Which popular condiment was once sold as medicine in the 1830s?",
+    "answer": "Ketchup"
+  },
+  {
+    "id": 5,
+    "category": "History",
+    "question": "True or False: The Great Wall of China is visible from space with the naked eye.",
+    "answer": "False (this is a common misconception)"
+  },
+  {
+    "id": 6,
+    "category": "Animals",
+    "question": "How many hearts does an octopus have?",
+    "answer": "Three"
+  },
+  {
+    "id": 7,
+    "category": "Geography",
+    "question": "What is the only country that borders both the Mediterranean Sea and the Black Sea?",
+    "answer": "Turkey"
+  },
+  {
+    "id": 8,
+    "category": "Science",
+    "question": "True or False: Sound travels faster in water than in air.",
+    "answer": "True"
+  },
+  {
+    "id": 9,
+    "category": "Language",
+    "question": "What is the most commonly used letter in the English language?",
+    "answer": "E"
+  },
+  {
+    "id": 10,
+    "category": "Animals",
+    "question": "True or False: A group of flamingos is called a 'flamboyance'.",
+    "answer": "True"
+  },
+  {
+    "id": 11,
+    "category": "Human Body",
+    "question": "Approximately how many times does the average human heart beat in a day?",
+    "answer": "Around 100,000 times"
+  },
+  {
+    "id": 12,
+    "category": "Technology",
+    "question": "What company is technically the world's largest tire manufacturer by number of tires produced?",
+    "answer": "Lego (they produce millions of tiny tires for their toys)"
+  },
+  {
+    "id": 13,
+    "category": "Nature",
+    "question": "True or False: The Eiffel Tower can be 15 cm taller during the summer.",
+    "answer": "True (due to thermal expansion of iron)"
+  },
+  {
+    "id": 14,
+    "category": "Animals",
+    "question": "Which mammal has the most powerful bite force?",
+    "answer": "Hippopotamus"
+  },
+  {
+    "id": 15,
+    "category": "Food & Drink",
+    "question": "True or False: Honey never spoils.",
+    "answer": "True (archaeologists have found pots of honey in ancient Egyptian tombs that are thousands of years old and still perfectly edible)"
+  },
+  {
+    "id": 16,
+    "category": "History",
+    "question": "What was the original purpose of bubble wrap?",
+    "answer": "Textured wallpaper"
+  },
+  {
+    "id": 17,
+    "category": "Space",
+    "question": "Which planet in our solar system is known for its prominent rings?",
+    "answer": "Saturn"
+  },
+  {
+    "id": 18,
+    "category": "Animals",
+    "question": "True or False: Butterflies taste with their feet.",
+    "answer": "True"
+  },
+  {
+    "id": 19,
+    "category": "Geography",
+    "question": "Which country has the most pyramids in the world?",
+    "answer": "Sudan (not Egypt)"
+  },
+  {
+    "id": 20,
+    "category": "Science",
+    "question": "What is the chemical symbol for gold?",
+    "answer": "Au (from Latin 'aurum')"
+  },
+  {
+    "id": 21,
+    "category": "Animals",
+    "question": "True or False: An ostrich's eye is bigger than its brain.",
+    "answer": "True"
+  },
+  {
+    "id": 22,
+    "category": "Human Body",
+    "question": "What percentage of the human body is water?",
+    "answer": "Approximately 60%"
+  },
+  {
+    "id": 23,
+    "category": "History",
+    "question": "In what year did the Titanic sink?",
+    "answer": "1912"
+  },
+  {
+    "id": 24,
+    "category": "Food & Drink",
+    "question": "Are peanuts botanically classified as nuts or legumes?",
+    "answer": "Legumes"
+  },
+  {
+    "id": 25,
+    "category": "Animals",
+    "question": "True or False: A shrimp's heart is in its head.",
+    "answer": "True"
+  },
+  {
+    "id": 26,
+    "category": "Nature",
+    "question": "What is the tallest type of grass on Earth?",
+    "answer": "Bamboo"
+  },
+  {
+    "id": 27,
+    "category": "Space",
+    "question": "How long does it take for light from the Sun to reach Earth?",
+    "answer": "Approximately 8 minutes and 20 seconds"
+  },
+  {
+    "id": 28,
+    "category": "Animals",
+    "question": "Which animal is known to have 'language' with specific 'words' for different predators?",
+    "answer": "Prairie dogs"
+  },
+  {
+    "id": 29,
+    "category": "Technology",
+    "question": "What does 'Wi-Fi' stand for?",
+    "answer": "Nothing (it's a branded name, not an acronym for Wireless Fidelity as commonly believed)"
+  },
+  {
+    "id": 30,
+    "category": "History",
+    "question": "True or False: Cleopatra was alive closer in time to the building of the first Pizza Hut than to the building of the Great Pyramid of Giza.",
+    "answer": "True"
+  },
+  {
+    "id": 31,
+    "category": "Animals",
+    "question": "What is the only mammal capable of true sustained flight?",
+    "answer": "Bat"
+  },
+  {
+    "id": 32,
+    "category": "Human Body",
+    "question": "True or False: Humans share approximately 50% of their DNA with bananas.",
+    "answer": "True"
+  },
+  {
+    "id": 33,
+    "category": "Geography",
+    "question": "What is the largest desert in the world (Hint: It's not a hot desert)?",
+    "answer": "Antarctica (polar desert)"
+  },
+  {
+    "id": 34,
+    "category": "Food & Drink",
+    "question": "Before the 17th century, what color were carrots commonly?",
+    "answer": "Purple or white"
+  },
+  {
+    "id": 35,
+    "category": "Animals",
+    "question": "True or False: Cows have best friends and can become stressed when separated from them.",
+    "answer": "True"
+  },
+  {
+    "id": 36,
+    "category": "Science",
+    "question": "What is the hardest known natural material?",
+    "answer": "Diamond"
+  },
+  {
+    "id": 37,
+    "category": "Language",
+    "question": "What is a 'pangram'?",
+    "answer": "A sentence that contains every letter of the alphabet (e.g., 'The quick brown fox jumps over the lazy dog')"
+  },
+  {
+    "id": 38,
+    "category": "Animals",
+    "question": "True or False: Sea otters hold hands while sleeping so they don't drift apart.",
+    "answer": "True"
+  },
+  {
+    "id": 39,
+    "category": "History",
+    "question": "The shortest war in history was between Britain and Zanzibar in 1896. How long did it last?",
+    "answer": "Approximately 38 to 45 minutes"
+  },
+  {
+    "id": 40,
+    "category": "Space",
+    "question": "Which planet is known as the 'Red Planet'?",
+    "answer": "Mars"
+  },
+  {
+    "id": 41,
+    "category": "Animals",
+    "question": "What bird can fly backwards?",
+    "answer": "Hummingbird"
+  },
+  {
+    "id": 42,
+    "category": "Human Body",
+    "question": "True or False: You use more muscles to frown than to smile.",
+    "answer": "False (it's roughly the other way around or comparable, depending on the intensity)"
+  },
+  {
+    "id": 43,
+    "category": "Geography",
+    "question": "What is the capital of Canada?",
+    "answer": "Ottawa"
+  },
+  {
+    "id": 44,
+    "category": "Food & Drink",
+    "question": "From which plant is tequila primarily made?",
+    "answer": "Blue Agave"
+  },
+  {
+    "id": 45,
+    "category": "Animals",
+    "question": "True or False: A rhinoceros's horn is made of hair.",
+    "answer": "True (it's made of keratin, the same protein found in hair and fingernails)"
+  },
+  {
+    "id": 46,
+    "category": "Nature",
+    "question": "What is the world's largest living structure?",
+    "answer": "The Great Barrier Reef"
+  },
+  {
+    "id": 47,
+    "category": "Technology",
+    "question": "In what decade was the first Apple iPhone released?",
+    "answer": "2000s (specifically 2007)"
+  },
+  {
+    "id": 48,
+    "category": "Animals",
+    "question": "Can a snail sleep for up to three years?",
+    "answer": "True (under unfavorable conditions, they can enter long periods of hibernation/aestivation)"
+  },
+  {
+    "id": 49,
+    "category": "History",
+    "question": "Which famous scientist developed the theory of relativity?",
+    "answer": "Albert Einstein"
+  },
+  {
+    "id": 50,
+    "category": "Space",
+    "question": "True or False: There is sound in space.",
+    "answer": "False (space is a vacuum, and sound waves need a medium to travel through)"
+  },
+  {
+    "id": 51,
+    "category": "Animals",
+    "question": "What color is a polar bear's skin?",
+    "answer": "Black (underneath their white fur)"
+  },
+  {
+    "id": 52,
+    "category": "Human Body",
+    "question": "How many bones are in an adult human body?",
+    "answer": "206"
+  },
+  {
+    "id": 53,
+    "category": "Geography",
+    "question": "Which ocean is the largest?",
+    "answer": "Pacific Ocean"
+  },
+  {
+    "id": 54,
+    "category": "Food & Drink",
+    "question": "What is the main ingredient in traditional Japanese miso soup?",
+    "answer": "Soybeans (fermented into miso paste)"
+  },
+  {
+    "id": 55,
+    "category": "Animals",
+    "question": "True or False: A group of owls is called a 'parliament'.",
+    "answer": "True"
+  },
+  {
+    "id": 56,
+    "category": "Science",
+    "question": "At what temperature Celsius and Fahrenheit are equal?",
+    "answer": "-40 degrees"
+  },
+  {
+    "id": 57,
+    "category": "Language",
+    "question": "The word 'alphabet' comes from the first two letters of which alphabet?",
+    "answer": "Greek (Alpha and Beta)"
+  },
+  {
+    "id": 58,
+    "category": "Animals",
+    "question": "How many legs does a spider have?",
+    "answer": "Eight"
+  },
+  {
+    "id": 59,
+    "category": "History",
+    "question": "Who was the first woman to fly solo across the Atlantic Ocean?",
+    "answer": "Amelia Earhart"
+  },
+  {
+    "id": 60,
+    "category": "Space",
+    "question": "What is the name of the galaxy that contains our Solar System?",
+    "answer": "The Milky Way"
+  },
+  {
+    "id": 61,
+    "category": "Animals",
+    "question": "True or False: Elephants are the only mammals that can't jump.",
+    "answer": "True (among adult land mammals; sloths and rhinos also have difficulty)"
+  },
+  {
+    "id": 62,
+    "category": "Human Body",
+    "question": "Where is the smallest bone in the human body located?",
+    "answer": "In the ear (the stapes or stirrup bone)"
+  },
+  {
+    "id": 63,
+    "category": "Nature",
+    "question": "What phenomenon causes the Aurora Borealis (Northern Lights)?",
+    "answer": "Charged particles from the sun colliding with atoms in Earth's atmosphere"
+  },
+  {
+    "id": 64,
+    "category": "Food & Drink",
+    "question": "True or False: Strawberries are not technically berries, but bananas are.",
+    "answer": "True (botanically speaking)"
+  },
+  {
+    "id": 65,
+    "category": "Animals",
+    "question": "What is a baby kangaroo called?",
+    "answer": "A joey"
+  },
+  {
+    "id": 66,
+    "category": "Technology",
+    "question": "What does the acronym 'LASER' stand for?",
+    "answer": "Light Amplification by Stimulated Emission of Radiation"
+  },
+  {
+    "id": 67,
+    "category": "History",
+    "question": "Which ancient civilization built Machu Picchu?",
+    "answer": "The Inca Empire"
+  },
+  {
+    "id": 68,
+    "category": "Animals",
+    "question": "True or False: A crocodile cannot stick its tongue out.",
+    "answer": "True"
+  },
+  {
+    "id": 69,
+    "category": "Geography",
+    "question": "Mount Everest, the world's highest peak, is located in which mountain range?",
+    "answer": "The Himalayas"
+  },
+  {
+    "id": 70,
+    "category": "Science",
+    "question": "What is H2O more commonly known as?",
+    "answer": "Water"
+  },
+  {
+    "id": 71,
+    "category": "Animals",
+    "question": "Which insect is known for its 'waggle dance' to communicate food sources?",
+    "answer": "Honeybee"
+  },
+  {
+    "id": 72,
+    "category": "Human Body",
+    "question": "True or False: Your stomach acid is strong enough to dissolve razor blades.",
+    "answer": "True (though it would take time, and it's not recommended to test)"
+  },
+  {
+    "id": 73,
+    "category": "Space",
+    "question": "What is the largest planet in our solar system?",
+    "answer": "Jupiter"
+  },
+  {
+    "id": 74,
+    "category": "Food & Drink",
+    "question": "What is the primary ingredient in guacamole?",
+    "answer": "Avocado"
+  },
+  {
+    "id": 75,
+    "category": "Animals",
+    "question": "True or False: Goldfish have a memory span of only a few seconds.",
+    "answer": "False (they can remember things for months)"
+  },
+  {
+    "id": 76,
+    "category": "History",
+    "question": "The first modern Olympic Games were held in which city in 1896?",
+    "answer": "Athens, Greece"
+  },
+  {
+    "id": 77,
+    "category": "Nature",
+    "question": "What is the process by which plants make their own food using sunlight?",
+    "answer": "Photosynthesis"
+  },
+  {
+    "id": 78,
+    "category": "Animals",
+    "question": "What is the fastest land animal?",
+    "answer": "Cheetah"
+  },
+  {
+    "id": 79,
+    "category": "Language",
+    "question": "How many letters are in the Hawaiian alphabet?",
+    "answer": "12 (A, E, I, O, U, H, K, L, M, N, P, W) - sometimes 13 with the 'okina"
+  },
+  {
+    "id": 80,
+    "category": "Technology",
+    "question": "What does 'CPU' stand for in computing?",
+    "answer": "Central Processing Unit"
+  },
+  {
+    "id": 81,
+    "category": "Animals",
+    "question": "True or False: A group of crows is called a 'murder'.",
+    "answer": "True"
+  },
+  {
+    "id": 82,
+    "category": "Human Body",
+    "question": "What is the largest organ in the human body?",
+    "answer": "The skin"
+  },
+  {
+    "id": 83,
+    "category": "Geography",
+    "question": "What is the longest river in the world?",
+    "answer": "The Nile (though the Amazon is a close contender depending on measurement)"
+  },
+  {
+    "id": 84,
+    "category": "Food & Drink",
+    "question": "Which country is the origin of the croissant?",
+    "answer": "Austria (though popularized by France)"
+  },
+  {
+    "id": 85,
+    "category": "Animals",
+    "question": "Can a shark blink?",
+    "answer": "Yes, some sharks have nictitating membranes (like eyelids)"
+  },
+  {
+    "id": 86,
+    "category": "Science",
+    "question": "What force keeps planets in orbit around the Sun?",
+    "answer": "Gravity"
+  },
+  {
+    "id": 87,
+    "category": "History",
+    "question": "The Roaring Twenties refers to which decade?",
+    "answer": "The 1920s"
+  },
+  {
+    "id": 88,
+    "category": "Animals",
+    "question": "True or False: A giraffe has the same number of neck vertebrae as a human.",
+    "answer": "True (both have seven, though a giraffe's are much larger)"
+  },
+  {
+    "id": 89,
+    "category": "Space",
+    "question": "Which is the hottest planet in our solar system?",
+    "answer": "Venus (due to its thick atmosphere causing a runaway greenhouse effect)"
+  },
+  {
+    "id": 90,
+    "category": "Nature",
+    "question": "What type of rock is formed from cooled lava or magma?",
+    "answer": "Igneous rock"
+  },
+  {
+    "id": 91,
+    "category": "Animals",
+    "question": "What is the collective noun for a group of kittens?",
+    "answer": "A kindle or an intrigue"
+  },
+  {
+    "id": 92,
+    "category": "Human Body",
+    "question": "True or False: Fingernails grow faster than toenails.",
+    "answer": "True"
+  },
+  {
+    "id": 93,
+    "category": "Technology",
+    "question": "The 'QWERTY' keyboard layout was designed to do what initially?",
+    "answer": "Slow down typists to prevent typewriter jams"
+  },
+  {
+    "id": 94,
+    "category": "Food & Drink",
+    "question": "What is the most consumed manufactured drink in the world?",
+    "answer": "Tea"
+  },
+  {
+    "id": 95,
+    "category": "Animals",
+    "question": "True or False: Wombat poop is cube-shaped.",
+    "answer": "True"
+  },
+  {
+    "id": 96,
+    "category": "History",
+    "question": "In which country did the Renaissance begin?",
+    "answer": "Italy"
+  },
+  {
+    "id": 97,
+    "category": "Geography",
+    "question": "What is the smallest country in the world?",
+    "answer": "Vatican City"
+  },
+  {
+    "id": 98,
+    "category": "Animals",
+    "question": "Which large marine animal is known for its complex songs that can travel for hundreds of miles?",
+    "answer": "Humpback whale"
+  },
+  {
+    "id": 99,
+    "category": "Science",
+    "question": "What is the common name for sodium chloride?",
+    "answer": "Salt"
+  },
+  {
+    "id": 100,
+    "category": "Language",
+    "question": "What is the name for a word that is spelled the same forwards and backwards?",
+    "answer": "Palindrome"
+  },
+  {
+    "id": 101,
+    "category": "Animals",
+    "question": "True or False: A reindeer's eyes change color from gold in summer to blue in winter.",
+    "answer": "True (to help them see better in low light)"
+  },
+  {
+    "id": 102,
+    "category": "Human Body",
+    "question": "How many taste buds does the average human tongue have?",
+    "answer": "Around 2,000 to 4,000 (but some sources say up to 10,000)"
+  },
+  {
+    "id": 103,
+    "category": "Space",
+    "question": "What is a 'light-year' a measure of?",
+    "answer": "Distance (not time)"
+  },
+  {
+    "id": 104,
+    "category": "Food & Drink",
+    "question": "Which fruit is known as the 'king of fruits' and is famous for its strong odor?",
+    "answer": "Durian"
+  },
+  {
+    "id": 105,
+    "category": "History",
+    "question": "The Statue of Liberty was a gift to the United States from which country?",
+    "answer": "France"
+  },
+  {
+    "id": 106,
+    "category": "Animals",
+    "question": "What is the primary diet of a panda?",
+    "answer": "Bamboo"
+  },
+  {
+    "id": 107,
+    "category": "Geography",
+    "question": "Which African country is known as the 'Land of a Thousand Hills'?",
+    "answer": "Rwanda"
+  },
+  {
+    "id": 108,
+    "category": "Science",
+    "question": "True or False: Lightning never strikes the same place twice.",
+    "answer": "False (it often strikes tall objects repeatedly)"
+  },
+  {
+    "id": 109,
+    "category": "Language",
+    "question": "The term 'OK' is believed to have originated as an abbreviation for what misspelled phrase?",
+    "answer": "'Oll Korrect' (All Correct)"
+  },
+  {
+    "id": 110,
+    "category": "Animals",
+    "question": "True or False: A platypus is a mammal that lays eggs.",
+    "answer": "True"
+  },
+  {
+    "id": 111,
+    "category": "Human Body",
+    "question": "What is the medical term for bad breath?",
+    "answer": "Halitosis"
+  },
+  {
+    "id": 112,
+    "category": "Technology",
+    "question": "What was the first video game to be played in space?",
+    "answer": "Tetris (on a Game Boy aboard the Mir space station)"
+  },
+  {
+    "id": 113,
+    "category": "Nature",
+    "question": "What is the name of the process where water evaporates from plant leaves?",
+    "answer": "Transpiration"
+  },
+  {
+    "id": 114,
+    "category": "Animals",
+    "question": "Which bird has the largest wingspan?",
+    "answer": "Wandering Albatross"
+  },
+  {
+    "id": 115,
+    "category": "Food & Drink",
+    "question": "True or False: White chocolate is not technically chocolate.",
+    "answer": "True (it doesn't contain cocoa solids)"
+  },
+  {
+    "id": 116,
+    "category": "History",
+    "question": "The ancient Egyptians worshipped cats and even mummified them. True or False?",
+    "answer": "True"
+  },
+  {
+    "id": 117,
+    "category": "Space",
+    "question": "What is the closest star to Earth (besides the Sun)?",
+    "answer": "Proxima Centauri"
+  },
+  {
+    "id": 118,
+    "category": "Animals",
+    "question": "True or False: A chameleon's tongue can be twice as long as its body.",
+    "answer": "True"
+  },
+  {
+    "id": 119,
+    "category": "Geography",
+    "question": "What is the only continent that lies in all four hemispheres?",
+    "answer": "Africa"
+  },
+  {
+    "id": 120,
+    "category": "Science",
+    "question": "What gas makes up the majority of Earth's atmosphere?",
+    "answer": "Nitrogen (about 78%)"
+  },
+  {
+    "id": 121,
+    "category": "Animals",
+    "question": "What do you call a female donkey?",
+    "answer": "A jenny"
+  },
+  {
+    "id": 122,
+    "category": "Human Body",
+    "question": "True or False: Humans are born with all their adult teeth already formed in their jaws.",
+    "answer": "False (baby teeth form first, adult teeth develop later)"
+  },
+  {
+    "id": 123,
+    "category": "History",
+    "question": "Who is credited with inventing the telephone?",
+    "answer": "Alexander Graham Bell"
+  },
+  {
+    "id": 124,
+    "category": "Food & Drink",
+    "question": "Which popular soda was originally marketed as a brain tonic and intellectual beverage?",
+    "answer": "Coca-Cola (originally contained cocaine and caffeine from kola nuts)"
+  },
+  {
+    "id": 125,
+    "category": "Animals",
+    "question": "True or False: A group of porcupines is called a 'prickle'.",
+    "answer": "True"
+  },
+  {
+    "id": 126,
+    "category": "Nature",
+    "question": "What gives flamingos their pink color?",
+    "answer": "Pigments in the crustaceans and algae they eat (carotenoids)"
+  },
+  {
+    "id": 127,
+    "category": "Space",
+    "question": "How many Earths could fit inside the Sun?",
+    "answer": "Approximately 1.3 million"
+  },
+  {
+    "id": 128,
+    "category": "Animals",
+    "question": "What is the loudest animal on Earth, capable of sounds up to 200 decibels?",
+    "answer": "Sperm Whale (their clicks)"
+  },
+  {
+    "id": 129,
+    "category": "Technology",
+    "question": "What was the original name of the search engine Google?",
+    "answer": "Backrub"
+  },
+  {
+    "id": 130,
+    "category": "History",
+    "question": "True or False: Vikings wore horned helmets.",
+    "answer": "False (this is a popular misconception; no historical evidence supports it)"
+  },
+  {
+    "id": 131,
+    "category": "Animals",
+    "question": "Which animal has fingerprints so similar to humans that they can contaminate crime scenes?",
+    "answer": "Koala"
+  },
+  {
+    "id": 132,
+    "category": "Human Body",
+    "question": "True or False: Sneezing with your eyes open is impossible.",
+    "answer": "False (though it's a strong reflex, it's possible for some)"
+  },
+  {
+    "id": 133,
+    "category": "Geography",
+    "question": "What is the deepest point in Earth's oceans?",
+    "answer": "The Challenger Deep in the Mariana Trench"
+  },
+  {
+    "id": 134,
+    "category": "Food & Drink",
+    "question": "Which nut is used to make marzipan?",
+    "answer": "Almonds"
+  },
+  {
+    "id": 135,
+    "category": "Animals",
+    "question": "True or False: A bat is a bird.",
+    "answer": "False (it's a mammal)"
+  },
+  {
+    "id": 136,
+    "category": "Science",
+    "question": "What is the boiling point of water at sea level in Celsius?",
+    "answer": "100 degrees Celsius"
+  },
+  {
+    "id": 137,
+    "category": "Language",
+    "question": "What is the only English word that ends in '-mt'?",
+    "answer": "Dreamt (and its variants like undreamt)"
+  },
+  {
+    "id": 138,
+    "category": "Animals",
+    "question": "How many pairs of wings does a bee have?",
+    "answer": "Two"
+  },
+  {
+    "id": 139,
+    "category": "History",
+    "question": "The famous 'I Have a Dream' speech was delivered by whom?",
+    "answer": "Martin Luther King Jr."
+  },
+  {
+    "id": 140,
+    "category": "Space",
+    "question": "True or False: The dark side of the moon always faces away from the Sun.",
+    "answer": "False (it refers to the side that always faces away from Earth; both sides get sunlight)"
+  },
+  {
+    "id": 141,
+    "category": "Animals",
+    "question": "What is the only dog breed that cannot bark?",
+    "answer": "Basenji (they make a yodeling sound instead)"
+  },
+  {
+    "id": 142,
+    "category": "Human Body",
+    "question": "Approximately how much blood does the average adult human body contain?",
+    "answer": "About 5 liters (or 1.3 gallons)"
+  },
+  {
+    "id": 143,
+    "category": "Nature",
+    "question": "What precious gem is formed from carbon under high pressure?",
+    "answer": "Diamond"
+  },
+  {
+    "id": 144,
+    "category": "Food & Drink",
+    "question": "True or False: The 'M' in M&M's stands for Mars and Murrie.",
+    "answer": "True"
+  },
+  {
+    "id": 145,
+    "category": "Animals",
+    "question": "A 'sounder' is the collective noun for which animal?",
+    "answer": "Wild boar or pigs"
+  },
+  {
+    "id": 146,
+    "category": "Technology",
+    "question": "What does 'URL' stand for?",
+    "answer": "Uniform Resource Locator"
+  },
+  {
+    "id": 147,
+    "category": "History",
+    "question": "Which war involved the Trojan Horse?",
+    "answer": "The Trojan War"
+  },
+  {
+    "id": 148,
+    "category": "Animals",
+    "question": "True or False: A camel stores water in its humps.",
+    "answer": "False (the humps store fat, which can be metabolized into water and energy)"
+  },
+  {
+    "id": 149,
+    "category": "Geography",
+    "question": "Which U.S. state is known as the 'Sunshine State'?",
+    "answer": "Florida"
+  },
+  {
+    "id": 150,
+    "category": "Science",
+    "question": "What is the measurement unit for electrical resistance?",
+    "answer": "Ohm"
+  },
+  {
+    "id": 151,
+    "category": "Animals",
+    "question": "What is the largest type of deer?",
+    "answer": "Moose"
+  },
+  {
+    "id": 152,
+    "category": "Human Body",
+    "question": "True or False: The human brain is fully developed by age 18.",
+    "answer": "False (it continues to develop until the mid-20s)"
+  },
+  {
+    "id": 153,
+    "category": "Space",
+    "question": "Which dwarf planet was reclassified from being the ninth planet in our solar system?",
+    "answer": "Pluto"
+  },
+  {
+    "id": 154,
+    "category": "Food & Drink",
+    "question": "Saffron, the world's most expensive spice, comes from which part of a flower?",
+    "answer": "The stigma (of the crocus flower)"
+  },
+  {
+    "id": 155,
+    "category": "History",
+    "question": "The period of history known as the Dark Ages followed the fall of which empire?",
+    "answer": "The Western Roman Empire"
+  },
+  {
+    "id": 156,
+    "category": "Animals",
+    "question": "Which animal is known for being able to change its color to match its surroundings?",
+    "answer": "Chameleon"
+  },
+  {
+    "id": 157,
+    "category": "Geography",
+    "question": "What is the capital of Australia?",
+    "answer": "Canberra"
+  },
+  {
+    "id": 158,
+    "category": "Science",
+    "question": "True or False: Glass is a liquid.",
+    "answer": "False (it's an amorphous solid, though old window panes sometimes appear thicker at the bottom due to manufacturing or very slow flow over centuries)"
+  },
+  {
+    "id": 159,
+    "category": "Language",
+    "question": "What is the fear of long words called?",
+    "answer": "Hippopotomonstrosesquippedaliophobia (ironically)"
+  },
+  {
+    "id": 160,
+    "category": "Animals",
+    "question": "True or False: Frogs drink water through their skin.",
+    "answer": "True (through a process called osmosis)"
+  },
+  {
+    "id": 161,
+    "category": "Human Body",
+    "question": "What is the scientific name for the kneecap?",
+    "answer": "Patella"
+  },
+  {
+    "id": 162,
+    "category": "Technology",
+    "question": "What was the first item sold on eBay (then AuctionWeb)?",
+    "answer": "A broken laser pointer"
+  },
+  {
+    "id": 163,
+    "category": "Nature",
+    "question": "Which tree is known for its 'knees' that grow above water in swampy areas?",
+    "answer": "Bald Cypress"
+  },
+  {
+    "id": 164,
+    "category": "Animals",
+    "question": "What is the only continent where giraffes live in the wild?",
+    "answer": "Africa"
+  },
+  {
+    "id": 165,
+    "category": "Food & Drink",
+    "question": "True or False: Apples float in water because they are 25% air.",
+    "answer": "True"
+  },
+  {
+    "id": 166,
+    "category": "History",
+    "question": "Who was the first U.S. President to live in the White House?",
+    "answer": "John Adams"
+  },
+  {
+    "id": 167,
+    "category": "Space",
+    "question": "What is the Great Red Spot on Jupiter?",
+    "answer": "A giant, long-lived storm"
+  },
+  {
+    "id": 168,
+    "category": "Animals",
+    "question": "True or False: Alligators can live up to 100 years.",
+    "answer": "False (more like 30-50 years in the wild, longer in captivity, but not typically 100)"
+  },
+  {
+    "id": 169,
+    "category": "Geography",
+    "question": "Which country is home to the ancient city of Petra?",
+    "answer": "Jordan"
+  },
+  {
+    "id": 170,
+    "category": "Science",
+    "question": "What element has the chemical symbol 'Fe'?",
+    "answer": "Iron (from Latin 'ferrum')"
+  },
+  {
+    "id": 171,
+    "category": "Animals",
+    "question": "What type of creature is a 'Flemish Giant'?",
+    "answer": "A rabbit (one of the largest breeds)"
+  },
+  {
+    "id": 172,
+    "category": "Human Body",
+    "question": "True or False: Humans have more than five senses.",
+    "answer": "True (e.g., proprioception - sense of body position, equilibrioception - sense of balance, thermoception - sense of temperature)"
+  },
+  {
+    "id": 173,
+    "category": "History",
+    "question": "The Industrial Revolution began in which country?",
+    "answer": "Great Britain"
+  },
+  {
+    "id": 174,
+    "category": "Food & Drink",
+    "question": "What is sushi traditionally wrapped in?",
+    "answer": "Nori (seaweed)"
+  },
+  {
+    "id": 175,
+    "category": "Animals",
+    "question": "True or False: A 'Jenny' is a male donkey.",
+    "answer": "False (it's a female donkey; a male is a 'Jack')"
+  },
+  {
+    "id": 176,
+    "category": "Nature",
+    "question": "What is the common name for the Aurora Australis?",
+    "answer": "Southern Lights"
+  },
+  {
+    "id": 177,
+    "category": "Space",
+    "question": "How many moons does Mars have?",
+    "answer": "Two (Phobos and Deimos)"
+  },
+  {
+    "id": 178,
+    "category": "Animals",
+    "question": "What is the sleepiest animal, sleeping up to 22 hours a day?",
+    "answer": "Koala"
+  },
+  {
+    "id": 179,
+    "category": "Technology",
+    "question": "What does 'GPS' stand for?",
+    "answer": "Global Positioning System"
+  },
+  {
+    "id": 180,
+    "category": "History",
+    "question": "True or False: Marie Antoinette famously said 'Let them eat cake'.",
+    "answer": "False (this phrase was attributed to her but likely said by others earlier)"
+  },
+  {
+    "id": 181,
+    "category": "Animals",
+    "question": "Which mammal has the longest gestation period (pregnancy)?",
+    "answer": "Elephant (around 22 months)"
+  },
+  {
+    "id": 182,
+    "category": "Human Body",
+    "question": "True or False: Your hair and nails continue to grow after you die.",
+    "answer": "False (it's an illusion caused by skin retraction)"
+  },
+  {
+    "id": 183,
+    "category": "Geography",
+    "question": "Which desert is the largest hot desert in the world?",
+    "answer": "The Sahara Desert"
+  },
+  {
+    "id": 184,
+    "category": "Food & Drink",
+    "question": "What alcoholic beverage is made from fermented honey and water?",
+    "answer": "Mead"
+  },
+  {
+    "id": 185,
+    "category": "Animals",
+    "question": "True or False: A group of jellyfish is called a 'smack'.",
+    "answer": "True (also a 'bloom' or 'swarm')"
+  },
+  {
+    "id": 186,
+    "category": "Science",
+    "question": "What is the study of earthquakes called?",
+    "answer": "Seismology"
+  },
+  {
+    "id": 187,
+    "category": "Language",
+    "question": "What is the most translated book in the world?",
+    "answer": "The Bible"
+  },
+  {
+    "id": 188,
+    "category": "Animals",
+    "question": "How many stomachs does a cow have?",
+    "answer": "One (with four compartments: rumen, reticulum, omasum, abomasum)"
+  },
+  {
+    "id": 189,
+    "category": "History",
+    "question": "Who painted the Mona Lisa?",
+    "answer": "Leonardo da Vinci"
+  },
+  {
+    "id": 190,
+    "category": "Space",
+    "question": "True or False: Mercury is the closest planet to the Sun.",
+    "answer": "True"
+  },
+  {
+    "id": 191,
+    "category": "Animals",
+    "question": "What is a group of geese on the ground called?",
+    "answer": "A gaggle"
+  },
+  {
+    "id": 192,
+    "category": "Human Body",
+    "question": "How many bones are babies born with (approximately)?",
+    "answer": "Around 300 (many fuse together as they grow)"
+  },
+  {
+    "id": 193,
+    "category": "Nature",
+    "question": "What is the name of the supercontinent that existed millions of years ago?",
+    "answer": "Pangaea"
+  },
+  {
+    "id": 194,
+    "category": "Food & Drink",
+    "question": "True or False: Coffee beans are actually seeds of coffee cherries.",
+    "answer": "True"
+  },
+  {
+    "id": 195,
+    "category": "Animals",
+    "question": "Which fish is known for its ability to 'walk' on land?",
+    "answer": "Mudskipper"
+  },
+  {
+    "id": 196,
+    "category": "Technology",
+    "question": "In what year was the World Wide Web (WWW) invented by Tim Berners-Lee?",
+    "answer": "1989"
+  },
+  {
+    "id": 197,
+    "category": "History",
+    "question": "The Battle of Waterloo in 1815 marked the final defeat of which famous military leader?",
+    "answer": "Napoleon Bonaparte"
+  },
+  {
+    "id": 198,
+    "category": "Animals",
+    "question": "True or False: A woodchuck is another name for a groundhog.",
+    "answer": "True"
+  },
+  {
+    "id": 199,
+    "category": "Geography",
+    "question": "Which is the only sea on Earth with no coastline?",
+    "answer": "The Sargasso Sea"
+  },
+  {
+    "id": 200,
+    "category": "Science",
+    "question": "What is the name for the molten rock that erupts from a volcano?",
+    "answer": "Lava (it's called magma when it's underground)"
+  },
+  {
+    "id": 201,
+    "category": "Animals",
+    "question": "True or False: Armadillos always give birth to identical quadruplets.",
+    "answer": "True (for the nine-banded armadillo)"
+  },
+  {
+    "id": 202,
+    "category": "Human Body",
+    "question": "Which part of the brain is primarily responsible for balance and coordination?",
+    "answer": "Cerebellum"
+  },
+  {
+    "id": 203,
+    "category": "Space",
+    "question": "What does the acronym SETI stand for?",
+    "answer": "Search for Extraterrestrial Intelligence"
+  },
+  {
+    "id": 204,
+    "category": "Food & Drink",
+    "question": "Which country produces the most coffee in the world?",
+    "answer": "Brazil"
+  },
+  {
+    "id": 205,
+    "category": "History",
+    "question": "What was the name of the ship on which Charles Darwin made his famous voyage?",
+    "answer": "HMS Beagle"
+  },
+  {
+    "id": 206,
+    "category": "Animals",
+    "question": "What is the largest living bird by height?",
+    "answer": "Ostrich"
+  },
+  {
+    "id": 207,
+    "category": "Geography",
+    "question": "The ancient wonder, the Hanging Gardens, were supposedly located in which city?",
+    "answer": "Babylon"
+  },
+  {
+    "id": 208,
+    "category": "Science",
+    "question": "True or False: Water expands when it freezes.",
+    "answer": "True"
+  },
+  {
+    "id": 209,
+    "category": "Language",
+    "question": "What is the name for a word that imitates a sound, like 'buzz' or 'moo'?",
+    "answer": "Onomatopoeia"
+  },
+  {
+    "id": 210,
+    "category": "Animals",
+    "question": "True or False: A group of ravens is called an 'unkindness' or 'conspiracy'.",
+    "answer": "True"
+  },
+  {
+    "id": 211,
+    "category": "Human Body",
+    "question": "What is the name of the pigment that gives skin and hair its color?",
+    "answer": "Melanin"
+  },
+  {
+    "id": 212,
+    "category": "Technology",
+    "question": "What does 'PDF' stand for?",
+    "answer": "Portable Document Format"
+  },
+  {
+    "id": 213,
+    "category": "Nature",
+    "question": "What is the tallest waterfall in the world?",
+    "answer": "Angel Falls, Venezuela"
+  },
+  {
+    "id": 214,
+    "category": "Animals",
+    "question": "Which marine mammal is known for its tusk, which is actually an elongated tooth?",
+    "answer": "Narwhal"
+  },
+  {
+    "id": 215,
+    "category": "Food & Drink",
+    "question": "True or False: It's impossible to hum while holding your nose closed.",
+    "answer": "True (humming requires air to escape through the nose)"
+  },
+  {
+    "id": 216,
+    "category": "History",
+    "question": "The Cold War was primarily between which two superpowers?",
+    "answer": "The United States and the Soviet Union"
+  },
+  {
+    "id": 217,
+    "category": "Space",
+    "question": "What is the name of NASA's most famous space telescope, launched in 1990?",
+    "answer": "Hubble Space Telescope"
+  },
+  {
+    "id": 218,
+    "category": "Animals",
+    "question": "True or False: Sloths can hold their breath longer than dolphins.",
+    "answer": "True (sloths can hold their breath for up to 40 minutes, dolphins need to surface every 10 minutes or so)"
+  },
+  {
+    "id": 219,
+    "category": "Geography",
+    "question": "What country is known as the Land of the Rising Sun?",
+    "answer": "Japan"
+  },
+  {
+    "id": 220,
+    "category": "Science",
+    "question": "What is the chemical symbol for Silver?",
+    "answer": "Ag (from Latin 'argentum')"
+  },
+  {
+    "id": 221,
+    "category": "Animals",
+    "question": "What is the only species of cat that lives and hunts in groups?",
+    "answer": "Lion"
+  },
+  {
+    "id": 222,
+    "category": "Human Body",
+    "question": "True or False: The appendix is a completely useless organ.",
+    "answer": "False (it's now believed to be a reservoir for beneficial gut bacteria)"
+  },
+  {
+    "id": 223,
+    "category": "History",
+    "question": "Who was the first person to step on the Moon?",
+    "answer": "Neil Armstrong"
+  },
+  {
+    "id": 224,
+    "category": "Food & Drink",
+    "question": "Wasabi, often served with sushi, is typically made from what plant in Japan?",
+    "answer": "Japanese horseradish (though much 'wasabi' outside Japan is regular horseradish with green dye)"
+  },
+  {
+    "id": 225,
+    "category": "Animals",
+    "question": "True or False: A group of cats is called a 'clowder' or 'pounce'.",
+    "answer": "True"
+  },
+  {
+    "id": 226,
+    "category": "Nature",
+    "question": "What type of clouds are high, wispy, and often indicate fair weather?",
+    "answer": "Cirrus clouds"
+  },
+  {
+    "id": 227,
+    "category": "Space",
+    "question": "What is the term for a star that suddenly increases greatly in brightness because of a catastrophic explosion?",
+    "answer": "Supernova"
+  },
+  {
+    "id": 228,
+    "category": "Animals",
+    "question": "Which animal is the national animal of Scotland?",
+    "answer": "Unicorn (mythical, but officially recognized)"
+  },
+  {
+    "id": 229,
+    "category": "Technology",
+    "question": "The first commercially successful video game was what?",
+    "answer": "Pong (released in 1972)"
+  },
+  {
+    "id": 230,
+    "category": "History",
+    "question": "True or False: The Library of Alexandria was destroyed in a single catastrophic event.",
+    "answer": "False (it declined and was destroyed over centuries through various events)"
+  },
+  {
+    "id": 231,
+    "category": "Animals",
+    "question": "How do dogs primarily cool themselves down?",
+    "answer": "Panting (and some sweating through paw pads)"
+  },
+  {
+    "id": 232,
+    "category": "Human Body",
+    "question": "True or False: You can't tickle yourself.",
+    "answer": "True (mostly; your brain anticipates the sensation and cancels it out)"
+  },
+  {
+    "id": 233,
+    "category": "Geography",
+    "question": "Which city is known as the 'Eternal City'?",
+    "answer": "Rome, Italy"
+  },
+  {
+    "id": 234,
+    "category": "Food & Drink",
+    "question": "What is the main grain used to make bourbon whiskey?",
+    "answer": "Corn (at least 51%)"
+  },
+  {
+    "id": 235,
+    "category": "Animals",
+    "question": "True or False: A 'drey' is the nest of a squirrel.",
+    "answer": "True"
+  },
+  {
+    "id": 236,
+    "category": "Science",
+    "question": "What scale is used to measure the intensity of earthquakes?",
+    "answer": "The Richter scale (or more commonly now, the Moment Magnitude Scale)"
+  },
+  {
+    "id": 237,
+    "category": "Language",
+    "question": "What is the most common vowel in the English language?",
+    "answer": "E"
+  },
+  {
+    "id": 238,
+    "category": "Animals",
+    "question": "Which part of a fish's body helps it to stay buoyant in water?",
+    "answer": "Swim bladder"
+  },
+  {
+    "id": 239,
+    "category": "History",
+    "question": "The ancient Olympic Games originated in which country?",
+    "answer": "Greece"
+  },
+  {
+    "id": 240,
+    "category": "Space",
+    "question": "True or False: Astronauts grow taller in space.",
+    "answer": "True (due to spinal decompression in microgravity)"
+  },
+  {
+    "id": 241,
+    "category": "Animals",
+    "question": "What is a group of ferrets called?",
+    "answer": "A business"
+  },
+  {
+    "id": 242,
+    "category": "Human Body",
+    "question": "What is the colored part of the human eye called?",
+    "answer": "Iris"
+  },
+  {
+    "id": 243,
+    "category": "Nature",
+    "question": "What is the term for a tree that loses its leaves seasonally?",
+    "answer": "Deciduous"
+  },
+  {
+    "id": 244,
+    "category": "Food & Drink",
+    "question": "True or False: The French fry originated in France.",
+    "answer": "False (Belgium is often cited as its origin)"
+  },
+  {
+    "id": 245,
+    "category": "Animals",
+    "question": "Which animal has the highest blood pressure?",
+    "answer": "Giraffe (to pump blood up its long neck)"
+  },
+  {
+    "id": 246,
+    "category": "Technology",
+    "question": "What does 'RAM' stand for in computing?",
+    "answer": "Random Access Memory"
+  },
+  {
+    "id": 247,
+    "category": "History",
+    "question": "Mount Vesuvius erupted in 79 AD and destroyed which Roman city?",
+    "answer": "Pompeii (and Herculaneum)"
+  },
+  {
+    "id": 248,
+    "category": "Animals",
+    "question": "True or False: The blue whale is the largest animal ever known to have lived on Earth.",
+    "answer": "True"
+  },
+  {
+    "id": 249,
+    "category": "Geography",
+    "question": "What is the largest island in the Mediterranean Sea?",
+    "answer": "Sicily"
+  },
+  {
+    "id": 250,
+    "category": "Science",
+    "question": "What is the study of fungi called?",
+    "answer": "Mycology"
+  },
+  {
+    "id": 251,
+    "category": "Animals",
+    "question": "What is a male swan called?",
+    "answer": "A cob"
+  },
+  {
+    "id": 252,
+    "category": "Human Body",
+    "question": "True or False: It takes more muscles to smile than to frown.",
+    "answer": "False (smiling generally uses fewer)"
+  },
+  {
+    "id": 253,
+    "category": "Space",
+    "question": "What is the name of the first artificial satellite launched into space?",
+    "answer": "Sputnik 1 (by the Soviet Union in 1957)"
+  },
+  {
+    "id": 254,
+    "category": "Food & Drink",
+    "question": "What is the main ingredient in hummus?",
+    "answer": "Chickpeas"
+  },
+  {
+    "id": 255,
+    "category": "History",
+    "question": "The Bayeux Tapestry depicts events leading up to which famous battle in 1066?",
+    "answer": "The Battle of Hastings"
+  },
+  {
+    "id": 256,
+    "category": "Animals",
+    "question": "Which bird is a symbol of peace?",
+    "answer": "Dove"
+  },
+  {
+    "id": 257,
+    "category": "Geography",
+    "question": "What is the northernmost capital city in the world?",
+    "answer": "Reykjavik, Iceland"
+  },
+  {
+    "id": 258,
+    "category": "Science",
+    "question": "True or False: A nautical mile is longer than a standard mile.",
+    "answer": "True (1 nautical mile = approx 1.15 standard miles)"
+  },
+  {
+    "id": 259,
+    "category": "Language",
+    "question": "What is the study of the origin of words called?",
+    "answer": "Etymology"
+  },
+  {
+    "id": 260,
+    "category": "Animals",
+    "question": "True or False: A group of apes is called a 'shrewdness'.",
+    "answer": "True"
+  },
+  {
+    "id": 261,
+    "category": "Human Body",
+    "question": "Which organ produces insulin in the human body?",
+    "answer": "Pancreas"
+  },
+  {
+    "id": 262,
+    "category": "Technology",
+    "question": "Who co-founded Microsoft with Bill Gates?",
+    "answer": "Paul Allen"
+  },
+  {
+    "id": 263,
+    "category": "Nature",
+    "question": "What is the largest active volcano in the world (by mass and volume)?",
+    "answer": "Mauna Loa, Hawaii"
+  },
+  {
+    "id": 264,
+    "category": "Animals",
+    "question": "What is the fastest fish in the ocean?",
+    "answer": "Sailfish (can reach speeds over 68 mph)"
+  },
+  {
+    "id": 265,
+    "category": "Food & Drink",
+    "question": "True or False: Almonds are part of the peach family.",
+    "answer": "True (they are drupes, related to cherries, plums, and peaches)"
+  },
+  {
+    "id": 266,
+    "category": "History",
+    "question": "Who was the Queen of England during the Spanish Armada?",
+    "answer": "Queen Elizabeth I"
+  },
+  {
+    "id": 267,
+    "category": "Space",
+    "question": "Which US space program was responsible for landing the first humans on the Moon?",
+    "answer": "Apollo program"
+  },
+  {
+    "id": 268,
+    "category": "Animals",
+    "question": "True or False: A 'murmuration' is a large group of starlings flying together.",
+    "answer": "True"
+  },
+  {
+    "id": 269,
+    "category": "Geography",
+    "question": "What is the only major city located on two continents?",
+    "answer": "Istanbul, Turkey (Europe and Asia)"
+  },
+  {
+    "id": 270,
+    "category": "Science",
+    "question": "What does 'DNA' stand for?",
+    "answer": "Deoxyribonucleic acid"
+  },
+  {
+    "id": 271,
+    "category": "Animals",
+    "question": "What color is the blood of an octopus?",
+    "answer": "Blue (due to hemocyanin, a copper-containing protein)"
+  },
+  {
+    "id": 272,
+    "category": "Human Body",
+    "question": "True or False: Humans shed their entire outer layer of skin every 2-4 weeks.",
+    "answer": "True"
+  },
+  {
+    "id": 273,
+    "category": "History",
+    "question": "What year did World War I end?",
+    "answer": "1918"
+  },
+  {
+    "id": 274,
+    "category": "Food & Drink",
+    "question": "Which country is the largest exporter of tea?",
+    "answer": "China (followed by India and Kenya, can vary)"
+  },
+  {
+    "id": 275,
+    "category": "Animals",
+    "question": "True or False: A queen bee can lay up to 2,000 eggs per day.",
+    "answer": "True"
+  },
+  {
+    "id": 276,
+    "category": "Nature",
+    "question": "What is the name of the Earth's outer layer?",
+    "answer": "The crust"
+  },
+  {
+    "id": 277,
+    "category": "Space",
+    "question": "What is the term for a celestial body orbiting a planet?",
+    "answer": "Moon or satellite"
+  },
+  {
+    "id": 278,
+    "category": "Animals",
+    "question": "Which animal has the largest eyes relative to its body size?",
+    "answer": "Tarsier"
+  },
+  {
+    "id": 279,
+    "category": "Technology",
+    "question": "The term 'bug' for a computer glitch was popularized after a real insect was found in a computer. What type of insect was it?",
+    "answer": "A moth (found in the Harvard Mark II computer)"
+  },
+  {
+    "id": 280,
+    "category": "History",
+    "question": "True or False: High heels were originally designed for men.",
+    "answer": "True (Persian soldiers used them to help secure their feet in stirrups)"
+  },
+  {
+    "id": 281,
+    "category": "Animals",
+    "question": "What is the most venomous fish in the world?",
+    "answer": "Reef Stonefish"
+  },
+  {
+    "id": 282,
+    "category": "Human Body",
+    "question": "True or False: The strongest muscle in the human body, relative to its size, is the tongue.",
+    "answer": "True (often cited, though the masseter/jaw muscle exerts the most pressure)"
+  },
+  {
+    "id": 283,
+    "category": "Geography",
+    "question": "Which country has the longest coastline in the world?",
+    "answer": "Canada"
+  },
+  {
+    "id": 284,
+    "category": "Food & Drink",
+    "question": "What type of pastry is a 'pain au chocolat'?",
+    "answer": "Croissant-like pastry with chocolate"
+  },
+  {
+    "id": 285,
+    "category": "Animals",
+    "question": "True or False: A group of kangaroos is called a 'mob' or 'troop'.",
+    "answer": "True"
+  },
+  {
+    "id": 286,
+    "category": "Science",
+    "question": "What is the freezing point of water in Fahrenheit?",
+    "answer": "32 degrees Fahrenheit"
+  },
+  {
+    "id": 287,
+    "category": "Language",
+    "question": "The word 'emoji' comes from which language?",
+    "answer": "Japanese ('e' meaning picture, 'moji' meaning character)"
+  },
+  {
+    "id": 288,
+    "category": "Animals",
+    "question": "How many legs does an insect have?",
+    "answer": "Six"
+  },
+  {
+    "id": 289,
+    "category": "History",
+    "question": "Who was the first Emperor of Rome?",
+    "answer": "Augustus (Octavian)"
+  },
+  {
+    "id": 290,
+    "category": "Space",
+    "question": "True or False: Venus rotates in the opposite direction to most other planets in our solar system.",
+    "answer": "True"
+  },
+  {
+    "id": 291,
+    "category": "Animals",
+    "question": "What is a baby goat called?",
+    "answer": "A kid"
+  },
+  {
+    "id": 292,
+    "category": "Human Body",
+    "question": "Which blood type is known as the 'universal donor'?",
+    "answer": "O negative"
+  },
+  {
+    "id": 293,
+    "category": "Nature",
+    "question": "What is the primary cause of tides on Earth?",
+    "answer": "The gravitational pull of the Moon (and to a lesser extent, the Sun)"
+  },
+  {
+    "id": 294,
+    "category": "Food & Drink",
+    "question": "True or False: Pumpkins are fruits.",
+    "answer": "True (botanically speaking, as they contain seeds)"
+  },
+  {
+    "id": 295,
+    "category": "Animals",
+    "question": "Which animal is known to 'play dead' when threatened?",
+    "answer": "Opossum"
+  },
+  {
+    "id": 296,
+    "category": "Technology",
+    "question": "What does 'HTTP' stand for in a web address?",
+    "answer": "Hypertext Transfer Protocol"
+  },
+  {
+    "id": 297,
+    "category": "History",
+    "question": "The ancient Egyptians used hieroglyphs as their writing system. True or False?",
+    "answer": "True"
+  },
+  {
+    "id": 298,
+    "category": "Animals",
+    "question": "True or False: A starfish can regrow its limbs.",
+    "answer": "True"
+  },
+  {
+    "id": 299,
+    "category": "Geography",
+    "question": "Lake Baikal, the world's largest freshwater lake by volume, is located in which country?",
+    "answer": "Russia"
+  },
+  {
+    "id": 300,
+    "category": "Science",
+    "question": "What is the chemical symbol for Potassium?",
+    "answer": "K (from Latin 'kalium')"
+  },
+  {
+    "id": 301,
+    "category": "Animals",
+    "question": "What do you call a group of larks?",
+    "answer": "An exaltation"
+  },
+  {
+    "id": 302,
+    "category": "Human Body",
+    "question": "True or False: The average person blinks about 15-20 times per minute.",
+    "answer": "True"
+  },
+  {
+    "id": 303,
+    "category": "Space",
+    "question": "What is the term for a small, rocky body orbiting the Sun, mostly found between Mars and Jupiter?",
+    "answer": "Asteroid"
+  },
+  {
+    "id": 304,
+    "category": "Food & Drink",
+    "question": "From which country does Feta cheese originate?",
+    "answer": "Greece"
+  },
+  {
+    "id": 305,
+    "category": "History",
+    "question": "Who wrote 'The Communist Manifesto' with Friedrich Engels?",
+    "answer": "Karl Marx"
+  },
+  {
+    "id": 306,
+    "category": "Animals",
+    "question": "Which flightless bird is native to New Zealand and is also a national symbol?",
+    "answer": "Kiwi"
+  },
+  {
+    "id": 307,
+    "category": "Geography",
+    "question": "The Atacama Desert, one of the driest places on Earth, is located on which continent?",
+    "answer": "South America (Chile)"
+  },
+  {
+    "id": 308,
+    "category": "Science",
+    "question": "True or False: An object's mass is the same on Earth and on the Moon.",
+    "answer": "True (weight changes, but mass does not)"
+  },
+  {
+    "id": 309,
+    "category": "Language",
+    "question": "The phrase 'It's raining cats and dogs' is an example of what literary device?",
+    "answer": "Idiom"
+  },
+  {
+    "id": 310,
+    "category": "Animals",
+    "question": "True or False: A seahorse is a type of fish.",
+    "answer": "True"
+  },
+  {
+    "id": 311,
+    "category": "Human Body",
+    "question": "What is the name of the tube that connects the throat to the stomach?",
+    "answer": "Esophagus"
+  },
+  {
+    "id": 312,
+    "category": "Technology",
+    "question": "In what decade did Nintendo release its first home video game console, the NES (Nintendo Entertainment System), in North America?",
+    "answer": "1980s (1985)"
+  },
+  {
+    "id": 313,
+    "category": "Nature",
+    "question": "What precious metal is the best conductor of electricity?",
+    "answer": "Silver"
+  },
+  {
+    "id": 314,
+    "category": "Animals",
+    "question": "Which large cat is known for its distinctive roar and is found in parts of Africa and India?",
+    "answer": "Lion"
+  },
+  {
+    "id": 315,
+    "category": "Food & Drink",
+    "question": "True or False: Cilantro and coriander come from the same plant.",
+    "answer": "True (cilantro refers to the leaves, coriander to the seeds)"
+  },
+  {
+    "id": 316,
+    "category": "History",
+    "question": "The Wright brothers made their first successful airplane flight in which U.S. state?",
+    "answer": "North Carolina (Kitty Hawk)"
+  },
+  {
+    "id": 317,
+    "category": "Space",
+    "question": "What is the phenomenon where gravity is so strong that nothing, not even light, can escape?",
+    "answer": "A black hole"
+  },
+  {
+    "id": 318,
+    "category": "Animals",
+    "question": "True or False: Otters use tools, such as rocks, to open shellfish.",
+    "answer": "True"
+  },
+  {
+    "id": 319,
+    "category": "Geography",
+    "question": "What is the capital of South Korea?",
+    "answer": "Seoul"
+  },
+  {
+    "id": 320,
+    "category": "Science",
+    "question": "What is the common name for dioxygen (O2)?",
+    "answer": "Oxygen"
+  },
+  {
+    "id": 321,
+    "category": "Animals",
+    "question": "What is a male duck called?",
+    "answer": "A drake"
+  },
+  {
+    "id": 322,
+    "category": "Human Body",
+    "question": "True or False: Humans have unique tongue prints, just like fingerprints.",
+    "answer": "True"
+  },
+  {
+    "id": 323,
+    "category": "History",
+    "question": "What was the name of the first major battle of the American Civil War?",
+    "answer": "The First Battle of Bull Run (or First Manassas)"
+  },
+  {
+    "id": 324,
+    "category": "Food & Drink",
+    "question": "Which spice gives curry its yellow color?",
+    "answer": "Turmeric"
+  },
+  {
+    "id": 325,
+    "category": "Animals",
+    "question": "True or False: A group of rhinoceroses is called a 'crash'.",
+    "answer": "True"
+  },
+  {
+    "id": 326,
+    "category": "Nature",
+    "question": "What is the Mohs scale used to measure?",
+    "answer": "The hardness of minerals"
+  },
+  {
+    "id": 327,
+    "category": "Space",
+    "question": "How many natural satellites (moons) does Earth have?",
+    "answer": "One"
+  },
+  {
+    "id": 328,
+    "category": "Animals",
+    "question": "What is the only bird known to deliberately impale its prey on thorns or sharp twigs?",
+    "answer": "Shrike (also known as butcherbird)"
+  },
+  {
+    "id": 329,
+    "category": "Technology",
+    "question": "Who is considered the 'father of the computer' for his concept of a programmable computer?",
+    "answer": "Charles Babbage"
+  },
+  {
+    "id": 330,
+    "category": "History",
+    "question": "True or False: The term 'spam' for unsolicited email comes from a Monty Python sketch.",
+    "answer": "True"
+  },
+  {
+    "id": 331,
+    "category": "Animals",
+    "question": "Which creature has the most legs?",
+    "answer": "Millipede (specifically Illacme plenipes, with up to 750 legs)"
+  },
+  {
+    "id": 332,
+    "category": "Human Body",
+    "question": "True or False: Your ears and nose continue to grow throughout your life.",
+    "answer": "True (cartilage continues to grow, and gravity can cause sagging)"
+  },
+  {
+    "id": 333,
+    "category": "Geography",
+    "question": "Which river flows through Paris?",
+    "answer": "The Seine"
+  },
+  {
+    "id": 334,
+    "category": "Food & Drink",
+    "question": "What gives chili peppers their heat?",
+    "answer": "Capsaicin"
+  },
+  {
+    "id": 335,
+    "category": "Animals",
+    "question": "True or False: A group of owls is called a 'wisdom'.",
+    "answer": "False (it's a 'parliament'; 'wisdom' is sometimes used but 'parliament' is more traditional)"
+  },
+  {
+    "id": 336,
+    "category": "Science",
+    "question": "What is the process of a liquid turning into a gas called?",
+    "answer": "Evaporation or vaporization"
+  },
+  {
+    "id": 337,
+    "category": "Language",
+    "question": "What do you call a person who studies insects?",
+    "answer": "An entomologist"
+  },
+  {
+    "id": 338,
+    "category": "Animals",
+    "question": "What is the largest member of the dolphin family?",
+    "answer": "Orca (Killer Whale)"
+  },
+  {
+    "id": 339,
+    "category": "History",
+    "question": "The Berlin Wall fell in what year?",
+    "answer": "1989"
+  },
+  {
+    "id": 340,
+    "category": "Space",
+    "question": "True or False: All planets in our solar system orbit the Sun in the same direction.",
+    "answer": "True (counter-clockwise when viewed from the Sun's north pole, though Venus and Uranus have peculiar rotations)"
+  },
+  {
+    "id": 341,
+    "category": "Animals",
+    "question": "What is a baby fox called?",
+    "answer": "A kit, cub, or pup"
+  },
+  {
+    "id": 342,
+    "category": "Human Body",
+    "question": "What is the body's largest internal organ?",
+    "answer": "The liver"
+  },
+  {
+    "id": 343,
+    "category": "Nature",
+    "question": "What is the name for a mushroom that glows in the dark?",
+    "answer": "Bioluminescent mushroom (e.g., foxfire fungi)"
+  },
+  {
+    "id": 344,
+    "category": "Food & Drink",
+    "question": "True or False: Fortune cookies are an ancient Chinese tradition.",
+    "answer": "False (they were popularized in the United States, likely by Japanese immigrants)"
+  },
+  {
+    "id": 345,
+    "category": "Animals",
+    "question": "Which animal can survive in the vacuum of space for short periods?",
+    "answer": "Tardigrade (water bear)"
+  },
+  {
+    "id": 346,
+    "category": "Technology",
+    "question": "What was the first website ever created about?",
+    "answer": "Information about the World Wide Web project itself (info.cern.ch)"
+  },
+  {
+    "id": 347,
+    "category": "History",
+    "question": "Who was the leader of the Soviet Union during World War II?",
+    "answer": "Joseph Stalin"
+  },
+  {
+    "id": 348,
+    "category": "Animals",
+    "question": "True or False: A group of hummingbirds is called a 'charm'.",
+    "answer": "True"
+  },
+  {
+    "id": 349,
+    "category": "Geography",
+    "question": "The Dead Sea is bordered by which two countries?",
+    "answer": "Israel and Jordan"
+  },
+  {
+    "id": 350,
+    "category": "Science",
+    "question": "What is the unit of frequency, often used to measure radio waves or sound?",
+    "answer": "Hertz (Hz)"
+  },
+  {
+    "id": 351,
+    "category": "Animals",
+    "question": "What is a male bee called?",
+    "answer": "A drone"
+  },
+  {
+    "id": 352,
+    "category": "Human Body",
+    "question": "True or False: You get a new stomach lining every few days.",
+    "answer": "True (the cells are constantly replaced to protect from stomach acid)"
+  },
+  {
+    "id": 353,
+    "category": "Space",
+    "question": "What is the astronomical event where the Moon passes between the Sun and Earth?",
+    "answer": "Solar eclipse"
+  },
+  {
+    "id": 354,
+    "category": "Food & Drink",
+    "question": "Which country is credited with inventing pizza as we know it?",
+    "answer": "Italy (Naples)"
+  },
+  {
+    "id": 355,
+    "category": "History",
+    "question": "What was the 'Manhattan Project'?",
+    "answer": "The World War II research and development project that produced the first nuclear weapons"
+  },
+  {
+    "id": 356,
+    "category": "Animals",
+    "question": "Which animal is known for its ability to shoot blood from its eyes as a defense mechanism?",
+    "answer": "Horned lizard"
+  },
+  {
+    "id": 357,
+    "category": "Geography",
+    "question": "What is the capital of New Zealand?",
+    "answer": "Wellington"
+  },
+  {
+    "id": 358,
+    "category": "Science",
+    "question": "True or False: Gold is a good conductor of heat.",
+    "answer": "True"
+  },
+  {
+    "id": 359,
+    "category": "Language",
+    "question": "What is the shortest grammatically correct sentence in English?",
+    "answer": "'Go.' (or 'I am.')"
+  },
+  {
+    "id": 360,
+    "category": "Animals",
+    "question": "True or False: A group of butterflies is called a 'kaleidoscope' or 'flutter'.",
+    "answer": "True"
+  },
+  {
+    "id": 361,
+    "category": "Human Body",
+    "question": "How many chambers are in the human heart?",
+    "answer": "Four"
+  },
+  {
+    "id": 362,
+    "category": "Technology",
+    "question": "The ENIAC, one of the earliest electronic general-purpose computers, was built during which war?",
+    "answer": "World War II (completed 1945)"
+  },
+  {
+    "id": 363,
+    "category": "Nature",
+    "question": "What type of plant is a sequoia?",
+    "answer": "A tree (specifically, a redwood)"
+  },
+  {
+    "id": 364,
+    "category": "Animals",
+    "question": "What is the only marsupial native to North America?",
+    "answer": "Opossum (Virginia Opossum)"
+  },
+  {
+    "id": 365,
+    "category": "Food & Drink",
+    "question": "True or False: Brussels sprouts are named after the city of Brussels in Belgium.",
+    "answer": "True"
+  },
+  {
+    "id": 366,
+    "category": "History",
+    "question": "Who was the Egyptian queen known for her relationships with Julius Caesar and Mark Antony?",
+    "answer": "Cleopatra"
+  },
+  {
+    "id": 367,
+    "category": "Space",
+    "question": "What is the name of the rover NASA landed on Mars in February 2021?",
+    "answer": "Perseverance"
+  },
+  {
+    "id": 368,
+    "category": "Animals",
+    "question": "True or False: A snail can regenerate its eye if it's cut off.",
+    "answer": "True"
+  },
+  {
+    "id": 369,
+    "category": "Geography",
+    "question": "Which U.S. state is the largest by land area?",
+    "answer": "Alaska"
+  },
+  {
+    "id": 370,
+    "category": "Science",
+    "question": "What is the chemical symbol for Sodium?",
+    "answer": "Na (from Latin 'natrium')"
+  },
+  {
+    "id": 371,
+    "category": "Animals",
+    "question": "What is a group of parrots called?",
+    "answer": "A pandemonium or company"
+  },
+  {
+    "id": 372,
+    "category": "Human Body",
+    "question": "True or False: It is possible to die from drinking too much water.",
+    "answer": "True (water intoxication or hyponatremia)"
+  },
+  {
+    "id": 373,
+    "category": "History",
+    "question": "The Renaissance was a period of 'rebirth' in what areas?",
+    "answer": "Art, literature, science, and culture (following the Middle Ages)"
+  },
+  {
+    "id": 374,
+    "category": "Food & Drink",
+    "question": "What is the 'mother sauce' from which béchamel, velouté, and espagnole are derived in French cuisine?",
+    "answer": "Béchamel is one of the mother sauces itself (others are Velouté, Espagnole, Hollandaise, Tomate)"
+  },
+  {
+    "id": 375,
+    "category": "Animals",
+    "question": "True or False: The electric eel is not actually an eel.",
+    "answer": "True (it's a type of knifefish)"
+  },
+  {
+    "id": 376,
+    "category": "Nature",
+    "question": "What is the name for the natural coloring of animals that helps them blend with their environment?",
+    "answer": "Camouflage"
+  },
+  {
+    "id": 377,
+    "category": "Space",
+    "question": "How long is one day (rotation period) on Venus compared to its year (orbital period)?",
+    "answer": "A day on Venus (243 Earth days) is longer than its year (225 Earth days)"
+  },
+  {
+    "id": 378,
+    "category": "Animals",
+    "question": "Which insect is known for its ability to produce light?",
+    "answer": "Firefly or lightning bug"
+  },
+  {
+    "id": 379,
+    "category": "Technology",
+    "question": "What does the acronym 'SIM' in SIM card stand for?",
+    "answer": "Subscriber Identity Module"
+  },
+  {
+    "id": 380,
+    "category": "History",
+    "question": "True or False: The Emancipation Proclamation freed all slaves in the United States immediately.",
+    "answer": "False (it only applied to slaves in Confederate states not under Union control, and full abolition came with the 13th Amendment)"
+  },
+  {
+    "id": 381,
+    "category": "Animals",
+    "question": "Which animal's name means 'river horse' in Greek?",
+    "answer": "Hippopotamus"
+  },
+  {
+    "id": 382,
+    "category": "Human Body",
+    "question": "True or False: Babies are born without kneecaps.",
+    "answer": "True (they have cartilage that later hardens into bone)"
+  },
+  {
+    "id": 383,
+    "category": "Geography",
+    "question": "Which country is known as the 'Land Down Under'?",
+    "answer": "Australia"
+  },
+  {
+    "id": 384,
+    "category": "Food & Drink",
+    "question": "What is the oldest known recipe in the world for?",
+    "answer": "Beer (Sumerian beer recipe)"
+  },
+  {
+    "id": 385,
+    "category": "Animals",
+    "question": "True or False: A group of frogs is called an 'army'.",
+    "answer": "True"
+  },
+  {
+    "id": 386,
+    "category": "Science",
+    "question": "What is the speed of light in a vacuum (approximately)?",
+    "answer": "299,792 kilometers per second (or about 186,282 miles per second)"
+  },
+  {
+    "id": 387,
+    "category": "Language",
+    "question": "The word 'goodbye' is a contraction of what phrase?",
+    "answer": "'God be with ye'"
+  },
+  {
+    "id": 388,
+    "category": "Animals",
+    "question": "What is the largest primate in the world?",
+    "answer": "Gorilla (Eastern Gorilla)"
+  },
+  {
+    "id": 389,
+    "category": "History",
+    "question": "Who was the British Prime Minister during most of World War II?",
+    "answer": "Winston Churchill"
+  },
+  {
+    "id": 390,
+    "category": "Space",
+    "question": "True or False: The Sun is a star.",
+    "answer": "True"
+  },
+  {
+    "id": 391,
+    "category": "Animals",
+    "question": "What is a baby owl called?",
+    "answer": "An owlet"
+  },
+  {
+    "id": 392,
+    "category": "Human Body",
+    "question": "What is the only human joint that can perform a full 360-degree rotation?",
+    "answer": "Shoulder joint (ball-and-socket)"
+  },
+  {
+    "id": 393,
+    "category": "Nature",
+    "question": "What is the term for the scientific study of weather?",
+    "answer": "Meteorology"
+  },
+  {
+    "id": 394,
+    "category": "Food & Drink",
+    "question": "True or False: Pineapple grows on trees.",
+    "answer": "False (it grows out of a leafy plant on the ground)"
+  },
+  {
+    "id": 395,
+    "category": "Animals",
+    "question": "Which animal has the longest migration of any mammal?",
+    "answer": "Gray Whale"
+  },
+  {
+    "id": 396,
+    "category": "Technology",
+    "question": "The @ symbol was chosen for email addresses by Ray Tomlinson because:",
+    "answer": "It was rarely used in names or text and clearly separated the user from the host."
+  },
+  {
+    "id": 397,
+    "category": "History",
+    "question": "In what year did the French Revolution begin?",
+    "answer": "1789"
+  },
+  {
+    "id": 398,
+    "category": "Animals",
+    "question": "True or False: A duck's quack does not echo.",
+    "answer": "False (this is a myth; it does echo)"
+  },
+  {
+    "id": 399,
+    "category": "Geography",
+    "question": "Which country is both an island and a continent?",
+    "answer": "Australia"
+  },
+  {
+    "id": 400,
+    "category": "Science",
+    "question": "What is the only metal that is liquid at room temperature?",
+    "answer": "Mercury (Hg)"
+  }
+]
