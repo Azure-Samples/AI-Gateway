@@ -71,7 +71,7 @@ Playground to experiment the [Model Context Protocol](https://modelcontextprotoc
 
 [<img src="images/model-context-protocol-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/model-context-protocol/model-context-protocol.ipynb)
 
-[🦾 Bicep](labs/model-context-protocol/main.bicep) ➕ [⚙️ Policy](labs/model-context-protocol/inference-policy.xml) ➕ [🧾 Notebook](labs/model-context-protocol/model-context-protocol.ipynb)
+[🦾 Bicep](labs/model-context-protocol/main.bicep) ➕ [⚙️ Policy](labs/model-context-protocol/policy.xml) ➕ [🧾 Notebook](labs/model-context-protocol/model-context-protocol.ipynb)
 
 <!-- OpenAI Agents -->
 ### [**🧪 OpenAI Agents**](labs/openai-agents/openai-agents.ipynb)
@@ -80,7 +80,7 @@ Playground to try the [OpenAI Agents](https://openai.github.io/openai-agents-pyt
 
 [<img src="images/openai-agents-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/openai-agents/openai-agents.ipynb)
 
-[🦾 Bicep](labs/openai-agents/main.bicep) ➕ [⚙️ Policy](labs/openai-agents/inference-policy.xml) ➕ [🧾 Notebook](labs/openai-agents/openai-agents.ipynb)
+[🦾 Bicep](labs/openai-agents/main.bicep) ➕ [⚙️ Policy](labs/openai-agents/policy.xml) ➕ [🧾 Notebook](labs/openai-agents/openai-agents.ipynb)
 
 <!-- AI Agent Service -->
 ### [**🧪 AI Agent Service**](labs/ai-agent-service/ai-agent-service.ipynb)
@@ -215,7 +215,7 @@ Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://lea
 <!-- Built-in logging -->
 ### [**🧪 Built-in logging**](labs/built-in-logging/built-in-logging.ipynb)
 
-Playground to try the [buil-in logging capabilities of Azure API Management](https://learn.microsoft.com/azure/api-management/observability). Logs requests into App Insights to track details and token usage.
+Playground to try the [built-in logging capabilities of Azure API Management](https://learn.microsoft.com/azure/api-management/observability). Logs requests into App Insights to track details and token usage.
 
 [<img src="images/built-in-logging-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/built-in-logging/built-in-logging.ipynb)
 
@@ -316,12 +316,12 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-ar
 | [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) |[⭐](#%EF%B8%8F-well-architected-framework "Self hosting the model might improve the security posture with network restrictions") | | [⭐](#%EF%B8%8F-well-architected-framework "Performance might be improved with full control to the self-hosted model") | | |
 
 > [!TIP]
-> Check the [Azure Well-Architected Framework perspective on Azure OpenAI Service](https://learn.microsoft.com/azure/well-architected/service-guides/azure-openai) for aditional guidance.
+> Check the [Azure Well-Architected Framework perspective on Azure OpenAI Service](https://learn.microsoft.com/azure/well-architected/service-guides/azure-openai) for additional guidance.
 
 ## 🎒 Show and tell
 
 > [!TIP]
-> Install the [VS Code Reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal), open AI-GATEWAY.md and click on 'slides' at the botton to present the AI Gateway without leaving VS Code.
+> Install the [VS Code Reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal), open AI-GATEWAY.md and click on 'slides' at the button to present the AI Gateway without leaving VS Code.
 > Or just open the [AI-GATEWAY.pptx](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAI-Gateway%2Fmain%2FAI-GATEWAY.pptx&wdOrigin=BROWSELINK) for a plain old PowerPoint experience.
 
 ## 🥇 Other resources
