@@ -54,10 +54,14 @@ param vmName string = 'vm-jumpbox'
 param vmAdminUsername string = 'azureuser'
 
 @secure()
-@description('The admin password for the virtual machine')
-// Ignoring the password warning as this is strictly for demo purposes and should be secured in a real-world scenario.
-#disable-next-line secure-parameter-default
-param vmAdminPassword string = '@Aa123456789' // should be secured in real world
+@description('SSH public key for VM authentication')
+param vmSshPublicKey string
+
+// @secure()
+// @description('The admin password for the virtual machine')
+// // Ignoring the password warning as this is strictly for demo purposes and should be secured in a real-world scenario.
+// #disable-next-line secure-parameter-default
+// param vmAdminPassword string = '@Aa123456789' // should be secured in real world
 
 // ------------------
 //    VARIABLES
@@ -134,6 +138,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
         name: subnetVmName
         properties: {
           addressPrefix: '10.0.2.0/24'
+          networkSecurityGroup: {
+            id: nsgVm.id
+          }
         }
       }
     ]
@@ -592,6 +599,21 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
   }
 }
 
+// Public IP for VM
+resource publicIp 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
+  name: 'pip-${vmName}'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+  }
+}
+
+// Network Interface for VM
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
   name: 'nic-${vmName}'
   location: resourceGroup().location
@@ -603,6 +625,9 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
             id: virtualNetwork::subnetVm.id
+          }
+          publicIPAddress: {
+            id: publicIp.id
           }
         }
       }
@@ -625,7 +650,18 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
     osProfile: {
       computerName: vmName
       adminUsername: vmAdminUsername
-      adminPassword: vmAdminPassword
+      // adminPassword: vmAdminPassword
+      linuxConfiguration: {
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${vmAdminUsername}/.ssh/authorized_keys'
+              keyData: vmSshPublicKey
+            }
+          ]
+        }
+      }
     }
     storageProfile: {
       imageReference: {
@@ -653,6 +689,72 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
     }
   }
 }
+
+resource nsgVm 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
+  name: 'nsg-${vmName}'
+  location: resourceGroup().location
+  properties: {
+    securityRules: [
+      {
+        name: 'default-allow-22'
+        properties: {
+          priority: 1000
+          access: 'Allow'
+          direction: 'Inbound'
+          destinationPortRange: '22'
+          protocol: 'Tcp'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
+        }
+      }
+    ]
+  }
+}
+
+// resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
+//   name: vmName
+//   location: resourceGroup().location
+//   properties: {
+//     priority: 'Spot'
+//     evictionPolicy: 'Deallocate'
+//     billingProfile: {
+//       maxPrice: -1
+//     }
+//     hardwareProfile: {
+//       vmSize: 'Standard_D2ads_v5'
+//     }
+//     osProfile: {
+//       computerName: vmName
+//       adminUsername: vmAdminUsername
+//       adminPassword: vmAdminPassword
+//     }
+//     storageProfile: {
+//       imageReference: {
+//         publisher: 'canonical'
+//         offer: 'ubuntu-25_04'
+//         sku: 'minimal'
+//         version: 'latest'
+//       }
+//       osDisk: {
+//         name: 'osdisk-${vmName}'
+//         createOption: 'FromImage'
+//       }
+//     }
+//     networkProfile: {
+//       networkInterfaces: [
+//         {
+//           id: networkInterface.id
+//         }
+//       ]
+//     }
+//     diagnosticsProfile: {
+//       bootDiagnostics: {
+//         enabled: false
+//       }
+//     }
+//   }
+// }
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
   name: 'log-alanalytics-${suffix}'
