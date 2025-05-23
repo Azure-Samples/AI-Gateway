@@ -30,3 +30,7 @@ autogen-core
 autogen-ext[openai,azure,mcp] 
 autogen-agentchat
 semantic-kernel[mcp]
+
+# A2A Labs
+jwcrypto
+a2a-sdk

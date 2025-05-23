@@ -1,0 +1,38 @@
+<!--
+    - Policies are applied in the order they appear.
+    - Position <base/> inside a section to inherit policies from the outer scope.
+    - Comments within policies are not preserved.
+-->
+<!-- Add policies as children to the <inbound>, <outbound>, <backend>, and <on-error> elements -->
+<policies>
+    <!-- Throttle, authorize, validate, cache, or transform the requests -->
+    <inbound>
+        <base />
+        <get-authorization-context provider-id="@(context.Request.Headers["providerId"][0])" authorization-id="@(context.Request.Headers["authorizationId"][0])" context-variable-name="auth-context" identity-type="managed" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + ((Authorization)context.Variables.GetValueOrDefault("auth-context"))?.AccessToken)</value>
+        </set-header>
+        <set-backend-service base-url="https://api.github.com" />
+        <set-header name="Accept" exists-action="override">
+            <value>application/vnd.github+json</value>
+        </set-header>
+        <set-header name="X-GitHub-Api-Version" exists-action="override">
+            <value>2022-11-28</value>
+        </set-header>
+        <set-header name="User-Agent" exists-action="override">
+            <value>API Management</value>
+        </set-header>
+    </inbound>
+    <!-- Control if and how the requests are forwarded to services  -->
+    <backend>
+        <base />
+    </backend>
+    <!-- Customize the responses -->
+    <outbound>
+        <base />
+    </outbound>
+    <!-- Handle exceptions and customize error responses  -->
+    <on-error>
+        <base />
+    </on-error>
+</policies>
