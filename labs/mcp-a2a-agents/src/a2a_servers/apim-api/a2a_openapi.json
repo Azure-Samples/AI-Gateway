@@ -1,12 +1,12 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "a2a-weather Server",
+        "title": "a2a Server",
         "version": "1.0"
     },
     "servers": [
         {
-            "url": "https://apim-ulp3pavelxqec.azure-api.net/a2a-weather"
+            "url": "https://apim-ulp3pavelxqec.azure-api.net/a2a-server"
         }
     ],
     "paths": {

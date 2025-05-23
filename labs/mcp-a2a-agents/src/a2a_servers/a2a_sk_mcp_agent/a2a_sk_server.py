@@ -1,6 +1,3 @@
-# ------------------------------------------------------------------------
-# build_sk_a2a_server.py
-# ------------------------------------------------------------------------
 import logging
 import httpx
 
@@ -28,7 +25,7 @@ APIM_GATEWAY_URL        = os.environ.get("APIM_GATEWAY_URL", "")
 APIM_SUBSCRIPTION_KEY   = os.environ.get("APIM_SUBSCRIPTION_KEY", "")  # secret!
 OPENAI_API_VERSION      = os.environ.get("OPENAI_API_VERSION", "2024-11-01-preview")
 OPENAI_DEPLOYMENT_NAME  = os.environ.get("OPENAI_DEPLOYMENT_NAME", "gpt-4o")
-ACA_URL                 = f"https://{os.environ['CONTAINER_APP_NAME']}.{os.environ['CONTAINER_APP_ENV_DNS_SUFFIX']}"
+ACA_URL                 = f"https://{os.environ.get('CONTAINER_APP_NAME', '')}.{os.environ.get('CONTAINER_APP_ENV_DNS_SUFFIX', '')}"
 A2A_URL                 = os.environ.get("A2A_URL", ACA_URL)
 
 
