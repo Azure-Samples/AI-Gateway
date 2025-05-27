@@ -19,6 +19,7 @@ param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
 param oncallAPIPath string = 'oncall'
 param servicenowAPIPath string = 'servicenow'
+param spotifyAPIPath string = 'spotify'
 param serviceNowInstanceName string
 
 param a2aweatherAPIPath string = 'a2a-weather'
@@ -527,6 +528,13 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing 
   ]
 }
 
+module spotifyAPIModule 'src/spotify/apim-api/api.bicep' = {
+  name: 'spotifyAPIModule'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: spotifyAPIPath
+  }
+}
 
 module githubAPIModule 'src/github/apim-api/api.bicep' = {
   name: 'githubAPIModule'
