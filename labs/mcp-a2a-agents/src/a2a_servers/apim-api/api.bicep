@@ -13,7 +13,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   properties: {
     displayName: '${agentName} Server'
     apiRevision: '1'
-    subscriptionRequired: false
+    subscriptionRequired: true
     serviceUrl: APIServiceURL
     path: APIPath
     protocols: [

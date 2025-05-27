@@ -7,11 +7,10 @@ from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore, InMemoryPushNotifier
 from a2a.types import AgentCapabilities, AgentCard, AgentSkill
 
-from a2a_agents import AbstractAgent            # your own base class
 from a2a_agent_exec import A2ALabAgentExecutor
-from a2a_agents import SemanticKernelAgent
+from a2a_agents import AutoGenAgent
 
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
+from autogen_ext.models.openai import AzureOpenAIChatCompletionClient
 # ------------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
@@ -45,19 +44,20 @@ def build_app(
     """
 
     # -------- 1. Create the naked SemanticKernelAgent -----------------
-    sk_agent = SemanticKernelAgent(
+    agent = AutoGenAgent(
         mcp_url=f"{APIM_GATEWAY_URL}{MCP_URL}",
         title=TITLE,
-        oai_client=AzureChatCompletion(
-            endpoint=APIM_GATEWAY_URL,
+        oai_client=AzureOpenAIChatCompletionClient(
+            azure_endpoint=APIM_GATEWAY_URL,
             api_key=APIM_SUBSCRIPTION_KEY,
             api_version=OPENAI_API_VERSION,
-            deployment_name=OPENAI_DEPLOYMENT_NAME,
+            azure_deployment=OPENAI_DEPLOYMENT_NAME,
+            model=OPENAI_DEPLOYMENT_NAME,
         ),
     )
 
     # -------- 2. Wrap it in the A2A executor --------------------------
-    sk_agent_exec = A2ALabAgentExecutor(agent=sk_agent)
+    sk_agent_exec = A2ALabAgentExecutor(agent=agent)
 
     # -------- 3. Wire the executor into the default request handler ---
     httpx_client   = httpx.AsyncClient()
@@ -78,14 +78,14 @@ def build_app(
     @app.on_event("startup")
     async def _startup() -> None:
         log.info("Opening SemanticKernelAgent SSE connection …")
-        await sk_agent.__aenter__()          # opens MCPSsePlugin
+        await agent.__aenter__()          # opens MCPSsePlugin
         # NB: if you decide to make the *executor* the context
         # manager (Option 2), just call `await sk_agent_exec.__aenter__()`
 
     @app.on_event("shutdown")
     async def _shutdown() -> None:
         log.info("Closing SemanticKernelAgent SSE connection …")
-        await sk_agent.__aexit__(None, None, None)
+        await agent.__aexit__(None, None, None)
         await httpx_client.aclose()
 
     return app
@@ -96,10 +96,10 @@ def _get_agent_card(host_url: str) -> AgentCard:
     capabilities = AgentCapabilities(streaming=True)
 
     skill = AgentSkill(
-        id=f'{TITLE}_forecast_sk',
-        name=f'Semantic Kernel {TITLE} forecasting agent',
+        id=f'{TITLE}_forecast_autogen',
+        name=f'Autogen {TITLE} forecasting agent',
         description=f'Answers questions about the {TITLE} using the tools provided',
-        tags=[f'{TITLE}', 'semantic-kernel'],
+        tags=[f'{TITLE}', 'autogen'],
         examples=[
             "What's the weather like in Cairo?",
             "Who's on call today?",
@@ -109,7 +109,7 @@ def _get_agent_card(host_url: str) -> AgentCard:
 
     return AgentCard(
         name=f'SK {TITLE} Agent',
-        description=f'Semantic-Kernel-powered {TITLE} agent',
+        description=f'Autogen-powered {TITLE} agent',
         url=f'{host_url}',
         version='1.0.0',
         defaultInputModes=['text'],

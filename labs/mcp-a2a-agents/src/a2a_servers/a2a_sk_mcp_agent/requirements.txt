@@ -1,8 +1,5 @@
 # MCP Labs
 mcp
-autogen-core 
-autogen-ext[openai,azure,mcp] 
-autogen-agentchat
 semantic-kernel[mcp]
 
 # A2A Labs

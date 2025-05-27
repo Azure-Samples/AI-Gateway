@@ -354,8 +354,8 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
 
 // A2A Container Apps resources
 
-resource A2ASkWeatherServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: 'aca-a2a-sk-weather-${resourceSuffix}'
+resource A2AWeatherServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-a2a-weather-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -397,8 +397,8 @@ resource A2ASkWeatherServerContainerApp 'Microsoft.App/containerApps@2023-11-02-
   }
 }
 
-resource A2ASkOncallServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: 'aca-a2a-sk-oncall-${resourceSuffix}'
+resource A2AOncallServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-a2a-oncall-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -566,23 +566,23 @@ module serviceNowAPIModule 'src/servicenow/apim-api/api.bicep' = if(length(servi
 }
 
 // A2A APIs
-module a2aWeatherAPIModule 'src/a2a-servers/apim-api/api.bicep' = {
+module a2aWeatherAPIModule 'src/a2a_servers/apim-api/api.bicep' = {
   name: 'a2aWeatherAPIModule'
   params: {
     apimServiceName: apimService.name
     agentName: a2aweatherAPIPath
     APIPath: a2aweatherAPIPath
-    APIServiceURL: 'https://${A2ASkWeatherServerContainerApp.properties.configuration.ingress.fqdn}'
+    APIServiceURL: 'https://${A2AWeatherServerContainerApp.properties.configuration.ingress.fqdn}'
   }
 }
 
-module a2aOncallAPIModule 'src/a2a-servers/apim-api/api.bicep' = {
+module a2aOncallAPIModule 'src/a2a_servers/apim-api/api.bicep' = {
   name: 'a2aOncallAPIModule'
   params: {
     apimServiceName: apimService.name
     agentName: a2aoncallAPIPath
     APIPath: a2aoncallAPIPath
-    APIServiceURL: 'https://${A2ASkOncallServerContainerApp.properties.configuration.ingress.fqdn}'
+    APIServiceURL: 'https://${A2AOncallServerContainerApp.properties.configuration.ingress.fqdn}'
   }
 }
 
@@ -628,12 +628,12 @@ output oncallMCPServerContainerAppResourceName string = oncallMCPServerContainer
 output oncallMCPServerContainerAppFQDN string = oncallMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 //A2ASkWeatherServerContainerApp
-output a2ASkWeatherServerContainerAppResourceName string = A2ASkWeatherServerContainerApp.name
-output a2ASkWeatherServerContainerAppFQDN string = A2ASkWeatherServerContainerApp.properties.configuration.ingress.fqdn
+output a2AWeatherServerContainerAppResourceName string = A2AWeatherServerContainerApp.name
+output a2AWeatherServerContainerAppFQDN string = A2AWeatherServerContainerApp.properties.configuration.ingress.fqdn
 
 //A2ASkOncallServerContainerApp
-output a2ASkOncallServerContainerAppResourceName string = A2ASkOncallServerContainerApp.name
-output a2ASkOncallServerContainerAppFQDN string = A2ASkOncallServerContainerApp.properties.configuration.ingress.fqdn
+output a2AOncallServerContainerAppResourceName string = A2AOncallServerContainerApp.name
+output a2AOncallServerContainerAppFQDN string = A2AOncallServerContainerApp.properties.configuration.ingress.fqdn
 
 output servicenowMCPServerContainerAppResourceName string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.name: ''
 output servicenowMCPServerContainerAppFQDN string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn: ''
