@@ -9,7 +9,7 @@ const config: Config = {
   tagline: 'Conceptual introduction of GenAI Gateway capabilities in Azure API Management',
   favicon: 'img/logo.svg',
   url: 'https://Azure-Samples.github.io',
-  baseUrl: '/',
+  baseUrl: '/AI-Gateway/',
   organizationName: 'Azure-Samples',
   projectName: 'AI-Gateway',
   deploymentBranch: 'gh-pages',
