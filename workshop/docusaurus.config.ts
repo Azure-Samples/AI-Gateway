@@ -5,9 +5,9 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'APIM ❤️ OpenAI  Workshop',
-  tagline: 'Conceptual introduction of GenAI Gateway capabilities in Azure API Management',
-  favicon: 'img/logo.svg',
+  title: 'AI Gateway workshop',
+  tagline: 'Conceptual introduction of AI Gateway capabilities in Azure API Management',
+  favicon: 'img/new-logo.png',
   url: 'https://Azure-Samples.github.io',
   baseUrl: '/',
   organizationName: 'Azure-Samples',
@@ -16,6 +16,9 @@ const config: Config = {
   trailingSlash: false,
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+   clientModules: [
+    require.resolve('./_clarity.js'),
+  ],
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -48,7 +51,7 @@ const config: Config = {
       title: 'AI Gateway',
       logo: {
         alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        src: 'img/new-logo.png',
       },
       items: [
         {
