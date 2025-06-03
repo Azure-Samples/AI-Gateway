@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Control and monitor your token consumption: Part II  
+# Keep visibility into AI consumption with model monitoring  
 
 In this lesson we will use the Azure service, Azure API Management and show how by adding one of its policies to an LLM endpoint; you can monitor the usage of tokens.
 

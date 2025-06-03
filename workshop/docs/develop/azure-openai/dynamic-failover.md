@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# Dynamic Load Balancing
+# Ensure resiliency and optimized resource consumption with load balancer & circuit breaker
 
 When the number of users increase to the point that one region or server where the application have trouble responding to requests in a reasonable time. This creates a user experience where the app feels slow. To avoid this poor user experience, load balancing can be used. With "load balancing" you set up multiple endpoints capable of serving requests and additionaly configure a scheme for how the "balancing" should happen. 
 
