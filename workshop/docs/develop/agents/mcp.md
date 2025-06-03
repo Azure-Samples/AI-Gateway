@@ -1,1 +1,0 @@
-# Model Context Protocol (MCP)

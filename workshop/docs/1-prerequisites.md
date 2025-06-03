@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Prerequisites
 
 To complete this workshop, you will need the following:

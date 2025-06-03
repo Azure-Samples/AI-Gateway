@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 
 # Introduction
 
@@ -29,7 +32,7 @@ These challenges can hinder the scalability, security, and cost-efficiency of AI
 This is where the AI Gateway comes into play. Acting as a centralized hub, the gateway simplifies the integration of AI services into applications. It ensures secure, efficient, and optimized communication between Intelligent Apps and AI Services while providing essential features like security, observability, and load balancing.
 
 
-![Azure API Management AI Gateway](./../../static/img/ai-gateway.gif)
+![Azure API Management AI Gateway](./../static/img/ai-gateway.gif)
 1. **Cost Efficiency**:
    - Control and attribute costs with token monitoring, limits, and quotas.
    - Optimize responses by caching results for semantically similar prompts.

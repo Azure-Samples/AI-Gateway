@@ -1,8 +1,8 @@
 {
-  "label": "Define",
+  "label": "Docs",
   "position": 1,
   "link": {
     "type": "generated-index",
-    "description": "Define."
+    "description": "Documentation."
   }
 }
