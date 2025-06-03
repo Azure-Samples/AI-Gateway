@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Control and monitor your token consumption: Part I  
+# Control cost and performance with token quotas and limits  
 
 Once you bring an LLM to production and exposes it as an API Endpoint, you need to consider how you "manage" such an API. There are many considerations to be made everything from caching, scaling, error management, rate limiting, monitoring and more. 
 
