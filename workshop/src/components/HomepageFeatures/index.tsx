@@ -20,7 +20,7 @@ const FeatureList: FeatureItem[] = [
         Use MCP in Azure API Management for seamless LLM tool integration, leveraging OAuth 2.0 for robust authentication and authorization.
       </>
     ),
-    url: '/docs/agents/mcp',
+    url: '',
   },
   {
     title: 'OpenAI Agents',
@@ -30,7 +30,7 @@ const FeatureList: FeatureItem[] = [
         Integrate OpenAI Agents with Azure OpenAI models and API-based tools, managed through Azure API Management.
       </>
     ),
-    url: '/docs/agents/openai-agents',
+    url: '',
   },
   {
     title: 'AI Agent Service',
@@ -40,7 +40,7 @@ const FeatureList: FeatureItem[] = [
         Integrate Azure AI Agent Service with Azure OpenAI models, Logic Apps, and OpenAPI-based APIs using Azure API Management.
       </>
     ),
-    url: '/docs/agents/ai-agent-service',
+    url: '',
   },
   {
     title: 'Function Calling',
@@ -50,7 +50,7 @@ const FeatureList: FeatureItem[] = [
         Utilize Azure API Management to manage OpenAI function calling with an Azure Functions API for streamlined and efficient operations.
       </>
     ),
-    url: '/docs/azure-openai/function-calling',
+    url: '',
   },
   {
     title: 'Access Controlling',
@@ -60,7 +60,7 @@ const FeatureList: FeatureItem[] = [
         Enable authorized access to OpenAPI APIs with OAuth 2.0 via an identity provider, managed through Azure API Management.
       </>
     ),
-    url: '/docs/azure-openai/access-controlling',
+    url: '',
   },
   {
     title: 'Token Rate Limiting',
@@ -90,7 +90,7 @@ const FeatureList: FeatureItem[] = [
         Reduce latency and costs with caching strategies in Azure API Management, based on vector proximity and similarity score thresholds.
       </>
     ),
-    url: '/docs/azure-openai/semantic-caching',
+    url: '',
   },
   {
     title: 'Dynamic Failover',
@@ -110,7 +110,7 @@ const FeatureList: FeatureItem[] = [
         Control AI costs with Azure API Management and the FinOps Framework, enabling automated subscription disabling via Azure Monitor/ Logic Apps.
       </>
     ),
-    url: '/docs/introduction',
+    url: '',
   },
   {
     title: 'SLM Self-hosting',
@@ -120,7 +120,7 @@ const FeatureList: FeatureItem[] = [
        Utilize the self-hosted Phi-3 (SLM) through Azure API Management's self-hosted gateway with OpenAI API compatibility for efficient integration.
       </>
     ),
-    url: '/docs/introduction',
+    url: '',
   },
   {
     title: 'AI Foundry Deepseek',
@@ -130,23 +130,29 @@ const FeatureList: FeatureItem[] = [
         Utilize the Deepseek R1 model via Azure AI Foundry, employing the Azure AI Model Inference API and APIM policies.
       </>
     ),
-    url: '/docs/introduction',
+    url: '',
   },
 ];
 
 function Feature({title, Svg, description, url}: FeatureItem) {
   return (
-    
-    <div className={clsx('col col--3')}>
-        <div className="text--center">
-           <Link title="go to lab" to={url}>
-            <Svg className={styles.featureSvg} role="img" />
-          </Link>
-        </div>
-        <div className="text--center padding-horiz--md">
-          <Heading as="h3">{title}</Heading>
-          <p>{description}</p>
-        </div>
+
+    <div
+      className={clsx(
+      'col col--3',
+      url === '' && styles.comingSoon
+      )}
+    >
+      <div className="text--center">
+      <Link title="go to lab" to={url}>
+        <Svg className={styles.featureSvg} role="img" />
+      </Link>
+      </div>
+      <div className="text--center padding-horiz--md">
+      <Heading as="h3">{title}</Heading>
+      <p>{description}</p>
+      <p className={styles.comingSoonText}>{url == '' ? 'COMING SOON' : ''}</p>
+      </div>
     </div>
   );
 }
