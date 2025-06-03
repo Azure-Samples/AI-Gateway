@@ -1,3 +1,0 @@
-# Semantic caching 
-
-coming soon ...

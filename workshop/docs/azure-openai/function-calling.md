@@ -1,3 +1,0 @@
-# Function calling
-
-coming soon ...
