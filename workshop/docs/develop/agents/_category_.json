@@ -1,8 +1,0 @@
-{
-    "label": "Agents",
-    "position": 2,
-    "link": {
-      "type": "generated-index",
-      "description": "using Agents with Azure API Management"
-    }
-}
