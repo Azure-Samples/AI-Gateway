@@ -2,6 +2,7 @@ import type {ReactNode} from 'react';
 import clsx from 'clsx';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
+import Link from '@docusaurus/Link';
 
 type FeatureItem = {
   title: string;
@@ -138,9 +139,9 @@ function Feature({title, Svg, description, url}: FeatureItem) {
     
     <div className={clsx('col col--3')}>
         <div className="text--center">
-           <a title="go to lab" href={url}>
+           <Link title="go to lab" to={url}>
             <Svg className={styles.featureSvg} role="img" />
-          </a>
+          </Link>
         </div>
         <div className="text--center padding-horiz--md">
           <Heading as="h3">{title}</Heading>
