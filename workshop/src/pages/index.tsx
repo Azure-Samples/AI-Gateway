@@ -37,6 +37,16 @@ export default function Home(): ReactNode {
       description="Description will go into a meta tag in <head />">
       <HomepageHeader />
       <main>
+        <section>
+          <div className="container">
+            <div className="row">
+              <div className="col col--12">
+                 Azure Portal is a great place to start to learn below features, but you can also use Bicep to deploy the same features in your own environment. Select the lesson type you want to learn below.
+              </div>
+            </div>
+          </div>
+        </section>
+
         <HomepageFeatures />
       </main>
     </Layout>
