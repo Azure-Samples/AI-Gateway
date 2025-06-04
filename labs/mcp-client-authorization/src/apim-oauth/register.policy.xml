@@ -21,6 +21,21 @@
         <cache-store-value duration="700" 
             key="ClientRedirectUri" 
             value="@(context.Variables.GetValueOrDefault<JObject>("requestBody")["redirect_uris"][0].ToString())" />
+
+         <!-- Generate a unique client ID (GUID) -->
+        <set-variable name="uniqueClientId" value="@(Guid.NewGuid().ToString())" />
+        
+        <!-- Store client info by client ID for easy lookup during consent -->
+        <cache-store-value duration="3600" 
+            key="@($"ClientInfo-{context.Variables.GetValueOrDefault<string>("uniqueClientId")}")" 
+            value="@{
+                var requestBody = context.Variables.GetValueOrDefault<JObject>("requestBody");
+                var clientInfo = new JObject();
+                clientInfo["client_name"] = requestBody["client_name"]?.ToString() ?? "Unknown Application";
+                clientInfo["client_uri"] = requestBody["client_uri"]?.ToString() ?? "";
+                clientInfo["redirect_uris"] = requestBody["redirect_uris"];
+                return clientInfo.ToString();
+            }" />
         
         <!-- STEP 3: Set response content type -->
         <set-header name="Content-Type" exists-action="override">
@@ -45,13 +60,18 @@
                 
                 // Client secret expires in 1 year (31536000 seconds = 365 days)
                 long clientSecretExpiresAt = currentTimeSeconds + 31536000;
+
+                // Use the generated client ID from earlier
+                string uniqueClientId = context.Variables.GetValueOrDefault<string>("uniqueClientId", Guid.NewGuid().ToString());
                 
                 return new JObject
                 {
-                    ["client_id"] = "{{McpClientId}}",
+                    ["client_id"] = uniqueClientId,
                     ["client_id_issued_at"] = clientIdIssuedAt,
                     ["client_secret_expires_at"] = clientSecretExpiresAt,
-                    ["redirect_uris"] = requestBody["redirect_uris"]?.ToObject<JArray>()
+                    ["redirect_uris"] = requestBody["redirect_uris"]?.ToObject<JArray>(),
+                    ["client_name"] = requestBody["client_name"]?.ToString() ?? "Unknown Application",
+                    ["client_uri"] = requestBody["client_uri"]?.ToString() ?? ""
                 }.ToString();
             }</set-body>
         </return-response>
