@@ -22,8 +22,8 @@ const FeatureList: FeatureItem[] = [
         Use MCP in Azure API Management for seamless LLM tool integration, leveraging OAuth 2.0 for robust authentication and authorization.
       </>
     ),
-    url: '/docs/introduction',
-    type: 'azure-portal',
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-context-protocol',
+    type: 'bicep',
   },
   {
     title: 'OpenAI Agents',
@@ -33,7 +33,7 @@ const FeatureList: FeatureItem[] = [
         Integrate OpenAI Agents with Azure OpenAI models and API-based tools, managed through Azure API Management.
       </>
     ),
-    url: '/docs/introduction',
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/openai-agents',
     type: 'bicep',
   },
   {
@@ -44,7 +44,7 @@ const FeatureList: FeatureItem[] = [
         Integrate Azure AI Agent Service with Azure OpenAI models, Logic Apps, and OpenAPI-based APIs using Azure API Management.
       </>
     ),
-    url: '/docs/introduction',
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-agent-service',
     type: 'bicep',
   },
   {
@@ -55,7 +55,7 @@ const FeatureList: FeatureItem[] = [
         Utilize Azure API Management to manage OpenAI function calling with an Azure Functions API for streamlined and efficient operations.
       </>
     ),
-    url: '/docs/introduction',
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/function-calling',
     type: 'bicep',
   },
   {
@@ -66,7 +66,7 @@ const FeatureList: FeatureItem[] = [
         Enable authorized access to OpenAPI APIs with OAuth 2.0 via an identity provider, managed through Azure API Management.
       </>
     ),
-    url: '/docs/introduction',
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/access-controlling',
     type: 'bicep',
   },
   {
@@ -103,6 +103,17 @@ const FeatureList: FeatureItem[] = [
     type: 'azure-portal',
   },
   {
+    title: 'Semantic Caching',
+    Svg: require('@site/static/img/semantic-cache.svg').default,
+    description: (
+      <>
+        Reduce latency and costs with caching strategies in Azure API Management, based on vector proximity and similarity score thresholds.
+      </>
+    ),
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/semantic-caching',
+    type: 'bicep',
+  },
+  {
     title: 'Dynamic Failover',
     Svg: require('@site/static/img/load-balancing.svg').default,
     description: (
@@ -121,7 +132,7 @@ const FeatureList: FeatureItem[] = [
         Control AI costs with Azure API Management and the FinOps Framework, enabling automated subscription disabling via Azure Monitor/ Logic Apps.
       </>
     ),
-    url: '/docs/introduction',
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/finops-framework',
     type: 'bicep',
   },
   {
@@ -132,7 +143,7 @@ const FeatureList: FeatureItem[] = [
        Utilize the self-hosted Phi-3 (SLM) through Azure API Management's self-hosted gateway with OpenAI API compatibility for efficient integration.
       </>
     ),
-    url: '/docs/introduction',
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/slm-self-hosting',
     type: 'bicep',
   },
   {
@@ -143,7 +154,7 @@ const FeatureList: FeatureItem[] = [
         Utilize the Deepseek R1 model via Azure AI Foundry, employing the Azure AI Model Inference API and APIM policies.
       </>
     ),
-    url: '/docs/introduction',
+    url: 'https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-deepseek',
     type: 'bicep',
   },
 ];
@@ -159,18 +170,17 @@ function Feature({title, Svg, description, url, type}: FeatureItem) {
       )}
     >
       <div className="text--center">
-      <Link title="go to lab" to={url}>
-        <Svg className={styles.featureSvg} role="img" />
-      </Link>
+        <Link title="go to lab" to={url}>
+          <Svg className={styles.featureSvg} role="img" />
+        </Link>
       </div>
       <div className="text--center padding-horiz--md">
-      <Heading as="h3">{title}</Heading>
-      <p>{description}</p>
-      <p className={type == 'azure-portal' ? styles.azurePortal : styles.bicep}>
-        Type: {type == 'azure-portal' ? 'Azure Portal' : 'Bicep'} 
-        </p>
-      <p className={styles.comingSoonText}>{url == '' ? 'COMING SOON' : ''}</p>
-      
+        <Heading as="h3">{title}</Heading>
+        <p>{description}</p>
+        <p className={type == 'azure-portal' ? styles.azurePortal : styles.bicep}>
+          {type == 'azure-portal' ? 'Azure Portal' : 'Bicep'} 
+          </p>
+        <p className={styles.comingSoonText}>{url == '' ? 'COMING SOON' : ''}</p>
       </div>
     </div>
   );
