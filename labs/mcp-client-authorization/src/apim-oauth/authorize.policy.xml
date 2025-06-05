@@ -15,8 +15,47 @@
         <!-- STEP 1: Retrieve PKCE parameters from MCP Client request -->
         <set-variable name="mcpClientCodeChallenge" value="@((string)context.Request.Url.Query.GetValueOrDefault("code_challenge", ""))" />
         <set-variable name="mcpClientCodeChallengeMethod" value="@((string)context.Request.Url.Query.GetValueOrDefault("code_challenge_method", ""))" />
+
+        <!-- STEP 2: Extract client ID and check if consent is required -->
+        <set-variable name="clientId" value="@((string)context.Request.Url.Query.GetValueOrDefault("client_id", ""))" />
+        <set-variable name="redirect_uri" value="@((string)context.Request.Url.Query.GetValueOrDefault("redirect_uri", ""))" />
+        <set-variable name="consentStatus" value="@((string)context.Request.Url.Query.GetValueOrDefault("consent", ""))" />
+        <set-variable name="currentState" value="@((string)context.Request.Url.Query.GetValueOrDefault("state", ""))" />
         
-        <!-- STEP 2: Generate PKCE parameters for Entra ID authentication -->
+        <!-- Check for consent cookie -->
+        <set-variable name="consentCookie" value="@{
+            string cookieName = $"MCP_CLIENT_CONSENT_{context.Variables.GetValueOrDefault<string>("clientId")}";
+            return context.Request.Headers.GetValueOrDefault("Cookie", "")
+                .Split(';')
+                .Select(c => c.Trim().Split('='))
+                .Where(c => c.Length == 2 && c[0] == cookieName)
+                .Select(c => c[1])
+                .FirstOrDefault() ?? "";
+        }" />
+        
+        <!-- Check if the client has already been consented to via cookie or URL parameter -->
+        <choose>
+            <when condition="@(
+                context.Variables.GetValueOrDefault<string>("consentStatus") == "granted" ||
+                context.Variables.GetValueOrDefault<string>("consentCookie") == "granted"
+            )">
+                <!-- Continue with normal flow - client is authorized -->
+            </when>
+            <otherwise>
+                <!-- Redirect to consent page -->
+                <return-response>
+                    <set-status code="302" reason="Found" />
+                    <set-header name="Location" exists-action="override">
+                        <value>@{
+                            string basePath = context.Request.OriginalUrl.Scheme + "://" + context.Request.OriginalUrl.Host + (context.Request.OriginalUrl.Port == 80 || context.Request.OriginalUrl.Port == 443 ? "" : ":" + context.Request.OriginalUrl.Port);
+                            return $"{basePath}/consent?client_id={context.Variables.GetValueOrDefault<string>("clientId")}&redirect_uri={context.Variables.GetValueOrDefault<string>("redirect_uri")}&state={context.Variables.GetValueOrDefault<string>("currentState")}";
+                        }</value>
+                    </set-header>
+                </return-response>
+            </otherwise>
+        </choose>
+        
+        <!-- STEP 3: Generate PKCE parameters for Entra ID authentication -->
         <!-- Generate a random code verifier for Entra ID -->
         <set-variable name="codeVerifier" value="@((string)Guid.NewGuid().ToString().Replace("-", ""))" />
         <!-- Set the code challenge method for Entra ID -->
@@ -30,14 +69,11 @@
                 return System.Convert.ToBase64String(hash).TrimEnd('=').Replace('+', '-').Replace('/', '_');
             }
             }" />
-        <!-- STEP 3: Extract client information and create state parameter -->
-        <set-variable name="clientId" value="@((string)context.Request.Url.Query.GetValueOrDefault("client_id", ""))" />
-        <set-variable name="entraState" value="@((string)Guid.NewGuid().ToString())" />
         <!-- STEP 4: Construct the Entra ID authorization URL -->
         <!-- Base URL for Entra ID authorization endpoint -->
         <set-variable name="baseAuthUrl" value="https://login.microsoftonline.com/{{EntraIDTenantId}}/oauth2/v2.0/authorize?response_type=code" />
-        <!-- Add client ID parameter -->
-        <set-variable name="clientIdParam" value="@(string.Concat("&client_id=", context.Variables.GetValueOrDefault("clientId", "")))" />        
+        <!-- Add client ID parameter - using EntraIDClientId instead of the request client ID -->
+        <set-variable name="clientIdParam" value="@("&client_id={{EntraIDClientId}}")" />      
         <!-- Add PKCE parameters -->
         <set-variable name="codeChallengeParam" value="@(string.Concat("&code_challenge=", context.Variables.GetValueOrDefault("codeChallenge", "")))" />
         <set-variable name="codeChallengeMethodParam" value="@(string.Concat("&code_challenge_method=", context.Variables.GetValueOrDefault("codeChallengeMethod", "")))" />
@@ -45,6 +81,8 @@
         <set-variable name="redirectUriParam" value="@(string.Concat("&redirect_uri=", "{{OAuthCallbackUri}}" ))" />        
         <!-- Add required scope parameter -->
         <set-variable name="scopeParam" value="@(string.Concat("&scope={{OAuthScopes}}"))" />
+        <!-- Generate Entra State -->
+        <set-variable name="entraState" value="@((string)Guid.NewGuid().ToString())" />
         <!-- Add state parameter for security -->
         <set-variable name="stateParam" value="@(string.Concat("&state=", context.Variables.GetValueOrDefault("entraState", "")))" />
           <!-- Combine all parts to form the complete authorization URL with PKCE params -->
@@ -82,7 +120,7 @@
                     ["mcpClientCodeChallengeMethod"] = (string)context.Variables.GetValueOrDefault("mcpClientCodeChallengeMethod", ""),
                     ["mcpClientState"] = (string)context.Variables.GetValueOrDefault("mcpState", ""),
                     ["mcpClientScope"] = (string)context.Variables.GetValueOrDefault("mcpScope", ""),
-                    ["mcpCallbackRedirectUri"] = Uri.UnescapeDataString(context.Request.Url.Query.GetValueOrDefault("redirect_uri", ""))
+                    ["mcpCallbackRedirectUri"] = Uri.UnescapeDataString(context.Variables.GetValueOrDefault("redirect_uri", ""))
                 }.ToString();
             }" />
     </inbound>
