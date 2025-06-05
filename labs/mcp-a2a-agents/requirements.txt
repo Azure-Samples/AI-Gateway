@@ -1,0 +1,5 @@
+# A2A Labs
+jwcrypto
+a2a-sdk
+httpx
+uvicorn

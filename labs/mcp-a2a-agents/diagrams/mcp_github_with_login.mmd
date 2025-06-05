@@ -1,0 +1,30 @@
+sequenceDiagram
+    participant MCP Client as MCP Client<br>(VSCode/Autogen)
+    participant APIM as APIM +<br>Crendential Manager
+    participant MCP Server as MCP Server<br>(Container Apps)
+    participant Backend as Backend<br>(Github)
+
+    MCP Client->>APIM: /sse
+    APIM->>MCP Server: list tools
+    MCP Server->>MCP Client: existing backend tools<br/> + "authorize_github" tool
+    MCP Client->>MCP Client: process prompt
+    MCP Client->>MCP Server: /authorize_github
+    MCP Server->>MCP Server: generate `authorization_id` <br>based on the current session
+    MCP Server->>APIM: Check status
+    alt If first time, OAuth2 Login Flow
+        APIM->>MCP Server: "Post Login Redirect URL"
+        MCP Server->>MCP Client: Login URL
+        MCP Client->>Backend: Login
+        Backend->>MCP Client: Redirect to "Post Login Redirect URL"<br>(with Authorization Code)
+        MCP Client->>APIM: Redirect (with Authorization Code)
+        APIM->>Backend: Get token using Authorization Code
+        Backend->>APIM: Access Token + Refresh Token
+        APIM->>APIM: Securely save tokens
+        APIM->>APIM: Create authorization ACL<br>for APIM service principal
+    end
+    APIM->>MCP Client: connected
+    MCP Client->>MCP Server: /get_issues (no token)
+    MCP Server->>MCP Server: attach `authorization_id` as request header
+    MCP Server->>APIM: /get_issues (no token)
+    APIM->>APIM: get token for the `authorization_id`
+    APIM->>Backend: /get_issues (with token)

@@ -1,0 +1,148 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "GitHub MCP",
+        "description": "",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://apim-rocks.azure-api.net/github"
+    }],
+    "paths": {
+        "/messages/": {
+            "post": {
+                "tags": ["MCP"],
+                "summary": "messages",
+                "description": "messages",
+                "operationId": "messages",
+                "parameters": [{
+                    "name": "Content-Type",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "enum": [""],
+                        "type": ""
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/sse": {
+            "get": {
+                "tags": ["MCP"],
+                "summary": "sse",
+                "description": "sse",
+                "operationId": "sse",
+                "parameters": [{
+                    "name": "Content-Type",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "enum": [""],
+                        "type": ""
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "tags": ["API"],
+                "summary": "Get the authenticated user",
+                "description": "Get the authenticated user",
+                "operationId": "user",
+                "parameters": [{
+                    "name": "Authorization",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "type": ""
+                    }
+                }, {
+                    "name": "Accept",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "enum": [""],
+                        "type": ""
+                    }
+                }, {
+                    "name": "X-GitHub-Api-Version",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "enum": [""],
+                        "type": ""
+                    }
+                }, {
+                    "name": "User-Agent",
+                    "in": "header",
+                    "required": true,
+                    "schema": {
+                        "type": ""
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/repos/{username}/{repo}/issues": {
+            "get": {
+                "tags": ["API"],
+                "summary": "List issues for a repository",
+                "description": "List issues for a repository",
+                "operationId": "issues",
+                "parameters": [{
+                    "name": "username",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": ""
+                    }
+                }, {
+                    "name": "repo",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": ""
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }, {
+        "apiKeyQuery": []
+    }]
+}

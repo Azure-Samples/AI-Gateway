@@ -1,0 +1,11 @@
+# MCP Labs
+mcp
+autogen-core 
+autogen-ext[openai,azure,mcp] 
+autogen-agentchat
+
+# A2A Labs
+jwcrypto
+a2a-sdk
+
+openai
