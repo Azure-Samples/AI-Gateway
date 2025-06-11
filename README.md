@@ -5,6 +5,14 @@
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
 ## What's new ✨
+
+A new workshop experience was just allowing you to try out AI features like token limits, monitoring and load balancing via Azure Portal. 
+
+[To the workshops](https://aka.ms/ai-gateway/workshop)
+
+![Workshops]()
+
+See labs below to try out new and exciting features:
  
 ➕ **Realtime API (Audio and Text) with Azure OpenAI 🔥** experiments with the [**AOAI Realtime**](labs/realtime-audio/realtime-audio.ipynb)  
 ➕ **Realtime API (Audio and Text) with Azure OpenAI + MCP tools 🔥** experiments with the [**AOAI Realtime + MCP**](labs/realtime-mcp-agents/realtime-mcp-agents.ipynb)  
