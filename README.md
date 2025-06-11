@@ -10,7 +10,10 @@ A new workshop experience was just allowing you to try out AI features like toke
 
 [To the workshops](https://aka.ms/ai-gateway/workshop)
 
-![Workshops]()
+<div>
+  <img src="./images/workshop.png" alt="workshop" width="600">
+</div>
+
 
 See labs below to try out new and exciting features:
  
