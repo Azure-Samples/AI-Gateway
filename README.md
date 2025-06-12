@@ -100,7 +100,7 @@ Use this playground to explore the [Azure AI Agent Service](https://learn.micros
 
 [<img src="images/ai-agent-service-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/ai-agent-service/ai-agent-service.ipynb)
 
-[🦾 Bicep](labs/ai-agent-service/main.bicep) ➕ [⚙️ Policy](labs/ai-agent-service/policy.xml) ➕ [🧾 Notebook](labs/ai-agent-service/ai-agent-service.ipynb)
+[🦾 Bicep](labs/ai-agent-service/main.bicep) ➕ [⚙️ Policy](labs/ai-agent-service/openai-policy.xml) ➕ [🧾 Notebook](labs/ai-agent-service/ai-agent-service.ipynb)
 
 <!-- Function calling -->
 ### [**🧪 Function calling**](labs/function-calling/function-calling.ipynb)
