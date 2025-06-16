@@ -140,6 +140,11 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-prev
         }
       ]
     }
+    credentials: {
+      managedIdentity: {
+          resource: 'https://cognitiveservices.azure.com'
+      }
+    }
   }
 }]
 
