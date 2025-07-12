@@ -1,78 +1,14 @@
 <policies>
     <inbound>
         <set-variable name="SubscriptionKey" value="@(context.Request.Headers.GetValueOrDefault("api-key"))" />
-        <send-request mode="new" response-variable-name="safetyResponse">
-            <set-url>@("https://" + context.Request.Headers.GetValueOrDefault("Host") + "/contentsafety/text:analyze?api-version=2023-10-01")</set-url>
-            <set-method>POST</set-method>
-            <set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
-                <value>@(context.Variables.GetValueOrDefault<string>("SubscriptionKey"))</value>
-            </set-header>
-            <set-header name="Content-Type" exists-action="override">
-                <value>application/json</value>
-            </set-header>
-            <set-body>@{
-            	string[] categories = new string[] {"Hate","Sexual","SelfHarm","Violence"};
-				JObject obj = new JObject();
-				JProperty textProperty = new JProperty("text", string.Concat(context.Request.Body.As<JObject>(preserveContent: true)["messages"].Select(m => m.Value<string>("content")).ToArray()));
-				JProperty categoriesProperty = new JProperty("categories", new JArray(categories));
-				JProperty outputTypeProperty = new JProperty("outputType", "EightSeverityLevels");
-				obj.Add(textProperty);
-				obj.Add(categoriesProperty);
-				obj.Add(outputTypeProperty);
-				return obj.ToString();
-			}</set-body>
-        </send-request>
-        <choose>
-            <when condition="@(((IResponse)context.Variables["safetyResponse"]).StatusCode == 200)">
-                <set-variable name="thresholdExceededCategory" value="@{
-                    var thresholdExceededCategory = "";
-
-                    // Define the allowed threshold for each category
-                    Dictionary<string, int> categoryThresholds = new Dictionary<string, int>()
-                    {
-                        { "Hate", 0 },
-                        { "Sexual", 0 },
-                        { "SelfHarm", 0 },
-                        { "Violence", 0 }
-                    };
-
-                    foreach (var category in categoryThresholds)
-                    {
-                        var categoryAnalysis = ((JArray)((IResponse)context.Variables["safetyResponse"]).Body.As<JObject>(preserveContent: true)["categoriesAnalysis"]).FirstOrDefault(c => (string)c["category"] == category.Key);
-
-                        if (categoryAnalysis != null && (int)categoryAnalysis["severity"] > category.Value)
-                        {
-                            // Threshold exceeded for the category
-                            thresholdExceededCategory = category.Key;
-                            break;
-                        }
-                    }
-                    return thresholdExceededCategory;
-                }" />
-                <choose>
-                    <when condition="@(context.Variables["thresholdExceededCategory"] != "")">
-                        <return-response>
-                            <set-status code="400" reason="Bad Request" />
-                            <set-body>@{
-                                var errorResponse = new
-                                {
-                                    error = new
-                                    {
-                                        message = "The content was filtered by the Azure AI Content Safety service for the category: " + (string)context.Variables["thresholdExceededCategory"]
-                                    }
-                                };
-                                return JsonConvert.SerializeObject(errorResponse);
-                            }</set-body>
-                        </return-response>
-                    </when>
-                </choose>
-            </when>
-            <otherwise>
-                <return-response>
-                    <set-status code="500" reason="Internal Server Error" />
-                </return-response>
-            </otherwise>
-        </choose>
+        <llm-content-safety backend-id="content-safety" shield-prompt="false">
+            <categories output-type="EightSeverityLevels">
+                <category name="Hate" threshold="2" />
+                <category name="Violence" threshold="2" />
+                <category name="SelfHarm" threshold="2" />
+                <category name="Sexual" threshold="2" />
+            </categories>
+        </llm-content-safety>
         <base />
         <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
         <set-header name="Authorization" exists-action="override">
@@ -85,9 +21,6 @@
     </backend>
     <outbound>
         <base />
-        <set-header name="debug-content-safety-output" exists-action="override">
-            <value>@(((IResponse)context.Variables["safetyResponse"]).Body.As<string>(preserveContent: true))</value>
-        </set-header>
     </outbound>
     <on-error>
         <base />

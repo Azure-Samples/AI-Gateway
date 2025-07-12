@@ -265,6 +265,42 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2023-05-01-prev
   }
 }]
 
+resource backendContentSafety 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = {
+  name: 'content-safety'
+  parent: apimService
+  properties: {
+    description: 'content safety backend'
+    url: contentSafetyResource.properties.endpoint
+    protocol: 'http'
+    circuitBreaker: {
+      rules: [
+        {
+          failureCondition: {
+            count: 3
+            errorReasons: [
+              'Server errors'
+            ]
+            interval: 'PT5M'
+            statusCodeRanges: [
+              {
+                min: 429
+                max: 429
+              }
+            ]
+          }
+          name: 'CSBreakerRule'
+          tripDuration: 'PT1M'
+        }
+      ]
+    }
+    credentials: {
+      managedIdentity: {
+        resource: 'https://cognitiveservices.azure.com'
+      }
+    }
+  }
+}
+
 resource backendMock 'Microsoft.ApiManagement/service/backends@2023-05-01-preview' = [for (mock, i) in mockWebApps: if(length(openAIConfig) == 0 && length(mockWebApps) > 0) {
   name: mock.name
   parent: apimService
