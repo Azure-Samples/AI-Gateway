@@ -5,6 +5,17 @@
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
 ## What's new ✨
+
+A new workshop experience was just allowing you to try out AI features like token limits, monitoring and load balancing via Azure Portal. 
+
+[To the workshops](https://aka.ms/ai-gateway/workshop)
+
+<div>
+  <img src="./images/workshop.png" alt="workshop" width="600">
+</div>
+
+
+See labs below to try out new and exciting features:
  
 ➕ **Realtime API (Audio and Text) with Azure OpenAI 🔥** experiments with the [**AOAI Realtime**](labs/realtime-audio/realtime-audio.ipynb)  
 ➕ **Realtime API (Audio and Text) with Azure OpenAI + MCP tools 🔥** experiments with the [**AOAI Realtime + MCP**](labs/realtime-mcp-agents/realtime-mcp-agents.ipynb)  
@@ -89,7 +100,7 @@ Use this playground to explore the [Azure AI Agent Service](https://learn.micros
 
 [<img src="images/ai-agent-service-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/ai-agent-service/ai-agent-service.ipynb)
 
-[🦾 Bicep](labs/ai-agent-service/main.bicep) ➕ [⚙️ Policy](labs/ai-agent-service/policy.xml) ➕ [🧾 Notebook](labs/ai-agent-service/ai-agent-service.ipynb)
+[🦾 Bicep](labs/ai-agent-service/main.bicep) ➕ [⚙️ Policy](labs/ai-agent-service/openai-policy.xml) ➕ [🧾 Notebook](labs/ai-agent-service/ai-agent-service.ipynb)
 
 <!-- Function calling -->
 ### [**🧪 Function calling**](labs/function-calling/function-calling.ipynb)

@@ -26,6 +26,9 @@ param encryptionKey string
 @description('The MCP client ID')
 param mcpClientId string
 
+@description('The name of the MCP Server to display in the consent page')
+param mcpServerName string = 'MCP Server'
+
 resource apimService 'Microsoft.ApiManagement/service@2021-08-01' existing = {
   name: apimServiceName
 }
@@ -117,6 +120,16 @@ resource APIMGatewayURLNamedValue 'Microsoft.ApiManagement/service/namedValues@2
   properties: {
     displayName: 'APIMGatewayURL'
     value: apimService.properties.gatewayUrl
+    secret: false
+  }
+}
+
+resource MCPServerNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  parent: apimService
+  name: 'MCPServerName'
+  properties: {
+    displayName: 'MCPServerName'
+    value: mcpServerName
     secret: false
   }
 }
@@ -288,6 +301,50 @@ resource oauthMetadataGetPolicy 'Microsoft.ApiManagement/service/apis/operations
   properties: {
     format: 'rawxml'
     value: loadTextContent('oauthmetadata-get.policy.xml')
+  }
+}
+
+// Add a GET operation for the consent endpoint
+resource oauthConsentGetOperation 'Microsoft.ApiManagement/service/apis/operations@2021-08-01' = {
+  parent: oauthApi
+  name: 'consent-get'
+  properties: {
+    displayName: 'Consent Page'
+    method: 'GET'
+    urlTemplate: '/consent'
+    description: 'Client consent page endpoint'
+  }
+}
+
+// Add policy for the consent GET operation
+resource oauthConsentGetPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2021-08-01' = {
+  parent: oauthConsentGetOperation
+  name: 'policy'
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('consent.policy.xml')
+  }
+}
+
+// Add a POST operation for the consent endpoint
+resource oauthConsentPostOperation 'Microsoft.ApiManagement/service/apis/operations@2021-08-01' = {
+  parent: oauthApi
+  name: 'consent-post'
+  properties: {
+    displayName: 'Consent Submission'
+    method: 'POST'
+    urlTemplate: '/consent'
+    description: 'Client consent submission endpoint'
+  }
+}
+
+// Add policy for the consent POST operation
+resource oauthConsentPostPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2021-08-01' = {
+  parent: oauthConsentPostOperation
+  name: 'policy'
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('consent.policy.xml')
   }
 }
 

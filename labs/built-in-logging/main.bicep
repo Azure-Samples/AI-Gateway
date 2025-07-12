@@ -41,7 +41,6 @@ var lawId = lawModule.outputs.id
 module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
   name: 'appInsightsModule'
   params: {
-    workbookJson: loadTextContent('openai-usage-analysis-workbook.json')
     lawId: lawId
     customMetricsOptedInType: 'WithDimensions'
   }
@@ -80,8 +79,6 @@ module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
     policyXml: updatedPolicyXml
     openAIConfig: openAIModule.outputs.extendedOpenAIConfig
     openAIAPIVersion: openAIAPIVersion
-    appInsightsInstrumentationKey: appInsightsInstrumentationKey
-    appInsightsId: appInsightsId
   }
 }
 
@@ -93,12 +90,110 @@ resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   ]
 }
 
+
+resource apimDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: apim
+  name: 'apimDiagnosticSettings'
+  properties: {
+    workspaceId: lawId
+    logAnalyticsDestinationType: 'Dedicated'
+    logs: [
+      {
+        categoryGroup: 'AllLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+resource apimLogger 'Microsoft.ApiManagement/service/loggers@2024-06-01-preview' = {
+  parent: apim
+  name: 'azuremonitor'
+  properties: {
+    loggerType: 'azureMonitor'
+    isBuffered: false // Set to false to ensure logs are sent immediately
+  }
+}
+
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing = {
   parent: apim
   name: openAIAPIName
   dependsOn: [
     openAIAPIModule
   ]
+}
+
+
+resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2024-06-01-preview' = {
+  parent: api
+  name: 'azuremonitor'
+  properties: {
+    alwaysLog: 'allErrors'
+    verbosity: 'information'
+    logClientIp: true
+    loggerId: apimLogger.id
+    sampling: {
+      samplingType: 'fixed'
+      percentage: json('100')
+    }
+    frontend: {
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+    }
+    backend: {
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+    }
+    largeLanguageModel: {
+      logs: 'enabled'
+      requests: {
+        messages: 'all'
+        maxSizeInBytes: 262144
+      }
+      responses: {
+        messages: 'all'
+        maxSizeInBytes: 262144
+      }
+    }
+  }
+} 
+
+resource llmLoggingWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = {
+  name: guid(resourceGroup().id, resourceSuffix, 'llmLoggingWorkbook')
+  location: resourceGroup().location
+  kind: 'shared'
+  properties: {
+    displayName: 'LLM Logging Workbook'
+    serializedData: loadTextContent('llm-logging-workbook.json')
+    sourceId: lawId
+    category: 'workbook'
+  }
 }
 
 // Ignore the subscription that gets created in the APIM module and create three new ones for this lab.

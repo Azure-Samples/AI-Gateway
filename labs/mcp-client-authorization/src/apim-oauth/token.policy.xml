@@ -36,8 +36,8 @@
             }
             return "";
         }" />            
-        <!-- Extract the code_verifier from the request -->        
-         <set-variable name="mcpClientCodeVerifier" value="@{
+        <!-- Extract the code_verifier from the request and URL-decode it -->        
+        <set-variable name="mcpClientCodeVerifier" value="@{
             // Retrieve the raw body string
             var body = context.Variables.GetValueOrDefault<string>("tokenRequestBody");
             if (!string.IsNullOrEmpty(body))
@@ -51,7 +51,8 @@
                     {
                         if(keyValue[0] == "code_verifier")
                         {
-                            return keyValue[1];
+                            // URL-decode the code_verifier if needed
+                            return System.Net.WebUtility.UrlDecode(keyValue[1]);
                         }
                     }
                 }
@@ -59,9 +60,9 @@
             return "";
         }" />
             
-            <!-- STEP 2: Extract state parameters -->
-            <set-variable name="mcpState" value="@((string)context.Request.Url.Query.GetValueOrDefault("state", ""))" />
-            <set-variable name="stateSession" value="@((string)context.Request.Url.Query.GetValueOrDefault("state_session", ""))" />        
+        <!-- STEP 2: Extract state parameters -->
+        <set-variable name="mcpState" value="@((string)context.Request.Url.Query.GetValueOrDefault("state", ""))" />
+        <set-variable name="stateSession" value="@((string)context.Request.Url.Query.GetValueOrDefault("state_session", ""))" />        
     </inbound>
     <backend />
     <outbound>
@@ -115,6 +116,75 @@
                 <return-response>
                     <set-status code="400" reason="Bad Request" />
                     <set-body>@("{\"error\": \"code_verifier does not match.\"}")</set-body>
+                </return-response>
+            </when>
+        </choose>
+
+         <!-- Normalize the redirect URI -->
+        <set-variable name="normalized_redirect_uri" value="@{
+            string redirectUri = context.Variables.GetValueOrDefault<string>("redirect_uri", "");
+            return System.Net.WebUtility.UrlDecode(redirectUri);
+        }" />
+        
+        <!-- Look up client information from cache -->
+        <cache-lookup-value key="@($"ClientInfo-{context.Variables.GetValueOrDefault<string>("client_id")}")" variable-name="clientInfoJson" />
+        
+        <!-- Verify that the client exists and the redirect URI is valid -->
+        <set-variable name="is_client_registered" value="@{
+            try {
+                string clientId = context.Variables.GetValueOrDefault<string>("client_id", "");
+                string redirectUri = context.Variables.GetValueOrDefault<string>("normalized_redirect_uri", "");
+                
+                if (string.IsNullOrEmpty(clientId)) {
+                    return false;
+                }
+                
+                // Get the client info from the variable set by cache-lookup-value
+                string clientInfoJson = context.Variables.GetValueOrDefault<string>("clientInfoJson");
+                  if (string.IsNullOrEmpty(clientInfoJson)) {
+                    context.Trace($"Client info not found in cache for client_id: {clientId}");
+                    return false;
+                }
+                
+                // Parse client info
+                JObject clientInfo = JObject.Parse(clientInfoJson);
+                JArray redirectUris = clientInfo["redirect_uris"]?.ToObject<JArray>();
+                
+                // Check if the redirect URI is in the registered URIs
+                if (redirectUris != null) {
+                    foreach (var uri in redirectUris) {
+                        // Normalize the URI from the cache for comparison
+                        string registeredUri = System.Net.WebUtility.UrlDecode(uri.ToString());
+                        if (registeredUri == redirectUri) {
+                            return true;
+                        }
+                    }
+                }
+                
+                context.Trace($"Redirect URI mismatch - URI: {redirectUri} not found in registered URIs");
+                return false;
+            }
+            catch (Exception ex) {
+                context.Trace($"Error checking client registration: {ex.Message}");
+                return false;
+            }
+        }" />
+        
+        <!-- Check if client is properly registered -->
+        <choose>
+            <when condition="@(!context.Variables.GetValueOrDefault<bool>("is_client_registered"))">
+                <!-- Client is not properly registered, return error -->
+                <return-response>
+                    <set-status code="401" reason="Unauthorized" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+                        var errorResponse = new JObject();
+                        errorResponse["error"] = "invalid_client";
+                        errorResponse["error_description"] = "Client not found or redirect URI is invalid.";
+                        return errorResponse.ToString();
+                    }</set-body>
                 </return-response>
             </when>
         </choose>

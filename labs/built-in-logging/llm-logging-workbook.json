@@ -1,0 +1,541 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "d23b8780-21cc-4c60-b66f-090591b599b9",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Time Range",
+            "type": 4,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": {
+              "durationMs": 2592000000
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.apimanagement/service"
+      },
+      "name": "parameters - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "# Language model consumption tracking"
+      },
+      "name": "text - 6"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let TimeRangeEnd = {TimeRange:end};\nlet TimeRangeStart = {TimeRange:start} + 1m;\nlet TimeRange = TimeRangeEnd - TimeRangeStart;\nlet llmHeaderLogs = ApiManagementGatewayLlmLog\n| where SequenceNumber == 0\n| where TimeGenerated between ((TimeRangeStart - TimeRange) .. TimeRangeEnd);\nlet timeRangeTokenMetrics = llmHeaderLogs \n| summarize TimeRangeTotalTokens = sum(TotalTokens),\nTimeRangePromptTokens = sum(PromptTokens),\nTimeRangeCompletionTokens = sum(CompletionTokens),\nTimeRangeTotalRequests = count()\nby bin_at(TimeGenerated, TimeRange, now());\nlet SingleRowTable = datatable(column:int)[1];\nlet currentTimeRangeMetrics = timeRangeTokenMetrics | where TimeGenerated between (TimeRangeStart .. TimeRangeEnd) | take 1;\nlet previousTimeRangeMetrics = timeRangeTokenMetrics | where TimeGenerated between ((TimeRangeStart - TimeRange) .. (TimeRangeEnd - TimeRange - 1m)) | take 1;\nlet dailyTokenMetrics = llmHeaderLogs \n| where TimeGenerated between ((TimeRangeEnd - 2d) .. TimeRangeEnd)\n| summarize Tpm = sum(TotalTokens), Rpm = count() by bin_at(TimeGenerated, 1m, TimeRangeEnd)\n| summarize MaxTpm = max(Tpm), MaxRpm = max(Rpm) by bin_at(TimeGenerated, 1d - 1m, TimeRangeEnd);\nlet currentDayMetrics = dailyTokenMetrics | where TimeGenerated between ((TimeRangeEnd - 1d + 1m) .. TimeRangeEnd) | take 1;\nlet previousDayMetrics = dailyTokenMetrics | where TimeGenerated between ((TimeRangeEnd - 2d + 1m) .. (TimeRangeEnd - 1d)) | take 1;\nlet GetMetricIncreasePercentage = (currentMetricValue:int, previousMetricValue:int) { iff(currentMetricValue > 0 and previousMetricValue > 0, (currentMetricValue - previousMetricValue) * 100.0 / previousMetricValue, iff(tostring(previousMetricValue) == \"\" or previousMetricValue <= 0, iff(currentMetricValue > 0, +10000.0, 0.0) , -10000.0)) };\n// \nlet previousPromptTokenMetric = iff(tostring(toscalar(previousTimeRangeMetrics | project TimeRangePromptTokens)) == \"\", 0, toscalar(previousTimeRangeMetrics | project TimeRangePromptTokens));\nlet currentPromptTokenMetric = iff(tostring(toscalar(currentTimeRangeMetrics | project TimeRangePromptTokens)) == \"\", 0, toscalar(currentTimeRangeMetrics | project TimeRangePromptTokens));\nlet timePeriodPromptTokenMetrics = SingleRowTable | project Order = 1, MetricName = \"Prompt tokens\", CurrentMetric = currentPromptTokenMetric, PreviousMetric = previousPromptTokenMetric, MetricIncreasePercentage = GetMetricIncreasePercentage(currentPromptTokenMetric, previousPromptTokenMetric);\n//\nlet previousCompletionTokenMetric = iff(tostring(toscalar(previousTimeRangeMetrics | project TimeRangeCompletionTokens)) == \"\", 0, toscalar(previousTimeRangeMetrics | project TimeRangeCompletionTokens));\nlet currentCompletionTokenMetric = iff(tostring(toscalar(currentTimeRangeMetrics | project TimeRangeCompletionTokens)) == \"\", 0, toscalar(currentTimeRangeMetrics | project TimeRangeCompletionTokens));\nlet timePeriodCompletionTokenMetrics = SingleRowTable | project Order = 2, MetricName = \"Completion tokens\", PreviousMetric = previousCompletionTokenMetric, CurrentMetric = currentCompletionTokenMetric, MetricIncreasePercentage = GetMetricIncreasePercentage(currentCompletionTokenMetric, previousCompletionTokenMetric);\n//\nlet previousTotalTokenMetric = iff(tostring(toscalar(previousTimeRangeMetrics | project TimeRangeTotalTokens)) == \"\", 0, toscalar(previousTimeRangeMetrics | project TimeRangeTotalTokens));\nlet currentTotalTokenMetric = iff(tostring(toscalar(currentTimeRangeMetrics | project TimeRangeTotalTokens)) == \"\", 0, toscalar(currentTimeRangeMetrics | project TimeRangeTotalTokens));\nlet timePeriodTotalTokenMetrics = SingleRowTable | project Order = 3, MetricName = \"Total tokens\", CurrentMetric = currentTotalTokenMetric, PreviousMetric = previousTotalTokenMetric, MetricIncreasePercentage = GetMetricIncreasePercentage(currentTotalTokenMetric, previousTotalTokenMetric);\n//\nlet previousTotalRequestMetric = iff(tostring(toscalar(previousTimeRangeMetrics | project TimeRangeTotalRequests)) == \"\", 0, toscalar(previousTimeRangeMetrics | project TimeRangeTotalRequests));\nlet currentTotalRequestMetric = iff(tostring(toscalar(currentTimeRangeMetrics | project TimeRangeTotalRequests)) == \"\", 0, toscalar(currentTimeRangeMetrics | project TimeRangeTotalRequests));\nlet timePeriodTotalRequestsMetrics = SingleRowTable | project Order = 4, MetricName = \"Total requests\", CurrentMetric = currentTotalRequestMetric, PreviousMetric = previousTotalRequestMetric, MetricIncreasePercentage = GetMetricIncreasePercentage(currentTotalRequestMetric, previousTotalRequestMetric);\n//\nlet previousMaxTpmMetric = iff(tostring(toscalar(previousDayMetrics | project MaxTpm)) == \"\", 0, toscalar(previousDayMetrics | project MaxTpm));\nlet currentMaxTpmMetric = iff(tostring(toscalar(currentDayMetrics | project MaxTpm)) == \"\", 0, toscalar(currentDayMetrics | project MaxTpm));\nlet dailyTpmMetrics = SingleRowTable | project Order = 5, MetricName = \"Max TPM\", CurrentMetric = currentMaxTpmMetric, PreviousMetric = previousMaxTpmMetric, MetricIncreasePercentage = GetMetricIncreasePercentage(currentMaxTpmMetric, previousMaxTpmMetric), timePeriodLabel = \"Last 24 hours\";\n//\nlet previousMaxRpmMetric = iff(tostring(toscalar(previousDayMetrics | project MaxRpm)) == \"\", 0, toscalar(previousDayMetrics | project MaxRpm));\nlet currentMaxRpmMetric = iff(tostring(toscalar(currentDayMetrics | project MaxRpm)) == \"\", 0, toscalar(currentDayMetrics | project MaxRpm));\nlet dailyRpmMetrics = SingleRowTable | project Order = 6, MetricName = \"Max RPM\", CurrentMetric = currentMaxRpmMetric, PreviousMetric = previousMaxRpmMetric, MetricIncreasePercentage = GetMetricIncreasePercentage(currentMaxRpmMetric, previousMaxRpmMetric), timePeriodLabel = \"Last 24 hours\";\n//\ndailyTpmMetrics\n| union dailyRpmMetrics\n| union timePeriodTotalTokenMetrics\n| union timePeriodPromptTokenMetrics\n| union timePeriodCompletionTokenMetrics\n| union timePeriodTotalRequestsMetrics\n| extend timePeriodLabel = iff(tostring(timePeriodLabel) == \"\" , \"{TimeRange:label}\", timePeriodLabel)\n| extend timePeriodLabel = strcat(\"(\", timePeriodLabel, \")\")\n| sort by Order asc ",
+        "size": 4,
+        "title": "Metrics",
+        "queryType": 0,
+        "resourceType": "microsoft.apimanagement/service",
+        "visualization": "tiles",
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "MetricName"
+          },
+          "subtitleContent": {
+            "columnMatch": "timePeriodLabel"
+          },
+          "leftContent": {
+            "columnMatch": "CurrentMetric",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "none"
+            }
+          },
+          "secondaryContent": {
+            "columnMatch": "MetricIncreasePercentage",
+            "formatter": 8,
+            "formatOptions": {
+              "min": -1,
+              "max": 1,
+              "palette": "redGreen"
+            },
+            "numberFormat": {
+              "unit": 1,
+              "options": {
+                "style": "decimal",
+                "maximumFractionDigits": 0
+              }
+            }
+          },
+          "showBorder": false,
+          "sortCriteriaField": "Order",
+          "sortOrderField": 1
+        }
+      },
+      "name": "query - 2"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Usage breakdowns",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let llmHeaderLogs = ApiManagementGatewayLlmLog\r\n| where SequenceNumber == 0;\r\nlet Total = toscalar(llmHeaderLogs | count);\r\nllmHeaderLogs\r\n| summarize Percentage = count() * 100.0 / Total by ModelName\r\n| render piechart\r\n",
+              "size": 2,
+              "title": "Model usage",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.apimanagement/service",
+              "visualization": "piechart",
+              "chartSettings": {
+                "yAxis": [
+                  "Percentage"
+                ],
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "30",
+            "name": "query - 3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let UnformatApiVersion = (formattedApiVersion:string) { iff(formattedApiVersion contains \"T00:00:00.0000\", substring(formattedApiVersion, 0, 10), formattedApiVersion)};\r\nlet llmHeaderLogs = ApiManagementGatewayLlmLog\r\n| where SequenceNumber == 0;\r\nlet Total = toscalar(llmHeaderLogs | count);\r\nllmHeaderLogs\r\n| summarize Percentage = count() * 100.0 / Total by UnformatApiVersion(ApiVersion)\r\n| render piechart\r\n",
+              "size": 2,
+              "title": "API version usage",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.apimanagement/service",
+              "chartSettings": {
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "30",
+            "name": "query - 1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let llmHeaderLogs = ApiManagementGatewayLlmLog\r\n| where SequenceNumber == 0;\r\nlet llmLogsWithSubscriptionId = llmHeaderLogs\r\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId\r\n| project SubscriptionId = ApimSubscriptionId, DeploymentName, ModelName, ApiVersion, PromptTokens, CompletionTokens, TotalTokens;\r\nlet Total = toscalar(llmLogsWithSubscriptionId  | count);\r\nllmLogsWithSubscriptionId\r\n| summarize Percentage = count() * 100.0 / Total by SubscriptionId\r\n| render piechart",
+              "size": 2,
+              "title": "Subscription usage",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.apimanagement/service",
+              "chartSettings": {
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 1,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "30",
+            "name": "query - 2"
+          }
+        ]
+      },
+      "name": "group - 3"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let llmLogsWithSubscriptionId = ApiManagementGatewayLlmLog\r\n| where SequenceNumber == 0\r\n| where TotalTokens != 0\r\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId\r\n| project SubscriptionId = ApimSubscriptionId, DeploymentName, ModelName, ApiVersion, PromptTokens, CompletionTokens, TotalTokens;\r\nllmLogsWithSubscriptionId\r\n| summarize TotalTokens = sum(TotalTokens), TotalRequests=count() by SubscriptionId, DeploymentName, ModelName",
+        "size": 3,
+        "title": "Token consumption",
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.apimanagement/service",
+        "visualization": "table",
+        "gridSettings": {
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "ModelName",
+              "sortOrder": 1
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "SubscriptionId",
+              "label": "Subscription ID"
+            },
+            {
+              "columnId": "DeploymentName",
+              "label": "Deployment"
+            },
+            {
+              "columnId": "ModelName",
+              "label": "Model"
+            },
+            {
+              "columnId": "TotalTokens",
+              "label": "Total Tokens"
+            },
+            {
+              "columnId": "TotalRequests",
+              "label": "Total Requests"
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "ModelName",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "name": "query - 4"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let llmHeaderLogs = ApiManagementGatewayLlmLog\r\n| where SequenceNumber == 0\r\n| where TotalTokens != 0;\r\nlet llmLogsWithTotalTime = llmHeaderLogs\r\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId\r\n| project DeploymentName, ModelName, ApiVersion, PromptTokens, CompletionTokens, TotalTokens, TotalTime;\r\nllmLogsWithTotalTime\r\n| summarize AverageTotalTime = avg(TotalTime) by ModelName",
+        "size": 0,
+        "title": "Average duration",
+        "timeContextFromParameter": "TimeRange",
+        "exportToExcelOptions": "all",
+        "queryType": 0,
+        "resourceType": "microsoft.apimanagement/service",
+        "visualization": "barchart",
+        "chartSettings": {
+          "xAxis": "ModelName",
+          "showMetrics": false,
+          "xSettings": {
+            "label": "Model"
+          },
+          "ySettings": {
+            "numberFormatSettings": {
+              "unit": 23,
+              "options": {
+                "style": "decimal",
+                "useGrouping": true
+              }
+            }
+          }
+        }
+      },
+      "name": "query - 3"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let UnformatApiVersion = (formattedApiVersion:string) { iff(formattedApiVersion contains \"T00:00:00.0000\", substring(formattedApiVersion, 0, 10), formattedApiVersion)};\r\nlet llmLogsWithSubscriptionId = ApiManagementGatewayLlmLog\r\n| where SequenceNumber == 0\r\n| where TotalTokens != 0\r\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId\r\n| project SubscriptionId = ApimSubscriptionId, DeploymentName, ModelName, ApiVersion = UnformatApiVersion(ApiVersion), PromptTokens, CompletionTokens, TotalTokens;\r\nllmLogsWithSubscriptionId\r\n| summarize TotalTokens = sum(TotalTokens), TotalRequests=count() by ApiVersion, DeploymentName, ModelName",
+        "size": 3,
+        "title": "API version",
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.apimanagement/service",
+        "visualization": "table",
+        "gridSettings": {
+          "filter": true,
+          "sortBy": [
+            {
+              "itemKey": "ModelName",
+              "sortOrder": 1
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "ApiVersion",
+              "label": "API Version"
+            },
+            {
+              "columnId": "DeploymentName",
+              "label": "Deployment"
+            },
+            {
+              "columnId": "ModelName",
+              "label": "Model"
+            },
+            {
+              "columnId": "TotalTokens",
+              "label": "Total Tokens"
+            },
+            {
+              "columnId": "TotalRequests",
+              "label": "Total Requests"
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "ModelName",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "name": "query - 4 - Copy"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "0de9d02a-9f65-4756-b090-f056025659d4",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ActivityWindow",
+                  "label": "Activity Window",
+                  "type": 4,
+                  "isRequired": true,
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 172800000
+                      },
+                      {
+                        "durationMs": 259200000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 1209600000
+                      },
+                      {
+                        "durationMs": 2419200000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 5184000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ]
+                  },
+                  "value": {
+                    "durationMs": 7776000000
+                  }
+                },
+                {
+                  "id": "63e84413-612d-456f-b4ff-ce70b031539a",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "InactiveThreshold",
+                  "label": "Inactive Threshold",
+                  "type": 4,
+                  "isRequired": true,
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 300000
+                      },
+                      {
+                        "durationMs": 900000
+                      },
+                      {
+                        "durationMs": 1800000
+                      },
+                      {
+                        "durationMs": 3600000
+                      },
+                      {
+                        "durationMs": 14400000
+                      },
+                      {
+                        "durationMs": 43200000
+                      },
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 172800000
+                      },
+                      {
+                        "durationMs": 259200000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 1209600000
+                      },
+                      {
+                        "durationMs": 2419200000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 5184000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ]
+                  },
+                  "value": {
+                    "durationMs": 86400000
+                  }
+                }
+              ],
+              "style": "pills",
+              "queryType": 0,
+              "resourceType": "microsoft.apimanagement/service"
+            },
+            "name": "parameters - 8"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let llmLogsWithSubscriptionId = ApiManagementGatewayLlmLog\r\n| where SequenceNumber == 0\r\n| join kind=inner ApiManagementGatewayLogs on CorrelationId\r\n| project SubscriptionId = ApimSubscriptionId, DeploymentName, ModelName, ApiVersion, PromptTokens, CompletionTokens, TotalTokens, TimeGenerated;\r\nllmLogsWithSubscriptionId\r\n| summarize LastActive = max(TimeGenerated) by SubscriptionId\r\n| where LastActive < {InactiveThreshold:start}\r\n| sort by LastActive desc",
+              "size": 0,
+              "title": "Inactive subscriptions",
+              "noDataMessage": "None",
+              "timeContextFromParameter": "ActivityWindow",
+              "queryType": 0,
+              "resourceType": "microsoft.apimanagement/service",
+              "visualization": "table",
+              "gridSettings": {
+                "labelSettings": [
+                  {
+                    "columnId": "SubscriptionId",
+                    "label": "Subscription ID"
+                  },
+                  {
+                    "columnId": "LastActive",
+                    "label": "Last Active"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "query - 0"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let llmLogsWithSubscriptionId = ApiManagementGatewayLlmLog\r\n| where SequenceNumber == 0\r\n| join kind=inner ApiManagementGatewayLogs on CorrelationId\r\n| project SubscriptionId = ApimSubscriptionId, DeploymentName, ModelName, ApiVersion, PromptTokens, CompletionTokens, TotalTokens, TimeGenerated;\r\nllmLogsWithSubscriptionId\r\n| summarize LastActive = max(TimeGenerated) by DeploymentName\r\n| where LastActive < {InactiveThreshold:start}\r\n| sort by LastActive desc",
+              "size": 0,
+              "title": "Inactive deployments",
+              "noDataMessage": "None",
+              "timeContextFromParameter": "ActivityWindow",
+              "queryType": 0,
+              "resourceType": "microsoft.apimanagement/service",
+              "visualization": "table",
+              "gridSettings": {
+                "labelSettings": [
+                  {
+                    "columnId": "DeploymentName",
+                    "label": "Deployment"
+                  },
+                  {
+                    "columnId": "LastActive",
+                    "label": "Last Active"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "query - 0 - Copy"
+          }
+        ]
+      },
+      "name": "group - 5"
+    }
+  ],
+  "fallbackResourceIds": [
+    ""
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

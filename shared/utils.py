@@ -165,8 +165,9 @@ def run(command, ok_message = '', error_message = '', print_output = False, prin
     start_time = time.time()
 
     try:
-        output_text = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode("utf-8")
-        success = True
+        completed_process = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        output_text = completed_process.stdout
+        success = completed_process.returncode == 0
     except subprocess.CalledProcessError as e:
         output_text = e.output.decode("utf-8")
         success = False
