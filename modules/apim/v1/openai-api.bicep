@@ -37,6 +37,7 @@ param openAIAPIDisplayName string = 'OpenAI'
 param openAIAPIPath string = 'openai'
 
 @description('The version of the OpenAI API in API Management. Defaults to "2024-02-01".')
+#disable-next-line no-unused-params
 param openAIAPIVersion string = '2024-02-01'
 
 @description('The name of the OpenAI backend pool. Defaults to "openai-backend-pool".')
@@ -138,6 +139,7 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-prev
       ]
     }
     credentials: {
+      #disable-next-line BCP037
       managedIdentity: {
           resource: 'https://cognitiveservices.azure.com'
       }
