@@ -1,22 +1,18 @@
 <!-- markdownlint-disable MD033 -->
 
-# 🧪 [AI Gateway](https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities) Labs with [Azure API Management](https://aka.ms/apimlove)
+# 🧪 [AI Gateway](https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities) labs
 
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
 ## What's new ✨
 
-A new workshop experience was just allowing you to try out AI features like token limits, monitoring and load balancing via Azure Portal. 
-
-[To the workshops](https://aka.ms/ai-gateway/workshop)
+➕ [**AI Gateway workshop**](https://aka.ms/ai-gateway/workshop) provides a comprehensive learning experience using the Azure Portal  
 
 <div>
-  <img src="./images/workshop.png" alt="workshop" width="600">
+  <a href="https://aka.ms/ai-gateway/workshop" target="_blank"><img src="./images/workshop.png" alt="workshop" width="300"></a>
 </div>
-
-
-See labs below to try out new and exciting features:
  
+➕ Refactor most of the labs to use the new [**LLM built-in logging**](https://azure.microsoft.com/en-us/updates?id=491970) that supports streaming completions.  
 ➕ **Realtime API (Audio and Text) with Azure OpenAI 🔥** experiments with the [**AOAI Realtime**](labs/realtime-audio/realtime-audio.ipynb)  
 ➕ **Realtime API (Audio and Text) with Azure OpenAI + MCP tools 🔥** experiments with the [**AOAI Realtime + MCP**](labs/realtime-mcp-agents/realtime-mcp-agents.ipynb)  
 ➕ **Model Context Protocol (MCP) ⚙️** experiments with the [**client authorization flow**](labs/mcp-client-authorization/mcp-client-authorization.ipynb)  
@@ -24,43 +20,29 @@ See labs below to try out new and exciting features:
 ➕ **Agentic ✨** experiments with [**Model Context Protocol (MCP)**](labs/model-context-protocol/model-context-protocol.ipynb).  
 ➕ **Agentic ✨** experiments with [**OpenAI Agents SDK**](labs/openai-agents/openai-agents.ipynb).  
 ➕ **Agentic ✨** experiments with [**AI Agent Service**](labs/ai-agent-service/ai-agent-service.ipynb) from [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry).  
-➕ the [**AI Foundry Deepseek**](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb) lab with Deepseek R1 model from [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry).  
-➕ the [**Zero-to-Production**](labs/zero-to-production/zero-to-production.ipynb) lab with an iterative policy exploration to fine-tune the optimal production configuration.  
-➕ the [**Terraform flavor  of backend pool load balancing**](labs/backend-pool-load-balancing-tf/backend-pool-load-balancing-tf.ipynb) lab.  
-➕ the [**AI Foundry SDK**](labs/ai-foundry-sdk/ai-foundry-sdk.ipynb) lab.  
-➕ the [**Content filtering**](labs/content-filtering/content-filtering.ipynb) and [**Prompt shielding**](labs/content-filtering/prompt-shielding.ipynb) labs.  
-➕ the [**Model routing**](labs/model-routing/model-routing.ipynb) lab with OpenAI model based routing.  
-➕ the [**Prompt flow**](labs/prompt-flow/prompt-flow.ipynb) lab to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/azure/ai-studio/how-to/prompt-flow) with Azure API Management.  
-➕ `priority` and `weight` parameters to the [**Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) lab.  
-➕ the [**Streaming**](streaming.ipynb) tool to test OpenAI streaming with Azure API Management.  
-➕ the [**Tracing**](tools/tracing.ipynb) tool to debug and troubleshoot OpenAI APIs using [Azure API Management tracing capability](https://learn.microsoft.com/azure/api-management/api-management-howto-api-inspector).  
-➕ image processing to the [**GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) lab.  
-➕ the [**Function calling**](labs/function-calling/function-calling.ipynb) lab with a sample API on Azure Functions.
 
 ## Contents
 
-1. [🧠 GenAI Gateway](#-genai-gateway)
+1. [🧠 AI Gateway](#-ai-gateway)
 1. [🧪 Labs with AI Agents](#-labs-with-ai-agents)
 1. [🧪 Labs with the Inference API](#-labs-with-the-inference-api)
 1. [🧪 Labs based on Azure OpenAI](#-labs-based-on-azure-openai)
 1. [🚀 Getting started](#-getting-started)
-1. [⛵ Roll-out to production](#-roll-out-to-production)
 1. [🔨 Supporting tools](#-supporting-tools)
 1. [🏛️ Well-Architected Framework](#-well-architected-framework)    <!-- markdownlint-disable-line MD051 -->
-1. [🎒 Show and tell](#-show-and-tell)
 1. [🥇 Other Resources](#-other-resources)
 
 The rapid pace of AI advances demands experimentation-driven approaches for organizations to remain at the forefront of the industry. With AI steadily becoming a game-changer for an array of sectors, maintaining a fast-paced innovation trajectory is crucial for businesses aiming to leverage its full potential.
 
-**AI services** are predominantly accessed via **APIs**, underscoring the essential need for a robust and efficient API management strategy. This strategy is instrumental for maintaining control and governance over the consumption of **AI services**.
+**AI services** are predominantly accessed via **APIs**, underscoring the essential need for a robust and efficient API management strategy. This strategy is instrumental for maintaining control and governance over the consumption of **AI models**, **data** and **tools**.
 
 With the expanding horizons of **AI services** and their seamless integration with **APIs**, there is a considerable demand for a comprehensive **AI Gateway** pattern, which broadens the core principles of API management. Aiming to accelerate the experimentation of advanced use cases and pave the road for further innovation in this rapidly evolving field. The well-architected principles of the **AI Gateway** provides a framework for the confident deployment of **Intelligent Apps** into production.
 
-## 🧠 GenAI Gateway
+## 🧠 AI Gateway
 
 ![AI-Gateway flow](images/ai-gateway.gif)
 
-This repo explores the **AI Gateway** pattern through a series of experimental labs. The [GenAI Gateway capabilities](https://techcommunity.microsoft.com/t5/azure-integration-services-blog/introducing-genai-gateway-capabilities-in-azure-api-management/ba-p/4146525) of [Azure API Management](https://learn.microsoft.com/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure OpenAI](https://learn.microsoft.com/azure/ai-services/openai/overview), which sets the standard reference for Large Language Models (LLM). However, the same principles and design patterns could potentially be applied to any LLM.
+This repo explores the **AI Gateway** pattern through a series of experimental labs. The [AI Gateway capabilities](https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities) of [Azure API Management](https://learn.microsoft.com/azure/api-management/api-management-key-concepts) plays a crucial role within these labs, handling AI services APIs, with security, reliability, performance, overall operational efficiency and cost controls. The primary focus is on [Azure AI Foundry models](https://learn.microsoft.com/en-us/azure/ai-foundry/what-is-azure-ai-foundry), which sets the standard reference for Large Language Models (LLM). However, the same principles and design patterns could potentially be applied to any third party model.
 
 Acknowledging the rising dominance of Python, particularly in the realm of AI, along with the powerful experimental capabilities of Jupyter notebooks, the following labs are structured around Jupyter notebooks, with step-by-step instructions with Python scripts, [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview?tabs=bicep) files and [Azure API Management policies](https://learn.microsoft.com/azure/api-management/api-management-howto-policies):
 
@@ -196,15 +178,6 @@ Playground to create a combination of several policies in an iterative approach.
 
 [🦾 Bicep](labs/zero-to-production/main.bicep) ➕ [⚙️ Policy](labs/zero-to-production/policy-3.xml) ➕ [🧾 Notebook](labs/zero-to-production/zero-to-production.ipynb)
 
-<!-- GPT-4o inferencing -->
-### [**🧪 GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
-
-Playground to try the new GPT-4o model. GPT-4o ("o" for "omni") is designed to handle a combination of text, audio, and video inputs, and can generate outputs in text, audio, and image formats.
-
-[<img src="images/GPT-4o-inferencing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
-
-[🦾 Bicep](labs/GPT-4o-inferencing/main.bicep) ➕ [⚙️ Policy](labs/GPT-4o-inferencing/policy.xml) ➕ [🧾 Notebook](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb)
-
 <!-- Model Routing -->
 ### [**🧪 Model Routing**](labs/model-routing/model-routing.ipynb)
 
@@ -226,7 +199,7 @@ Playground to try the [Retrieval Augmented Generation (RAG) pattern](https://lea
 <!-- Built-in logging -->
 ### [**🧪 Built-in logging**](labs/built-in-logging/built-in-logging.ipynb)
 
-Playground to try the [buil-in logging capabilities of Azure API Management](https://learn.microsoft.com/azure/api-management/observability). Logs requests into App Insights to track details and token usage.
+Playground to try the [buil-in LLM logging capabilities of Azure API Management](https://learn.microsoft.com/azure/api-management/observability). Logs requests into Azure Monitor to track details and token usage.
 
 [<img src="images/built-in-logging-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/built-in-logging/built-in-logging.ipynb)
 
@@ -235,51 +208,29 @@ Playground to try the [buil-in logging capabilities of Azure API Management](htt
 <!-- Message storing -->
 ### [**🧪 Message storing**](labs/message-storing/message-storing.ipynb)
 
-Playground to test storing message details into Cosmos DB through the [Log to event hub](https://learn.microsoft.com/azure/api-management/log-to-eventhub-policy) policy. With the policy we can control which data will be stored in the DB (prompt, completion, model, region, tokens etc.).
+Playground to test storing message details into Cosmos DB through the LLM Logging to event hub.
 
 [<img src="images/message-storing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/message-storing/message-storing.ipynb)
 
 [🦾 Bicep](labs/message-storing/main.bicep) ➕ [⚙️ Policy](labs/message-storing/policy.xml) ➕ [🧾 Notebook](labs/message-storing/message-storing.ipynb)
 
-<!-- Prompt flow -->
-### [**🧪 Prompt flow**](labs/prompt-flow/prompt-flow.ipynb)
-
-Playground to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/azure/ai-studio/how-to/prompt-flow) with Azure API Management.
-
-[<img src="images/prompt-flow-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/prompt-flow/prompt-flow.ipynb)
-
-[🦾 Bicep](labs/prompt-flow/main.bicep) ➕ [⚙️ Policy](labs/prompt-flow/policy.xml) ➕ [🧾 Notebook](labs/prompt-flow/prompt-flow.ipynb)
-
 <!-- Content Filtering -->
-### [**🧪 Content Filtering**](labs/content-filtering/content-filtering.ipynb)
+### [**🧪 Content Safety**](labs/content-safety/content-safety.ipynb)
 
-Playground to try integrating Azure API Management with [Azure AI Content Safety](https://learn.microsoft.com/azure/ai-services/content-safety/overview) to filter potentially offensive, risky, or undesirable content.
+Playground to try the [content safety policy](https://learn.microsoft.com/en-us/azure/api-management/llm-content-safety-policy). The policy enforces content safety checks on any LLM prompts by transmitting them to the [Azure AI Content Safety](https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview) service before sending to the backend LLM API.
 
-[<img src="images/content-filtering-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/content-filtering/content-filtering.ipynb)
+[<img src="images/content-safety-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/content-safety/content-safety.ipynb)
 
-[🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/content-filtering-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/content-filtering.ipynb)
-
-<!-- Prompt Shielding -->
-### [**🧪 Prompt Shielding**](labs/content-filtering/prompt-shielding.ipynb)
-
-Playground to try Prompt Shields from Azure AI Content Safety service that analyzes LLM inputs and detects User Prompt attacks and Document attacks, which are two common types of adversarial inputs.
-
-[<img src="images/content-filtering-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/content-filtering/prompt-shielding.ipynb)
-
-[🦾 Bicep](labs/content-filtering/main.bicep) ➕ [⚙️ Policy](labs/content-filtering/prompt-shield-policy.xml) ➕ [🧾 Notebook](labs/content-filtering/prompt-shielding.ipynb)
+[🦾 Bicep](labs/content-safety/main.bicep) ➕ [⚙️ Policy](labs/content-safety/content-safety-policy.xml) ➕ [🧾 Notebook](labs/content-safety/content-safety.ipynb)
 
 ## Backlog of Labs
 
 This is a list of potential future labs to be developed.
 
-* Real Time API
+* Third party models: Google Gemini, AWS Bedrock
 * Semantic Kernel with Agents
 * Logic Apps RAG
 * PII handling
-* Gemini
-
-> [!TIP]
-> Kindly use [the feedback discussion](../../discussions/9) so that we can continuously improve with your experiences, suggestions, ideas or lab requests.
 
 ## 🚀 Getting Started
 
@@ -301,15 +252,11 @@ This is a list of potential future labs to be developed.
 > [!NOTE]
 > 🪲 Please feel free to open a new [issue](../../issues/new) if you find something that should be fixed or enhanced.
 
-## ⛵ Roll-out to production
-
-We recommend the guidelines and best practices from the [AI Hub Gateway Landing Zone](https://github.com/Azure-Samples/ai-hub-gateway-solution-accelerator) to implement a central AI API gateway to empower various line-of-business units in an organization to leverage Azure AI services.
-
 ## 🔨 Supporting Tools
 
-* [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with Azure API Management and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
 * [Tracing](tools/tracing.ipynb) - Invoke OpenAI API with trace enabled and returns the tracing information.
-* [Streaming](streaming.ipynb) - Invoke OpenAI API with stream enabled and returns response in chunks.
+* [Streaming](tools/streaming.ipynb) - Invoke OpenAI API with stream enabled and returns response in chunks.
+* [AI-Gateway Mock server](tools/mock-server/mock-server.ipynb) is designed to mimic the behavior and responses of the OpenAI API, thereby creating an efficient simulation environment suitable for testing and development purposes on the integration with Azure API Management and other use cases. The [app.py](tools/mock-server/app.py) can be customized to tailor the Mock server to specific use cases.
 
 ## 🏛️ Well-Architected Framework
 
@@ -317,42 +264,26 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-ar
 
 | Lab  | Security | Reliability | Performance | Operations | Costs |
 | -------- | -------- |-------- |-------- |-------- |-------- |
-| [Request forwarding](labs/request-forwarding/request-forwarding.ipynb) | [⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and Azure API Management security features") | |  |  |  |
-| [Backend circuit breaking](labs/backend-circuit-breaking/backend-circuit-breaking.ipynb) | [⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and Azure API Management security features") | [⭐](#%EF%B8%8F-well-architected-framework "Controls the availability of the OpenAI endpoint with the circuit breaker feature") |  |  |  |
-| [Backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb)  |[⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and Azure API Management security features")|[⭐](#%EF%B8%8F-well-architected-framework "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")|[⭐](#%EF%B8%8F-well-architected-framework "Load balances the requests to increase performance with the built-in feature")|  |  |
-| [Advanced load balancing](labs/advanced-load-balancing/advanced-load-balancing.ipynb) |[⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and Azure API Management security features")|[⭐](#%EF%B8%8F-well-architected-framework "To ensure resilience, the request is distributed to two or more endpoints with a custom policy")|[⭐](#%EF%B8%8F-well-architected-framework "Load balances the requests to increase performance with a custom policy")|  |  |
-| [Response streaming](labs/response-streaming/response-streaming.ipynb)  |[⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and Azure API Management security features")| |[⭐](#%EF%B8%8F-well-architected-framework "To get responses sooner, you can 'stream' the completion as it's being generated")|  |  |
-| [Vector searching](labs/vector-searching/vector-searching.ipynb) |[⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and Azure API Management security features")|[⭐](#%EF%B8%8F-well-architected-framework "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")| [⭐](#%EF%B8%8F-well-architected-framework "Load balances the requests to increase performance with the built-in feature")| |  |
-| [Built-in logging](labs/built-in-logging/built-in-logging.ipynb) |[⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and Azure API Management security features")|[⭐](#%EF%B8%8F-well-architected-framework "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")|[⭐](#%EF%B8%8F-well-architected-framework "Load balances the requests to increase performance with the built-in feature")|[⭐](#%EF%B8%8F-well-architected-framework "Requests are logged to enable monitoring, alerting and automatic remediation")|[⭐](#%EF%B8%8F-well-architected-framework "Relation between Azure API Management subscription and token consumption allows cost control")|
-| [SLM self-hosting](labs/slm-self-hosting/slm-self-hosting.ipynb) |[⭐](#%EF%B8%8F-well-architected-framework "Self hosting the model might improve the security posture with network restrictions") | | [⭐](#%EF%B8%8F-well-architected-framework "Performance might be improved with full control to the self-hosted model") | | |
+| [Access controlling](labs/access-controlling/access-controlling.ipynb) | [⭐](#%EF%B8%8F-well-architected-framework "Zero trust, keyless approach with manage identities and Azure API Management security features") | |  |  |  |
+| [Backend pool load balancing](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb)  |[⭐](#%EF%B8%8F-well-architected-framework "Uses backend with manage identities")|[⭐](#%EF%B8%8F-well-architected-framework "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")|[⭐](#%EF%B8%8F-well-architected-framework "Load balances the requests to increase performance with the built-in feature")|  |  |
+| [Semantic caching](labs/semantic-caching/semantic-caching.ipynb)  || |[⭐](#%EF%B8%8F-well-architected-framework "Cache completions to improve performance")|  | [⭐](#%EF%B8%8F-well-architected-framework "Save tokens by storing completions in cache") |
+| [Token rate limiting](labs/token-rate-limiting//token-rate-limiting.ipynb) ||[⭐](#%EF%B8%8F-well-architected-framework "To ensure resilience, the request is distributed to two or more endpoints with the built-in feature")| [⭐](#%EF%B8%8F-well-architected-framework "Load balances the requests to increase performance with the built-in feature")| |  |
+| [Built-in LLM logging](labs/built-in-logging/built-in-logging.ipynb) ||||[⭐](#%EF%B8%8F-well-architected-framework "Requests are logged to enable monitoring, alerting and automatic remediation")||
+| [FinOps framework](labs/finops-framework/finops-framework.ipynb) | | | |[⭐](#%EF%B8%8F-well-architected-framework "Operational dashboard and workbooks") |[⭐](#%EF%B8%8F-well-architected-framework "Cost calculation of the token usage and budget management")|
+
 
 > [!TIP]
 > Check the [Azure Well-Architected Framework perspective on Azure OpenAI Service](https://learn.microsoft.com/azure/well-architected/service-guides/azure-openai) for aditional guidance.
 
-## 🎒 Show and tell
-
-> [!TIP]
-> Install the [VS Code Reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal), open AI-GATEWAY.md and click on 'slides' at the botton to present the AI Gateway without leaving VS Code.
-> Or just open the [AI-GATEWAY.pptx](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAI-Gateway%2Fmain%2FAI-GATEWAY.pptx&wdOrigin=BROWSELINK) for a plain old PowerPoint experience.
-
 ## 🥇 Other resources
 
-Numerous reference architectures, best practices and starter kits are available on this topic. Please refer to the resources provided if you need comprehensive solutions or a landing zone to initiate your project. We suggest leveraging the AI-Gateway labs to discover additional capabilities that can be integrated into the reference architectures.
-
-* [GenAI Gateway Guide](https://aka.ms/genai-gateway)
-* [Azure OpenAI + APIM Sample](https://aka.ms/apim/genai/sample-app)
-* [AI+API better together: Benefits & Best Practices using APIs for AI workloads](https://techcommunity.microsoft.com/t5/apps-on-azure-blog/ai-api-better-together-benefits-amp-best-practices-using-apis/ba-p/4157120)
-* [Designing and implementing a gateway solution with Azure OpenAI resources](https://aka.ms/genai-gateway)
-* [Azure OpenAI Using PTUs/TPMs With API Management - Using the Scaling Special Sauce](https://github.com/Azure/aoai-apim)
-* [Manage Azure OpenAI using APIM](https://github.com/microsoft/AzureOpenAI-with-APIM)
-* [Setting up Azure OpenAI as a central capability with Azure API Management](https://github.com/Azure/enterprise-azureai)
-* [Introduction to Building AI Apps](https://github.com/Azure/intro-to-intelligent-apps)
+* [APIM Samples](http://aka.ms/apim/samples)
+* [Landing Zone Accelerator](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/scenarios/app-platform/api-management/landing-zone-accelerator#generative-ai-gateway-scenario)
+* [Learning Modules](https://learn.microsoft.com/en-us/training/browse/?products=azure-api-management)
+* [News and announcements](https://techcommunity.microsoft.com/tag/API%20Management?nodeId=board%3AIntegrationsonAzureBlog)
+* [APIM Releases](https://github.com/Azure/API-Management/releases)
 
 > We believe that there may be valuable content that we are currently unaware of. We would greatly appreciate any suggestions or recommendations to enhance this list.
-
-### 🌐 WW GBB initiative
-
-![GBB](images/gbb.png)
 
 ### Disclaimer
 
