@@ -1,7 +1,7 @@
 <policies>
     <inbound>
         <base />
-        <set-backend-service backend-id="openai-backend" />
+        <set-backend-service backend-id="{backend-id}" />
         <cors allow-credentials="true">
             <allowed-origins>
                 <origin>https://ai.azure.com/</origin>

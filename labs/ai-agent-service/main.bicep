@@ -1,26 +1,16 @@
+
 // ------------------
 //    PARAMETERS
 // ------------------
 
-// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
-
-param apimSku string
-
-@description('Configuration array for Inference Models')
+param aiServicesConfig array = []
 param modelsConfig array = []
+param apimSku string
+param apimSubscriptionsConfig array = []
+param inferenceAPIType string = 'AzureOpenAI'
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param foundryProjectName string = 'default'
 
-@description('The tags for the resources')
-param tagValues object = {
-}
-
-
-@description('Name of the APIM Logger')
-param apimLoggerName string = 'apim-logger'
-
-// Creates Azure dependent resources for Azure AI studio
-
-@description('Azure region of the deployment')
-param location string = resourceGroup().location
 
 param weatherAPIPath string = 'weatherservice'
 param placeOrderAPIPath string = 'orderservice'
@@ -32,11 +22,7 @@ param productCatalogAPIPath string = 'catalogservice'
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var apiManagementName = 'apim-${resourceSuffix}'
-
-var openAIPolicyXML = loadTextContent('openai-policy.xml')
-
-var inferenceAPIPolicyXML = loadTextContent('inference-policy.xml')
-
+var apimLoggerName = 'appinsights-logger'
 var logSettings = {
   headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
   body: { bytes: 8192 }
@@ -46,70 +32,86 @@ var logSettings = {
 //    RESOURCES
 // ------------------
 
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: 'law-${resourceSuffix}'
-  location: location
-  properties: any({
-    retentionInDays: 30
-    features: {
-      searchVersion: 1
-    }
-    sku: {
-      name: 'PerGB2018'
-    }
-  })
+// 1. Log Analytics Workspace
+module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
+  name: 'lawModule'
 }
 
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: 'insights-${resourceSuffix}'
-  location: location
-  tags: tagValues
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    WorkspaceResourceId: logAnalytics.id
-    // BCP037: Not yet added to latest API: https://github.com/Azure/bicep-types-az/issues/2048
-    #disable-next-line BCP037
-    CustomMetricsOptedInType: 'WithDimensions'
-
+// 2. Application Insights
+module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
+  name: 'appInsightsModule'
+  params: {
+    lawId: lawModule.outputs.id
+    customMetricsOptedInType: 'WithDimensions'
   }
 }
 
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
+// 3. API Management
+module apimModule '../../modules/apim/v2/apim.bicep' = {
+  name: 'apimModule'
+  params: {
+    apimSku: apimSku
+    apimSubscriptionsConfig: apimSubscriptionsConfig
+    lawId: lawModule.outputs.id
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
+  }
+}
+
+// 4. AI Foundry
+module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
+    name: 'foundryModule'
+    params: {
+      aiServicesConfig: aiServicesConfig
+      modelsConfig: modelsConfig
+      apimPrincipalId: apimModule.outputs.principalId
+      foundryProjectName: foundryProjectName
+      appInsightsId: appInsightsModule.outputs.id
+      appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
+    }
+}
+
+// 5. APIM Inference API
+module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+  name: 'inferenceAPIModule'
+  params: {
+    policyXml: loadTextContent('policy.xml')
+    apimLoggerId: apimModule.outputs.loggerId
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
+    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    inferenceAPIType: inferenceAPIType
+    inferenceAPIPath: inferenceAPIPath
+  }
+}
+
+resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' existing = {
+  name: '${aiServicesConfig[0].name}-${resourceSuffix}'
+  dependsOn: [
+    inferenceAPIModule
+  ]
+}
+
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apiManagementName
-  location: location
-  sku: {
-    name: apimSku
-    capacity: 1
-  }
-  properties: {
-    publisherEmail: 'noreply@microsoft.com'
-    publisherName: 'Microsoft'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
+  dependsOn: [
+    inferenceAPIModule
+  ]
 }
-
-// Create a logger only if we have an App Insights ID and instrumentation key.
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
-  name: apimLoggerName
+resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
+  name: 'default-subscription'
   parent: apimService
   properties: {
-    credentials: {
-      instrumentationKey: applicationInsights.properties.InstrumentationKey
-    }
-    description: 'APIM Logger'
-    isBuffered: false
-    loggerType: 'applicationInsights'
-    resourceId: applicationInsights.id
+    allowTracing: true
+    displayName: 'default subscription'
+    scope: '/apis'
+    state: 'active'
   }
 }
 
 resource placeOrderWorkflow 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'ordersworkflow-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   properties: {
     state: 'Enabled'
     definition: {
@@ -195,151 +197,7 @@ resource placeOrderWorkflow 'Microsoft.Logic/workflows@2019-05-01' = {
   }
 }
 
-resource azureOpenAIService 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' = {
-    name: 'openai1-${resourceSuffix}'
-    location: location
-    sku: {
-      name: 'S0'
-    }
-    kind: 'AIServices'
-    properties: {
-      // required to work in AI Foundry
-      allowProjectManagement: true 
-      customSubDomainName: toLower('openai1-${resourceSuffix}')
-      disableLocalAuth: false
-    }
-}
 
-resource openAIDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
-    name: 'openai-${modelsConfig[0].name}'
-    parent: azureOpenAIService
-    properties: {
-      model: {
-        format: modelsConfig[0].publisher
-        name: modelsConfig[0].name
-        version: modelsConfig[0].version
-      }
-    }
-    sku: {
-      name: 'Standard'
-      capacity: modelsConfig[0].capacity
-    }
-  }
-
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    scope: azureOpenAIService
-    name: guid(subscription().id, resourceGroup().id, azureOpenAIService.name, cognitiveServicesUserRoleDefinitionID)
-    properties: {
-      roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesUserRoleDefinitionID)
-      principalId: apimService.identity.principalId
-      principalType: 'ServicePrincipal'
-    }
-}
-
-resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' = {
-  name: 'foundry-${resourceSuffix}'
-  location: location
-  identity: {
-    type: 'SystemAssigned'
-  }
-  sku: {
-    name: 'S0'
-  }
-  kind: 'AIServices'
-  properties: {
-    // required to work in AI Foundry
-    allowProjectManagement: true 
-
-    // Defines developer API endpoint subdomain
-    customSubDomainName: 'foundry-${resourceSuffix}'
-
-    disableLocalAuth: false
-  }
-}
-
-resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview' = {
-  name: 'project-${resourceSuffix}'
-  parent: aiFoundry
-  location: location
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {}
-}
-
-var aiProjectManagerRoleDefinitionID = 'eadc314b-1a2d-4efa-be10-5d325db5065e' 
-resource aiProjectManagerRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-    scope: aiFoundry
-    name: guid(subscription().id, resourceGroup().id, azureOpenAIService.name, aiProjectManagerRoleDefinitionID)
-    properties: {
-      roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', aiProjectManagerRoleDefinitionID)
-      principalId: deployer().objectId
-    }
-}
-
-@batchSize(1)
-resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-04-01-preview' = [for model in modelsConfig: if(length(modelsConfig) > 0) {
-  name: model.name
-  parent: aiFoundry
-  sku: {
-    name: model.sku
-    capacity: model.capacity
-  }
-  properties: {
-    model: {
-      format: model.publisher
-      name: model.name
-      version: model.version
-    }
-    raiPolicyName: 'Microsoft.DefaultV2'
-  }
-}]
-
-resource openAIConnection 'Microsoft.CognitiveServices/accounts/connections@2025-04-01-preview' = {
-  name: 'azure-openai-connection'
-  parent: aiFoundry
-  properties: {
-    category: 'AzureOpenAI'
-    target: '${apimService.properties.gatewayUrl}/'
-    authType: 'ApiKey'
-    credentials: {
-        key: apimSubscription.listSecrets().primaryKey
-    }
-    isSharedToAll: true
-    metadata: {
-      ApiType: 'Azure'
-      ResourceId: azureOpenAIService.id
-    }
-  }
-}
-
-
-resource accountCapabilityHost 'Microsoft.CognitiveServices/accounts/capabilityHosts@2025-04-01-preview' = {
-  name: '${aiFoundry.name}-capHost'
-  parent: aiFoundry
-  properties: {
-    capabilityHostKind: 'Agents'
-  }
-  dependsOn: [
-    aiProject
-  ]
-}
-
-// Set the project capability host
-resource projectCapabilityHost 'Microsoft.CognitiveServices/accounts/projects/capabilityHosts@2025-04-01-preview' = {
-  name: '${aiProject.name}-capHost'
-  parent: aiProject
-  properties: {
-    capabilityHostKind: 'Agents'
-    aiServicesConnections: ['${openAIConnection.name}']
-  }
-  dependsOn: [
-    accountCapabilityHost
-  ]
-}
-
-
-// Conditionally creates a new Azure AI Search resource
 resource bingSearch 'Microsoft.Bing/accounts@2020-06-10' = {
   name: 'bingsearch-${resourceSuffix}'
   location: 'global'
@@ -420,79 +278,7 @@ resource productCatalogAPIConnection 'Microsoft.CognitiveServices/accounts/conne
   }
 }
 
-// https://learn.microsoft.com/azure/templates/microsoft.insights/diagnosticsettings
-resource aiServicesDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if(length(modelsConfig) > 0) {
-  name: 'aiservices-diagnostics'
-  scope: aiFoundry
-  properties: {
-    workspaceId: logAnalytics.id
-    logs: []
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}
 
-
-var cognitiveServicesUserRoleDefinitionID = 'a97b65f3-24c7-4388-baec-2e87135dc908' // Cognitive Services User
-resource aiServicesRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(length(modelsConfig) > 0) {
-  name: guid(subscription().id, resourceGroup().id, aiFoundry.name, cognitiveServicesUserRoleDefinitionID)
-  scope: aiFoundry
-  properties: {
-      roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesUserRoleDefinitionID)
-      principalId: apimService.identity.principalId
-      principalType: 'ServicePrincipal'
-  }
-}
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
-resource openAIAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
-  name: 'openai-api'
-  parent: apimService
-  properties: {
-    apiType: 'http'
-    description: 'OpenAI Inference API - ${aiFoundry.name}'
-    displayName: 'OpenAI'
-    format: 'openapi+json'
-    path: 'openai'
-    protocols: [
-      'https'
-    ]
-    subscriptionKeyParameterNames: {
-      header: 'api-key'
-      query: 'api-key'
-    }
-    subscriptionRequired: true
-    type: 'http'
-    value: string(loadJsonContent('../../modules/apim/v1/specs/AIFoundryOpenAI.json'))
-  }
-}
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
-resource inferenceAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = if(length(modelsConfig) > 0) {
-  name: 'inference-api'
-  parent: apimService
-  properties: {
-    apiType: 'http'
-    description: 'Inference API - ${aiFoundry.name}'
-    displayName: 'InferenceAPI'
-    format: 'openapi+json'
-    path: 'models'
-    protocols: [
-      'https'
-    ]
-    subscriptionKeyParameterNames: {
-      header: 'api-key'
-      query: 'api-key'
-    }
-    subscriptionRequired: true
-    type: 'http'
-    value: string(loadJsonContent('../../modules/apim/v1/specs/AIFoundryAzureAI.json'))
-  }
-}
 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
 resource weatherAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
@@ -564,32 +350,6 @@ resource productCatalogAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-prev
 }
 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/policies
-resource openAIAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = {
-  name: 'policy'
-  parent: openAIAPI
-  properties: {
-    format: 'rawxml'
-    value: openAIPolicyXML
-  }
-  dependsOn: [
-    backendOpenAI
-  ]
-}
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/policies
-resource inferenceAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = if(length(modelsConfig) > 0) {
-  name: 'policy'
-  parent: inferenceAPI
-  properties: {
-    format: 'rawxml'
-    value: inferenceAPIPolicyXML
-  }
-  dependsOn: [
-    backendInferenceAPI
-  ]
-}
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/policies
 resource weatherAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = {
   name: 'policy'
   parent: weatherAPI
@@ -623,77 +383,6 @@ resource productCatalogAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@
 }
 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
-resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
-  name: 'openai-backend'
-  parent: apimService
-  properties: {
-    description: 'Backend for the OpenAI API'
-    url: '${azureOpenAIService.properties.endpoint}/openai'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 1
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'openAIBreakerRule'
-          tripDuration: 'PT1M'
-          acceptRetryAfter: true
-        }
-      ]
-    }
-    credentials: {
-      managedIdentity: {
-          resource: 'https://cognitiveservices.azure.com'
-      }
-    }
-  }
-}
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
-resource backendInferenceAPI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = if(length(modelsConfig) > 0) {
-  name: 'inference-backend'
-  parent: apimService
-  properties: {
-    description: 'Backend for the inference API'
-    url: '${aiFoundry.properties.endpoint}/models'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 1
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'openAIBreakerRule'
-          tripDuration: 'PT1M'
-          acceptRetryAfter: true
-        }
-      ]
-    }
-  }
-}
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
 resource backendPlaceOrderAPI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   name: 'orderworflow-backend'
   parent: apimService
@@ -709,56 +398,6 @@ resource backendPlaceOrderAPI 'Microsoft.ApiManagement/service/backends@2024-06-
           sv: [ placeOrderWorkflow.listCallbackUrl().queries.sv ]        
       }
     }    
-  }
-}
-
-resource OpenAPIAPIDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
-  name: 'applicationinsights'
-  parent: openAIAPI
-  properties: {
-    alwaysLog: 'allErrors'
-    httpCorrelationProtocol: 'W3C'
-    logClientIp: true
-    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apiManagementName, apimLoggerName)
-    metrics: true
-    verbosity: 'verbose'
-    sampling: {
-      samplingType: 'fixed'
-      percentage: 100
-    }
-    frontend: {
-      request: logSettings
-      response: logSettings
-    }
-    backend: {
-      request: logSettings
-      response: logSettings
-    }
-  }
-}
-
-resource inferenceAPIDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if(length(modelsConfig) > 0) {
-  name: 'applicationinsights'
-  parent: inferenceAPI
-  properties: {
-    alwaysLog: 'allErrors'
-    httpCorrelationProtocol: 'W3C'
-    logClientIp: true
-    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apiManagementName, apimLoggerName)
-    metrics: true
-    verbosity: 'verbose'
-    sampling: {
-      samplingType: 'fixed'
-      percentage: 100
-    }
-    frontend: {
-      request: logSettings
-      response: logSettings
-    }
-    backend: {
-      request: logSettings
-      response: logSettings
-    }
   }
 }
 
@@ -837,38 +476,27 @@ resource productCatalogAPIDiagnostics 'Microsoft.ApiManagement/service/apis/diag
   }
 }
 
-resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
-  name: 'ai-foundry-subscription'
-  parent: apimService
-  properties: {
-    allowTracing: true
-    displayName: 'AI Foundry Subscription'
-    scope: '/apis'
-    state: 'active'
-  }
-}
 
 
 
 // ------------------
 //    OUTPUTS
 // ------------------
-output projectEndpoint string = 'https://${aiFoundry.name}.services.ai.azure.com/api/projects/${aiProject.name}'
-//output projectConnectionString string = '${projectEndoint};${subscription().subscriptionId};${resourceGroup().name};${project.name}'
 
-//output bingSearchConnectionName string = bingSearchConnection.name
+output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
+output apimServiceId string = apimModule.outputs.id
+output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
+output applicationInsightsName string = appInsightsModule.outputs.name
 
-output weatherAPIConnectionName string = weatherAPIConnection.name
-//output weatherAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.MachineLearningServices/workspaces/${project.name}/connections/${weatherAPIConnection.name}'
+output apimSubscriptions array = apimModule.outputs.apimSubscriptions
 
-output placeOrderAPIConnectionName string = placeOrderAPIConnection.name
-//output placeOrderAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.MachineLearningServices/workspaces/${project.name}/connections/${placeOrderAPIConnection.name}'
+output foundryProjectEndpoint string = 'https://${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}.services.ai.azure.com/api/projects/${foundryProjectName}'
 
-output productCatalogAPIConnectionName string = productCatalogAPIConnection.name
-//output productCatalogAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.MachineLearningServices/workspaces/${project.name}/connections/${productCatalogAPIConnection.name}'
+output bingSearchConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${bingSearchConnection.name}'
 
-output applicationInsightsAppId string = applicationInsights.id
-output applicationInsightsName string = applicationInsights.name
-output apimResourceGatewayURL string = apimService.properties.gatewayUrl
+output weatherAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${weatherAPIConnection.name}'
 
+output placeOrderAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${placeOrderAPIConnection.name}'
+
+output productCatalogAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${productCatalogAPIConnection.name}'
 

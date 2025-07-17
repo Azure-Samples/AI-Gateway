@@ -4,7 +4,7 @@
 
 ![flow](../../images/ai-agent-service.gif)
 
-Use this playground to explore the [Azure AI Agent Service](https://learn.microsoft.com/en-us/azure/ai-services/agents/overview), leveraging Azure API Management to control multiple services, including Azure OpenAI models, Bing Web Search, Logic Apps Workflows, and OpenAPI-based APIs. This enables limitless opportunities for AI agents while maintaining control through Azure API Management!
+Use this playground to explore the [Azure AI Agent Service](https://learn.microsoft.com/en-us/azure/ai-services/agents/overview), leveraging Azure API Management to control multiple services, including Logic Apps Workflows, and OpenAPI-based APIs. This enables limitless opportunities for AI agents while maintaining control through Azure API Management!
 
 ### Prerequisites
 

@@ -1,41 +1,96 @@
 // ------------------
 //    PARAMETERS
 // ------------------
-param location string = resourceGroup().location
 
-param currentUserObjectId string
-
+param aiServicesConfig array = []
+param modelsConfig array = []
 param apimSku string
-param openAIResourceLocation string = resourceGroup().location
-param openAIDeployments array = []
-param openAIAPIVersion string = '2024-02-01'
-
 param apimSubscriptionsConfig array = []
 param apimProductsConfig array = []
 param apimUsersConfig array = []
+param inferenceAPIType string = 'AzureOpenAI'
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param foundryProjectName string = 'default'
 
 // ------------------
 //    VARIABLES
 // ------------------
-var logSettings = {
-  headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
-  body: { bytes: 8192 }
-}
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
+
 
 // ------------------
 //    RESOURCES
 // ------------------
 
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
-  name: 'workspace-${resourceSuffix}'
-  location: location
-  properties: {
-    retentionInDays: 30
-    sku: {
-      name: 'PerGB2018'
+// 1. Log Analytics Workspace
+module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
+  name: 'lawModule'
+}
+
+// 2. Application Insights
+module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
+  name: 'appInsightsModule'
+  params: {
+    lawId: lawModule.outputs.id
+    customMetricsOptedInType: 'WithDimensions'
+  }
+}
+
+// 3. API Management
+module apimModule '../../modules/apim/v2/apim.bicep' = {
+  name: 'apimModule'
+  params: {
+    apimSku: apimSku
+    lawId: lawModule.outputs.id
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
+  }
+}
+
+// 4. AI Foundry
+module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
+    name: 'foundryModule'
+    params: {
+      aiServicesConfig: aiServicesConfig
+      modelsConfig: modelsConfig
+      apimPrincipalId: apimModule.outputs.principalId
+      foundryProjectName: foundryProjectName
     }
   }
+
+// 5. APIM Inference API
+module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+  name: 'inferenceAPIModule'
+  params: {
+    policyXml: loadTextContent('policy.xml')
+    apimLoggerId: apimModule.outputs.loggerId
+    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    inferenceAPIType: inferenceAPIType
+    inferenceAPIPath: inferenceAPIPath
+  }
+}
+
+
+
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+  name: 'workspace-${resourceSuffix}'
+  dependsOn: [
+    inferenceAPIModule
+  ]
+}
+
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: 'insights-${resourceSuffix}'
+  dependsOn: [
+    inferenceAPIModule
+  ]
+}
+
+resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+  name: 'apim-${resourceSuffix}'
+  dependsOn: [
+    inferenceAPIModule
+  ]
 }
 
 resource pricingTable 'Microsoft.OperationalInsights/workspaces/tables@2023-09-01' = {
@@ -73,7 +128,7 @@ resource pricingTable 'Microsoft.OperationalInsights/workspaces/tables@2023-09-0
 
 resource pricingDCR 'Microsoft.Insights/dataCollectionRules@2023-03-11' = {
   name: 'dcr-pricing-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   kind: 'Direct'
   properties: {
     streamDeclarations: {
@@ -127,7 +182,7 @@ resource pricingDCRRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-
   name: guid(subscription().id, resourceGroup().id, pricingDCR.name, monitoringMetricsPublisherRoleDefinitionID)
     properties: {
         roleDefinitionId: monitoringMetricsPublisherRoleDefinitionID
-        principalId: currentUserObjectId
+        principalId: deployer().objectId
         principalType: 'User'
     }
 }
@@ -162,7 +217,7 @@ resource subscriptionQuotaTable 'Microsoft.OperationalInsights/workspaces/tables
 
 resource subscriptionQuotaDCR 'Microsoft.Insights/dataCollectionRules@2023-03-11' = {
   name: 'dcr-quota-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   kind: 'Direct'
   properties: {
     streamDeclarations: {
@@ -211,27 +266,15 @@ resource subscriptionQuotaDCRRoleAssignment 'Microsoft.Authorization/roleAssignm
   name: guid(subscription().id, resourceGroup().id, subscriptionQuotaDCR.name, monitoringMetricsPublisherRoleDefinitionID)
     properties: {
         roleDefinitionId: monitoringMetricsPublisherRoleDefinitionID
-        principalId: currentUserObjectId
+        principalId: deployer().objectId
         principalType: 'User'
     }
 }
 
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: 'insights-${resourceSuffix}'
-  location: location
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    WorkspaceResourceId: logAnalytics.id
-    // BCP037: Not yet added to latest API: https://github.com/Azure/bicep-types-az/issues/2048
-    #disable-next-line BCP037
-    CustomMetricsOptedInType: 'WithDimensions'
-  }
-}
 
 resource alertsWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   name: guid(resourceGroup().id, resourceSuffix, 'alertsWorkbook')
-  location: location
+  location: resourceGroup().location
   kind: 'shared'
   properties: {
     displayName: 'Alerts Workbook'
@@ -243,7 +286,7 @@ resource alertsWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = {
 
 resource azureOpenAIInsightsWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   name: guid(resourceGroup().id, resourceSuffix, 'azureOpenAIInsights')
-  location: location
+  location: resourceGroup().location
   kind: 'shared'
   properties: {
     displayName: 'Azure OpenAI Insights'
@@ -255,224 +298,13 @@ resource azureOpenAIInsightsWorkbook 'Microsoft.Insights/workbooks@2022-04-01' =
 
 resource openAIUsageWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   name: guid(resourceGroup().id, resourceSuffix, 'costAnalysis')
-  location: location
+  location: resourceGroup().location
   kind: 'shared'
   properties: {
     displayName: 'Cost Analysis'
     serializedData: replace(loadTextContent('workbooks/cost-analysis.json'), '{workspace-id}', logAnalytics.id)
     sourceId: logAnalytics.id
     category: 'workbook'
-  }
-}
-
-resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
-  name: 'apim-${resourceSuffix}'
-  location: location
-  sku: {
-    name: apimSku
-    capacity: 1
-  }
-  properties: {
-    publisherEmail: 'noreply@microsoft.com'
-    publisherName: 'Microsoft'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-}
-
-resource apimDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  scope: apim
-  name: 'apiManagementDiagnosticSettings'
-  properties: {
-    workspaceId: logAnalytics.id
-    logs: [
-      {
-        category: 'GatewayLogs'
-        enabled: true
-      }
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}
-
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
-  name: 'apim-logger'
-  parent: apim
-  properties: {
-    credentials: {
-      instrumentationKey: applicationInsights.properties.InstrumentationKey
-    }
-    description: 'APIM Logger'
-    isBuffered: false
-    loggerType: 'applicationInsights'
-    resourceId: applicationInsights.id
-  }
-}
-
-resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
-  name: 'openai-${resourceSuffix}'
-  location: openAIResourceLocation
-  sku: {
-    name: 'S0'
-  }
-  kind: 'OpenAI'
-  properties: {
-    apiProperties: {
-      statisticsEnabled: false
-    }
-    customSubDomainName: toLower('openai-${resourceSuffix}')
-  }
-}
-
-resource cognitiveServicesDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' =  {
-  name: '${cognitiveServices.name}-diagnostics'
-  scope: cognitiveServices
-  properties: {
-    workspaceId: logAnalytics.id
-    logs: [
-      {
-        category: 'Audit'
-        enabled: true
-      }      
-      {
-        category: 'RequestResponse'
-        enabled: true
-      }      
-      {
-        category: 'Trace'
-        enabled: true
-      }      
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-}
-
-@batchSize(1)
-resource openAIDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [for (deployment, i) in openAIDeployments: if(length(openAIDeployments) > 0) {
-  name: openAIDeployments[i].name
-  parent: cognitiveServices
-  properties: {
-    model: {
-      format: 'OpenAI'
-      name: openAIDeployments[i].model
-      version: openAIDeployments[i].version
-    }
-  }
-  sku: {
-      name: openAIDeployments[i].sku
-      capacity: openAIDeployments[i].capacity
-  }
-}]
-
-var cognitiveServicesOpenAIUserRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: cognitiveServices
-  name: guid(subscription().id, resourceGroup().id, cognitiveServices.name, cognitiveServicesOpenAIUserRoleDefinitionID)
-    properties: {
-        roleDefinitionId: cognitiveServicesOpenAIUserRoleDefinitionID
-        principalId: apim.identity.principalId
-        principalType: 'ServicePrincipal'
-    }
-}
-
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
-resource openAIAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
-  name: 'openai'
-  parent: apim
-  properties: {
-    apiType: 'http'
-    description: 'OpenAI Inference API'
-    displayName: 'OpenAI'
-    format: 'openapi-link'
-    path: 'openai'
-    protocols: [
-      'https'
-    ]
-    subscriptionKeyParameterNames: {
-      header: 'api-key'
-      query: 'api-key'
-    }
-    subscriptionRequired: true
-    type: 'http'
-    value: 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/${openAIAPIVersion}/inference.json'
-  }
-}
-
-resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = {
-  name: 'policy'
-  parent: openAIAPI
-  properties: {
-    format: 'rawxml'
-    value: loadTextContent('openai-policy.xml')
-  }
-}
-
-resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' =  {
-  name: 'openai-backend'
-  parent: apim
-  properties: {
-    description: 'OpenAI backend'
-    url: '${cognitiveServices.properties.endpoint}/openai'
-    protocol: 'http'
-    circuitBreaker: {
-      rules: [
-        {
-          failureCondition: {
-            count: 1
-            errorReasons: [
-              'Server errors'
-            ]
-            interval: 'PT5M'
-            statusCodeRanges: [
-              {
-                min: 429
-                max: 429
-              }
-            ]
-          }
-          name: 'openAIBreakerRule'
-          tripDuration: 'PT1M'
-          acceptRetryAfter: true
-        }
-      ]
-    }
-  }
-}
-
-resource openAIAPIDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
-  name: 'applicationinsights'
-  parent: openAIAPI
-  properties: {
-    alwaysLog: 'allErrors'
-    httpCorrelationProtocol: 'W3C'
-    logClientIp: true
-    loggerId: apimLogger.id
-    metrics: true
-    verbosity: 'verbose'
-    sampling: {
-      samplingType: 'fixed'
-      percentage: 100
-    }
-    frontend: {
-      request: logSettings
-      response: logSettings
-    }
-    backend: {
-      request: logSettings
-      response: logSettings
-    }
   }
 }
 
@@ -490,11 +322,11 @@ resource apimProduct 'Microsoft.ApiManagement/service/products@2024-06-01-previe
 }]
 
 @batchSize(1)
-resource apimProductOpenAIAPI 'Microsoft.ApiManagement/service/products/apiLinks@2024-06-01-preview' = [for (product, i) in apimProductsConfig: if(length(apimProductsConfig) > 0) {
+resource apimProductInferenceAPI 'Microsoft.ApiManagement/service/products/apiLinks@2024-06-01-preview' = [for (product, i) in apimProductsConfig: if(length(apimProductsConfig) > 0) {
   parent: apimProduct[i]
   name: 'openai-${apimProduct[i].name}'
   properties: {
-    apiId: openAIAPI.id
+    apiId: inferenceAPIModule.outputs.apiId
   }
 }]
 
@@ -527,7 +359,7 @@ resource apimUser 'Microsoft.ApiManagement/service/users@2024-06-01-preview' = [
 }]
 
 @batchSize(1)
-resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = [for subscription in apimSubscriptionsConfig: if(length(apimSubscriptionsConfig) > 0) {
+resource apimSubscriptions 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = [for subscription in apimSubscriptionsConfig: if(length(apimSubscriptionsConfig) > 0) {
   name: subscription.name
   parent: apim
   properties: {
@@ -544,7 +376,7 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06
 
 resource updateSubscriptionWorkflow 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'la-update-sub-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   identity: {
     type: 'SystemAssigned'
   }
@@ -872,7 +704,7 @@ resource ruleSuspendSub 'microsoft.insights/scheduledqueryrules@2024-01-01-previ
     criteria: {
       allOf: [
         {
-          query: 'AppMetrics\n| where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\n| where Name == "Prompt Tokens" or Name == "Completion Tokens"\n| extend SubscriptionName = tostring(Properties["Subscription ID"])\n| extend ProductName = tostring(Properties["Product"])\n| extend ModelName = tostring(Properties["Model"])\n| extend Region = tostring(Properties["Region"])\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.ModelName == $right.Model\n| summarize\n    PromptTokens = sumif(Sum, Name == "Prompt Tokens"),\n    CompletionTokens = sumif(Sum, Name == "Completion Tokens")\n    by SubscriptionName, InputTokensPrice, OutputTokensPrice\n| extend InputCost = PromptTokens / 1000 * InputTokensPrice\n| extend OutputCost = CompletionTokens / 1000 * OutputTokensPrice\n| extend TotalCost = InputCost + OutputCost\n| summarize TotalCost = sum(TotalCost) by SubscriptionName\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n) on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n| where TotalCost > CostQuota\n'
+          query: 'let llmHeaderLogs = ApiManagementGatewayLlmLog\n    | where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\n    | where DeploymentName != \'\';\nlet llmLogsWithSubscriptionId = llmHeaderLogs\n    | join kind=leftouter ApiManagementGatewayLogs on CorrelationId\n    | project\n        SubscriptionName = ApimSubscriptionId,\n        DeploymentName,\n        PromptTokens,\n        CompletionTokens,\n        TotalTokens;\nllmLogsWithSubscriptionId\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.DeploymentName == $right.Model\n| extend InputCost = PromptTokens * InputTokensPrice\n| extend OutputCost = CompletionTokens * OutputTokensPrice\n| summarize\n    InputCost = sum(InputCost),\n    OutputCost = sum(OutputCost)\n    by SubscriptionName\n| extend TotalCost = (InputCost + OutputCost) / 1000\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n    )\n    on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n| where TotalCost > CostQuota\n'
           timeAggregation: 'Count'
           dimensions: [
             {
@@ -923,7 +755,7 @@ resource ruleActivateSub 'microsoft.insights/scheduledqueryrules@2024-01-01-prev
     criteria: {
       allOf: [
         {
-          query: 'AppMetrics\n| where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\n| where Name == "Prompt Tokens" or Name == "Completion Tokens"\n| extend SubscriptionName = tostring(Properties["Subscription ID"])\n| extend ProductName = tostring(Properties["Product"])\n| extend ModelName = tostring(Properties["Model"])\n| extend Region = tostring(Properties["Region"])\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.ModelName == $right.Model\n| summarize\n    PromptTokens = sumif(Sum, Name == "Prompt Tokens"),\n    CompletionTokens = sumif(Sum, Name == "Completion Tokens")\n    by SubscriptionName, InputTokensPrice, OutputTokensPrice\n| extend InputCost = PromptTokens / 1000 * InputTokensPrice\n| extend OutputCost = CompletionTokens / 1000 * OutputTokensPrice\n| extend TotalCost = InputCost + OutputCost\n| summarize TotalCost = sum(TotalCost) by SubscriptionName\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n) on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n| where TotalCost <= CostQuota\n'
+          query: 'let llmHeaderLogs = ApiManagementGatewayLlmLog\n    | where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\n    | where DeploymentName != \'\';\nlet llmLogsWithSubscriptionId = llmHeaderLogs\n    | join kind=leftouter ApiManagementGatewayLogs on CorrelationId\n    | project\n        SubscriptionName = ApimSubscriptionId,\n        DeploymentName,\n        PromptTokens,\n        CompletionTokens,\n        TotalTokens;\nllmLogsWithSubscriptionId\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.DeploymentName == $right.Model\n| extend InputCost = PromptTokens * InputTokensPrice\n| extend OutputCost = CompletionTokens * OutputTokensPrice\n| summarize\n    InputCost = sum(InputCost),\n    OutputCost = sum(OutputCost)\n    by SubscriptionName\n| extend TotalCost = (InputCost + OutputCost) / 1000\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n    )\n    on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n| where TotalCost <= CostQuota\n'
           timeAggregation: 'Count'
           dimensions: [
             {
@@ -962,7 +794,6 @@ module finOpsDashboardModule 'dashboard.bicep' = {
       workspaceId: logAnalytics.id
       workbookCostAnalysisId: openAIUsageWorkbook.id
       workbookAzureOpenAIInsightsId: azureOpenAIInsightsWorkbook.id
-      workspaceOpenAIDimenstion: 'openai'
       appInsightsId: applicationInsights.id
       appInsightsName: applicationInsights.name
     }
@@ -973,17 +804,15 @@ module finOpsDashboardModule 'dashboard.bicep' = {
 //    OUTPUTS
 // ------------------
 
-output applicationInsightsAppId string = applicationInsights.properties.AppId
-output applicationInsightsName string = applicationInsights.name
-output logAnalyticsWorkspaceId string = logAnalytics.properties.customerId
-output apimServiceId string = apim.id
-output apimResourceGatewayURL string = apim.properties.gatewayUrl
+output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
+output apimServiceId string = apimModule.outputs.id
+output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
 
 #disable-next-line outputs-should-not-contain-secrets
 output apimSubscriptions array = [for (subscription, i) in apimSubscriptionsConfig: {
   name: subscription.name
   displayName: subscription.displayName
-  key: apimSubscription[i].listSecrets().primaryKey
+  key: apimSubscriptions[i].listSecrets().primaryKey
 }]
 
 output pricingDCREndpoint string = pricingDCR.properties.endpoints.logsIngestion
@@ -992,3 +821,4 @@ output pricingDCRStream string = pricingDCR.properties.dataFlows[0].streams[0]
 output subscriptionQuotaDCREndpoint string = subscriptionQuotaDCR.properties.endpoints.logsIngestion
 output subscriptionQuotaDCRImmutableId string = subscriptionQuotaDCR.properties.immutableId
 output subscriptionQuotaDCRStream string = subscriptionQuotaDCR.properties.dataFlows[0].streams[0]
+

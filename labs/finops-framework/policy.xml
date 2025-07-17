@@ -1,12 +1,10 @@
 <policies>
     <inbound>
         <base />
-        <validate-azure-ad-token tenant-id="{tenant-id}">
-            <client-application-ids>
-                <application-id>{client-application-id}</application-id>
-            </client-application-ids>
-        </validate-azure-ad-token>
         <set-backend-service backend-id="{backend-id}" />
+        <azure-openai-emit-token-metric namespace="aiusage">
+            <dimension name="Product" value="@(context.Product.Id)" />
+        </azure-openai-emit-token-metric>
     </inbound>
     <backend>
         <base />
