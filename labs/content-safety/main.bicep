@@ -2,121 +2,64 @@
 //    PARAMETERS
 // ------------------
 
-// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
-
+param aiServicesConfig array = []
+param modelsConfig array = []
 param apimSku string
-param openAIConfig array = []
-param openAIModelName string
-param openAIModelVersion string
-param openAIModelSKU string
-param openAIDeploymentName string
-param openAIAPIVersion string = '2024-02-01'
+param apimSubscriptionsConfig array = []
+param inferenceAPIType string = 'AzureOpenAI'
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param foundryProjectName string = 'default'
 
 // ------------------
 //    VARIABLES
 // ------------------
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
-var apiManagementName = 'apim-${resourceSuffix}'
-var openAISubscriptionName = 'openai-subscription'
-var openAISubscriptionDescription = 'OpenAI Subscription'
-var openAIAPIName = 'openai'
-
-// Account for all placeholders in the polixy.xml file.
-var policyXml = loadTextContent('policy.xml')
-var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
 
 // ------------------
 //    RESOURCES
 // ------------------
 
-// 1. Log Analytics Workspace
-module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
-  name: 'lawModule'
-}
-
-var lawId = lawModule.outputs.id
-
-// 2. Application Insights
-module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
-  name: 'appInsightsModule'
-  params: {
-    lawId: lawId
-    customMetricsOptedInType: 'WithDimensions'
-  }
-}
-
-var appInsightsId = appInsightsModule.outputs.id
-var appInsightsInstrumentationKey = appInsightsModule.outputs.instrumentationKey
-
-// 3. API Management
-module apimModule '../../modules/apim/v1/apim.bicep' = {
+// 1. API Management
+module apimModule '../../modules/apim/v2/apim.bicep' = {
   name: 'apimModule'
   params: {
     apimSku: apimSku
-    appInsightsInstrumentationKey: appInsightsInstrumentationKey
-    appInsightsId: appInsightsId
+    apimSubscriptionsConfig: apimSubscriptionsConfig
   }
 }
 
-// 4. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
-    name: 'openAIModule'
+// 2. AI Foundry
+module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
+    name: 'foundryModule'
     params: {
-      openAIConfig: openAIConfig
-      openAIDeploymentName: openAIDeploymentName
-      openAIModelName: openAIModelName
-      openAIModelVersion: openAIModelVersion
-      openAIModelSKU: openAIModelSKU
+      aiServicesConfig: aiServicesConfig
+      modelsConfig: modelsConfig
       apimPrincipalId: apimModule.outputs.principalId
-      lawId: lawId
+      foundryProjectName: foundryProjectName
     }
   }
 
-// 5. APIM OpenAI API
-module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
-  name: 'openAIAPIModule'
+// 3. APIM Inference API
+module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+  name: 'inferenceAPIModule'
   params: {
-    policyXml: updatedPolicyXml
-    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
-    openAIAPIVersion: openAIAPIVersion
-    appInsightsInstrumentationKey: appInsightsInstrumentationKey
-    appInsightsId: appInsightsId
+    policyXml: loadTextContent('policy.xml')
+    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    inferenceAPIType: inferenceAPIType
+    inferenceAPIPath: inferenceAPIPath
+    configureCircuitBreaker: true
   }
 }
 
-// We presume the APIM resource has been created as part of this bicep flow.
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
-  name: apiManagementName
+  name: 'apim-${resourceSuffix}'
   dependsOn: [
-    apimModule
+    inferenceAPIModule
   ]
 }
 
-resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing = {
-  parent: apim
-  name: openAIAPIName
-  dependsOn: [
-    openAIAPIModule
-  ]
-}
-
-// Ignore the subscription that gets created in the APIM module and create three new ones for this lab.
-resource apimSubscriptions 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = [for i in range(1, 3): {
-  name: '${openAISubscriptionName}${i}'
-  parent: apim
-  properties: {
-    allowTracing: true
-    displayName: '${openAISubscriptionDescription} ${i}'
-    scope: '/apis/${api.id}'
-    state: 'active'
-  }
-  dependsOn: [
-    api
-  ]
-}]
-
-
+// 4. Content Safety
 resource contentSafetyResource 'Microsoft.CognitiveServices/accounts@2024-04-01-preview' = {
   name: 'contentsafety-${resourceSuffix}'
   location: resourceGroup().location
@@ -130,6 +73,44 @@ resource contentSafetyResource 'Microsoft.CognitiveServices/accounts@2024-04-01-
   }
 }
 
+resource raiBlocklist 'Microsoft.CognitiveServices/accounts/raiBlocklists@2025-06-01' = {
+  parent: contentSafetyResource
+  name: 'blocklist1' // this name is hard coded in the policy.xml file
+  properties: {
+    description: 'Forbidden inputs blocklist'
+  }  
+}
+
+/*
+// the following blocklist items fail to deploy with error: [{"code":"IfMatchPreconditionFailed","message":"The specified precondition 'If-Match = \"\"d00087d4-0000-0200-0000-687798f10000\"\"' failed."},{"code":"IfMatchPreconditionFailed","message":"The specified precondition 'If-Match = \"\"d00087d4-0000-0200-0000-687798f10000\"\"' failed."}]}}
+resource raiBlocklistItemName 'Microsoft.CognitiveServices/accounts/raiBlocklists/raiBlocklistItems@2025-06-01' = {
+  parent: raiBlocklist
+  name: 'name'
+  properties: {
+    isRegex: false
+    pattern: 'Alex'
+  }
+}
+
+resource raiBlocklistItemSSN 'Microsoft.CognitiveServices/accounts/raiBlocklists/raiBlocklistItems@2025-06-01' = {
+  parent: raiBlocklist
+  name: 'ssn'
+  properties: {
+    isRegex: true
+    pattern: '^\\d{3}-?\\d{2}-?\\d{4}$'
+  }
+}
+
+resource raiBlocklistItemCreditCard 'Microsoft.CognitiveServices/accounts/raiBlocklists/raiBlocklistItems@2025-06-01' = {
+  parent: raiBlocklist
+  name: 'creditcard'
+  properties: {
+    isRegex: true
+    pattern: '^(?:4[0-9]{12}(?:[0-9]{3})?|[25][1-7][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11})$'
+  }
+}
+*/
+
 var cognitiveServicesReaderDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')
 resource contentSafetyRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: contentSafetyResource
@@ -141,14 +122,29 @@ resource contentSafetyRoleAssignment 'Microsoft.Authorization/roleAssignments@20
   }
 }
 
+resource contentSafetyRoleAssignmentToDeployer 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: contentSafetyResource
+  name: guid(subscription().id, resourceGroup().id, contentSafetyResource.name, cognitiveServicesReaderDefinitionID, deployer().objectId)
+  properties: {
+      roleDefinitionId: cognitiveServicesReaderDefinitionID
+      principalId: deployer().objectId
+  }
+}
+
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
 resource contentSafetyBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
-  name: 'content-safety-backend'
+  name: 'content-safety-backend' // this name is hard coded in the policy.xml file
   parent: apim
   properties: {
     description: 'Content Safety Backend'
     url: contentSafetyResource.properties.endpoint
     protocol: 'http'
+    credentials: {
+      #disable-next-line BCP037
+      managedIdentity: {
+          resource: 'https://cognitiveservices.azure.com'
+      }
+    }
   }
 }
 
@@ -156,15 +152,10 @@ resource contentSafetyBackend 'Microsoft.ApiManagement/service/backends@2024-06-
 //    OUTPUTS
 // ------------------
 
-output applicationInsightsAppId string = appInsightsModule.outputs.appId
-output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
-output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
 
-#disable-next-line outputs-should-not-contain-secrets
-output apimSubscription1Key string = apimSubscriptions[0].listSecrets().primaryKey
-#disable-next-line outputs-should-not-contain-secrets
-output apimSubscription2Key string = apimSubscriptions[1].listSecrets().primaryKey
-#disable-next-line outputs-should-not-contain-secrets
-output apimSubscription3Key string = apimSubscriptions[2].listSecrets().primaryKey
+output apimSubscriptions array = apimModule.outputs.apimSubscriptions
+
+
+

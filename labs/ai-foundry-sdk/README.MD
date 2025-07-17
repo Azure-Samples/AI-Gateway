@@ -1,4 +1,4 @@
-# APIM ❤️ OpenAI
+# APIM ❤️ AI Foundry
 
 ## AI Foundry SDK lab
 

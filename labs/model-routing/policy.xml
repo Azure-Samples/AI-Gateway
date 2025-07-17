@@ -4,25 +4,29 @@
 
         <!-- Use a <choose> block to evaluate deployment-id -->
         <choose>
-            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-35-turbo-1106")">
-                <set-backend-service backend-id="{backend-id-1}" />
+            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-4.1")">
+                <set-backend-service backend-id="foundry1" />
             </when>
-            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-35-turbo-0125")">
-                <set-backend-service backend-id="{backend-id-2}" />
+            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-4.1-mini" || context.Request.MatchedParameters["deployment-id"] == "gpt-4.1-nano")">
+                <set-backend-service backend-id="foundry2" />
             </when>
-            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-4o-2024-05-13")">
-                <set-backend-service backend-id="{backend-id-3}" />
+            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "model-router")">
+                <set-backend-service backend-id="foundry3" />
             </when>
             <otherwise>
-                <set-backend-service backend-id="{backend-id-1}" />
+                <return-response>
+                    <set-status code="400" reason="Bad Request" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>
+                        {
+                            "error": "Invalid deployment-id. Please provide a valid deployment-id."
+                        }
+                    </set-body>
+                </return-response>
             </otherwise>
         </choose>
-
-        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
-
-        <set-header name="Authorization" exists-action="override">
-            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
-        </set-header>
     </inbound>
     <backend>
         <base />

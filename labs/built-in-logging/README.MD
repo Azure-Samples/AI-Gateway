@@ -1,10 +1,10 @@
-# APIM ❤️ OpenAI
+# APIM ❤️ AI Foundry
 
 ## [Built-in logging lab](built-in-logging.ipynb)
 
 [![flow](../../images/built-in-logging.gif)](built-in-logging.ipynb)
 
-Playground to try the [built-in LLM logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/monitor-api-management#modify-api-logging-settings). Consumed tokens, prompts and completions are logged automatically into Azure Monitor, and it's easy to explore the data with the provided [notebook](llm-logging-workbook.json).
+Playground to try the [built-in LLM logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/monitor-api-management#modify-api-logging-settings). Consumed tokens, prompts and completions are logged automatically into Azure Monitor.
 
 ### Prerequisites
 
