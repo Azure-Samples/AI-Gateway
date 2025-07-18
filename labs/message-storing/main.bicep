@@ -123,12 +123,6 @@ module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
   }
 }
 
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
-  name: 'workspace-${resourceSuffix}'
-  dependsOn: [
-    inferenceAPIModule
-  ]
-}
 resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apiManagementName
   dependsOn: [
