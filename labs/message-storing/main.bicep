@@ -136,24 +136,6 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existi
   ]
 }
 
-resource dataExportLLMLogsToEventHub 'Microsoft.OperationalInsights/workspaces/dataexports@2025-02-01' = {
-  parent: logAnalytics
-  name: 'ExportLLMLogsToEventHub'
-  properties: {
-    dataExportId: guid(logAnalytics.id, 'ExportLLMLogsToEventHub')
-    destination: {
-      resourceId: eventHubNamespaceResource.id
-      metaData: {
-        eventHubName: 'llm-messages'
-      }
-    }
-    tableNames: [
-      'ApiManagementGatewayLlmLog'
-      'ApiManagementGatewayLogs'
-    ]
-  }
-}
-
 resource eventHubNamespaceResource 'Microsoft.EventHub/namespaces@2021-01-01-preview' = {
   name: 'eventhub-${resourceSuffix}'
   location: eventHubLocation
@@ -204,20 +186,6 @@ resource eventHubConsumerGroup 'Microsoft.EventHub/namespaces/eventhubs/consumer
   name: '$Default'
 }
 
-resource eventHubLogger 'Microsoft.ApiManagement/service/loggers@2024-06-01-preview' = { // This resource will not be used 
-  name: 'eventhub-logger'
-  parent: apimService
-  properties: {
-    loggerType: 'azureEventHub'
-    isBuffered: false // Set to false to ensure logs are sent immediately
-    description: 'Log messages to Event Hub'
-    credentials: {
-      name: eventHubResource.name
-      connectionString: eventhubAuthRule.listkeys().primaryConnectionString
-    }
-  }
-}
-
 resource apimDiagnosticSettingsEventHub 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: apimService
   name: 'apimDiagnosticSettingsEventHub'
@@ -241,16 +209,6 @@ resource apimDiagnosticSettingsEventHub 'Microsoft.Insights/diagnosticSettings@2
 
 
 var eventHubDataOwnerRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', 'f526a384-b230-433a-b45c-95f59c4a2dec')
-resource eventHubsDataOwnerRoleAssignmentToLogAnalytics 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: resourceGroup()
-  name: guid(logAnalytics.id, eventHubDataOwnerRoleDefinitionID)
-  properties: {
-    roleDefinitionId: eventHubDataOwnerRoleDefinitionID
-    principalId: logAnalytics.identity.principalId
-    principalType: 'ServicePrincipal'
-  }
-}
-
 resource eventHubsDataOwnerRoleAssignmentToStreamingJob 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: resourceGroup()
   name: guid(streamingJobManagedIdentity.id, eventHubDataOwnerRoleDefinitionID)
