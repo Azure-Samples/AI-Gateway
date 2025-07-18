@@ -97,9 +97,6 @@ module apimModule '../../modules/apim/v2/apim.bicep' = {
     appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
   }
 }
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = if (length(apimModule.outputs.id) > 0) {
-  name: apiManagementName
-}
 
 // 4. AI Foundry
 module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
@@ -123,6 +120,37 @@ module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
     aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
     inferenceAPIType: inferenceAPIType
     inferenceAPIPath: inferenceAPIPath
+  }
+}
+
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+  name: 'workspace-${resourceSuffix}'
+  dependsOn: [
+    inferenceAPIModule
+  ]
+}
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+  name: apiManagementName
+  dependsOn: [
+    inferenceAPIModule
+  ]
+}
+
+resource dataExportLLMLogsToEventHub 'Microsoft.OperationalInsights/workspaces/dataexports@2025-02-01' = {
+  parent: logAnalytics
+  name: 'ExportLLMLogsToEventHub'
+  properties: {
+    dataExportId: guid(logAnalytics.id, 'ExportLLMLogsToEventHub')
+    destination: {
+      resourceId: eventHubNamespaceResource.id
+      metaData: {
+        eventHubName: 'llm-messages'
+      }
+    }
+    tableNames: [
+      'ApiManagementGatewayLlmLog'
+      'ApiManagementGatewayLogs'
+    ]
   }
 }
 
@@ -176,7 +204,7 @@ resource eventHubConsumerGroup 'Microsoft.EventHub/namespaces/eventhubs/consumer
   name: '$Default'
 }
 
-resource eventHubLogger 'Microsoft.ApiManagement/service/loggers@2024-06-01-preview' = {
+resource eventHubLogger 'Microsoft.ApiManagement/service/loggers@2024-06-01-preview' = { // This resource will not be used 
   name: 'eventhub-logger'
   parent: apimService
   properties: {
@@ -213,7 +241,17 @@ resource apimDiagnosticSettingsEventHub 'Microsoft.Insights/diagnosticSettings@2
 
 
 var eventHubDataOwnerRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', 'f526a384-b230-433a-b45c-95f59c4a2dec')
-resource eventHubsDataOwnerRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource eventHubsDataOwnerRoleAssignmentToLogAnalytics 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: resourceGroup()
+  name: guid(logAnalytics.id, eventHubDataOwnerRoleDefinitionID)
+  properties: {
+    roleDefinitionId: eventHubDataOwnerRoleDefinitionID
+    principalId: logAnalytics.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource eventHubsDataOwnerRoleAssignmentToStreamingJob 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: resourceGroup()
   name: guid(streamingJobManagedIdentity.id, eventHubDataOwnerRoleDefinitionID)
   properties: {
@@ -289,7 +327,7 @@ resource streamingJobsResource 'Microsoft.StreamAnalytics/streamingjobs@2021-10-
     transformation: {
       name: 'transformation'
       properties: {
-        query: 'SELECT * INTO [cosmosdb] FROM [eventhub]'
+        query: 'WITH FlattenedRecords AS (SELECT record.ArrayValue.correlationId AS correlationId, record.ArrayValue.time AS time, record.ArrayValue.properties.ApimSubscriptionId AS ApimSubscriptionId, record.ArrayValue.properties.BackendId AS BackendId, record.ArrayValue.properties.modelName AS modelName, record.ArrayValue.properties.requestMessages AS requestMessages, record.ArrayValue.properties.responseMessages AS responseMessages, record.ArrayValue.properties.promptTokens AS promptTokens, record.ArrayValue.properties.completionTokens AS completionTokens, record.ArrayValue.properties.totalTokens AS totalTokens FROM [eventhub] CROSS APPLY GetArrayElements(records) AS record WHERE record.ArrayValue.correlationId IS NOT NULL), ConversationSummary AS (SELECT correlationId as id, STRING_AGG(modelName, "") AS model, STRING_AGG(ApimSubscriptionId, "") AS subscriptionId, STRING_AGG(BackendId, "") AS backendId, STRING_AGG(requestMessages, "") AS request, STRING_AGG(responseMessages, "") AS response, SUM(CAST(promptTokens AS BIGINT)) AS promptTokens, SUM(CAST(completionTokens AS BIGINT)) AS completionTokens, SUM(CAST(totalTokens AS BIGINT)) AS totalTokens, COUNT(*) AS messageCount, MIN(TRY_CAST(time AS DATETIME)) AS conversationStart FROM FlattenedRecords GROUP BY correlationId, TumblingWindow(minute, 5)) select * into [cosmosdb] from conversationSummary'
         streamingUnits: 3
       }
     }

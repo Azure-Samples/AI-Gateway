@@ -37,6 +37,9 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
       name: 'PerGB2018'
     }
   })
+  identity: {
+    type: 'SystemAssigned'
+  }
 }
 
 // ------------------

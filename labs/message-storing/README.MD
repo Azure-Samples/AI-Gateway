@@ -4,7 +4,7 @@
 
 [![flow](../../images/message-storing.gif)](message-storing.ipynb)
 
-Playground to test storing message details into Cosmos DB.
+Playground to test storing message details into Cosmos DB. This lab leverages the built-in LLM logging feature to capture prompts, completions, and token counts into Azure Monitor. Data is continuously exported from Azure Monitor to Event Hub, then ingested into Cosmos DB via Azure Stream Analytics.
 
 ### Prerequisites
 
