@@ -1,5 +1,5 @@
 output "apim_resource_gateway_url" {
-  value = azapi_resource.apim.output.properties.gatewayUrl
+  value = azurerm_api_management.apim.gateway_url
 }
 
 output "apim_subscription_key" {
