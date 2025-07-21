@@ -1,4 +1,4 @@
-# MCP Registry to Azure API Center
+# MCP Registry to Azure API Center using CI/CD pipelines
 
 
 This project demonstrates how to establish a **fully automated Model Context Protocol (MCP) server registry** that seamlessly integrates with **Azure API Center using GitHub CI/CD pipelines**. The key benefit of this lab is enabling organizations to automatically discover, register, and manage MCP servers through a GitOps workflow.
