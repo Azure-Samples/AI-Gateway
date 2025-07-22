@@ -476,3 +476,4 @@ output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
 
 output apimSubscriptions array = apimModule.outputs.apimSubscriptions
 
+output foundryProjectEndpoint string = foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectEndpoint
