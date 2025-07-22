@@ -62,6 +62,8 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2025-06-01' = [
     customSubDomainName: toLower('${config.name}-${resourceSuffix}')
 
     disableLocalAuth: false
+
+    publicNetworkAccess: 'Enabled'
   }  
 }]
 
@@ -159,4 +161,5 @@ output extendedAIServicesConfig array = [for (config, i) in aiServicesConfig: {
   cognitiveService: cognitiveServices[i]
   cognitiveServiceName: cognitiveServices[i].name
   endpoint: cognitiveServices[i].properties.endpoint
+  foundryProjectEndpoint: 'https://${cognitiveServices[i].name}.services.ai.azure.com/api/projects/${aiProject[0].name}'
 }]

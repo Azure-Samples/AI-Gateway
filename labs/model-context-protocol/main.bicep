@@ -2,18 +2,14 @@
 //    PARAMETERS
 // ------------------
 
-// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
-
+param aiServicesConfig array = []
+param modelsConfig array = []
 param apimSku string
-param apimLoggerName string = 'apim-logger'
-param openAIConfig array = []
-param openAIModelName string
-param openAIModelVersion string
-param openAIModelSKU string
-param openAIDeploymentName string
-param openAIAPIVersion string = '2024-02-01'
+param apimSubscriptionsConfig array = []
+param inferenceAPIType string = 'AzureOpenAI'
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param foundryProjectName string = 'default'
 
-param location string = resourceGroup().location
 
 param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
@@ -26,20 +22,71 @@ param serviceNowInstanceName string
 // ------------------
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
-var apiManagementName = 'apim-${resourceSuffix}'
-var openAIAPIName = 'openai'
 
-// Account for all placeholders in the polixy.xml file.
-var policyXml = loadTextContent('policy.xml')
-var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
 
 // ------------------
 //    RESOURCES
 // ------------------
 
+// 1. Log Analytics Workspace
+module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
+  name: 'lawModule'
+}
+
+// 2. Application Insights
+module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
+  name: 'appInsightsModule'
+  params: {
+    lawId: lawModule.outputs.id
+    customMetricsOptedInType: 'WithDimensions'
+  }
+}
+
+// 3. API Management
+module apimModule '../../modules/apim/v2/apim.bicep' = {
+  name: 'apimModule'
+  params: {
+    apimSku: apimSku
+    apimSubscriptionsConfig: apimSubscriptionsConfig
+    lawId: lawModule.outputs.id
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
+  }
+}
+
+// 4. AI Foundry
+module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
+    name: 'foundryModule'
+    params: {
+      aiServicesConfig: aiServicesConfig
+      modelsConfig: modelsConfig
+      apimPrincipalId: apimModule.outputs.principalId
+      foundryProjectName: foundryProjectName
+    }
+  }
+
+// 5. APIM Inference API
+module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+  name: 'inferenceAPIModule'
+  params: {
+    policyXml: loadTextContent('policy.xml')
+    apimLoggerId: apimModule.outputs.loggerId
+    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    inferenceAPIType: inferenceAPIType
+    inferenceAPIPath: inferenceAPIPath
+  }
+}
+
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+  name: 'apim-${resourceSuffix}'
+  dependsOn: [
+    inferenceAPIModule
+  ]
+}
+
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: 'acr${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   sku: {
     name: 'Basic'
   }
@@ -82,7 +129,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-pr
 
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
   name: 'aca-env-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -96,7 +143,7 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' 
 
 resource containerAppUAI 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
   name: 'aca-mi-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
 }
 var acrPullRole = resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
 @description('This allows the managed identity of the container app to access the registry, note scope is applied to the wider ResourceGroup not the ACR')
@@ -111,7 +158,7 @@ resource containerAppUAIRoleAssignment 'Microsoft.Authorization/roleAssignments@
 
 resource gitHubMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: 'aca-github-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -189,7 +236,7 @@ resource gitHubMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pre
 
 resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: 'aca-weather-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -232,7 +279,7 @@ resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
 
 resource oncallMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: 'aca-oncall-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -275,7 +322,7 @@ resource oncallMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pre
 
 resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = if (length(serviceNowInstanceName) > 0) {
   name: 'aca-servicenow-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -351,93 +398,6 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
 }
 
 
-// 1. Log Analytics Workspace
-module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
-  name: 'lawModule'
-}
-
-var lawId = lawModule.outputs.id
-
-// 2. Application Insights
-module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
-  name: 'appInsightsModule'
-  params: {
-    lawId: lawId
-    customMetricsOptedInType: 'WithDimensions'
-  }
-}
-
-
-// ------------------
-//    RESOURCES
-// ------------------
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
-  name: apiManagementName
-  location: location
-  sku: {
-    name: apimSku
-    capacity: 1
-  }
-  properties: {
-    publisherEmail: 'noreply@microsoft.com'
-    publisherName: 'Microsoft'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-}
-
-// Create a logger only if we have an App Insights ID and instrumentation key.
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
-  name: apimLoggerName
-  parent: apimService
-  properties: {
-    credentials: {
-      instrumentationKey: appInsightsModule.outputs.instrumentationKey
-    }
-    description: 'APIM Logger'
-    isBuffered: false
-    loggerType: 'applicationInsights'
-    resourceId: appInsightsModule.outputs.id
-  }
-}
-
-// 4. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
-    name: 'openAIModule'
-    params: {
-      openAIConfig: openAIConfig
-      openAIDeploymentName: openAIDeploymentName
-      openAIModelName: openAIModelName
-      openAIModelVersion: openAIModelVersion
-      openAIModelSKU: openAIModelSKU
-      apimPrincipalId: apimService.identity.principalId
-      lawId: lawId
-    }
-  }
-
-// 5. APIM OpenAI API
-module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
-  name: 'openAIAPIModule'
-  params: {
-    policyXml: updatedPolicyXml
-    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
-    openAIAPIVersion: openAIAPIVersion
-    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
-    appInsightsId: appInsightsModule.outputs.id
-  }
-}
-
-resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing = {
-  parent: apimService
-  name: openAIAPIName
-  dependsOn: [
-    openAIAPIModule
-  ]
-}
-
 
 module githubAPIModule 'src/github/apim-api/api.bicep' = {
   name: 'githubAPIModule'
@@ -477,21 +437,6 @@ module serviceNowAPIModule 'src/servicenow/apim-api/api.bicep' = if(length(servi
 }
 
 
-// Ignore the subscription that gets created in the APIM module and create three new ones for this lab.
-resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
-  name: 'apim-subscription'
-  parent: apimService
-  properties: {
-    allowTracing: true
-    displayName: 'Generic APIM Subscription'
-    scope: '/apis'
-    state: 'active'
-  }
-  dependsOn: [
-    api
-  ]
-}
-
 var apimContributorRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '312a565d-c81f-4fd8-895a-4e21e48d571c')
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =  {
     scope: apimService
@@ -523,10 +468,12 @@ output servicenowMCPServerContainerAppFQDN string = (length(serviceNowInstanceNa
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
-output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
-output apimServiceId string = apimService.id
-output apimResourceName string = apimService.name
-output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 
-#disable-next-line outputs-should-not-contain-secrets
-output apimSubscriptionKey string = apimSubscription.listSecrets().primaryKey
+output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
+output apimServiceId string = apimModule.outputs.id
+output apimResourceName string = apimService.name
+output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
+
+output apimSubscriptions array = apimModule.outputs.apimSubscriptions
+output foundryProjectEndpoint string = foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectEndpoint
+
