@@ -7,6 +7,7 @@
                 <category name="SelfHarm" threshold="4" />
                 <category name="Hate" threshold="4" />
                 <category name="Violence" threshold="4" />
+                <category name="Sexual" threshold="4" />
             </categories>
             <blocklists>
                 <id>blocklist1</id>            

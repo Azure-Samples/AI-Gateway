@@ -212,7 +212,7 @@ resource bingSearch 'Microsoft.Bing/accounts@2020-06-10' = {
 
 // Creates the Azure Foundry connection to your Azure App Insights resource
 resource bingSearchConnection 'Microsoft.CognitiveServices/accounts/connections@2025-04-01-preview' = {
-  name: '${bingSearch.name}-connection'
+  name: 'bingSearch-connection'
   parent: aiFoundry
   properties: {
     category: 'ApiKey'
@@ -490,7 +490,7 @@ output applicationInsightsName string = appInsightsModule.outputs.name
 
 output apimSubscriptions array = apimModule.outputs.apimSubscriptions
 
-output foundryProjectEndpoint string = 'https://${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}.services.ai.azure.com/api/projects/${foundryProjectName}'
+output foundryProjectEndpoint string = foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectEndpoint
 
 output bingSearchConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${bingSearchConnection.name}'
 
