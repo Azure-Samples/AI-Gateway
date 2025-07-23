@@ -8,27 +8,27 @@ variable "resource_group_location" {
   default = "westeurope"
 }
 
-variable "openai_backend_pool_name" {
+variable "aiservices_backend_pool_name" {
   type    = string
-  default = "openai-backend-pool"
+  default = "aiservices-backend-pool"
 }
 
-variable "openai_config" {
+variable "aiservices_config" {
   default = {
-    openai-uks = {
-      name     = "openai1",
+    aiservices-uks = {
+      name     = "foundry1",
       location = "uksouth",
       priority = 1,
       weight   = 100
     },
-    openai-swc = {
-      name     = "openai2",
+    aiservices-swc = {
+      name     = "foundry2",
       location = "swedencentral",
       priority = 2,
       weight   = 50
     },
-    openai-frc = {
-      name     = "openai3",
+    aiservices-frc = {
+      name     = "foundry3",
       location = "francecentral",
       priority = 2,
       weight   = 50
@@ -36,32 +36,32 @@ variable "openai_config" {
   }
 }
 
-variable "openai_deployment_name" {
+variable "model_deployment_name" {
   type    = string
-  default = "gpt-4o"
+  default = "gpt-4o-mini"
 }
 
-variable "openai_sku" {
+variable "aiservices_sku" {
   type    = string
   default = "S0"
 }
 
-variable "openai_model_name" {
+variable "model_name" {
   type    = string
-  default = "gpt-4o"
+  default = "gpt-4o-mini"
 }
 
-variable "openai_model_version" {
+variable "model_version" {
   type    = string
-  default = "2024-08-06"
+  default = "2024-07-18" # "2024-08-06"
 }
 
-variable "openai_model_capacity" {
+variable "model_capacity" {
   type    = number
-  default = 8
+  default = 1
 }
 
-variable "openai_api_spec_url" {
+variable "model_api_spec_url" {
   type    = string
   default = "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-10-21/inference.json"
 }
@@ -81,7 +81,7 @@ variable "apim_sku" {
   default = "BasicV2"
 }
 
-variable "openai_api_version" {
+variable "model_api_version" {
   type    = string
   default = "2024-10-21"
 }

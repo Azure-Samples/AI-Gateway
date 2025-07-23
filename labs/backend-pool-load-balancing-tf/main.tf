@@ -1,6 +1,7 @@
 resource "random_string" "random" {
   length  = 8
   lower   = true
+  upper   = false
   special = false
 }
 
@@ -9,36 +10,76 @@ resource "azurerm_resource_group" "rg" {
   location = var.resource_group_location
 }
 
-resource "azurerm_ai_services" "ai-services" {
-  for_each = var.openai_config
+resource "azapi_resource" "ai-services" {
+  for_each = var.aiservices_config
 
-  name                               = "${each.value.name}-${random_string.random.result}"
-  location                           = each.value.location
-  resource_group_name                = azurerm_resource_group.rg.name
-  sku_name                           = var.openai_sku
-  local_authentication_enabled       = true
-  public_network_access              = "Enabled"
-  outbound_network_access_restricted = false
-  custom_subdomain_name              = "${lower(each.value.name)}-${random_string.random.result}"
+  type      = "Microsoft.CognitiveServices/accounts@2025-06-01"
+  parent_id = azurerm_resource_group.rg.id
+  name      = "${each.value.name}-${random_string.random.result}"
+  location  = each.value.location
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  body = {
+    kind = "AIServices"
+    sku = {
+      name = "S0"
+    }
+    properties = {
+      allowProjectManagement = true
+      customSubDomainName    = "${lower(each.value.name)}-${random_string.random.result}"
+      disableLocalAuth       = false
+      publicNetworkAccess    = "Enabled"
+    }
+  }
+}
+
+resource "azapi_resource" "ai-project" {
+  for_each = var.aiservices_config
+
+  type      = "Microsoft.CognitiveServices/accounts/projects@2025-06-01"
+  parent_id = azapi_resource.ai-services[each.key].id
+  name      = "ai-project-${each.key}"
+  location  = each.value.location
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  body = {
+    properties = {}
+  }
 }
 
 resource "azurerm_cognitive_deployment" "gpt-4o" {
-  for_each = var.openai_config
+  for_each = var.aiservices_config
 
-  name                 = var.openai_deployment_name
-  cognitive_account_id = azurerm_ai_services.ai-services[each.key].id
+  name                 = var.model_deployment_name
+  cognitive_account_id = azapi_resource.ai-services[each.key].id
 
   sku {
     name     = "GlobalStandard" # "GlobalStandard" # "Standard" # DataZoneStandard, GlobalBatch, GlobalStandard and ProvisionedManaged
-    capacity = var.openai_model_capacity
+    capacity = var.model_capacity
   }
 
   model {
     format  = "OpenAI"
-    name    = var.openai_model_name    # "gpt-4o"
-    version = var.openai_model_version # "2024-08-06"
+    name    = var.model_name
+    version = var.model_version
   }
 }
+
+resource "azurerm_role_assignment" "Azure-AI-Project-Manager" {
+  for_each = var.aiservices_config
+
+  scope                = azapi_resource.ai-services[each.key].id
+  role_definition_name = "Azure AI Project Manager"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
+data "azurerm_client_config" "current" {}
 
 resource "azurerm_api_management" "apim" {
   name                          = "${var.apim_resource_name}-${random_string.random.result}"
@@ -55,11 +96,11 @@ resource "azurerm_api_management" "apim" {
   }
 }
 
-resource "azurerm_role_assignment" "Cognitive-Services-OpenAI-User" {
-  for_each = var.openai_config
+resource "azurerm_role_assignment" "Cognitive-Services-User" {
+  for_each = var.aiservices_config
 
-  scope                = azurerm_ai_services.ai-services[each.key].id
-  role_definition_name = "Cognitive Services OpenAI User"
+  scope                = azapi_resource.ai-services[each.key].id
+  role_definition_name = "Cognitive Services User"
   principal_id         = azurerm_api_management.apim.identity.0.principal_id
 }
 
@@ -78,7 +119,7 @@ resource "azurerm_api_management_api" "apim-api-openai" {
 
   import {
     content_format = "openapi-link"
-    content_value  = var.openai_api_spec_url
+    content_value  = var.model_api_spec_url
   }
 
   subscription_key_parameter_names {
@@ -87,24 +128,19 @@ resource "azurerm_api_management_api" "apim-api-openai" {
   }
 }
 
-resource "azurerm_api_management_backend" "apim-backend-openai" {
-  for_each = var.openai_config
+resource "azapi_resource" "apim-backend" {
+  for_each = var.aiservices_config
 
-  name                = each.value.name
-  resource_group_name = azurerm_resource_group.rg.name
-  api_management_name = azurerm_api_management.apim.name
-  protocol            = "http"
-  url                 = "${azurerm_ai_services.ai-services[each.key].endpoint}openai"
-}
-
-resource "azapi_update_resource" "apim-backend-circuit-breaker" {
-  for_each = var.openai_config
-
-  type        = "Microsoft.ApiManagement/service/backends@2023-09-01-preview"
-  resource_id = azurerm_api_management_backend.apim-backend-openai[each.key].id
+  type      = "Microsoft.ApiManagement/service/backends@2024-06-01-preview"
+  parent_id = azurerm_api_management.apim.id
+  name      = "backend-${each.key}"
 
   body = {
     properties = {
+      url         = "${azapi_resource.ai-services[each.key].output.properties.endpoint}openai"
+      protocol    = "http"
+      description = "Inference backend"
+
       circuitBreaker = {
         rules = [
           {
@@ -121,7 +157,7 @@ resource "azapi_update_resource" "apim-backend-circuit-breaker" {
                 }
               ]
             }
-            name             = "openAIBreakerRule"
+            name             = "InferenceBreakerRule"
             tripDuration     = "PT1M"
             acceptRetryAfter = true // respects the Retry-After header
           }
@@ -132,19 +168,21 @@ resource "azapi_update_resource" "apim-backend-circuit-breaker" {
 }
 
 resource "azapi_resource" "apim-backend-pool-openai" {
-  type                      = "Microsoft.ApiManagement/service/backends@2023-09-01-preview"
+  type                      = "Microsoft.ApiManagement/service/backends@2024-06-01-preview"
   name                      = "apim-backend-pool"
   parent_id                 = azurerm_api_management.apim.id
   schema_validation_enabled = false
 
   body = {
     properties = {
-      type = "Pool"
+      description = "Load balancer for multiple inference endpoints"
+      type        = "Pool"
+
       pool = {
         services = [
-          for k, v in var.openai_config :
+          for k, v in var.aiservices_config :
           {
-            id       = azurerm_api_management_backend.apim-backend-openai[k].id
+            id       = azapi_resource.apim-backend[k].id
             priority = v.priority
             weight   = v.weight
           }
