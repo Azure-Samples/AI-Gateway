@@ -53,7 +53,7 @@ variable "model_name" {
 
 variable "model_version" {
   type    = string
-  default = "2024-07-18" # "2024-08-06"
+  default = "2024-07-18"
 }
 
 variable "model_capacity" {
