@@ -4,7 +4,7 @@
     
     Flow:
     1. MCP client sends a registration request with redirect URIs
-    2. We store the registration information in cache for later verification
+    2. We store the registration information in CosmosDB for persistence
     3. We generate and return client credentials with the provided redirect URIs
 -->
 <policies>
@@ -12,18 +12,71 @@
         <base />
         <!-- STEP 1: Extract client registration data from request -->
         <set-variable name="requestBody" value="@(context.Request.Body.As<JObject>(preserveContent: true))" />
-          <!-- STEP 2: Store registration information in cache -->
-        <cache-store-value duration="700" 
-            key="DynamicClientRegistration" 
-            value="@(context.Variables.GetValueOrDefault<JObject>("requestBody").ToString())" />
         
-        <!-- Store the redirect URI -->
-        <cache-store-value duration="700" 
+        <!-- STEP 2: Generate a unique client ID (GUID) -->
+        <set-variable name="uniqueClientId" value="@(Guid.NewGuid().ToString())" />
+        
+        <!-- STEP 3: Prepare client info document for CosmosDB -->
+        <set-variable name="clientDocument" value="@{
+            var requestBody = context.Variables.GetValueOrDefault<JObject>("requestBody");
+            var uniqueClientId = context.Variables.GetValueOrDefault<string>("uniqueClientId");
+            
+            var document = new JObject();
+            document["id"] = uniqueClientId;
+            document["clientId"] = uniqueClientId;
+            document["client_name"] = requestBody["client_name"]?.ToString() ?? "Unknown Application";
+            document["client_uri"] = requestBody["client_uri"]?.ToString() ?? "";
+            document["redirect_uris"] = requestBody["redirect_uris"];
+            document["created_at"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            
+            return document.ToString();
+        }" />
+        
+        <!-- STEP 4: Get CosmosDB access token using managed identity -->
+        <authentication-managed-identity resource="https://cosmos.azure.com" output-token-variable-name="cosmosAccessToken" />
+        
+        <!-- STEP 5: Store client registration in CosmosDB using AAD token -->
+        <send-request mode="new" response-variable-name="cosmosResponse" timeout="30" ignore-error="false">
+            <set-url>@($"{{CosmosDbEndpoint}}/dbs/{{CosmosDbDatabase}}/colls/{{CosmosDbContainer}}/docs")</set-url>
+            <set-method>POST</set-method>
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-header name="x-ms-version" exists-action="override">
+                <value>2018-12-31</value>
+            </set-header>
+            <set-header name="x-ms-documentdb-partitionkey" exists-action="override">
+                <value>@($"[\"{context.Variables.GetValueOrDefault<string>("uniqueClientId")}\"]")</value>
+            </set-header>
+            <set-header name="Authorization" exists-action="override">
+                <value>@($"type=aad&ver=1.0&sig={context.Variables.GetValueOrDefault<string>("cosmosAccessToken")}")</value>
+            </set-header>
+            <set-body>@(context.Variables.GetValueOrDefault<string>("clientDocument"))</set-body>
+        </send-request>
+        
+        <!-- STEP 6: Check if CosmosDB operation was successful -->
+        <choose>
+            <when condition="@(((IResponse)context.Variables["cosmosResponse"]).StatusCode >= 400)">
+                <return-response>
+                    <set-status code="500" reason="Internal Server Error" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+                        return new JObject
+                        {
+                            ["error"] = "server_error",
+                            ["error_description"] = "Failed to store client registration"
+                        }.ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+        </choose>
+        
+        <!-- STEP 7: Cache the redirect URI for backward compatibility with other policies -->
+        <cache-store-value duration="3600" 
             key="ClientRedirectUri" 
             value="@(context.Variables.GetValueOrDefault<JObject>("requestBody")["redirect_uris"][0].ToString())" />
-
-         <!-- Generate a unique client ID (GUID) -->
-        <set-variable name="uniqueClientId" value="@(Guid.NewGuid().ToString())" />
         
         <!-- Store client info by client ID for easy lookup during consent -->
         <cache-store-value duration="3600" 
@@ -37,12 +90,12 @@
                 return clientInfo.ToString();
             }" />
         
-        <!-- STEP 3: Set response content type -->
+        <!-- STEP 8: Set response content type -->
         <set-header name="Content-Type" exists-action="override">
             <value>application/json</value>
         </set-header>
         
-        <!-- STEP 4: Return client credentials response -->
+        <!-- STEP 9: Return client credentials response -->
         <return-response>
             <set-status code="200" reason="OK" />
             <set-header name="access-control-allow-origin" exists-action="override">

@@ -35,7 +35,7 @@
                 }
             }
             return "";
-        }" />            
+        }" />              
         <!-- Extract the code_verifier from the request and URL-decode it -->        
         <set-variable name="mcpClientCodeVerifier" value="@{
             // Retrieve the raw body string
@@ -119,8 +119,54 @@
                 </return-response>
             </when>
         </choose>
-
-         <!-- Normalize the redirect URI -->
+        
+        <!-- STEP 5.5: Verify client registration -->
+        <!-- Extract client ID and redirect URI from the token request -->
+        <set-variable name="client_id" value="@{
+            // Retrieve the raw body string
+            var body = context.Variables.GetValueOrDefault<string>("tokenRequestBody");
+            if (!string.IsNullOrEmpty(body))
+            {
+                // Split the body into name/value pairs
+                var pairs = body.Split('&');
+                foreach (var pair in pairs)
+                {
+                    var keyValue = pair.Split('=');
+                    if (keyValue.Length == 2)
+                    {
+                        if(keyValue[0] == "client_id")
+                        {
+                            return System.Net.WebUtility.UrlDecode(keyValue[1]);
+                        }
+                    }
+                }
+            }
+            return "";
+        }" />
+        
+        <set-variable name="redirect_uri" value="@{
+            // Retrieve the raw body string
+            var body = context.Variables.GetValueOrDefault<string>("tokenRequestBody");
+            if (!string.IsNullOrEmpty(body))
+            {
+                // Split the body into name/value pairs
+                var pairs = body.Split('&');
+                foreach (var pair in pairs)
+                {
+                    var keyValue = pair.Split('=');
+                    if (keyValue.Length == 2)
+                    {
+                        if(keyValue[0] == "redirect_uri")
+                        {
+                            return System.Net.WebUtility.UrlDecode(keyValue[1]);
+                        }
+                    }
+                }
+            }
+            return "";
+        }" />
+        
+        <!-- Normalize the redirect URI -->
         <set-variable name="normalized_redirect_uri" value="@{
             string redirectUri = context.Variables.GetValueOrDefault<string>("redirect_uri", "");
             return System.Net.WebUtility.UrlDecode(redirectUri);
@@ -128,6 +174,54 @@
         
         <!-- Look up client information from cache -->
         <cache-lookup-value key="@($"ClientInfo-{context.Variables.GetValueOrDefault<string>("client_id")}")" variable-name="clientInfoJson" />
+        
+        <!-- If cache lookup failed, try to retrieve from CosmosDB -->
+        <choose>
+            <when condition="@(string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("clientInfoJson")))">
+                <!-- Get CosmosDB access token using managed identity -->
+                <authentication-managed-identity resource="https://cosmos.azure.com" output-token-variable-name="cosmosAccessToken" />
+                
+                <send-request mode="new" response-variable-name="cosmosClientResponse" timeout="30" ignore-error="true">
+                    <set-url>@($"{{CosmosDbEndpoint}}/dbs/{{CosmosDbDatabase}}/colls/{{CosmosDbContainer}}/docs/{context.Variables.GetValueOrDefault<string>("client_id")}")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="x-ms-version" exists-action="override">
+                        <value>2018-12-31</value>
+                    </set-header>
+                    <set-header name="x-ms-partitionkey" exists-action="override">
+                        <value>@($"[\"{context.Variables.GetValueOrDefault<string>("client_id")}\"]")</value>
+                    </set-header>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"type=aad&ver=1.0&sig={context.Variables.GetValueOrDefault<string>("cosmosAccessToken")}")</value>
+                    </set-header>
+                </send-request>
+                
+                <!-- If CosmosDB request was successful, extract client info -->
+                <choose>
+                    <when condition="@(((IResponse)context.Variables["cosmosClientResponse"]).StatusCode == 200)">
+                        <set-variable name="clientInfoJson" value="@{
+                            var cosmosResponse = (IResponse)context.Variables["cosmosClientResponse"];
+                            var cosmosDocument = cosmosResponse.Body.As<JObject>();
+                            
+                            // Extract the client info fields we need
+                            var clientInfo = new JObject();
+                            clientInfo["client_name"] = cosmosDocument["client_name"];
+                            clientInfo["client_uri"] = cosmosDocument["client_uri"];
+                            clientInfo["redirect_uris"] = cosmosDocument["redirect_uris"];
+                            
+                            return clientInfo.ToString();
+                        }" />
+                        
+                        <!-- Store in cache for future requests -->
+                        <cache-store-value duration="3600" 
+                            key="@($"ClientInfo-{context.Variables.GetValueOrDefault<string>("client_id")}")" 
+                            value="@(context.Variables.GetValueOrDefault<string>("clientInfoJson"))" />
+                    </when>
+                </choose>
+            </when>
+        </choose>
         
         <!-- Verify that the client exists and the redirect URI is valid -->
         <set-variable name="is_client_registered" value="@{
@@ -188,7 +282,7 @@
                 </return-response>
             </when>
         </choose>
-        
+
         <!-- STEP 6: Retrieve cached tokens -->
         <!-- Get the access token stored during the authorization process -->
         <cache-lookup-value key="@($"AccessToken-{context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}")" variable-name="cachedSessionToken" />
