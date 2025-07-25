@@ -254,6 +254,9 @@ resource oauthCallbackPolicy 'Microsoft.ApiManagement/service/apis/operations/po
     format: 'rawxml'
     value: loadTextContent('oauth-callback.policy.xml')
   }
+  dependsOn: [
+    EncryptionIVNamedValue
+  ]
 }
 
 // Add a POST operation for the register endpoint

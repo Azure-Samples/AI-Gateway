@@ -31,7 +31,6 @@ param openAIModelVersion string
 param openAIModelSKU string
 param openAIDeploymentName string
 param openAIAPIVersion string = '2024-02-01'
-param cosmosDbName string
 
 param location string = resourceGroup().location
 
@@ -43,6 +42,7 @@ param weatherAPIPath string = 'weather'
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var apiManagementName = 'apim-${resourceSuffix}'
+var cosmosDbName = 'cosmosdb-${resourceSuffix}'
 var openAIAPIName = 'openai'
 
 // Account for all placeholders in the polixy.xml file.
@@ -285,6 +285,9 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
     APIPath: weatherAPIPath
     APIServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
   }
+  dependsOn: [
+    oauthAPIModule
+  ]
 }
 
 
