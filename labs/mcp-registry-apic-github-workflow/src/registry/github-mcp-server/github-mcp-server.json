@@ -1,0 +1,12 @@
+{
+  "id": "github-mcp-server",
+  "name": "GitHub",
+  "description": "Access GitHub repositories, issues, and pull requests through secure API integration.",
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "transport_type": "sse",
+      "url": "https://api.githubcopilot.com/mcp"
+    }
+  ]
+}

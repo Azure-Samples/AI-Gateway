@@ -1,0 +1,12 @@
+{
+  "id": "neon-mcp-server",
+  "name": "Neon",
+  "description": "Manage and query Neon Postgres databases with natural language.",
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "transport_type": "sse",
+      "url": "https://mcp.neon.tech/sse"
+    }
+  ]
+}

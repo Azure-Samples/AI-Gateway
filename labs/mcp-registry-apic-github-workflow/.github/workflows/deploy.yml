@@ -1,0 +1,388 @@
+name: Deploy MCP Registry to Azure API Center
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'infra/**'
+      - 'src/remote-mcp-servers/**'
+      - '.github/workflows/deploy.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'infra/**'
+      - 'src/remote-mcp-servers/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      deploy_mode:
+        description: 'Deployment mode'
+        required: true
+        default: 'single-server'
+        type: choice
+        options:
+          - single-server
+      single_mcp_server:
+        description: 'Single MCP server name (if deploy_mode is single-server)'
+        required: false
+        type: string
+
+env:
+  AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+  AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+  AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+  AZURE_LOCATION: ${{ vars.AZURE_LOCATION || 'eastus' }}
+  MCP_REGISTRY_RG_NAME: ${{ secrets.MCP_REGISTRY_RG_NAME }}
+  MCP_REGISTRY_APIC_NAME: ${{ secrets.MCP_REGISTRY_APIC_NAME }}
+  MCP_REGISTRY_APIC_LOCATION: ${{ secrets.MCP_REGISTRY_APIC_LOCATION}}
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate and Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      new-mcp-servers: ${{ steps.detect-new-servers.outputs.new-servers }}
+      deploy-strategy: ${{ steps.deploy-strategy.outputs.strategy }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Detect changes
+      uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        list-files: json
+        filters: |
+          mcp-servers:
+            - 'src/remote-mcp-servers/**'
+
+    - name: Detect new MCP servers
+      id: detect-new-servers
+      if: steps.changes.outputs.mcp-servers == 'true'
+      run: |
+        echo "Detecting new or changed MCP server folders..."
+        
+        NEW_SERVERS=""
+        if [[ "${{ steps.changes.outputs.mcp-servers_files }}" != "" ]]; then
+          # Parse the changed files to identify server folders
+          for file in ${{ steps.changes.outputs.mcp-servers_files }}; do
+            if [[ "$file" =~ src/remote-mcp-servers/([^/]+)/.*\.json ]]; then
+              server_name="${BASH_REMATCH[1]}"
+              
+              # Check if this server is already in our list
+              if [[ "$NEW_SERVERS" != *"$server_name"* ]]; then
+                if [[ "$NEW_SERVERS" == "" ]]; then
+                  NEW_SERVERS="$server_name"
+                else
+                  NEW_SERVERS="$NEW_SERVERS,$server_name"
+                fi
+                echo "Found changed MCP server: $server_name"
+              fi
+            fi
+          done
+        fi
+        
+        echo "new-servers=$NEW_SERVERS" >> $GITHUB_OUTPUT
+        echo "New/changed MCP servers: $NEW_SERVERS"
+
+    - name: Determine deployment strategy
+      id: deploy-strategy
+      run: |
+        STRATEGY="none"
+        
+        if [[ "${{ github.event.inputs.deploy_mode }}" == "single-server" ]]; then
+          STRATEGY="single"
+        elif [[ "${{ steps.changes.outputs.mcp-servers }}" == "true" && "${{ steps.detect-new-servers.outputs.new-servers }}" != "" ]]; then
+          STRATEGY="individual"
+        fi
+        
+        echo "strategy=$STRATEGY" >> $GITHUB_OUTPUT
+        echo "Deployment strategy: $STRATEGY"
+
+    - name: Validate MCP servers JSON
+      if: steps.changes.outputs.mcp-servers == 'true'
+      run: |
+        echo "Validating MCP server JSON files..."
+        echo "Current working directory: $(pwd)"
+        echo "Files to validate: ${{ steps.changes.outputs.mcp-servers_files }}"
+        
+        # List files in the directory to debug
+        echo "Directory contents:"
+        ls -la src/remote-mcp-servers/ || echo "❌ Directory not found"
+        
+        # Validate MCP server files
+        if [[ "${{ steps.changes.outputs.mcp-servers }}" == "true" ]]; then
+          # Convert the file list to an array
+          IFS=' ' read -ra FILES <<< "${{ steps.changes.outputs.mcp-servers_files }}"
+          echo "Parsed files array: ${FILES[@]}"
+          
+          # Get unique server folders that were changed
+          declare -A SERVERS
+          for file in "${FILES[@]}"; do
+            if [[ "$file" =~ src/remote-mcp-servers/([^/]+)/.*\.json ]]; then
+              server_name="${BASH_REMATCH[1]}"
+              SERVERS["$server_name"]=1
+            fi
+          done
+          
+          # Validate each server folder
+          for server_name in "${!SERVERS[@]}"; do
+            echo "🔍 Validating server: $server_name"
+            
+            # Check main server file
+            server_file="src/remote-mcp-servers/$server_name/$server_name.json"
+            metadata_file="src/remote-mcp-servers/$server_name/$server_name-metadata.json"
+            
+            if [[ ! -f "$server_file" ]]; then
+              echo "❌ Server file not found: $server_file"
+              exit 1
+            fi
+            
+            if [[ ! -f "$metadata_file" ]]; then
+              echo "❌ Metadata file not found: $metadata_file"
+              exit 1
+            fi
+            
+            # Validate JSON syntax
+            if ! jq empty "$server_file"; then
+              echo "❌ Invalid JSON syntax in $server_file"
+              exit 1
+            fi
+            
+            if ! jq empty "$metadata_file"; then
+              echo "❌ Invalid JSON syntax in $metadata_file"
+              exit 1
+            fi
+            
+            # Check required fields in server file
+            SERVER_ID=$(jq -r '.id // empty' "$server_file")
+            SERVER_NAME=$(jq -r '.name // empty' "$server_file")
+            SERVER_DESC=$(jq -r '.description // empty' "$server_file")
+            
+            if [[ -z "$SERVER_ID" || -z "$SERVER_NAME" || -z "$SERVER_DESC" ]]; then
+              echo "❌ Missing required fields (id, name, description) in $server_file"
+              exit 1
+            fi
+            
+            echo "✅ $server_name is valid"
+          done
+        fi
+
+  deploy-individual-mcp:
+    name: Deploy Individual MCP Servers
+    runs-on: ubuntu-latest
+    needs: validate
+    if: |
+      (needs.validate.outputs.deploy-strategy == 'individual' || 
+       needs.validate.outputs.deploy-strategy == 'single') &&
+      (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || 
+       github.event_name == 'workflow_dispatch')
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'prod' || 'dev') }}
+    strategy:
+      matrix:
+        mcp-server: ${{ fromJSON(format('["{0}"]', needs.validate.outputs.new-mcp-servers != '' && needs.validate.outputs.new-mcp-servers || github.event.inputs.single_mcp_server || 'github-mcp-server')) }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Parse MCP server configuration
+      id: parse-mcp
+      run: |
+        SERVER_DIR="src/remote-mcp-servers/${{ matrix.mcp-server }}"
+        SERVER_FILE="$SERVER_DIR/${{ matrix.mcp-server }}.json"
+        METADATA_FILE="$SERVER_DIR/${{ matrix.mcp-server }}-metadata.json"
+        
+        if [[ ! -f "$SERVER_FILE" ]]; then
+          echo "❌ MCP server file not found: $SERVER_FILE"
+          exit 1
+        fi
+        
+        if [[ ! -f "$METADATA_FILE" ]]; then
+          echo "❌ MCP metadata file not found: $METADATA_FILE"
+          exit 1
+        fi
+        
+        echo "Parsing MCP server configuration: $SERVER_FILE ..."
+        
+        # Parse server information
+        SERVER_ID=$(jq -r '.id' "$SERVER_FILE")
+        SERVER_NAME=$(jq -r '.name' "$SERVER_FILE")
+        SERVER_DESCRIPTION=$(jq -r '.description' "$SERVER_FILE")
+        
+        # Extract transport URL from remotes array
+        TRANSPORT_URL=$(jq -r '.remotes[0].url // ""' "$SERVER_FILE")
+        
+        # Parse metadata information
+        CATEGORY=$(jq -r '.category // "General"' "$METADATA_FILE")
+        PUBLISHER=$(jq -r '.publisher // "Unknown"' "$METADATA_FILE")
+        
+        # Check for documentation/documentations in metadata
+        DOC_URL=""
+        DOC_TITLE=""
+        DOC_DESCRIPTION=""
+        
+        # Check if documentation (singular) exists
+        if jq -e '.documentation' "$METADATA_FILE" >/dev/null 2>&1; then
+          DOC_URL=$(jq -r '.documentation.url // ""' "$METADATA_FILE")
+          DOC_TITLE=$(jq -r '.documentation.title // ""' "$METADATA_FILE")
+          DOC_DESCRIPTION=$(jq -r '.documentation.description // ""' "$METADATA_FILE")
+        # Check if documentations (plural) array exists
+        elif jq -e '.documentations' "$METADATA_FILE" >/dev/null 2>&1; then
+          # Get the first documentation entry
+          DOC_URL=$(jq -r '.documentations[0].url // ""' "$METADATA_FILE")
+          DOC_TITLE=$(jq -r '.documentations[0].title // ""' "$METADATA_FILE")
+          DOC_DESCRIPTION=$(jq -r '.documentations[0].description // ""' "$METADATA_FILE")
+        fi
+        
+        # If no documentation found, leave DOC_URL empty
+        if [[ "$DOC_URL" == "null" ]]; then
+          DOC_URL=""
+        fi
+        if [[ "$DOC_TITLE" == "null" ]]; then
+          DOC_TITLE=""
+        fi
+        if [[ "$DOC_DESCRIPTION" == "null" ]]; then
+          DOC_DESCRIPTION=""
+        fi
+        
+        if [[ "$SERVER_ID" == "null" || "$SERVER_NAME" == "null" || "$SERVER_DESCRIPTION" == "null" ]]; then
+          echo "❌ Missing required fields in $SERVER_FILE"
+          exit 1
+        fi
+        
+        echo "MCP Server ID: $SERVER_ID"
+        echo "MCP Server Name: $SERVER_NAME"
+        echo "Description: $SERVER_DESCRIPTION"
+        echo "Transport URL: $TRANSPORT_URL"
+        echo "Category: $CATEGORY"
+        echo "Publisher: $PUBLISHER"
+        echo "Documentation URL: $DOC_URL"
+        echo "Documentation Title: $DOC_TITLE"
+        echo "Documentation Description: $DOC_DESCRIPTION"
+        
+        echo "server-id=$SERVER_ID" >> $GITHUB_OUTPUT
+        echo "server-name=$SERVER_NAME" >> $GITHUB_OUTPUT
+        echo "server-description=$SERVER_DESCRIPTION" >> $GITHUB_OUTPUT
+        echo "transport-url=$TRANSPORT_URL" >> $GITHUB_OUTPUT
+        echo "category=$CATEGORY" >> $GITHUB_OUTPUT
+        echo "publisher=$PUBLISHER" >> $GITHUB_OUTPUT
+        echo "doc-url=$DOC_URL" >> $GITHUB_OUTPUT
+        echo "doc-title=$DOC_TITLE" >> $GITHUB_OUTPUT
+        echo "doc-description=$DOC_DESCRIPTION" >> $GITHUB_OUTPUT
+
+    - name: Ensure Azure resources exist
+      run: |
+        echo "🔍 Ensuring required Azure resources exist..."
+        
+        # Set resource names
+        # Use environment-specific resource group and API Center names
+        RG_NAME="${{ secrets.MCP_REGISTRY_RG_NAME }}"
+        APIC_NAME="${{ secrets.MCP_REGISTRY_APIC_NAME }}"
+        LOCATION="${{ secrets.MCP_REGISTRY_APIC_LOCATION }}"
+        echo "Resource Group: $RG_NAME"
+        echo "API Center: $APIC_NAME"
+        echo "Location: $LOCATION"
+        
+        # Create resource group if it doesn't exist
+        echo "Checking/Creating resource group..."
+        if ! az group show --name "$RG_NAME" &>/dev/null; then
+          echo "Creating resource group: $RG_NAME"
+          az group create --name "$RG_NAME" --location "$LOCATION"
+          echo "✅ Resource group created successfully"
+        else
+          echo "✅ Resource group already exists"
+        fi
+        
+        # Create API Center if it doesn't exist
+        echo "Checking/Creating API Center..."
+        if ! az resource show --resource-group "$RG_NAME" --name "$APIC_NAME" --resource-type "Microsoft.ApiCenter/services" &>/dev/null; then
+          echo "Creating API Center: $APIC_NAME"
+          az resource create \
+            --resource-group "$RG_NAME" \
+            --name "$APIC_NAME" \
+            --resource-type "Microsoft.ApiCenter/services" \
+            --location "$LOCATION" \
+            --properties '{}'
+          echo "✅ API Center created successfully"
+        else
+          echo "✅ API Center already exists"
+        fi
+
+    - name: Deploy individual MCP server
+      run: |
+        # Use environment input or infer from branch
+        ENV_NAME="${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'prod' || 'dev') }}"
+        
+        # Use environment-specific resource group and API Center names
+        RG_NAME="${{ secrets.MCP_REGISTRY_RG_NAME }}"
+        APIC_NAME="${{ secrets.MCP_REGISTRY_APIC_NAME }}"
+        
+        echo "Deploying MCP server: ${{ steps.parse-mcp.outputs.server-name }}..."
+        echo "Environment: $ENV_NAME"
+        echo "Using Resource Group: $RG_NAME"
+        echo "Using API Center: $APIC_NAME"
+        
+        # Resources should already exist from the previous step
+        DEPLOYMENT_NAME="mcp-${{ steps.parse-mcp.outputs.server-id }}-$(date +%Y%m%d-%H%M%S)"
+        
+        # Deploy using single-mcp.bicep template
+        az deployment group create \
+          --resource-group "$RG_NAME" \
+          --template-file infra/single-mcp.bicep \
+          --parameters \
+            apiCenterName="$APIC_NAME" \
+            mcpName="${{ steps.parse-mcp.outputs.server-id }}" \
+            mcpDescription="${{ steps.parse-mcp.outputs.server-description }}" \
+            transportURL="${{ steps.parse-mcp.outputs.transport-url }}" \
+            documentationURL="${{ steps.parse-mcp.outputs.doc-url }}" \
+            documentationTitle="${{ steps.parse-mcp.outputs.doc-title }}" \
+            documentationDescription="${{ steps.parse-mcp.outputs.doc-description }}" \
+          --name "$DEPLOYMENT_NAME" \
+          --verbose
+        
+        echo "✅ Successfully deployed MCP server: ${{ steps.parse-mcp.outputs.server-name }}"
+
+  notify:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [validate, deploy-individual-mcp]
+    if: always() && needs.deploy-individual-mcp.result != 'skipped'
+    
+    steps:
+    - name: Deployment notification
+      run: |
+        INDIVIDUAL_RESULT="${{ needs.deploy-individual-mcp.result }}"
+        
+        if [[ "$INDIVIDUAL_RESULT" == "success" ]]; then
+          echo "🎉 MCP Registry deployment completed successfully!"
+          echo "Your MCP server has been registered in Azure API Center."
+          echo "✅ Individual MCP server deployment completed"
+        else
+          echo "❌ Deployment failed. Please check the logs above."
+          exit 1
+        fi
