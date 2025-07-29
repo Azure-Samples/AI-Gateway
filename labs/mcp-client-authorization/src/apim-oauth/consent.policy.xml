@@ -73,6 +73,54 @@ __COMMON_STYLES__
         <!-- Look up client information from cache -->
         <cache-lookup-value key="@($"ClientInfo-{context.Variables.GetValueOrDefault<string>("client_id")}")" variable-name="clientInfoJson" />
         
+        <!-- If cache lookup failed, try to retrieve from CosmosDB -->
+        <choose>
+            <when condition="@(string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("clientInfoJson")))">
+                <!-- Get CosmosDB access token using managed identity -->
+                <authentication-managed-identity resource="https://cosmos.azure.com" output-token-variable-name="cosmosAccessToken" />
+                
+                <send-request mode="new" response-variable-name="cosmosClientResponse" timeout="30" ignore-error="true">
+                    <set-url>@($"{{CosmosDbEndpoint}}/dbs/{{CosmosDbDatabase}}/colls/{{CosmosDbContainer}}/docs/{context.Variables.GetValueOrDefault<string>("client_id")}")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="x-ms-version" exists-action="override">
+                        <value>2018-12-31</value>
+                    </set-header>
+                    <set-header name="x-ms-partitionkey" exists-action="override">
+                        <value>@($"[\"{context.Variables.GetValueOrDefault<string>("client_id")}\"]")</value>
+                    </set-header>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@($"type=aad&ver=1.0&sig={context.Variables.GetValueOrDefault<string>("cosmosAccessToken")}")</value>
+                    </set-header>
+                </send-request>
+                
+                <!-- If CosmosDB request was successful, extract client info -->
+                <choose>
+                    <when condition="@(((IResponse)context.Variables["cosmosClientResponse"]).StatusCode == 200)">
+                        <set-variable name="clientInfoJson" value="@{
+                            var cosmosResponse = (IResponse)context.Variables["cosmosClientResponse"];
+                            var cosmosDocument = cosmosResponse.Body.As<JObject>();
+                            
+                            // Extract the client info fields we need
+                            var clientInfo = new JObject();
+                            clientInfo["client_name"] = cosmosDocument["client_name"];
+                            clientInfo["client_uri"] = cosmosDocument["client_uri"];
+                            clientInfo["redirect_uris"] = cosmosDocument["redirect_uris"];
+                            
+                            return clientInfo.ToString();
+                        }" />
+                        
+                        <!-- Store in cache for future requests -->
+                        <cache-store-value duration="3600" 
+                            key="@($"ClientInfo-{context.Variables.GetValueOrDefault<string>("client_id")}")" 
+                            value="@(context.Variables.GetValueOrDefault<string>("clientInfoJson"))" />
+                    </when>
+                </choose>
+            </when>
+        </choose>
+        
         <!-- Look up OAuth scopes from named value -->
         <set-variable name="oauth_scopes" value="{{OAuthScopes}}" />
           <!-- Check if client exists in cache -->

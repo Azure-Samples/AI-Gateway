@@ -42,15 +42,12 @@ param weatherAPIPath string = 'weather'
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var apiManagementName = 'apim-${resourceSuffix}'
+var cosmosDbName = 'cosmosdb-${resourceSuffix}'
 var openAIAPIName = 'openai'
 
 // Account for all placeholders in the polixy.xml file.
 var policyXml = loadTextContent('policy.xml')
 var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
-
-var functionAppName = 'weather'
-var deploymentStorageContainerName = 'app-package-${take(functionAppName, 32)}-${take(toLower(uniqueString(functionAppName, resourceSuffix)), 7)}'
-var storageContainers = [{name: deploymentStorageContainerName}, {name: 'snippets'}]
 
 // ------------------
 //    RESOURCES
@@ -271,7 +268,13 @@ module oauthAPIModule 'src/apim-oauth/oauth.bicep' = {
     encryptionIV: encryptionIV
     encryptionKey: encryptionKey
     mcpClientId: mcpClientId
+    cosmosDbEndpoint: cosmosDb.outputs.cosmosDbEndpoint
+    cosmosDbDatabaseName: cosmosDb.outputs.databaseName
+    cosmosDbContainerName: cosmosDb.outputs.containerName
   }
+  dependsOn: [
+    apimCosmosDbRoleAssignment
+  ]
 }
 
 
@@ -282,6 +285,9 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
     APIPath: weatherAPIPath
     APIServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
   }
+  dependsOn: [
+    oauthAPIModule
+  ]
 }
 
 
@@ -300,6 +306,23 @@ resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06
   ]
 }
 
+// CosmosDB for OAuth client registrations
+module cosmosDb './src/database/cosmosdb.bicep' = {
+  name: 'cosmosdb'
+  params: {
+    cosmosDbAccountName: cosmosDbName
+    location: location
+  }
+}
+
+// Grant APIM system-assigned managed identity access to CosmosDB
+module apimCosmosDbRoleAssignment './src/database/cosmosdb-rbac.bicep' = {
+  name: 'apimCosmosDbRoleAssignment'
+  params: {
+    cosmosDbAccountName: cosmosDb.outputs.cosmosDbAccountName
+    principalId: apimService.identity.principalId
+  }
+}
 
 
 // ------------------
