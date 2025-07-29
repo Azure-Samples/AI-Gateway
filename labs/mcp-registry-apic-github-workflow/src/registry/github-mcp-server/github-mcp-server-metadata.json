@@ -1,0 +1,13 @@
+{
+  "x-ms-icon": "https://avatars.githubusercontent.com/github?s=64",
+  "x-ms-partner": true,
+  "repository": {
+    "url": "https://github.com/github/github-mcp-server",
+    "source": "partner",
+    "id": ""
+  },
+  "tags": ["git", "github", "repositories", "issues", "pull-requests"],
+  "category": "Development",
+  "publisher": "GitHub",
+  "license": "MIT"
+}

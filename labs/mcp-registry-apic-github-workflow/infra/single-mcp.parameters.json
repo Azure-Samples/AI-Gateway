@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "mcpName": {
+      "value": "${MCP_NAME}"
+    },
+    "mcpDescription": {
+      "value": "${MCP_DESCRIPTION}"
+    },
+    "installVSCodeURL": {
+      "value": "${INSTALL_VSCODE_URL}"
+    },
+    "documentationURL": {
+      "value": "${DOCUMENTATION_URL}"
+    },
+    "documentationTitle": {
+      "value": "${DOCUMENTATION_TITLE}"
+    },
+    "documentationDescription": {
+      "value": "${DOCUMENTATION_DESCRIPTION}"
+    }
+  }
+}
