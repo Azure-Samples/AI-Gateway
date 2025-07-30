@@ -1,19 +1,16 @@
-from typing import Any
-import httpx, os, random
-from mcp.server.fastmcp import FastMCP, Context
-from starlette.applications import Starlette
-from mcp.server.sse import SseServerTransport
-from starlette.requests import Request
-from starlette.routing import Mount, Route
-from mcp.server import Server
-import uvicorn
+"""Weather tools for MCP Streamable HTTP server"""
 
-# Initialize FastMCP server for Weather API
-mcp = FastMCP("Weather")
+import argparse, random
+from fastmcp import FastMCP
 
+mcp = FastMCP(name="weather", instructions="""
+        This server provides weather info.
+        Call get_cities() to get the list of cities.
+        Call get_weather(city) to get the weather for a specific city.
+    """,)
 
 @mcp.tool()
-async def get_cities(ctx: Context, country: str) -> str:
+async def get_cities(country: str) -> list[str]:
     """Get list of cities for a given country.
 
     Returns:
@@ -25,16 +22,15 @@ async def get_cities(ctx: Context, country: str) -> str:
         "uk": ["London", "Manchester", "Birmingham", "Leeds", "Glasgow"],
         "australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
         "india": ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai"],
-        "portugal": ["Lisbon", "Porto", "Braga", "Faro", "Coimbra"],
-        "france": ["Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes"]
+        "portugal": ["Lisbon", "Porto", "Braga", "Faro", "Coimbra"]
     }
 
     cities = cities_by_country.get(country.lower(), [])
 
-    return str(cities)
+    return cities
 
 @mcp.tool()
-async def get_weather(ctx: Context, city: str) -> str:
+async def get_weather(city: str) -> str:
     """Get weather information for a given city.
 
     Returns:
@@ -53,45 +49,16 @@ async def get_weather(ctx: Context, city: str) -> str:
     }
     return str(weather_info)
     
-
-def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlette:
-    """Create a Starlette application that can server the provied mcp server with SSE."""
-    sse = SseServerTransport("/weather/messages/")
-
-    async def handle_sse(request: Request) -> None:
-        print(f"handling sse")
-
-        async with sse.connect_sse(
-                request.scope,
-                request.receive,
-                request._send,  
-        ) as (read_stream, write_stream):
-            await mcp_server.run(
-                read_stream,
-                write_stream,
-                mcp_server.create_initialization_options(),
-            )
-
-    return Starlette(
-        debug=debug,
-        routes=[
-            Route("/weather/sse", endpoint=handle_sse),
-            Mount("/weather/messages/", app=sse.handle_post_message),
-        ],
-    )
-
-
-mcp_server = mcp._mcp_server  
-
-# Bind SSE request handling to MCP server
-starlette_app = create_starlette_app(mcp_server, debug=True)
-
 if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Run MCP SSE-based server')
-    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
-    parser.add_argument('--port', type=int, default=8080, help='Port to listen on')
+    parser = argparse.ArgumentParser(description="Run the Weather MCP server.")
+    parser.add_argument("--host", type=str, default="localhost", help="Host to run the server on")
+    parser.add_argument("--port", type=int, default=8123, help="Port to run the server on")
     args = parser.parse_args()
 
-    uvicorn.run(starlette_app, host=args.host, port=args.port)
+    mcp.run(
+        transport="http",
+        host=args.host,
+        port=args.port,
+        path="/weather",
+        log_level="debug",
+    )    

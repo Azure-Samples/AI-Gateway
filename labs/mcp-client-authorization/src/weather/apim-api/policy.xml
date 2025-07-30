@@ -1,9 +1,6 @@
 <policies>
     <inbound>
         <base />
-        <set-header name="Content-Type" exists-action="override">
-            <value>text/event-stream</value>
-        </set-header>
         <set-variable name="accessToken" value="@{
                     if (context.Request.Headers.ContainsKey("Authorization"))
                     {

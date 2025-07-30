@@ -2,6 +2,14 @@
 //    PARAMETERS
 // ------------------
 
+param aiServicesConfig array = []
+param modelsConfig array = []
+param apimSku string
+param apimSubscriptionsConfig array = []
+param inferenceAPIType string = 'AzureOpenAI'
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param foundryProjectName string = 'default'
+
 @description('The client ID for Entra ID app registration')
 param entraIDClientId string
 
@@ -23,15 +31,6 @@ param encryptionKey string
 @description('The MCP client ID')
 param mcpClientId string
 
-param apimSku string
-param apimLoggerName string = 'apim-logger'
-param openAIConfig array = []
-param openAIModelName string
-param openAIModelVersion string
-param openAIModelSKU string
-param openAIDeploymentName string
-param openAIAPIVersion string = '2024-02-01'
-
 param location string = resourceGroup().location
 
 param weatherAPIPath string = 'weather'
@@ -41,18 +40,45 @@ param weatherAPIPath string = 'weather'
 // ------------------
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
-var apiManagementName = 'apim-${resourceSuffix}'
 var cosmosDbName = 'cosmosdb-${resourceSuffix}'
-var openAIAPIName = 'openai'
 
-// Account for all placeholders in the polixy.xml file.
-var policyXml = loadTextContent('policy.xml')
-var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
 
 // ------------------
 //    RESOURCES
 // ------------------
 
+// 1. Log Analytics Workspace
+module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
+  name: 'lawModule'
+}
+
+// 2. Application Insights
+module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
+  name: 'appInsightsModule'
+  params: {
+    lawId: lawModule.outputs.id
+    customMetricsOptedInType: 'WithDimensions'
+  }
+}
+
+// 3. API Management
+module apimModule '../../modules/apim/v2/apim.bicep' = {
+  name: 'apimModule'
+  params: {
+    apimSku: apimSku
+    apimSubscriptionsConfig: apimSubscriptionsConfig
+    lawId: lawModule.outputs.id
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
+  }
+}
+
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+  name: 'apim-${resourceSuffix}'
+  dependsOn: [
+    apimModule
+  ]
+}
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: 'acr${resourceSuffix}'
@@ -171,92 +197,6 @@ resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
 }
 
 
-// 1. Log Analytics Workspace
-module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
-  name: 'lawModule'
-}
-
-var lawId = lawModule.outputs.id
-
-// 2. Application Insights
-module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
-  name: 'appInsightsModule'
-  params: {
-    lawId: lawId
-    customMetricsOptedInType: 'WithDimensions'
-  }
-}
-
-// ------------------
-//    RESOURCES
-// ------------------
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
-  name: apiManagementName
-  location: location
-  sku: {
-    name: apimSku
-    capacity: 1
-  }
-  properties: {
-    publisherEmail: 'noreply@microsoft.com'
-    publisherName: 'Microsoft'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-}
-
-// Create a logger only if we have an App Insights ID and instrumentation key.
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
-  name: apimLoggerName
-  parent: apimService
-  properties: {
-    credentials: {
-      instrumentationKey: appInsightsModule.outputs.instrumentationKey
-    }
-    description: 'APIM Logger'
-    isBuffered: false
-    loggerType: 'applicationInsights'
-    resourceId: appInsightsModule.outputs.id
-  }
-}
-
-// 4. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
-    name: 'openAIModule'
-    params: {
-      openAIConfig: openAIConfig
-      openAIDeploymentName: openAIDeploymentName
-      openAIModelName: openAIModelName
-      openAIModelVersion: openAIModelVersion
-      openAIModelSKU: openAIModelSKU
-      apimPrincipalId: apimService.identity.principalId
-      lawId: lawId
-    }
-  }
-
-// 5. APIM OpenAI API
-module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
-  name: 'openAIAPIModule'
-  params: {
-    policyXml: updatedPolicyXml
-    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
-    openAIAPIVersion: openAIAPIVersion
-    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
-    appInsightsId: appInsightsModule.outputs.id
-  }
-}
-
-resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing = {
-  parent: apimService
-  name: openAIAPIName
-  dependsOn: [
-    openAIAPIModule
-  ]
-}
-
 module oauthAPIModule 'src/apim-oauth/oauth.bicep' = {
   name: 'oauthAPIModule'
   params: {    
@@ -291,21 +231,6 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
 }
 
 
-// Ignore the subscription that gets created in the APIM module and create three new ones for this lab.
-resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
-  name: 'apim-subscription'
-  parent: apimService
-  properties: {
-    allowTracing: true
-    displayName: 'Generic APIM Subscription'
-    scope: '/apis'
-    state: 'active'
-  }
-  dependsOn: [
-    api
-  ]
-}
-
 // CosmosDB for OAuth client registrations
 module cosmosDb './src/database/cosmosdb.bicep' = {
   name: 'cosmosdb'
@@ -320,7 +245,7 @@ module apimCosmosDbRoleAssignment './src/database/cosmosdb-rbac.bicep' = {
   name: 'apimCosmosDbRoleAssignment'
   params: {
     cosmosDbAccountName: cosmosDb.outputs.cosmosDbAccountName
-    principalId: apimService.identity.principalId
+    principalId: apimModule.outputs.principalId
   }
 }
 
@@ -337,9 +262,11 @@ output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.pr
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
 output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
-output apimServiceId string = apimService.id
-output apimResourceName string = apimService.name
-output apimResourceGatewayURL string = apimService.properties.gatewayUrl
 
-#disable-next-line outputs-should-not-contain-secrets
-output apimSubscriptionKey string = apimSubscription.listSecrets().primaryKey
+output apimServiceId string = apimModule.outputs.id
+output apimResourceName string = apimService.name
+output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
+
+output apimSubscriptions array = apimModule.outputs.apimSubscriptions
+
+

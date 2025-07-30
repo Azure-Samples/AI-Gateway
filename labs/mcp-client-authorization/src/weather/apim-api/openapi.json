@@ -18,10 +18,11 @@
                 "parameters": [{
                     "name": "Content-Type",
                     "in": "header",
+                    "description": "Must be set to application/json",
                     "required": true,
                     "schema": {
-                        "enum": [""],
-                        "type": ""
+                        "enum": ["application/json"],
+                        "type": "string"
                     }
                 }],
                 "responses": {
@@ -31,19 +32,20 @@
                 }
             }
         },
-        "/sse": {
-            "get": {
+        "/mcp": {
+            "post": {
                 "tags": ["MCP"],
-                "summary": "sse",
-                "description": "sse",
-                "operationId": "sse",
+                "summary": "mcp",
+                "description": "mcp",
+                "operationId": "mcp",
                 "parameters": [{
                     "name": "Content-Type",
                     "in": "header",
+                    "description": "Must be set to application/json",
                     "required": true,
                     "schema": {
-                        "enum": [""],
-                        "type": ""
+                        "enum": ["application/json"],
+                        "type": "string"
                     }
                 }],
                 "responses": {

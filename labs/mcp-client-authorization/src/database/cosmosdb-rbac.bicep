@@ -23,13 +23,13 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' exis
 }
 
 // Grant Cosmos DB Built-in Data Contributor role
-// Role definition ID: 00000000-0000-0000-0000-000000000002
-resource cosmosDbRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2023-04-15' = {
-  name: guid(cosmosDbAccount.id, principalId, 'Cosmos DB Built-in Data Contributor')
+var cosmosDBRoleDefinitionID = '00000000-0000-0000-0000-000000000002'
+resource cosmosDBRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2023-04-15' = {
   parent: cosmosDbAccount
-  properties: {
+  name: guid(subscription().id, resourceGroup().id, cosmosDbAccount.name, cosmosDBRoleDefinitionID)
+  properties:{
     principalId: principalId
-    roleDefinitionId: '${cosmosDbAccount.id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002'
+    roleDefinitionId: '${cosmosDbAccount.id}/sqlRoleDefinitions/${cosmosDBRoleDefinitionID}'
     scope: cosmosDbAccount.id
   }
 }
