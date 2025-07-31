@@ -1,0 +1,62 @@
+<policies>
+	<inbound>
+		<base />
+		<!-- 1. Accept the token and validate it, pulling the unique user id out of it -->
+		<set-variable name="role1" value="App.ResponseApi.Use" />
+		<include-fragment fragment-id="entraid-validate-jwt-dynamic-scopes-v1" />
+		<!-- 2. Extract userId from JWT -->
+		<set-variable name="userId" value="@(context.Variables.ContainsKey("jwt") ? (string)(((Jwt)context.Variables["jwt"]).Claims.GetValueOrDefault("name", "") ?? "") : "")" />
+		<!-- 3. Extract response_id -->
+		<set-variable name="responseId" value="@{
+            if (context.Request.MatchedParameters.ContainsKey("response_id")) {
+                return context.Request.MatchedParameters["response_id"];
+            }
+
+            var body = context.Request.Body.As<string>(preserveContent: true);
+            try {
+                var json = Newtonsoft.Json.Linq.JObject.Parse(body);
+                return (string)json["previous_response_id"];
+            } catch {
+                return null;
+            }
+        }" />
+		<!-- 4: If responseId is not null, look it up in cache -->
+		<include-fragment fragment-id="response-api-inbound-lookup-user-state-internal-cache-v1" />
+		<!-- Set backend -->
+        <set-backend-service backend-id="{backend-id}" />
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<!-- Read and preserve body -->
+		<set-variable name="responseBody" value="@((string)context.Response.Body.As<string>(preserveContent: true))" />
+		<!-- 1. Get response id from body -->
+		<set-variable name="outputResponseId" value="@{
+            try {
+                var json = Newtonsoft.Json.Linq.JObject.Parse(context.Variables.GetValueOrDefault<string>("responseBody",""));
+                return (string)json["id"];
+            }
+            catch {
+                return null;
+            }
+        }" />
+		<!-- Save response and user in state store -->
+		<include-fragment fragment-id="response-api-outbound-store-user-state-internal-cache-v1" />
+		<set-header name="x-debug-input-response-id" exists-action="override">
+			<value>@((string)context.Variables.GetValueOrDefault<string>("responseId",""))</value>
+		</set-header>
+		<set-header name="x-debug-output-response-id" exists-action="override">
+			<value>@((string)context.Variables.GetValueOrDefault<string>("outputResponseId",""))</value>
+		</set-header>
+		<set-header name="x-debug-user-id" exists-action="override">
+			<value>@((string)context.Variables.GetValueOrDefault<string>("userId",""))</value>
+		</set-header>
+		<!-- Will need to re-hydrate the body since we are using it for caching purposes -->
+		<set-body>@(context.Variables.GetValueOrDefault<string>("responseBody",""))</set-body>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
