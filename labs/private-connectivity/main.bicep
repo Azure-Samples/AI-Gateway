@@ -152,26 +152,54 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   }
 }
 
-resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = [
+resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2025-06-01' = [
   for config in openAIConfig: if (length(openAIConfig) > 0) {
     name: '${config.name}-${suffix}'
     location: config.location
+    identity: {
+      type: 'SystemAssigned'
+    }
     sku: {
       name: openAISku
     }
     kind: 'AIServices'
     properties: {
+      // required to work in AI Foundry
+      allowProjectManagement: true
       customSubDomainName: toLower('${config.name}-${suffix}')
+      disableLocalAuth: false
       publicNetworkAccess: 'Disabled'
-      // apiProperties: {
-      //   statisticsEnabled: false
-      // }
+    }
+  }
+]
+
+resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview' = [
+  for (config, i) in openAIConfig: {
+    #disable-next-line BCP334
+    name: 'project-${config.name}'
+    parent: cognitiveServices[i]
+    location: config.location
+    identity: {
+      type: 'SystemAssigned'
+    }
+    properties: {}
+  }
+]
+
+var aiProjectManagerRoleDefinitionID = 'eadc314b-1a2d-4efa-be10-5d325db5065e'
+resource aiProjectManagerRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for (config, i) in openAIConfig: {
+    scope: cognitiveServices[i]
+    name: guid(subscription().id, resourceGroup().id, config.name, aiProjectManagerRoleDefinitionID)
+    properties: {
+      roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', aiProjectManagerRoleDefinitionID)
+      principalId: deployer().objectId
     }
   }
 ]
 
 @batchSize(1)
-resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = [
+resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = [
   for (config, i) in openAIConfig: if (length(openAIConfig) > 0) {
     name: openAIDeploymentName
     parent: cognitiveServices[i]
@@ -181,6 +209,7 @@ resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-
         name: openAIModelName
         version: openAIModelVersion
       }
+      raiPolicyName: 'Microsoft.DefaultV2'
     }
     sku: {
       name: 'Standard'
