@@ -227,8 +227,6 @@ Playground to try the [content safety policy](https://learn.microsoft.com/en-us/
 
 This is a list of potential future labs to be developed.
 
-* Third party models: Google Gemini, AWS Bedrock
-* Semantic Kernel with Agents
 * Logic Apps RAG
 * PII handling
 
