@@ -218,12 +218,13 @@ module oauthAPIModule 'src/apim-oauth/oauth.bicep' = {
 }
 
 
-module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
+module weatherAPIModule 'src/weather/apim-mcp-server/mcp.bicep' = {
   name: 'weatherAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: weatherAPIPath
-    APIServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
+    backendName: 'weather-mcp-on-aca'
+    backendDescription: 'Weather MCP Server running on ACA'
+    backendURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
   }
   dependsOn: [
     oauthAPIModule
