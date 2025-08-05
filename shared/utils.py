@@ -24,6 +24,72 @@ class Output(object):
         except:
             self.json_data = json.loads("{}")   # return an empty JSON object if the output is not valid JSON rather than None as that makes consuming it easier this way
 
+
+def get_current_subscription():
+    try:
+        output = run("az account show", "Retrieved az account", "Failed to get the current az account")
+
+        if output.success and output.json_data:
+            subscription_id = output.json_data['id']
+            subscription_name = output.json_data['name']
+            print_info(f"Using Subscription ID: {subscription_id} ({subscription_name})")
+            return subscription_id
+        else:
+            print_error("No current subscription found.")
+            return None
+    except Exception as e:
+        print_error(f"Error retrieving current subscription: {e}")
+        return None
+
+# Retrieves resources in a resource group
+def get_resources(resource_group_name, config):
+    if not resource_group_name:
+        print_error("Missing resource group name parameter.")
+        return
+
+    resources = {}
+    try:
+        ## retrieve resource group location
+        output = run(f"az group show --name {resource_group_name}")
+
+        if output.success:
+            print_info(f"Using existing resource group '{resource_group_name}'")
+            output = run(f"az group show --name {resource_group_name} -o json", "Retrieved resource group ", "Failed to retrieve resource group")
+            if output.success and output.json_data:
+                resources['resourceGroupLocation'] = output.json_data["location"]
+
+                ## retrieve resources
+                output = run(f'az resource list -g {resource_group_name} -o json', "Listed resources", "Failed to list resources")
+                if output.success and output.json_data:
+                    for resource in output.json_data:
+                        match resource["type"].lower():
+                            case "microsoft.operationalinsights/workspaces":
+                                resources['logAnalyticsResourceId'] = resource["id"]
+                                resources['logAnalyticsResourceName'] = resource["name"]
+                            case "microsoft.insights/components":
+                                resources['appInsightsResourceId'] = resource["id"]
+                                resources['appInsightsResourceName'] = resource["name"]
+                                output = run(f'az resource show -g {resource_group_name} -n {resource["name"]} --resource-type "microsoft.insights/components" -o json', "Retrieved App Insights resource", "Failed to retrieve App Insights resource")
+                                if output.success and output.json_data:
+                                    resources['appInsightsInstrumentationKey'] = output.json_data["properties"]["InstrumentationKey"]
+                            case "microsoft.cognitiveservices/accounts":
+                                resources['foundryResourceId'] = resource["id"]
+                                resources['foundryResourceName'] = resource["name"]
+                            case "microsoft.cognitiveservices/accounts/projects":
+                                resources['foundryProjectId'] = resource["id"]
+                                resources['foundryProjectName'] = resource["name"]
+                            case "microsoft.apimanagement/service":
+                                resources['apimResourceId'] = resource["id"]
+                                resources['apimResourceName'] = resource["name"]
+                                resources['apimPrincipalId'] = resource["identity"]["principalId"]
+        else:
+            return config
+
+    except Exception as e:
+        print_error(f"Error retrieving resources: {e}")
+
+    return resources
+
 # Cleans up resources associated with a deployment in a resource group
 def cleanup_resources(deployment_name, resource_group_name = None):
     if not deployment_name:
@@ -260,3 +326,22 @@ def update_api_operation_policy(subscription_id, resource_group_name, apim_servi
 
         response = requests.put(url, headers = headers, json = body)
         print_response_code(response)
+
+def get_debug_credentials(apim_service_id, api_id, expire_after = 'PT1H') -> str | None:
+    request = {
+        "credentialsExpireAfter": expire_after,
+        "apiId": f"{apim_service_id}/apis/{api_id}",
+        "purposes": ["tracing"]
+    }
+    output = run(f"az rest --method post --uri {apim_service_id}/gateways/managed/listDebugCredentials?api-version=2023-05-01-preview --body \"{str(request)}\"",
+            "Retrieved APIM debug credentials", "Failed to get the APIM debug credentials")
+    return output.json_data['token'] if output.success and output.json_data else None
+        
+def get_trace(apim_service_id, trace_id) -> str | None:
+    request = {
+        "traceId": trace_id
+    }
+    output = run(f"az rest --method post --uri {apim_service_id}/gateways/managed/listTrace?api-version=2023-05-01-preview --body \"{str(request)}\"",
+            "Retrieved trace details", "Failed to get the trace details")
+    return output.json_data if output.success and output.json_data else None
+

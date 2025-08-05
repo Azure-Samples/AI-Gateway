@@ -1,0 +1,58 @@
+{
+    "mcps": [
+        {
+            "mcpName": "atlassian",
+            "description": "Track issues, manage sprints, create docs, and search knowledge bases",
+            "InstallVSCodeURL": "https://mcp.atlassian.com/v1/sse",
+            "DodumentationURL": "https://www.atlassian.com/platform/remote-mcp-server"
+        },
+        {
+            "mcpName": "cloudflare",
+            "description": "Get up to date reference information on Cloudflare",
+            "InstallVSCodeURL": "https://docs.mcp.cloudflare.com/sse",
+            "DodumentationURL": "https://github.com/cloudflare/mcp-server-cloudflare"
+        },
+        {
+            "mcpName": "sentry",
+            "description": "Search, query, and debug errors intelligently",
+            "InstallVSCodeURL": "https://mcp.sentry.dev/sse",
+            "DodumentationURL": "https://docs.sentry.io/product/sentry-mcp/"
+        },
+        {
+            "mcpName": "paypal",
+            "description": "Create and manage invoices, and analyze sales activity",
+            "InstallVSCodeURL": "https://mcp.paypal.com/sse",
+            "DodumentationURL": "https://developer.paypal.com/tools/mcp-server/"
+        },
+        {
+            "mcpName": "linear",
+            "description": "Search for and create issues, projects, and comments",
+            "InstallVSCodeURL": "https://mcp.linear.app/sse",
+            "DodumentationURL": "https://linear.app/changelog/2025-05-01-mcp"
+        },
+        {
+            "mcpName": "plaid",
+            "description": "Analyze metrics, usage, and support tickets",
+            "InstallVSCodeURL": "https://api.dashboard.plaid.com/mcp/sse",
+            "DodumentationURL": "https://plaid.com/blog/plaid-mcp-ai-assistant-claude/"
+        },
+        {
+            "mcpName": "asana",
+            "description": "Create, search, and assign tasks and deliverables",
+            "InstallVSCodeURL": "https://mcp.asana.com/sse",
+            "DodumentationURL": "https://developers.asana.com/docs/using-asanas-model-control-protocol-mcp-server"
+        },
+        {
+            "mcpName": "square",
+            "description": "Search and manage transaction, merchant, and payment data",
+            "InstallVSCodeURL": "https://mcp.squareup.com/sse",
+            "DodumentationURL": "https://github.com/square/square-mcp-server"
+        },
+        {
+            "mcpName": "intercom",
+            "description": "Analyze support trends and triage customer issues",
+            "InstallVSCodeURL": "https://mcp.intercom.com/sse",
+            "DodumentationURL": "https://www.intercom.com/blog/introducing-model-context-protocol-fin/"
+        }
+    ]
+}

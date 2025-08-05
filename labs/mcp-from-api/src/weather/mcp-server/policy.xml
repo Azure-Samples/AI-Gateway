@@ -1,0 +1,18 @@
+<policies>
+	<inbound>
+		<base />
+		<trace source="Weather MCP" severity="information">
+			<message>Weather MCP trace info</message>
+			<metadata name="agent-id" value="@(context.Request.Headers.GetValueOrDefault("agent-id", "n/a"))" />
+		</trace>
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
