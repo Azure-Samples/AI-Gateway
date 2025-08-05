@@ -149,6 +149,36 @@ module productCatalogMCPModule 'src/product-catalog/mcp-server/mcp.bicep' = {
   ]
 }
 
+module placeOrderAPIModule 'src/place-order/api/api.bicep' = {
+  name: 'placeOrderAPIModule'
+  params: {
+    apimServiceName: apimModule.outputs.name
+    apicServiceName: apicModule.outputs.name
+    environmentName: apicModule.outputs.apiEnvironmentName
+  }
+  dependsOn: [
+    apicModule
+    inferenceAPIModule
+  ]
+}
+
+
+module placeOrderMCPModule 'src/place-order/mcp-server/mcp.bicep' = {
+  name: 'placeOrderMCPModule'
+  params: {
+    apimServiceName: apimModule.outputs.name
+    apicServiceName: apicModule.outputs.name
+    environmentName: apicModule.outputs.mcpEnvironmentName
+    apiName: placeOrderAPIModule.outputs.name
+  }
+  dependsOn: [
+    apicModule
+    inferenceAPIModule
+    placeOrderAPIModule
+  ]
+}
+
+
 module microsoftLearnMCPModule 'src/ms-learn/mcp-server/pass-trought.bicep' = {
   name: 'microsoftLearnMCPModule'
   params: {
