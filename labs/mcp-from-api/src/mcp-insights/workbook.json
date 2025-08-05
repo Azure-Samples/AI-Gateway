@@ -1,0 +1,24 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "requests\n| join kind=leftouter (\n    traces\n    | project traceMessage=message, operation_Id, agentId = customDimensions[\"agent-id\"], userId = customDimensions[\"user-id\"]\n) on operation_Id\n| extend apiName = tostring(customDimensions[\"API Name\"])\n| extend resultCode = extract(@\"(\\d+)\", 1, resultCode)\n| where customDimensions[\"API Type\"] == \"mcp\"\n| project timestamp, agentId, userId, apiName, duration, resultCode\n| order by timestamp desc\n\n",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 3600000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "query - 1"
+    }
+  ],
+  "fallbackResourceIds": [
+    "{appinsights-id}"
+  ],
+  "fromTemplateId": "community-Workbooks/Performance/Performance Insights",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

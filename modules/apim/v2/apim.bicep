@@ -59,6 +59,15 @@ param appInsightsInstrumentationKey string = ''
 @description('The resource ID for Application Insights')
 param appInsightsId string = ''
 
+@description('The release channel for the API Management service')
+@allowed([
+  'Early'
+  'Default'
+  'Late'
+  'GenAI'
+])
+param releaseChannel string = 'Default'
+
 // ------------------
 //    VARIABLES
 // ------------------
@@ -79,7 +88,7 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
   properties: {
     publisherEmail: publisherEmail
     publisherName: publisherName
-    // releaseChannel: 'string'
+    releaseChannel: releaseChannel
   }
   identity: {
     type: apimManagedIdentityType

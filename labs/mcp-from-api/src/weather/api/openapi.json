@@ -1,0 +1,120 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "City Weather API",
+        "description": "API to retrieve weather information, including the current temperature, for a specified city. Generated with GitHub Copilot and the following prompt - create an openapi file that retrieves weather information with the city query parameter and reply with temperature. Add examples to the specification.",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": "https://replace-me.local/weatherservice"
+    }],
+    "paths": {
+        "/weather": {
+            "get": {
+                "summary": "Get current weather information for a specified city",
+                "description": "Retrieves weather information, including the current temperature, for a specified city.",
+                "operationId": "get-weather",
+                "parameters": [{
+                    "name": "city",
+                    "in": "query",
+                    "description": "Name of the city to retrieve weather information for",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "example": "Tokyo"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Weather information for the specified city",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CityWeather"
+                                },
+                                "examples": {
+                                    "Tokyo": {
+                                        "summary": "Example response for Tokyo",
+                                        "value": {
+                                            "city": "Tokyo",
+                                            "temperature": 15.5,
+                                            "temperature_format": "Celsius",
+                                            "description": "Clear sky",
+                                            "humidity": 60,
+                                            "wind_speed": 5.5
+                                        }
+                                    },
+                                    "default": {
+                                        "value": {
+                                            "city": "New York City",
+                                            "temperature": 59,
+                                            "temperature_format": "Fahrenheit",
+                                            "description": "Partly cloudy",
+                                            "humidity": 70,
+                                            "wind_speed": 3.2
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "City not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CityWeather": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string",
+                        "example": "Tokyo"
+                    },
+                    "temperature": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 15.5
+                    },
+                    "temperature_format": {
+                        "type": "string",
+                        "example": "Celsius"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Clear sky"
+                    },
+                    "humidity": {
+                        "type": "number",
+                        "format": "int32",
+                        "example": 60
+                    },
+                    "wind_speed": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5.5
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "header"
+            }
+        }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }]
+}
