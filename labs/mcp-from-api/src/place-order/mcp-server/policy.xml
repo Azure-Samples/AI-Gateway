@@ -1,0 +1,25 @@
+<policies>
+	<inbound>
+		<base />
+		<validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. Access token is missing or invalid." output-token-variable-name="jwt-token">
+			<openid-config url="https://login.microsoftonline.com/common/.well-known/openid-configuration" />
+			<audiences>
+				<audience>https://azure-api.net/authorization-manager</audience>
+			</audiences>
+		</validate-jwt>
+		<trace source="Place Order MCP" severity="information">
+			<message>Place Order MCP trace info</message>
+			<metadata name="agent-id" value="@(context.Request.Headers.GetValueOrDefault("agent-id", "n/a"))" />
+			<metadata name="user-id" value="@(((Jwt)context.Variables["jwt-token"]).Claims.GetValueOrDefault("email", "n/a"))" />
+		</trace>
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
