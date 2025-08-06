@@ -124,7 +124,7 @@
         <set-variable name="redirectUri" value="{{OAuthCallbackUri}}" />
         <set-variable name="clientId" value="{{EntraIDClientId}}" />
         <set-variable name="clientAssertionType" value="@(System.Net.WebUtility.UrlEncode("urn:ietf:params:oauth:client-assertion-type:jwt-bearer"))" />
-        <authentication-managed-identity resource="api://AzureADTokenExchange" client-id="{{EntraIDFicClientId}}" output-token-variable-name="ficToken"/>
+        <authentication-managed-identity resource="api://AzureADTokenExchange" client-id="{{EntraIDClientId}}" output-token-variable-name="ficToken"/>
          
         <!-- STEP 4: Configure token request to Entra ID -->
         <set-method>POST</set-method>
