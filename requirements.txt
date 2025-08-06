@@ -20,6 +20,7 @@ opentelemetry-instrumentation-openai-v2
 azure-monitor-opentelemetry
 azure-monitor-ingestion
 azure-ai-projects
+azure-ai-agents
 azure-ai-inference[prompts]
 azure-search-documents
 azure-functions
