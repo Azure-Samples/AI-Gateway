@@ -1,29 +1,53 @@
+<!-- /policies -->
 <policies>
     <inbound>
         <base />
-
-        <!-- Use a <choose> block to evaluate deployment-id -->
+        <!-- 1a – deployment-id from the route template -->
+        <set-variable name="deployment" value="@(context.Request.MatchedParameters.ContainsKey("deployment-id") 
+                           ? context.Request.MatchedParameters["deployment-id"] 
+                           : string.Empty)" />
+        <!-- 1b – model from the request body (JSON) -->
+        <set-variable name="reqBody" value="@(context.Request.Body?.As<JObject>(preserveContent:true) 
+                           ?? new JObject())" />
+        <set-variable name="model" value="@( ((JObject)context.Variables["reqBody"])
+                              .Property("model")?.Value?.ToString() 
+                              ?? string.Empty)" />
+        <!-- 1c – first non-empty of deployment-id or model -->
+        <set-variable name="requestedModel" value="@( !string.IsNullOrEmpty((string)context.Variables["deployment"]) 
+                           ? (string)context.Variables["deployment"]
+                           : (string)context.Variables["model"] )" />
+        <!-- 2. Decide what to do with the request -->
         <choose>
-            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-4.1")">
+            <!-- route tier-1 GPT-4.1 -->
+            <when condition="@( ((string)context.Variables["requestedModel"]) == "gpt-4.1")">
                 <set-backend-service backend-id="foundry1" />
             </when>
-            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "gpt-4.1-mini" || context.Request.MatchedParameters["deployment-id"] == "gpt-4.1-nano")">
+            <when condition="@( ((string)context.Variables["requestedModel"]) == "gpt-4.1-mini" 
+                         || ((string)context.Variables["requestedModel"]) == "gpt-4.1-nano")">
                 <set-backend-service backend-id="foundry2" />
             </when>
-            <when condition="@(context.Request.MatchedParameters["deployment-id"] == "model-router")">
+            <when condition="@( ((string)context.Variables["requestedModel"]) == "model-router"
+                         || ((string)context.Variables["requestedModel"]) == "DeepSeek-R1")">
                 <set-backend-service backend-id="foundry3" />
             </when>
+            <!-- gate any GPT-4o* variants -->
+            <when condition="@( ((string)context.Variables["requestedModel"] ?? string.Empty)
+                           .StartsWith("gpt-4o"))">
+                <return-response>
+                    <set-status code="403" reason="Forbidden" />
+                    <set-body>@("{\"error\":\"Model '" + (string)context.Variables["requestedModel"] + "' is not permitted.\"}")</set-body>
+                </return-response>
+            </when>
+            <!-- catch-all -->
             <otherwise>
                 <return-response>
                     <set-status code="400" reason="Bad Request" />
                     <set-header name="Content-Type" exists-action="override">
                         <value>application/json</value>
                     </set-header>
-                    <set-body>
-                        {
-                            "error": "Invalid deployment-id. Please provide a valid deployment-id."
-                        }
-                    </set-body>
+                    <set-body>{
+              "error": "Invalid model or deployment-id. Supply a valid name in the URL or JSON body."
+            }</set-body>
                 </return-response>
             </otherwise>
         </choose>
