@@ -27,7 +27,8 @@
                 <set-backend-service backend-id="foundry2" />
             </when>
             <when condition="@( ((string)context.Variables["requestedModel"]) == "model-router"
-                         || ((string)context.Variables["requestedModel"]) == "DeepSeek-R1")">
+                            || ((string)context.Variables["requestedModel"]) == "gpt-5"
+                            || ((string)context.Variables["requestedModel"]) == "DeepSeek-R1")">
                 <set-backend-service backend-id="foundry3" />
             </when>
             <!-- gate any GPT-4o* variants -->
