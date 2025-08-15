@@ -4,6 +4,6 @@ semantic-kernel[mcp]
 
 # A2A Labs
 jwcrypto
-a2a-sdk
+a2a-sdk==0.2.3
 
 openai

@@ -37,4 +37,4 @@ ENV PORT="9090" \
 EXPOSE 9090
 
 # Uvicorn tends to handle reload/signals better than raw “python run_server.py”
-CMD ["uvicorn", "a2a_server:app", "--host", "0.0.0.0", "--port", "9090"]
+CMD ["python", "sk_mcp_server.py", "--transport", "http", "--port", "9090"]

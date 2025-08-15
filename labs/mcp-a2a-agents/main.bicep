@@ -15,15 +15,14 @@ param openAIAPIVersion string = '2024-02-01'
 
 param location string = resourceGroup().location
 
-param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
 param oncallAPIPath string = 'oncall'
-param servicenowAPIPath string = 'servicenow'
-param spotifyAPIPath string = 'spotify'
-param serviceNowInstanceName string
 
-param a2aweatherAPIPath string = 'a2a-weather'
-param a2aoncallAPIPath string = 'a2a-oncall'
+param a2aweatherAPIPath string = 'weather-agent-a2a'
+param a2aoncallAPIPath string = 'oncall-agent-a2a'
+
+param mcpweatherAPIPath string = 'weather-agent-mcp'
+param mcponcallAPIPath string = 'oncall-agent-mcp'
 
 // ------------------
 //    VARIABLES
@@ -113,85 +112,8 @@ resource containerAppUAIRoleAssignment 'Microsoft.Authorization/roleAssignments@
   }
 }
 
-resource gitHubMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: 'aca-github-${resourceSuffix}'
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${containerAppUAI.id}': {}
-    }
-  }
-  properties: {
-    managedEnvironmentId: containerAppEnv.id
-    configuration: {
-      ingress: {
-        external: true
-        targetPort: 8080
-        allowInsecure: false
-      }
-      registries: [
-        {
-          identity: containerAppUAI.id
-          server: containerRegistry.properties.loginServer
-        }
-      ]      
-    }
-    template: {
-      containers: [
-        {
-          name: 'aca-${resourceSuffix}'
-          image: 'docker.io/jfxs/hello-world:latest'
-          env: [
-            {
-              name: 'APIM_GATEWAY_URL'
-              value: '${apimService.properties.gatewayUrl}/${githubAPIPath}'
-            }
-            {
-              name: 'AZURE_CLIENT_ID'
-              value: containerAppUAI.properties.clientId
-            }                         
-            {
-              name: 'AZURE_TENANT_ID'
-              value: subscription().tenantId
-            }                         
-            {
-              name: 'SUBSCRIPTION_ID'
-              value: subscription().subscriptionId
-            }                         
-            {
-              name: 'RESOURCE_GROUP_NAME'
-              value: resourceGroup().name
-            }                         
-            {
-              name: 'APIM_SERVICE_NAME'
-              value: apimService.name
-            }                         
-            {
-              name: 'POST_LOGIN_REDIRECT_URL'
-              value: 'http://www.bing.com'
-            }                         
-            {
-              name: 'APIM_IDENTITY_OBJECT_ID'
-              value: apimService.identity.principalId
-            }                                     
-          ]
-          resources: {
-            cpu: json('.5')
-            memory: '1Gi'
-          }
-        }
-      ]
-      scale: {
-        minReplicas: 1
-        maxReplicas: 3
-      }
-    }
-  }
-}
-
 resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: 'aca-weather-${resourceSuffix}'
+  name: 'aca-weather-tools-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -234,7 +156,7 @@ resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
 }
 
 resource oncallMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: 'aca-oncall-${resourceSuffix}'
+  name: 'aca-oncall-tools-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -262,83 +184,6 @@ resource oncallMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pre
         {
           name: 'aca-${resourceSuffix}'
           image: 'docker.io/jfxs/hello-world:latest'
-          resources: {
-            cpu: json('.5')
-            memory: '1Gi'
-          }
-        }
-      ]
-      scale: {
-        minReplicas: 1
-        maxReplicas: 3
-      }
-    }
-  }
-}
-
-resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = if (length(serviceNowInstanceName) > 0) {
-  name: 'aca-servicenow-${resourceSuffix}'
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${containerAppUAI.id}': {}
-    }
-  }
-  properties: {
-    managedEnvironmentId: containerAppEnv.id
-    configuration: {
-      ingress: {
-        external: true
-        targetPort: 8080
-        allowInsecure: false
-      }
-      registries: [
-        {
-          identity: containerAppUAI.id
-          server: containerRegistry.properties.loginServer
-        }
-      ]      
-    }
-    template: {
-      containers: [
-        {
-          name: 'aca-${resourceSuffix}'
-          image: 'docker.io/jfxs/hello-world:latest'
-          env: [
-            {
-              name: 'APIM_GATEWAY_URL'
-              value: '${apimService.properties.gatewayUrl}/${servicenowAPIPath}'
-            }
-            {
-              name: 'AZURE_CLIENT_ID'
-              value: containerAppUAI.properties.clientId
-            }                         
-            {
-              name: 'AZURE_TENANT_ID'
-              value: subscription().tenantId
-            }                         
-            {
-              name: 'SUBSCRIPTION_ID'
-              value: subscription().subscriptionId
-            }                         
-            {
-              name: 'RESOURCE_GROUP_NAME'
-              value: resourceGroup().name
-            }                         
-            {
-              name: 'APIM_SERVICE_NAME'
-              value: apimService.name
-            }                         
-            {
-              name: 'POST_LOGIN_REDIRECT_URL'
-              value: 'http://www.bing.com'
-            }                         
-            {
-              name: 'APIM_IDENTITY_OBJECT_ID'
-              value: apimService.identity.principalId
-            }                                     
-          ]
           resources: {
             cpu: json('.5')
             memory: '1Gi'
@@ -355,8 +200,8 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
 
 // A2A Container Apps resources
 
-resource A2AWeatherServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: 'aca-a2a-weather-${resourceSuffix}'
+resource A2AWeatherAgentServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-weather-agent-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -369,8 +214,8 @@ resource A2AWeatherServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
     configuration: {
       ingress: {
         external: true
-        targetPort: 10020
-        allowInsecure: false
+        targetPort: 9090
+        allowInsecure: true
       }
       registries: [
         {
@@ -398,8 +243,8 @@ resource A2AWeatherServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
   }
 }
 
-resource A2AOncallServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
-  name: 'aca-a2a-oncall-${resourceSuffix}'
+resource A2AOncallAgentServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-oncall-agent-${resourceSuffix}'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -412,8 +257,8 @@ resource A2AOncallServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pre
     configuration: {
       ingress: {
         external: true
-        targetPort: 10020
-        allowInsecure: false
+        targetPort: 9090
+        allowInsecure: true
       }
       registries: [
         {
@@ -528,23 +373,6 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing 
   ]
 }
 
-module spotifyAPIModule 'src/spotify/apim-api/api.bicep' = {
-  name: 'spotifyAPIModule'
-  params: {
-    apimServiceName: apimService.name
-    APIPath: spotifyAPIPath
-  }
-}
-
-module githubAPIModule 'src/github/apim-api/api.bicep' = {
-  name: 'githubAPIModule'
-  params: {
-    apimServiceName: apimService.name
-    APIPath: githubAPIPath
-    APIServiceURL: 'https://${gitHubMCPServerContainerApp.properties.configuration.ingress.fqdn}/${githubAPIPath}'
-  }
-}
-
 module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
   name: 'weatherAPIModule'
   params: {
@@ -563,24 +391,14 @@ module oncallAPIModule 'src/oncall/apim-api/api.bicep' = {
   }
 }
 
-module serviceNowAPIModule 'src/servicenow/apim-api/api.bicep' = if(length(serviceNowInstanceName) > 0) {
-  name: 'servicenowAPIModule'
-  params: {
-    apimServiceName: apimService.name
-    APIPath: servicenowAPIPath
-    APIServiceURL: 'https://${servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn}/${servicenowAPIPath}'
-    serviceNowInstanceName: serviceNowInstanceName
-  }
-}
-
 // A2A APIs
-module a2aWeatherAPIModule 'src/a2a_servers/apim-api/api.bicep' = {
-  name: 'a2aWeatherAPIModule'
+module WeatherAgentA2AAPI 'src/a2a_servers/apim-api/api.bicep' = {
+  name: 'WeatherAgentA2AAPI'
   params: {
     apimServiceName: apimService.name
     agentName: a2aweatherAPIPath
     APIPath: a2aweatherAPIPath
-    APIServiceURL: 'https://${A2AWeatherServerContainerApp.properties.configuration.ingress.fqdn}'
+    APIServiceURL: 'https://${A2AWeatherAgentServerContainerApp.properties.configuration.ingress.fqdn}'
   }
 }
 
@@ -590,7 +408,27 @@ module a2aOncallAPIModule 'src/a2a_servers/apim-api/api.bicep' = {
     apimServiceName: apimService.name
     agentName: a2aoncallAPIPath
     APIPath: a2aoncallAPIPath
-    APIServiceURL: 'https://${A2AOncallServerContainerApp.properties.configuration.ingress.fqdn}'
+    APIServiceURL: 'https://${A2AOncallAgentServerContainerApp.properties.configuration.ingress.fqdn}'
+  }
+}
+
+module WeatherAgentMCPAPI 'src/mcp_sk_servers/apim-mcp/mcp-api.bicep' = {
+  name: 'WeatherAgentMCPAPI'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: mcpweatherAPIPath
+    agentName: mcpweatherAPIPath
+    acaContainerAppURL: 'https://${A2AWeatherAgentServerContainerApp.properties.configuration.ingress.fqdn}'
+  }
+}
+
+module OncallAgentMCPAPI 'src/mcp_sk_servers/apim-mcp/mcp-api.bicep' = {
+  name: 'OncallAgentMCPAPI'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: mcponcallAPIPath
+    agentName: mcponcallAPIPath
+    acaContainerAppURL: 'https://${A2AOncallAgentServerContainerApp.properties.configuration.ingress.fqdn}'
   }
 }
 
@@ -626,25 +464,19 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =  
 
 output containerRegistryName string = containerRegistry.name
 
-output gitHubMCPServerContainerAppResourceName string = gitHubMCPServerContainerApp.name
-output gitHubMCPServerContainerAppFQDN string = gitHubMCPServerContainerApp.properties.configuration.ingress.fqdn
-
 output weatherMCPServerContainerAppResourceName string = weatherMCPServerContainerApp.name
 output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 output oncallMCPServerContainerAppResourceName string = oncallMCPServerContainerApp.name
 output oncallMCPServerContainerAppFQDN string = oncallMCPServerContainerApp.properties.configuration.ingress.fqdn
 
-//A2ASkWeatherServerContainerApp
-output a2AWeatherServerContainerAppResourceName string = A2AWeatherServerContainerApp.name
-output a2AWeatherServerContainerAppFQDN string = A2AWeatherServerContainerApp.properties.configuration.ingress.fqdn
+//A2ASkWeatherAgentServerContainerApp
+output a2AWeatherAgentServerContainerAppResourceName string = A2AWeatherAgentServerContainerApp.name
+output a2AWeatherAgentServerContainerAppFQDN string = A2AWeatherAgentServerContainerApp.properties.configuration.ingress.fqdn
 
-//A2ASkOncallServerContainerApp
-output a2AOncallServerContainerAppResourceName string = A2AOncallServerContainerApp.name
-output a2AOncallServerContainerAppFQDN string = A2AOncallServerContainerApp.properties.configuration.ingress.fqdn
-
-output servicenowMCPServerContainerAppResourceName string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.name: ''
-output servicenowMCPServerContainerAppFQDN string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn: ''
+//A2ASkOncallAgentServerContainerApp
+output a2AOncallAgentServerContainerAppResourceName string = A2AOncallAgentServerContainerApp.name
+output a2AOncallAgentServerContainerAppFQDN string = A2AOncallAgentServerContainerApp.properties.configuration.ingress.fqdn
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName

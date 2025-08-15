@@ -8,9 +8,9 @@ resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
 
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   parent: apim
-  name: 'oncall-mcp'
+  name: 'oncall-tools-mcp'
   properties: {
-    displayName: 'Oncall MCP'
+    displayName: 'Oncall Tools MCP'
     apiRevision: '1'
     subscriptionRequired: false
     serviceUrl: APIServiceURL
