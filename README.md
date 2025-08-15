@@ -183,7 +183,7 @@ Playground to create a combination of several policies in an iterative approach.
 
 Playground to try routing to a backend based on Azure OpenAI model and version.
 
-[<img src="images/model-routing-small.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/model-routing/model-routing.ipynb)
+[<img src="images/model-routing.gif" alt="flow" style="width: 437px; display: inline-block;" data-target="animated-image.originalImage">](labs/model-routing/model-routing.ipynb)
 
 [🦾 Bicep](labs/model-routing/main.bicep) ➕ [⚙️ Policy](labs/model-routing/policy.xml) ➕ [🧾 Notebook](labs/model-routing/model-routing.ipynb)
 

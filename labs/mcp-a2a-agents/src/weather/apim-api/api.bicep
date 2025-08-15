@@ -8,9 +8,9 @@ resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
 
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   parent: apim
-  name: 'weather-mcp'
+  name: 'weather-tools-mcp'
   properties: {
-    displayName: 'Weather MCP'
+    displayName: 'Weather Tools MCP'
     apiRevision: '1'
     subscriptionRequired: false
     serviceUrl: APIServiceURL

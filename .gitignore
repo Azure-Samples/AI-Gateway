@@ -15,6 +15,7 @@ policy-updated.xml
 .vscode/**/*
 .python_packages/
 .promptflow/
+.openmcp/
 
 # Distribution / packaging
 .Python

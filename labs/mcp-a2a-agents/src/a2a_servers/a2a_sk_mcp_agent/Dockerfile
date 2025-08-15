@@ -24,7 +24,7 @@ COPY . /app
 
 # ── Runtime configuration placeholders ─────────────────────────
 # These are *defaults only*; ACA will override them at deploy time.
-ENV PORT="10020" \
+ENV PORT="9090" \
     TITLE="Weather" \
     MCP_URL="" \
     APIM_GATEWAY_URL="" \
@@ -34,7 +34,7 @@ ENV PORT="10020" \
     OPENAI_CLIENT_TYPE="azure" \
     PYTHONUNBUFFERED=1
 
-EXPOSE 10020
+EXPOSE 9090
 
 # Uvicorn tends to handle reload/signals better than raw “python run_server.py”
-CMD ["uvicorn", "a2a_server:app", "--host", "0.0.0.0", "--port", "10020"]
+CMD ["uvicorn", "a2a_server:app", "--host", "0.0.0.0", "--port", "9090"]
