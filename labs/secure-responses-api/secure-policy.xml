@@ -2,10 +2,25 @@
 	<inbound>
 		<base />
 		<!-- 1. Accept the token and validate it, pulling the unique user id out of it -->
-		<set-variable name="role1" value="App.ResponseApi.Use" />
-		<include-fragment fragment-id="entraid-validate-jwt-dynamic-scopes-v1" />
-		<!-- 2. Extract userId from JWT -->
-		<set-variable name="userId" value="@(context.Variables.ContainsKey("jwt") ? (string)(((Jwt)context.Variables["jwt"]).Claims.GetValueOrDefault("name", "") ?? "") : "")" />
+		<validate-azure-ad-token tenant-id="{{entraid-tenant}}" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. EntraId Access token is missing or invalid." output-token-variable-name="jwt">
+			<audiences>
+				<audience>https://management.azure.com/</audience>
+			</audiences>
+		</validate-azure-ad-token>
+		<!-- 2. Extract userId from JWT, in prod you would extract it from the JWT, but for our testing we will pull it from the userId header to make testing easier -->
+		<!--<set-variable name="userId" value="@(context.Variables.ContainsKey("jwt") ? (string)(((Jwt)context.Variables["jwt"]).Claims.GetValueOrDefault("name", "") ?? "") : "")" />-->
+		<set-variable name="userId" value="@((string)context.Request.Headers.GetValueOrDefault("userId", ""))" />
+		<choose>
+			<when condition="@(context.Variables.GetValueOrDefault<String>("userId") == "")">
+				<return-response>
+					<set-status code="400" reason="Bad Request" />
+					<set-header name="Content-Type" exists-action="override">
+						<value>text/plain</value>
+					</set-header>
+					<set-body>Unable to process request due to missing userId. Please try again with valid user</set-body>
+				</return-response>
+			</when>
+		</choose>
 		<!-- 3. Extract response_id -->
 		<set-variable name="responseId" value="@{
             if (context.Request.MatchedParameters.ContainsKey("response_id")) {
@@ -21,7 +36,24 @@
             }
         }" />
 		<!-- 4: If responseId is not null, look it up in cache -->
-		<include-fragment fragment-id="response-api-inbound-lookup-user-state-internal-cache-v1" />
+		<choose>
+			<when condition="@(!string.IsNullOrEmpty((string)context.Variables["responseId"]))">
+				<cache-lookup-value key="@((string)context.Variables["responseId"])" variable-name="cachedUserId" />
+			</when>
+		</choose>
+		<!-- Compare current user to cached userId -->
+		<choose>
+			<when condition="@{
+				var currentUser = (string)context.Variables["userId"];
+				var cachedUser = (string)context.Variables.GetValueOrDefault("cachedUserId");
+				return !string.IsNullOrEmpty(cachedUser) && currentUser != cachedUser;
+			}">
+				<return-response>
+					<set-status code="403" reason="Forbidden" />
+					<set-body>Unauthorized to access this response.</set-body>
+				</return-response>
+			</when>
+		</choose>
 		<!-- Set backend -->
         <set-backend-service backend-id="{backend-id}" />
 	</inbound>
@@ -42,7 +74,11 @@
             }
         }" />
 		<!-- Save response and user in state store -->
-		<include-fragment fragment-id="response-api-outbound-store-user-state-internal-cache-v1" />
+		<choose>
+			<when condition="@(!string.IsNullOrEmpty((string)context.Variables["outputResponseId"]))">
+				<cache-store-value key="@(context.Variables.GetValueOrDefault<string>("outputResponseId",""))" value="@(context.Variables.GetValueOrDefault<string>("userId",""))" duration="36500" />
+			</when>
+		</choose>
 		<set-header name="x-debug-input-response-id" exists-action="override">
 			<value>@((string)context.Variables.GetValueOrDefault<string>("responseId",""))</value>
 		</set-header>

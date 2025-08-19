@@ -12,6 +12,13 @@ param inferenceAPIPath string = 'inference' // Path to the inference API in the 
 param foundryProjectName string = 'default'
 
 // ------------------
+//    VARIABLES
+// ------------------
+
+var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
+var apiManagementName = 'apim-${resourceSuffix}'
+
+// ------------------
 //    RESOURCES
 // ------------------
 
@@ -41,6 +48,13 @@ module apimModule '../../modules/apim/v2/apim.bicep' = {
   }
 }
 
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+  name: apiManagementName
+  dependsOn: [
+    apimModule
+  ]
+}
+
 // 4. AI Foundry
 module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
     name: 'foundryModule'
@@ -58,10 +72,23 @@ module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
   params: {
     policyXml: loadTextContent('policy.xml')
     apimLoggerId: apimModule.outputs.loggerId
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
     aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
     inferenceAPIName: inferenceAPIName
     inferenceAPIType: inferenceAPIType
     inferenceAPIPath: inferenceAPIPath
+  }
+}
+
+// 6. Define the Named Values
+resource EntraIDTenantIdNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  parent: apimService
+  name: 'entraid-tenant'
+  properties: {
+    displayName: 'entraid-tenant'
+    value: subscription().tenantId
+    secret: false
   }
 }
 
