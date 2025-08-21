@@ -1,32 +1,9 @@
-# This is a comprehensive requirements.txt file for all labs to ensure that one installation covers everything.
-
-# Do not include azure-functions-worker in this file
-# The Python Worker is managed by the Azure Functions platform
-# Manually managing azure-functions-worker may cause unexpected issues
-
-requests
-jsonref
+fastapi
+uvicorn
+pydantic-settings
 python-dotenv
-pandas
-matplotlib
-redis
-msal
-openai
-azure-cli
-azure-identity
-opentelemetry-api
-opentelemetry-sdk
-azure-monitor-opentelemetry
-azure-monitor-ingestion
-azure-ai-projects
-azure-ai-inference[prompts]
-azure-search-documents
-azure-functions
-azure-mgmt-apimanagement
-
-# MCP Labs
-mcp
-autogen-core 
-autogen-ext[openai,azure,mcp] 
-autogen-agentchat
-semantic-kernel[mcp]
+requests
+slowapi
+pytest
+pytest-mock
+httpx
