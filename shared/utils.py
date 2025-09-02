@@ -231,6 +231,20 @@ def print_response_code(response):
     # Print the response status with the appropriate formatting
     print(f"Response status: {status_code_str}")
 
+# Simple: print full error body (JSON if available, else raw text)
+def print_full_http_error(response):
+    try:
+        data = response.json()
+        print_error("Request failed. Full JSON body:", json.dumps(data, indent=2))
+        # If ARM-style error present, surface message too
+        if isinstance(data, dict) and isinstance(data.get("error"), dict):
+            code = data["error"].get("code", "")
+            msg = data["error"].get("message", "")
+            if msg or code:
+                print_error(f"Service error:", f"{code} - {msg}")
+    except ValueError:
+        print_error("Request failed. Full text body:", response.text or "")
+
 def run(command, ok_message = '', error_message = '', print_output = False, print_command_to_run = True):
     if print_command_to_run:
         print_command(command)
@@ -299,7 +313,11 @@ def update_api_policy(subscription_id, resource_group_name, apim_service_name, a
         }
 
         response = requests.put(url, headers = headers, json = body)
-        print_response_code(response)
+        if 200 <= response.status_code < 300:
+            print_response_code(response)
+        else:
+            print_response_code(response)
+            print_full_http_error(response)
 
 def update_api_operation_policy(subscription_id, resource_group_name, apim_service_name, api_id, operation_id, policy_xml):
     # We first need to obtain an access token for the REST API
