@@ -1,0 +1,161 @@
+<policies>
+    <inbound>
+        <base />
+        <azure-openai-token-limit counter-key="@(context.Subscription.Id)"
+            tokens-per-minute="500" estimate-prompt-tokens="false" remaining-tokens-variable-name="remainingTokens">
+        </azure-openai-token-limit>        
+        <set-variable name="now" value="@(DateTime.UtcNow)" />
+        <set-header name="X-Amz-Date" exists-action="override">
+            <value>@(((DateTime)context.Variables["now"]).ToString("yyyyMMddTHHmmssZ"))</value>
+        </set-header>
+        <set-header name="X-Amz-Content-Sha256" exists-action="override">
+            <value>@{
+                var body = context.Request.Body.As<string>(preserveContent: true);
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var hash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(body));
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }</value>
+        </set-header>
+        <set-header name="Authorization" exists-action="override">
+            <value>@{
+                var accessKey = "{{accesskey}}";
+                var secretKey = "{{secretkey}}";
+                var region = "us-east-1";
+                var service = "bedrock";
+
+                var method = context.Request.Method;
+                var uri = context.Request.Url;
+                var host = uri.Host;
+
+                // Create canonical path
+                var path = uri.Path;
+                var modelSplit = path.Split(new[] { "model/" }, 2, StringSplitOptions.None);
+                var afterModel = modelSplit.Length > 1 ? modelSplit[1] : "";
+                var parts = afterModel.Split(new[] { '/' }, 2);
+                var model = System.Uri.EscapeDataString(parts[0]);
+                var remainder = parts.Length > 1 ? parts[1] : "";
+                var canonicalPath = $"/model/{model}/{remainder}";
+
+                var amzDate = ((DateTime)context.Variables["now"]).ToString("yyyyMMddTHHmmssZ");
+                var dateStamp = ((DateTime)context.Variables["now"]).ToString("yyyyMMdd");
+
+                // Hash the payload
+                var body = context.Request.Body.As<string>(preserveContent: true);
+                string hashedPayload;
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var hash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(body));
+                    hashedPayload = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+
+                // Create canonical query string
+                var queryDict = context.Request.Url.Query;
+                var canonicalQueryString = "";
+                if (queryDict != null && queryDict.Count > 0)
+                {
+                    var encodedParams = new List<string>();
+                    foreach (var kvp in queryDict)
+                    {
+                        var encodedKey = System.Uri.EscapeDataString(kvp.Key);
+                        var encodedValue = System.Uri.EscapeDataString(kvp.Value.First() ?? "");
+                        encodedParams.Add($"{encodedKey}={encodedValue}");
+                    }
+                    canonicalQueryString = string.Join("&", encodedParams.OrderBy(p => p));
+                }
+
+                // Create signed headers and canonical headers
+                var headers = context.Request.Headers;
+                var canonicalHeaderList = new List<string[]>();
+
+                // Add content-type if present
+                var contentType = headers.GetValueOrDefault("Content-Type", "").ToLowerInvariant();
+                if (!string.IsNullOrEmpty(contentType))
+                {
+                    canonicalHeaderList.Add(new[] { "content-type", contentType });
+                }
+
+                // Always add host
+                canonicalHeaderList.Add(new[] { "host", host });
+
+                // Add x-amz-* headers (excluding x-amz-date, x-amz-content-sha256)
+                foreach (var header in headers)
+                {
+                    var name = header.Key.ToLowerInvariant();
+                    if (string.Equals(name, "x-amz-content-sha256", StringComparison.OrdinalIgnoreCase) || 
+                        string.Equals(name, "x-amz-date", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    if (name.StartsWith("x-amz-"))
+                    {
+                        var value = header.Value.First()?.Trim();
+                        canonicalHeaderList.Add(new[] { name, value });
+                    }
+                }
+                canonicalHeaderList.Add(new[] { "x-amz-content-sha256", hashedPayload });
+                canonicalHeaderList.Add(new[] { "x-amz-date", amzDate });
+                var canonicalHeadersOrdered = canonicalHeaderList.OrderBy(h => h[0]);
+                var canonicalHeaders = string.Join("\n", canonicalHeadersOrdered.Select(h => $"{h[0]}:{h[1].Trim()}")) + "\n";
+                var signedHeaders = string.Join(";", canonicalHeadersOrdered.Select(h => h[0]));
+
+                // Create and hash the canonical request
+                var canonicalRequest = $"{method}\n{canonicalPath}\n{canonicalQueryString}\n{canonicalHeaders}\n{signedHeaders}\n{hashedPayload}";
+                string hashedCanonicalRequest = "";
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var hash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(canonicalRequest));
+                    hashedCanonicalRequest = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+
+                // Build string to sign
+                var credentialScope = $"{dateStamp}/{region}/{service}/aws4_request";
+                var stringToSign = $"AWS4-HMAC-SHA256\n{amzDate}\n{credentialScope}\n{hashedCanonicalRequest}";
+
+                // Sign it using secret key
+                byte[] kSecret = System.Text.Encoding.UTF8.GetBytes("AWS4" + secretKey);
+                byte[] kDate, kRegion, kService, kSigning;
+                using (var h1 = new System.Security.Cryptography.HMACSHA256(kSecret))
+                {
+                    kDate = h1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(dateStamp));
+                }
+                using (var h2 = new System.Security.Cryptography.HMACSHA256(kDate))
+                {
+                    kRegion = h2.ComputeHash(System.Text.Encoding.UTF8.GetBytes(region));
+                }
+                using (var h3 = new System.Security.Cryptography.HMACSHA256(kRegion))
+                {
+                    kService = h3.ComputeHash(System.Text.Encoding.UTF8.GetBytes(service));
+                }
+                using (var h4 = new System.Security.Cryptography.HMACSHA256(kService))
+                {
+                    kSigning = h4.ComputeHash(System.Text.Encoding.UTF8.GetBytes("aws4_request"));
+                }
+
+                // Auth header
+                string signature; 
+                using (var hmac = new System.Security.Cryptography.HMACSHA256(kSigning))
+                {
+                    var sigBytes = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(stringToSign));
+                    signature = BitConverter.ToString(sigBytes).Replace("-", "").ToLowerInvariant();
+                }
+
+                return $"AWS4-HMAC-SHA256 Credential={accessKey}/{credentialScope}, SignedHeaders={signedHeaders}, Signature={signature}";
+            }</value>
+        </set-header>
+        <set-header name="Host" exists-action="override">
+            <value>@(context.Request.Url.Host)</value>
+        </set-header>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
