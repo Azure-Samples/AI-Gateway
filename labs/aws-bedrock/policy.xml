@@ -1,9 +1,6 @@
 <policies>
     <inbound>
         <base />
-        <azure-openai-token-limit counter-key="@(context.Subscription.Id)"
-            tokens-per-minute="500" estimate-prompt-tokens="false" remaining-tokens-variable-name="remainingTokens">
-        </azure-openai-token-limit>        
         <set-variable name="now" value="@(DateTime.UtcNow)" />
         <set-header name="X-Amz-Date" exists-action="override">
             <value>@(((DateTime)context.Variables["now"]).ToString("yyyyMMddTHHmmssZ"))</value>
