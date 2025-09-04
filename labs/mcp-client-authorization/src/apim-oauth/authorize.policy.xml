@@ -1,31 +1,66 @@
 <!--
     AUTHORIZE POLICY
-    This policy implements the authorization endpoint for PKCE OAuth2 flow with Entra ID.
+    OAuth 2.0 PKCE authorization endpoint with Entra ID integration.
     
-    SECURITY NOTE: User consent is validated ONLY through secure HttpOnly cookies set by 
-    the consent endpoint. No query parameters can bypass consent validation.
-    
-    Flow:
-    1. MCP client calls this endpoint with code_challenge and code_challenge_method
-    2. Check for existing user consent via secure cookies (redirect to consent page if needed)
-    3. We generate a code verifier and challenge for Entra ID
-    4. We generate a confirmation code to return to the MCP client later
-    5. We redirect the user to Entra ID login page
-    6. After authentication, Entra ID will redirect back to the callback endpoint
+    Flow: Client → Consent (if needed) → Entra ID → Callback → Client
 -->
 <policies>
     <inbound>
         <base />
-        <!-- STEP 1: Retrieve PKCE parameters from MCP Client request -->
-        <set-variable name="mcpClientCodeChallenge" value="@((string)context.Request.Url.Query.GetValueOrDefault("code_challenge", ""))" />
-        <set-variable name="mcpClientCodeChallengeMethod" value="@((string)context.Request.Url.Query.GetValueOrDefault("code_challenge_method", ""))" />
-        
-        <!-- STEP 2: Extract client ID and parameters -->
+        <!-- Extract all OAuth parameters -->
         <set-variable name="clientId" value="@((string)context.Request.Url.Query.GetValueOrDefault("client_id", ""))" />
         <set-variable name="redirect_uri" value="@((string)context.Request.Url.Query.GetValueOrDefault("redirect_uri", ""))" />
         <set-variable name="currentState" value="@((string)context.Request.Url.Query.GetValueOrDefault("state", ""))" />
+        <set-variable name="mcpScope" value="@((string)context.Request.Url.Query.GetValueOrDefault("scope", ""))" />
+        <set-variable name="mcpClientCodeChallenge" value="@((string)context.Request.Url.Query.GetValueOrDefault("code_challenge", ""))" />
+        <set-variable name="mcpClientCodeChallengeMethod" value="@((string)context.Request.Url.Query.GetValueOrDefault("code_challenge_method", ""))" />
         
-        <!-- Normalize the redirect URI for consistent cookie matching -->
+        <!-- Validate required OAuth parameters -->
+        <choose>
+            <when condition="@(string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("clientId")) || 
+                              string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("redirect_uri")) || 
+                              string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("currentState")))">
+                <return-response>
+                    <set-status code="400" reason="Bad Request" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="Cache-Control" exists-action="override">
+                        <value>no-store, no-cache</value>
+                    </set-header>
+                    <set-body>@{
+                        return new JObject {
+                            ["error"] = "invalid_request",
+                            ["error_description"] = "Missing required parameters: client_id, redirect_uri, and state are all required for OAuth authorization"
+                        }.ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+        </choose>
+        
+        <!-- Validate required PKCE parameters -->
+        <choose>
+            <when condition="@(string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("mcpClientCodeChallenge")) || 
+                              string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("mcpClientCodeChallengeMethod")))">
+                <return-response>
+                    <set-status code="400" reason="Bad Request" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="Cache-Control" exists-action="override">
+                        <value>no-store, no-cache</value>
+                    </set-header>
+                    <set-body>@{
+                        return new JObject {
+                            ["error"] = "invalid_request",
+                            ["error_description"] = "Missing required PKCE parameters: code_challenge and code_challenge_method are required for secure authorization"
+                        }.ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+        </choose>
+        
+        <!-- Normalize redirect URI -->
         <set-variable name="normalized_redirect_uri" value="@{
             string redirectUri = context.Variables.GetValueOrDefault<string>("redirect_uri", "");
             if (string.IsNullOrEmpty(redirectUri)) {
@@ -33,16 +68,14 @@
             }
             
             try {
-                // URL decode the redirect URI to get the normalized form
                 string decodedUri = System.Net.WebUtility.UrlDecode(redirectUri);
                 return decodedUri;
             } catch (Exception) {
-                // If decoding fails, use the original URI
                 return redirectUri;
             }
         }" />
         
-        <!-- Check for existing approval cookie for this client_id and redirect_uri combination -->
+        <!-- Check for existing approval cookie -->
         <set-variable name="has_approval_cookie" value="@{
             try {
                 if (string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("clientId", "")) || 
@@ -53,28 +86,23 @@
                 string clientId = context.Variables.GetValueOrDefault<string>("clientId", "");
                 string redirectUri = context.Variables.GetValueOrDefault<string>("normalized_redirect_uri", "");
                 
-                // Define the cookie name for approvals (must match consent policy)
-                string APPROVAL_COOKIE_NAME = "MCP_APPROVED_CLIENTS";
+                string APPROVAL_COOKIE_NAME = "__Host-MCP_APPROVED_CLIENTS";
                 
-                // Check for cookie in request
                 var cookieHeader = context.Request.Headers.GetValueOrDefault("Cookie", "");
                 if (string.IsNullOrEmpty(cookieHeader)) {
                     return false;
                 }
                 
-                // Parse cookies
                 string[] cookies = cookieHeader.Split(';');
                 foreach (string cookie in cookies) {
                     string trimmedCookie = cookie.Trim();
                     if (trimmedCookie.StartsWith(APPROVAL_COOKIE_NAME + "=")) {
                         try {
-                            // Extract and parse the cookie value
                             string cookieValue = trimmedCookie.Substring(APPROVAL_COOKIE_NAME.Length + 1);
                             string decodedValue = System.Text.Encoding.UTF8.GetString(
                                 System.Convert.FromBase64String(cookieValue));
                             JArray approvedClients = JArray.Parse(decodedValue);
                             
-                            // Check if this client/redirect combination is approved
                             string clientKey = $"{clientId}:{redirectUri}";
                             foreach (var item in approvedClients) {
                                 if (item.ToString() == clientKey) {
@@ -82,7 +110,7 @@
                                 }
                             }
                         } catch (Exception ex) {
-                            context.Trace($"Error parsing approval cookie: {ex.Message}");
+                            // Error parsing approval cookie - ignore and continue
                         }
                         break;
                     }
@@ -90,7 +118,7 @@
                 
                 return false;
             } catch (Exception ex) {
-                context.Trace($"Error checking approval cookie: {ex.Message}");
+                // Error checking approval cookie - return false
                 return false;
             }
         }" />
@@ -133,12 +161,7 @@
             </otherwise>
         </choose>
         
-        <!-- STEP 3: Generate PKCE parameters for Entra ID authentication -->
-        <!-- Generate a random code verifier for Entra ID -->
         <set-variable name="codeVerifier" value="@((string)Guid.NewGuid().ToString().Replace("-", ""))" />
-        <!-- Set the code challenge method for Entra ID -->
-        <set-variable name="codeChallengeMethod" value="S256" />
-        <!-- Generate a code challenge using SHA-256 for Entra ID -->
         <set-variable name="codeChallenge" value="@{
             using (var sha256 = System.Security.Cryptography.SHA256.Create())
             {
@@ -146,63 +169,41 @@
                 var hash = sha256.ComputeHash(bytes);
                 return System.Convert.ToBase64String(hash).TrimEnd('=').Replace('+', '-').Replace('/', '_');
             }
-            }" />
-
-        <!-- STEP 4: Construct the Entra ID authorization URL -->
-        <!-- Base URL for Entra ID authorization endpoint -->
-        <set-variable name="baseAuthUrl" value="https://login.microsoftonline.com/{{EntraIDTenantId}}/oauth2/v2.0/authorize?response_type=code" />
-        <!-- Add client ID parameter - using EntraIDClientId instead of the request client ID -->
-        <set-variable name="clientIdParam" value="@("&client_id={{EntraIDClientId}}")" />        
-        <!-- Add PKCE parameters -->
-        <set-variable name="codeChallengeParam" value="@(string.Concat("&code_challenge=", context.Variables.GetValueOrDefault("codeChallenge", "")))" />
-        <set-variable name="codeChallengeMethodParam" value="@(string.Concat("&code_challenge_method=", context.Variables.GetValueOrDefault("codeChallengeMethod", "")))" />
-        <!-- Add OAuth callback parameter -->
-        <set-variable name="redirectUriParam" value="@(string.Concat("&redirect_uri=", "{{OAuthCallbackUri}}" ))" />        
-        <!-- Add required scope parameter -->
-        <set-variable name="scopeParam" value="@(string.Concat("&scope={{OAuthScopes}}"))" />
-        <!-- Generate Entra State -->
-        <set-variable name="entraState" value="@((string)Guid.NewGuid().ToString())" />
-        <!-- Add state parameter for security -->
-        <set-variable name="stateParam" value="@(string.Concat("&state=", context.Variables.GetValueOrDefault("entraState", "")))" />
-        <!-- Combine all parts to form the complete authorization URL with PKCE params -->
-        <set-variable name="authUrl" value="@(string.Concat(
-            context.Variables.GetValueOrDefault("baseAuthUrl", ""), 
-            context.Variables.GetValueOrDefault("clientIdParam", ""), 
-            context.Variables.GetValueOrDefault("codeChallengeParam", ""), 
-            context.Variables.GetValueOrDefault("codeChallengeMethodParam", ""), 
-            context.Variables.GetValueOrDefault("redirectUriParam", ""), 
-            context.Variables.GetValueOrDefault("scopeParam", ""), 
-            context.Variables.GetValueOrDefault("stateParam", "")))" />        
+        }" />
+        
+        <!-- Build the complete Entra ID URL using client's original state -->
+        <set-variable name="authUrl" value="@{
+            string baseUrl = "https://login.microsoftonline.com/{{EntraIDTenantId}}/oauth2/v2.0/authorize";
+            string codeChallenge = context.Variables.GetValueOrDefault("codeChallenge", "");
+            string clientState = context.Variables.GetValueOrDefault("currentState", "");
+            
+            return $"{baseUrl}?response_type=code&client_id={{EntraIDClientId}}&redirect_uri={{OAuthCallbackUri}}&scope={{OAuthScopes}}&code_challenge={codeChallenge}&code_challenge_method=S256&state={System.Net.WebUtility.UrlEncode(clientState)}";
+        }" />
         
         <!-- STEP 5: Store authentication data in cache for use in callback -->
         <!-- Generate a confirmation code to return to the MCP client -->
         <set-variable name="mcpConfirmConsentCode" value="@((string)Guid.NewGuid().ToString())" />
         
-        <!-- Store code verifier for token exchange -->
+        <!-- Store code verifier for token exchange using client state -->
         <cache-store-value duration="3600" 
-            key="@("CodeVerifier-"+context.Variables.GetValueOrDefault("entraState", ""))" 
+            key="@("CodeVerifier-"+context.Variables.GetValueOrDefault("currentState", ""))" 
             value="@(context.Variables.GetValueOrDefault("codeVerifier", ""))" />
         
-        <!-- Map state to MCP confirmation code for callback -->
+        <!-- Map client state to MCP confirmation code for callback -->
         <cache-store-value duration="3600" 
-            key="@((string)context.Variables.GetValueOrDefault("entraState"))" 
+            key="@((string)context.Variables.GetValueOrDefault("currentState"))" 
             value="@(context.Variables.GetValueOrDefault("mcpConfirmConsentCode", ""))" />
 
-         <!-- Retrieve MCP Client State and Scope from request (Claude sends the state and scope param for binding the auth flow per request) -->
-         <set-variable name="mcpState" value="@((string)context.Request.Url.Query.GetValueOrDefault("state", ""))" />
-         <set-variable name="mcpScope" value="@((string)context.Request.Url.Query.GetValueOrDefault("scope", ""))" />
-        
-        <!-- Store MCP client PKCE data, client state and client callback redirect uri for verification during token exchange -->
+        <!-- Store MCP client data -->
         <cache-store-value duration="3600" 
             key="@($"McpClientAuthData-{context.Variables.GetValueOrDefault("mcpConfirmConsentCode")}")" 
             value="@{
-                // Create a JObject and populate it with values
                 return new JObject{
-                    ["mcpClientCodeChallenge"] = (string)context.Variables.GetValueOrDefault("mcpClientCodeChallenge", ""),
-                    ["mcpClientCodeChallengeMethod"] = (string)context.Variables.GetValueOrDefault("mcpClientCodeChallengeMethod", ""),
-                    ["mcpClientState"] = (string)context.Variables.GetValueOrDefault("mcpState", ""),
-                    ["mcpClientScope"] = (string)context.Variables.GetValueOrDefault("mcpScope", ""),
-                    ["mcpCallbackRedirectUri"] = Uri.UnescapeDataString(context.Variables.GetValueOrDefault("redirect_uri", ""))
+                    ["mcpClientCodeChallenge"] = (string)context.Variables["mcpClientCodeChallenge"],
+                    ["mcpClientCodeChallengeMethod"] = (string)context.Variables["mcpClientCodeChallengeMethod"],
+                    ["mcpClientState"] = (string)context.Variables["currentState"],
+                    ["mcpClientScope"] = (string)context.Variables["mcpScope"],
+                    ["mcpCallbackRedirectUri"] = (string)context.Variables["normalized_redirect_uri"]
                 }.ToString();
             }" />
     </inbound>
