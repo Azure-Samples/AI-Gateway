@@ -12,6 +12,7 @@ matplotlib
 redis
 msal
 openai
+openai[realtime]
 azure-cli
 azure-identity
 opentelemetry-api

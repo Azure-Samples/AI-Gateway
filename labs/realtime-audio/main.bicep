@@ -2,28 +2,19 @@
 //    PARAMETERS
 // ------------------
 
-// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
-
+param aiServicesConfig array = []
+param modelsConfig array = []
 param apimSku string
-param openAIConfig array = []
-param openAIModelName string
-param openAIModelVersion string
-param openAIDeploymentName string
-param openAIModelSKU string
-param openAIModelCapacity int
+param apimSubscriptionsConfig array = []
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param inferenceAPIType string = 'AzureOpenAI'
+param foundryProjectName string = 'default'
 
 // ------------------
 //    VARIABLES
 // ------------------
 
-// Account for all placeholders in the polixy.xml file.
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
-var policyXml = loadTextContent('policy.xml')
-var apiManagementName = 'apim-${resourceSuffix}'
-var logSettings = {
-  headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
-  body: { bytes: 0 }
-}
 
 // ------------------
 //    RESOURCES
@@ -34,49 +25,46 @@ module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
   name: 'lawModule'
 }
 
-var lawId = lawModule.outputs.id
-
 // 2. Application Insights
 module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
   name: 'appInsightsModule'
   params: {
-    lawId: lawId
+    lawId: lawModule.outputs.id
     customMetricsOptedInType: 'WithDimensions'
   }
 }
 
-var appInsightsId = appInsightsModule.outputs.id
-var appInsightsInstrumentationKey = appInsightsModule.outputs.instrumentationKey
-
 // 3. API Management
-module apimModule '../../modules/apim/v1/apim.bicep' = {
+module apimModule '../../modules/apim/v2/apim.bicep' = {
   name: 'apimModule'
   params: {
     apimSku: apimSku
-    appInsightsInstrumentationKey: appInsightsInstrumentationKey
-    appInsightsId: appInsightsId
+    apimSubscriptionsConfig: apimSubscriptionsConfig
+    lawId: lawModule.outputs.id
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
   }
 }
 
-// 4. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
-  name: 'openAIModule'
-  params: {
-    openAIConfig: openAIConfig
-    openAIDeploymentName: openAIDeploymentName
-    openAIModelName: openAIModelName
-    openAIModelVersion: openAIModelVersion
-    openAIModelSKU: openAIModelSKU
-    openAIModelCapacity: openAIModelCapacity
-    apimPrincipalId: apimModule.outputs.principalId
+// 4. AI Foundry
+module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
+    name: 'foundryModule'
+    params: {
+      aiServicesConfig: aiServicesConfig
+      modelsConfig: modelsConfig
+      apimPrincipalId: apimModule.outputs.principalId
+      foundryProjectName: foundryProjectName
+    }
   }
+
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+  name: 'apim-${resourceSuffix}'
+  dependsOn: [
+    foundryModule
+  ]
 }
 
 // 5. APIM OpenAI-RT Websocket API
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
-  name: apiManagementName
-}
-
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   name: 'realtime-audio'
@@ -85,9 +73,9 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
     apiType: 'websocket'
     description: 'Inference API for Azure OpenAI Realtime'
     displayName: 'InferenceAPI'
-    path: 'rt-audio/openai/realtime'
-    serviceUrl: concat(replace(openAIModule.outputs.extendedOpenAIConfig[0].endpoint, 'https:', 'wss:'),'openai/realtime')
-    type: 'websocket'
+    path: '${inferenceAPIPath}/openai/realtime'
+    serviceUrl: '${replace(foundryModule.outputs.extendedAIServicesConfig[0].endpoint, 'https:', 'wss:')}openai/realtime'
+    type: inferenceAPIType
     protocols: [
       'wss'
     ]
@@ -110,54 +98,104 @@ resource rtPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024
   parent: rtOperation
   properties: {
     format: 'rawxml'
-    value: policyXml
+    value: loadTextContent('policy.xml')
   }
 }
 
-// Create diagnostics only if we have an App Insights ID and instrumentation key.
-resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
-  name: 'applicationinsights'
+resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2024-06-01-preview' = {
   parent: api
+  name: 'azuremonitor'
   properties: {
     alwaysLog: 'allErrors'
-    httpCorrelationProtocol: 'W3C'
-    logClientIp: true
-    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apiManagementName, 'apim-logger')
-    metrics: true
     verbosity: 'verbose'
+    logClientIp: true
+    loggerId: apimModule.outputs.loggerId
     sampling: {
       samplingType: 'fixed'
-      percentage: 100
+      percentage: json('100')
     }
     frontend: {
-      request: logSettings
-      response: logSettings
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
     }
     backend: {
-      request: logSettings
-      response: logSettings
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+    }
+    largeLanguageModel: {
+      logs: 'enabled'
+      requests: {
+        messages: 'all'
+        maxSizeInBytes: 262144
+      }
+      responses: {
+        messages: 'all'
+        maxSizeInBytes: 262144
+      }
     }
   }
+} 
+
+
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+  name: 'workspace-${resourceSuffix}'
+  dependsOn: [
+    foundryModule
+  ]
 }
 
-resource apimSubscriptionResource 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
-  name: 'realtime-client-sub'
-  parent: apimService
+resource modelUsageFunction 'Microsoft.OperationalInsights/workspaces/savedSearches@2025-02-01' = {
+  parent: logAnalytics
+  name: '${guid(subscription().subscriptionId, resourceGroup().id)}_model_usage'
   properties: {
-    allowTracing: true
-    displayName: 'realtime-client'
-    scope: '/apis/${api.name}'
-    state: 'active'
+    category: 'llm'
+    displayName: 'model_usage'
+    version: 2
+    functionAlias: 'model_usage'
+    query: 'let llmHeaderLogs = ApiManagementGatewayLlmLog \r\n| where DeploymentName != \'\'; \r\nlet llmLogsWithSubscriptionId = llmHeaderLogs \r\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId \r\n| project \r\n    SubscriptionId = ApimSubscriptionId, DeploymentName, PromptTokens, CompletionTokens, TotalTokens; \r\nllmLogsWithSubscriptionId \r\n| summarize \r\n    SumPromptTokens      = sum(PromptTokens), \r\n    SumCompletionTokens      = sum(CompletionTokens), \r\n    SumTotalTokens      = sum(TotalTokens) \r\n  by SubscriptionId, DeploymentName'
+  }
+}
+
+resource promptsAndCompletionsFunction 'Microsoft.OperationalInsights/workspaces/savedSearches@2025-02-01' = {
+  parent: logAnalytics
+  name: '${guid(subscription().subscriptionId, resourceGroup().id)}_prompts_and_completions'
+  properties: {
+    category: 'llm'
+    displayName: 'prompts_and_completions'
+    version: 2
+    functionAlias: 'prompts_and_completions'
+    query: 'ApiManagementGatewayLlmLog\r\n| extend RequestArray = parse_json(RequestMessages)\r\n| extend ResponseArray = parse_json(ResponseMessages)\r\n| mv-expand RequestArray\r\n| mv-expand ResponseArray\r\n| project\r\n    CorrelationId, \r\n    RequestContent = tostring(RequestArray.content), \r\n    ResponseContent = tostring(ResponseArray.content)\r\n| summarize \r\n    Input = strcat_array(make_list(RequestContent), " . "), \r\n    Output = strcat_array(make_list(ResponseContent), " . ")\r\n    by CorrelationId\r\n| where isnotempty(Input) and isnotempty(Output)\r\n'
   }
 }
 
 
 // ------------------
-//    MARK: OUTPUTS
+//    OUTPUTS
 // ------------------
+
+output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
 
-#disable-next-line outputs-should-not-contain-secrets
-output apimSubscriptionKey string = apimSubscriptionResource.listSecrets().primaryKey
-output openAIEndpoint string = openAIModule.outputs.extendedOpenAIConfig[0].endpoint
+output apimSubscriptions array = apimModule.outputs.apimSubscriptions
+

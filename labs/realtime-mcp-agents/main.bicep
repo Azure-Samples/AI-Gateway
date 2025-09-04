@@ -2,21 +2,13 @@
 //    PARAMETERS
 // ------------------
 
-// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
-
+param aiServicesConfig array = []
+param modelsConfig array = []
 param apimSku string
-param apimLoggerName string = 'apim-logger'
-param openAIConfig array = []
-param openAIModelName string
-param openAIModelVersion string
-param openAIModelSKU string
-param openAIDeploymentName string
-param openAIAPIVersion string = '2024-02-01'
-param openAIModelCapacity int
-param serviceNowInstanceName string
-
-param location string = resourceGroup().location
-
+param apimSubscriptionsConfig array = []
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param inferenceAPIType string = 'AzureOpenAI'
+param foundryProjectName string = 'default'
 param spotifyAPIPath string = 'spotify'
 param weatherAPIPath string = 'weather'
 
@@ -25,19 +17,58 @@ param weatherAPIPath string = 'weather'
 // ------------------
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
-var apiManagementName = 'apim-${resourceSuffix}'
-
-// Account for all placeholders in the polixy.xml file.
-var policyXml = loadTextContent('policy.xml')
-var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
 
 // ------------------
 //    RESOURCES
 // ------------------
 
+// 1. Log Analytics Workspace
+module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
+  name: 'lawModule'
+}
+
+// 2. Application Insights
+module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
+  name: 'appInsightsModule'
+  params: {
+    lawId: lawModule.outputs.id
+    customMetricsOptedInType: 'WithDimensions'
+  }
+}
+
+// 3. API Management
+module apimModule '../../modules/apim/v2/apim.bicep' = {
+  name: 'apimModule'
+  params: {
+    apimSku: apimSku
+    apimSubscriptionsConfig: apimSubscriptionsConfig
+    lawId: lawModule.outputs.id
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
+  }
+}
+
+// 4. AI Foundry
+module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
+    name: 'foundryModule'
+    params: {
+      aiServicesConfig: aiServicesConfig
+      modelsConfig: modelsConfig
+      apimPrincipalId: apimModule.outputs.principalId
+      foundryProjectName: foundryProjectName
+    }
+  }
+
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+  name: 'apim-${resourceSuffix}'
+  dependsOn: [
+    foundryModule
+  ]
+}
+
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: 'acr${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   sku: {
     name: 'Basic'
   }
@@ -80,7 +111,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-pr
 
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
   name: 'aca-env-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -94,7 +125,7 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' 
 
 resource containerAppUAI 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
   name: 'aca-mi-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
 }
 var acrPullRole = resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
 @description('This allows the managed identity of the container app to access the registry, note scope is applied to the wider ResourceGroup not the ACR')
@@ -109,7 +140,7 @@ resource containerAppUAIRoleAssignment 'Microsoft.Authorization/roleAssignments@
 
 resource spotifyMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: 'aca-spotify-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -163,7 +194,7 @@ resource spotifyMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
             }                         
             {
               name: 'POST_LOGIN_REDIRECT_URL'
-              value: 'http://www.bing.com'
+              value: 'https://open.spotify.com/'
             }                         
             {
               name: 'APIM_IDENTITY_OBJECT_ID'
@@ -186,7 +217,7 @@ resource spotifyMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
 
 resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: 'aca-weather-${resourceSuffix}'
-  location: location
+  location: resourceGroup().location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -227,72 +258,6 @@ resource weatherMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pr
   }
 }
 
-// 1. Log Analytics Workspace
-module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
-  name: 'lawModule'
-}
-
-var lawId = lawModule.outputs.id
-
-// 2. Application Insights
-module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
-  name: 'appInsightsModule'
-  params: {
-    lawId: lawId
-    customMetricsOptedInType: 'WithDimensions'
-  }
-}
-
-
-// ------------------
-//    RESOURCES
-// ------------------
-
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
-  name: apiManagementName
-  location: location
-  sku: {
-    name: apimSku
-    capacity: 1
-  }
-  properties: {
-    publisherEmail: 'noreply@microsoft.com'
-    publisherName: 'Microsoft'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-}
-
-// Create a logger only if we have an App Insights ID and instrumentation key.
-resource apimLogger 'Microsoft.ApiManagement/service/loggers@2021-12-01-preview' = {
-  name: apimLoggerName
-  parent: apimService
-  properties: {
-    credentials: {
-      instrumentationKey: appInsightsModule.outputs.instrumentationKey
-    }
-    description: 'APIM Logger'
-    isBuffered: false
-    loggerType: 'applicationInsights'
-    resourceId: appInsightsModule.outputs.id
-  }
-}
-
-// 4. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
-  name: 'openAIModule'
-  params: {
-    openAIConfig: openAIConfig
-    openAIDeploymentName: openAIDeploymentName
-    openAIModelName: openAIModelName
-    openAIModelVersion: openAIModelVersion
-    openAIModelSKU: openAIModelSKU
-    openAIModelCapacity: openAIModelCapacity
-    apimPrincipalId: apimService.identity.principalId
-  }
-}
 
 // 5. APIM OpenAI-RT Websocket API
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
@@ -303,9 +268,9 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
     apiType: 'websocket'
     description: 'Inference API for Azure OpenAI Realtime'
     displayName: 'InferenceAPI'
-    path: 'rt-audio/openai/realtime'
-    serviceUrl: concat(replace(openAIModule.outputs.extendedOpenAIConfig[0].endpoint, 'https:', 'wss:'),'openai/realtime')
-    type: 'websocket'
+    path: '${inferenceAPIPath}/openai/realtime'
+    serviceUrl: '${replace(foundryModule.outputs.extendedAIServicesConfig[0].endpoint, 'https:', 'wss:')}openai/realtime'
+    type: inferenceAPIType
     protocols: [
       'wss'
     ]
@@ -328,10 +293,95 @@ resource rtPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024
   parent: rtOperation
   properties: {
     format: 'rawxml'
-    value: policyXml
+    value: loadTextContent('policy.xml')
   }
 }
 
+resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2024-06-01-preview' = {
+  parent: api
+  name: 'azuremonitor'
+  properties: {
+    alwaysLog: 'allErrors'
+    verbosity: 'verbose'
+    logClientIp: true
+    loggerId: apimModule.outputs.loggerId
+    sampling: {
+      samplingType: 'fixed'
+      percentage: json('100')
+    }
+    frontend: {
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+    }
+    backend: {
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+    }
+    largeLanguageModel: {
+      logs: 'enabled'
+      requests: {
+        messages: 'all'
+        maxSizeInBytes: 262144
+      }
+      responses: {
+        messages: 'all'
+        maxSizeInBytes: 262144
+      }
+    }
+  }
+} 
+
+
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+  name: 'workspace-${resourceSuffix}'
+  dependsOn: [
+    foundryModule
+  ]
+}
+
+resource modelUsageFunction 'Microsoft.OperationalInsights/workspaces/savedSearches@2025-02-01' = {
+  parent: logAnalytics
+  name: '${guid(subscription().subscriptionId, resourceGroup().id)}_model_usage'
+  properties: {
+    category: 'llm'
+    displayName: 'model_usage'
+    version: 2
+    functionAlias: 'model_usage'
+    query: 'let llmHeaderLogs = ApiManagementGatewayLlmLog \r\n| where DeploymentName != \'\'; \r\nlet llmLogsWithSubscriptionId = llmHeaderLogs \r\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId \r\n| project \r\n    SubscriptionId = ApimSubscriptionId, DeploymentName, PromptTokens, CompletionTokens, TotalTokens; \r\nllmLogsWithSubscriptionId \r\n| summarize \r\n    SumPromptTokens      = sum(PromptTokens), \r\n    SumCompletionTokens      = sum(CompletionTokens), \r\n    SumTotalTokens      = sum(TotalTokens) \r\n  by SubscriptionId, DeploymentName'
+  }
+}
+
+resource promptsAndCompletionsFunction 'Microsoft.OperationalInsights/workspaces/savedSearches@2025-02-01' = {
+  parent: logAnalytics
+  name: '${guid(subscription().subscriptionId, resourceGroup().id)}_prompts_and_completions'
+  properties: {
+    category: 'llm'
+    displayName: 'prompts_and_completions'
+    version: 2
+    functionAlias: 'prompts_and_completions'
+    query: 'ApiManagementGatewayLlmLog\r\n| extend RequestArray = parse_json(RequestMessages)\r\n| extend ResponseArray = parse_json(ResponseMessages)\r\n| mv-expand RequestArray\r\n| mv-expand ResponseArray\r\n| project\r\n    CorrelationId, \r\n    RequestContent = tostring(RequestArray.content), \r\n    ResponseContent = tostring(ResponseArray.content)\r\n| summarize \r\n    Input = strcat_array(make_list(RequestContent), " . "), \r\n    Output = strcat_array(make_list(ResponseContent), " . ")\r\n    by CorrelationId\r\n| where isnotempty(Input) and isnotempty(Output)\r\n'
+  }
+}
 
 module spotifyAPIModule 'src/spotify/apim-api/api.bicep' = {
   name: 'spotifyAPIModule'
@@ -351,18 +401,6 @@ module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
   }
 }
 
-// Ignore the subscription that gets created in the APIM module and create three new ones for this lab.
-resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
-  name: 'apim-subscription'
-  parent: apimService
-  properties: {
-    allowTracing: true
-    displayName: 'Generic APIM Subscription'
-    scope: '/apis'
-    state: 'active'
-  }
-}
-
 var apimContributorRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '312a565d-c81f-4fd8-895a-4e21e48d571c')
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =  {
     scope: apimService
@@ -378,6 +416,12 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =  
 //    OUTPUTS
 // ------------------
 
+output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
+output apimServiceId string = apimModule.outputs.id
+output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
+
+output apimSubscriptions array = apimModule.outputs.apimSubscriptions
+
 output containerRegistryName string = containerRegistry.name
 
 output spotifyMCPServerContainerAppResourceName string = spotifyMCPServerContainerApp.name
@@ -386,12 +430,3 @@ output spotifyMCPServerContainerAppFQDN string = spotifyMCPServerContainerApp.pr
 output weatherMCPServerContainerAppResourceName string = weatherMCPServerContainerApp.name
 output weatherMCPServerContainerAppFQDN string = weatherMCPServerContainerApp.properties.configuration.ingress.fqdn
 
-output applicationInsightsAppId string = appInsightsModule.outputs.appId
-output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
-output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
-output apimServiceId string = apimService.id
-output apimResourceName string = apimService.name
-output apimResourceGatewayURL string = apimService.properties.gatewayUrl
-
-#disable-next-line outputs-should-not-contain-secrets
-output apimSubscriptionKey string = apimSubscription.listSecrets().primaryKey
