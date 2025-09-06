@@ -1,6 +1,7 @@
 {
 	"name": "AI Gateway Dev Container",
-	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	// Using Python bullseye image which has ARM64 support
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
 	"hostRequirements": {
 	  "cpus": 4
 	},
