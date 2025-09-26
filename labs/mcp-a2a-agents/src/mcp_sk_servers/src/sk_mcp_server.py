@@ -98,7 +98,6 @@ async def run(transport: Literal["sse", "stdio", "http"] = "stdio", port: int | 
     if transport == "http" and port is not None:
         import contextlib
         from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
-        from mcp.server.fastmcp import FastMCP
         from starlette.types import Receive, Scope, Send
         from starlette.applications import Starlette
         from typing import AsyncIterator
@@ -110,43 +109,50 @@ async def run(transport: Literal["sse", "stdio", "http"] = "stdio", port: int | 
             event_store=None,
             json_response=True,
             stateless=True,
-            )
+        )
+
         async def handle_streamable_http(scope: Scope, receive: Receive, send: Send) -> None:
             await session_manager.handle_request(scope, receive, send)
 
         @contextlib.asynccontextmanager
-        async def lifespan(app: Starlette) -> AsyncIterator[None]:
-            """Context manager for session manager."""
+        async def lifespan(app: Starlette):
             async with session_manager.run():
                 try:
                     yield
                 finally:
                     print("Application shutting down...")
 
-        import nest_asyncio
-        nest_asyncio.apply() 
-        
         starlette_app = Starlette(
             debug=True,
-                routes=[
-                    Mount("/mcp", app=handle_streamable_http),
-                ],
-                lifespan=lifespan,
-            )
-        uvicorn.run(starlette_app, host="0.0.0.0", port=port)
+            routes=[Mount("/mcp", app=handle_streamable_http)],
+            lifespan=lifespan,
+        )
+
+        # IMPORTANT: do not call uvicorn.run() here.
+        config = uvicorn.Config(
+            app=starlette_app,
+            host="0.0.0.0",
+            port=port,
+            loop="asyncio",
+            lifespan="on",
+        )
+        server = uvicorn.Server(config)
+        await server.serve()
+
 
     if transport == "sse" and port is not None:
         import uvicorn
         from mcp.server.sse import SseServerTransport
         from starlette.applications import Starlette
         from starlette.routing import Mount, Route
+        from starlette.responses import Response
 
         sse = SseServerTransport("/messages/")
 
         async def handle_sse(request):
             async with sse.connect_sse(request.scope, request.receive, request._send) as (read_stream, write_stream):
                 await mcp_server.run(read_stream, write_stream, mcp_server.create_initialization_options())
-            return Response(status_code=204)  # <— important!
+            return Response(status_code=204) # <— important!
 
         starlette_app = Starlette(
             debug=True,
@@ -155,20 +161,28 @@ async def run(transport: Literal["sse", "stdio", "http"] = "stdio", port: int | 
                 Mount("/messages/", app=sse.handle_post_message),
             ],
         )
-        import nest_asyncio
-        nest_asyncio.apply() 
 
-        uvicorn.run(starlette_app, host="0.0.0.0", port=port)  # nosec
+        config = uvicorn.Config(
+            app=starlette_app,
+            host="0.0.0.0",
+            port=port,
+            loop="asyncio",
+            lifespan="on",
+        )
+        server = uvicorn.Server(config)
+        await server.serve()
+
         
     elif transport == "stdio":
-        import anyio
         from mcp.server.stdio import stdio_server
 
-        async def handle_stdin(stdin: Any | None = None, stdout: Any | None = None) -> None:
-            async with stdio_server() as (read_stream, write_stream):
-                await mcp_server.run(read_stream, write_stream, mcp_server.create_initialization_options())
+        async with stdio_server() as (read_stream, write_stream):
+            await mcp_server.run(
+                read_stream,
+                write_stream,
+                mcp_server.create_initialization_options()
+            )
 
-        anyio.run(handle_stdin)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Run the Semantic Kernel MCP server.")
