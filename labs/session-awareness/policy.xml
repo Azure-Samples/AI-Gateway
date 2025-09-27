@@ -1,0 +1,28 @@
+<policies>
+    <inbound>
+        <base />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
+        </set-header>
+        <set-backend-service backend-id="{backend-id}" />
+        <set-header name="x-request-id" exists-action="override">
+            <value>@(context.RequestId.ToString())</value>
+        </set-header>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+        <set-header name="x-request-id" exists-action="override">
+            <value>@(context.RequestId.ToString())</value>
+        </set-header>
+        <set-header name="x-backend-region" exists-action="override">
+            <value>@(context.Response.Headers.GetValueOrDefault("x-ms-region", "unknown"))</value>
+        </set-header>
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
