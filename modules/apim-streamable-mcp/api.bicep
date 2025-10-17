@@ -1,23 +1,40 @@
 param apimServiceName string
-param APIServiceURL string
-param APIPath string = 'weather'
+param MCPServiceURL string
+param MCPPath string = 'weather'
 
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apimServiceName
 }
 
-resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
+resource mcpBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' ={
   parent: apim
-  name: 'weather-mcp'
+  name: '${MCPPath}-mcp-backend'
   properties: {
-    displayName: 'Weather MCP'
-    apiRevision: '1'
+    protocol: 'http'
+    url: '${MCPServiceURL}/mcp'
+    tls: {
+      validateCertificateChain: true
+      validateCertificateName: true
+    }
+    type: 'Single'
+  }  
+}
+
+resource mcp 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
+  parent: apim
+  name: '${MCPPath}-mcp-tools'
+  properties: {
+    displayName: '${MCPPath} MCP Tools'
+    type: 'mcp'
     subscriptionRequired: false
-    serviceUrl: APIServiceURL
-    path: APIPath
+    backendId: mcpBackend.name
+    path: MCPPath
     protocols: [
       'https'
     ]
+    mcpProperties:{
+      transportType: 'streamable'
+    }
     authenticationSettings: {
       oAuth2AuthenticationSettings: []
       openidAuthenticationSettings: []
@@ -27,13 +44,11 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
       query: 'subscription-key'
     }
     isCurrent: true
-    format: 'openapi+json'
-    value: loadTextContent('openapi.json')
   }
 }
 
 resource APIPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-preview' = {
-  parent: api
+  parent: mcp
   name: 'policy'
   properties: {
     value: loadTextContent('policy.xml')

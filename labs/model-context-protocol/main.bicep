@@ -15,7 +15,7 @@ param githubAPIPath string = 'github'
 param weatherAPIPath string = 'weather'
 param oncallAPIPath string = 'oncall'
 param servicenowAPIPath string = 'servicenow'
-param serviceNowInstanceName string
+param serviceNowInstanceName string = ''
 
 // ------------------
 //    VARIABLES
@@ -397,32 +397,30 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
   }
 }
 
-
-
-module githubAPIModule 'src/github/apim-api/api.bicep' = {
+module githubAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   name: 'githubAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: githubAPIPath
-    APIServiceURL: 'https://${gitHubMCPServerContainerApp.properties.configuration.ingress.fqdn}/${githubAPIPath}'
+    MCPPath: githubAPIPath
+    MCPServiceURL: 'https://${gitHubMCPServerContainerApp.properties.configuration.ingress.fqdn}/${githubAPIPath}'
   }
 }
 
-module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
+module weatherAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   name: 'weatherAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: weatherAPIPath
-    APIServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
+    MCPPath: weatherAPIPath
+    MCPServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
   }
 }
 
-module oncallAPIModule 'src/oncall/apim-api/api.bicep' = {
+module oncallAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   name: 'oncallAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: oncallAPIPath
-    APIServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}/${oncallAPIPath}'
+    MCPPath: oncallAPIPath
+    MCPServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}/${oncallAPIPath}'
   }
 }
 
@@ -435,7 +433,6 @@ module serviceNowAPIModule 'src/servicenow/apim-api/api.bicep' = if(length(servi
     serviceNowInstanceName: serviceNowInstanceName
   }
 }
-
 
 var apimContributorRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', '312a565d-c81f-4fd8-895a-4e21e48d571c')
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =  {
