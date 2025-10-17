@@ -1,7 +1,7 @@
 import asyncio
 from semantic_kernel.agents import ChatCompletionAgent
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.connectors.mcp import MCPSsePlugin
+from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
 
 import os
 
@@ -14,7 +14,7 @@ inference_api_path = os.environ.get("INFERENCE_API_PATH", "")
 openai_model_name  = os.environ.get("OPENAI_DEPLOYMENT_NAME", "gpt-4o-mini")
 
 ### TODO: Integrate in Server lifecycle - current life cycle creates 1 persistent SK Agent, no threads, no fallback
-async def _safe_disconnect(plugin: MCPSsePlugin) -> None:
+async def _safe_disconnect(plugin: MCPStreamableHttpPlugin) -> None:
     """Handle SK method differences across versions."""
     for method_name in ("disconnect", "close", "aclose"):
         method = getattr(plugin, method_name, None)
@@ -24,7 +24,7 @@ async def _safe_disconnect(plugin: MCPSsePlugin) -> None:
                 await maybe_coro
             return
 
-async def build_agent(sse_path: str | None = None, title: str | None = None):
+async def build_agent(mcp_path: str | None = None, title: str | None = None):
     # Connect the agent to Azure OpenAI
     service = AzureChatCompletion(
             endpoint=f"{apim_resource_gateway_url}/{inference_api_path}",
@@ -35,13 +35,13 @@ async def build_agent(sse_path: str | None = None, title: str | None = None):
 
     # Attach a remote MCP plugin the agent can call during reasoning
     # (e.g., a weather or tools server you already host elsewhere)
-    sse_plugin = MCPSsePlugin(
+    mcp_plugin = MCPStreamableHttpPlugin(
         name=title,
-        url=f"{apim_resource_gateway_url}/{sse_path}/sse",
-        description=f"Remote {title} MCP Plugin via SSE",
+        url=f"{apim_resource_gateway_url}/{mcp_path}",
+        description=f"Remote {title} MCP Plugin via HTTP Streamable Transport",
     )
 
-    await sse_plugin.connect()
+    await mcp_plugin.connect()
 
     agent = ChatCompletionAgent(
         service=service,
@@ -51,7 +51,7 @@ async def build_agent(sse_path: str | None = None, title: str | None = None):
             f"Use the '{title}' plugin when the user asks about {title.lower()}. "
             "Cite the source if appropriate."
         ),
-        plugins=[sse_plugin],
+        plugins=[mcp_plugin],
     )
 
     return agent
@@ -69,8 +69,8 @@ from semantic_kernel.functions import kernel_function
 from semantic_kernel.prompt_template.input_variable import InputVariable
 from semantic_kernel.prompt_template.prompt_template_config import PromptTemplateConfig
 
-async def run(transport: Literal["sse", "stdio", "http"] = "stdio", port: int | None = None, sse_path: str | None = None, title: str | None = None) -> None:
-    kernel = await build_agent(sse_path=sse_path, title=title)
+async def run(transport: Literal["sse", "stdio", "http"] = "stdio", port: int | None = None, mcp_path: str | None = None, title: str | None = None) -> None:
+    kernel = await build_agent(mcp_path=mcp_path, title=title)
 
     @kernel_function()
     async def echo_function(message: str, extra: str = "") -> str:
@@ -189,4 +189,4 @@ def parse_arguments():
 
 if __name__ == "__main__":
     args = parse_arguments()
-    asyncio.run(run(transport=args.transport, port=args.port, sse_path=MCP_URL, title=TITLE), debug=True)
+    asyncio.run(run(transport=args.transport, port=args.port, mcp_path=MCP_URL, title=TITLE), debug=True)

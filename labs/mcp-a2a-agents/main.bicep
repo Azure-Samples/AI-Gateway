@@ -373,21 +373,21 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' existing 
   ]
 }
 
-module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
+module weatherAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   name: 'weatherAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: weatherAPIPath
-    APIServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
+    MCPPath: weatherAPIPath
+    MCPServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
   }
 }
 
-module oncallAPIModule 'src/oncall/apim-api/api.bicep' = {
+module oncallAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   name: 'oncallAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: oncallAPIPath
-    APIServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}/${oncallAPIPath}'
+    MCPPath: oncallAPIPath
+    MCPServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}/${oncallAPIPath}'
   }
 }
 

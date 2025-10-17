@@ -17,7 +17,7 @@ from semantic_kernel.connectors.ai.open_ai import (
     AzureChatCompletion,
     OpenAIChatPromptExecutionSettings,
 )
-from semantic_kernel.connectors.mcp import MCPSsePlugin
+from semantic_kernel.connectors.mcp import MCPStreamableHttpPlugin
 from semantic_kernel.contents import (
     FunctionCallContent,
     FunctionResultContent,
@@ -26,7 +26,7 @@ from semantic_kernel.contents import (
 )
 from semantic_kernel.functions.kernel_arguments import KernelArguments
 
-# websockets errors bubbled up by MCPSsePlugin
+# websockets errors bubbled up by MCPStreamableHttpPlugin
 from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
 
 if TYPE_CHECKING:
@@ -83,7 +83,7 @@ class SemanticKernelAgent(AbstractAgent):
         self._base_delay = base_delay
         self._max_delay = max_delay
 
-        self.mcp_plugin: MCPSsePlugin | None = None
+        self.mcp_plugin: MCPStreamableHttpPlugin | None = None
         self.agent: ChatCompletionAgent | None = None
         self.thread: ChatHistoryAgentThread | None = None
 
@@ -206,7 +206,7 @@ class SemanticKernelAgent(AbstractAgent):
         await self._open_plugin_and_agent()
 
     async def _open_plugin_and_agent(self):
-        self.mcp_plugin = MCPSsePlugin(
+        self.mcp_plugin = MCPStreamableHttpPlugin(
             name=self._title,
             url=self._mcp_url,
             description=f"{self._title} Plugin",

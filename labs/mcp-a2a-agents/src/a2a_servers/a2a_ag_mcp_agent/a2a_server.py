@@ -77,14 +77,14 @@ def build_app(
     # -------- 5. Register lifecycle hooks to open/close the agent -----
     @app.on_event("startup")
     async def _startup() -> None:
-        log.info("Opening SemanticKernelAgent SSE connection …")
+        log.info("Opening SemanticKernelAgent Streamable connection …")
         await agent.__aenter__()          # opens MCPSsePlugin
         # NB: if you decide to make the *executor* the context
         # manager (Option 2), just call `await sk_agent_exec.__aenter__()`
 
     @app.on_event("shutdown")
     async def _shutdown() -> None:
-        log.info("Closing SemanticKernelAgent SSE connection …")
+        log.info("Closing SemanticKernelAgent Streamable connection …")
         await agent.__aexit__(None, None, None)
         await httpx_client.aclose()
 

@@ -10,7 +10,7 @@ Key features
 * **Pluggable model client** – pass any ``ChatCompletionClient`` instance via
   ``oai_client=…``. Works with
   ``AzureOpenAIChatCompletionClient`` as well as the plain ``OpenAIChatCompletionClient``.
-* Auto‑discovers tools from an MCP SSE endpoint and registers them with the
+* Auto‑discovers tools from an MCP Streamable endpoint and registers them with the
   AssistantAgent.
 * Structured JSON replies validated against ``AgentResponse`` so the caller can
   keep using the existing ``is_task_complete`` / ``require_user_input`` flags.
@@ -58,7 +58,7 @@ from autogen_ext.models.openai import (
 
 # AutoGen ▸ Extensions ▸ MCP helpers
 from autogen_ext.tools.mcp import (
-    SseServerParams,
+    StreamableHttpServerParams,
     mcp_server_tools,
     create_mcp_server_session,
 )
@@ -105,7 +105,7 @@ class AbstractAgent(abc.ABC):
 
 # ---------------------------------------------------------------------------
 class AutoGenAgent(AbstractAgent):
-    """AutoGen agent that consumes an MCP SSE endpoint."""
+    """AutoGen agent that consumes an MCP Streamable endpoint."""
 
     def __init__(
         self,
@@ -126,7 +126,7 @@ class AutoGenAgent(AbstractAgent):
         base_delay: float = 0.5,
         max_delay: float = 5.0,
     ) -> None:
-        self._server_params = SseServerParams(url=mcp_url, headers=http_headers)
+        self._server_params = StreamableHttpServerParams(url=mcp_url, headers=http_headers)
         self._title = title
 
         self._model_client: Union[

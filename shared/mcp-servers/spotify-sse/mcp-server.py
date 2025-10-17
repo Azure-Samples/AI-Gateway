@@ -12,8 +12,8 @@ from azure.mgmt.apimanagement import ApiManagementClient
 from azure.mgmt.apimanagement.models import AuthorizationContract, AuthorizationAccessPolicyContract, AuthorizationLoginRequestContract
 
 
-# Initialize FastMCP server for ServiceNow API
-mcp = FastMCP("ServiceNow")
+# Initialize FastMCP server for Spotify API
+mcp = FastMCP("Spotify")
 
 # Environment variables
 APIM_GATEWAY_URL = str(os.getenv("APIM_GATEWAY_URL"))
@@ -24,10 +24,19 @@ AZURE_TENANT_ID = str(os.getenv("AZURE_TENANT_ID"))
 AZURE_CLIENT_ID = str(os.getenv("AZURE_CLIENT_ID"))
 POST_LOGIN_REDIRECT_URL = str(os.getenv("POST_LOGIN_REDIRECT_URL"))
 APIM_IDENTITY_OBJECT_ID = str(os.getenv("APIM_IDENTITY_OBJECT_ID"))
-idp = "servicenow"
+idp = "spotify"
+
+def get_headers(ctx: Context):
+    headers = {
+        "Content-Type": "application/json",
+        "authorizationId": f"{idp.lower()}-{str(id(ctx.session))}",
+        "providerId": idp.lower() 
+    }
+    return headers
+
 
 @mcp.tool()
-async def authorize_servicenow(ctx: Context) -> str:
+async def authorize_spotify(ctx: Context) -> str:
     """Validate Credential Manager connection exists and is connected.
     
     Args:
@@ -60,7 +69,7 @@ async def authorize_servicenow(ctx: Context) -> str:
             authorization_id=authorization_id,
         )
         if response.status == "Connected":
-            print("ServiceNow authorization is already connected.")
+            print("Spotify authorization is already connected.")
             return "Connection authorized."
     except Exception as e:
         print(f"Failed to get authorization")
@@ -131,109 +140,119 @@ async def authorize_servicenow(ctx: Context) -> str:
     print("Login URL: ", response.login_link)
     return f"Please authorize by opening this link: {response.login_link}"
 
-# Update tools to list incidents, get incident and create incident
+
+
 @mcp.tool()
-async def create_incident(ctx: Context, description: str) -> str:
-    """Create an incident on Service Now.
-    Args:
-        description: description for the incident
-
-    Returns:
-        Service now incident
-    """
-
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"
-    
-    print(f"SessionId: {session_id}")
-
-    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident?sysparm_exclude_reference_link=True&sysparm_display_value=False&sysparm_input_display_value=False"
-    serviceNowHeaders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id
-    }
-
-    json_data = [
-        {
-            "short_description": description,
-            "caller_id": "1234567890"
-        }
-    ]
-
-    serviceNowResponse = httpx.post(serviceNowIncidentUrl, headers=serviceNowHeaders, json=json_data)
-    if (serviceNowResponse.status_code == 200):
-        incident = serviceNowResponse.json()
-        return f"Incident Created: {incident}"
-    else:
-        return f"Unable to create incident. Status code: {serviceNowResponse.status_code}, Response: {serviceNowResponse.text}"
-    
-@mcp.tool()
-async def list_incidents(ctx: Context) -> str:
-    """Get all incidents in this service now incident.
+async def get_user_playlists(ctx: Context) -> str:
+    """Get user playlists
      
     Returns:
-        A list of incidents
+        Playlists for the user
     """
-    print("Getting the list of incidents...")
-
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"
-    
-    print(f"SessionId: {session_id}")
-
-    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident?sysparm_exclude_reference_link=True&sysparm_display_value=False&sysparm_limit=5"
-    #We need to get servicenowId for the policy
-    serviceNowHeaders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id 
-    }
-
-    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders)
-    if (serviceNowResponse.status_code == 200):
-        incidents = serviceNowResponse.json()
-        return f"Incidents: {incidents}"
+    response = httpx.get(f"{APIM_GATEWAY_URL}/me/playlists?limit=5", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playlists: {response.json()}"
     else:
-        return f"Unable to List Incidents. Status code: {serviceNowResponse.status_code}, Response: {serviceNowResponse.text}"
+        return f"Unable to get playlists. Status code: {response.status_code}, Response: {response.text}"
 
 @mcp.tool()
-async def get_incident(ctx: Context, recordSystemId: str) -> str:
-    """Get incident with specific record system id
+async def get_player_queue(ctx: Context) -> str:
+    """Get playback queue
+     
+    Returns:
+        Playback queue
+    """
+    response = httpx.get(f"{APIM_GATEWAY_URL}/me/player/queue", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playback queue: {response.json()}"
+    else:
+        return f"Unable to get playback queue. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def get_playback_status(ctx: Context) -> str:
+    """Get playback status
+     
+    Returns:
+        Playback status
+    """
+    response = httpx.get(f"{APIM_GATEWAY_URL}/me/player", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playback status: {response.json()}"
+    else:
+        return f"Unable to get playback status. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def start_playback(ctx: Context) -> str:
+    """Start playback
+     
+    Returns:
+        Confirmation that the playback was started
+    """
+    response = httpx.put(f"{APIM_GATEWAY_URL}/me/player/play", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playback was started!"
+    else:
+        return f"Unable to start playback. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def pause_playback(ctx: Context) -> str:
+    """Pause playback
+     
+    Returns:
+        Confirmation of pause
+    """
+    response = httpx.put(f"{APIM_GATEWAY_URL}/me/player/pause", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playback was paused!"
+    else:
+        return f"Unable to pause playback. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def get_my_queue(ctx: Context) -> str:
+    """Get my playing queue.
+     
+    Returns:
+        The playing queue
+    """
+    response = httpx.get(f"{APIM_GATEWAY_URL}/me/player/queue", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"Playing queue: {response.json()}"
+    else:
+        return f"Unable to get playing queue. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def browse_new_releases(ctx: Context) -> str:
+    """Get all new releases.
+     
+    Returns:
+        A list of releases
+    """
+    response = httpx.get(f"{APIM_GATEWAY_URL}/browse/new-releases?limit=5", headers=get_headers(ctx))
+    if (response.status_code == 200):
+        return f"New Releases: {response.json()}"
+    else:
+        return f"Unable to List Releases. Status code: {response.status_code}, Response: {response.text}"
+
+@mcp.tool()
+async def search(ctx: Context, query: str) -> str:
+    """Get items that match the search query.
     
     Args:
-        recordSystemId: record system identifier for the incident
+        query: search query for an artist, album, or track
     Returns:
-        A specific incidents
+        Seach results
     """
-    print("Getting the incident...")
-
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"
-    
-    print(f"SessionId: {session_id}")
-
-    serviceNowIncidentUrl = f"{APIM_GATEWAY_URL}/api/now/v2/table/incident/{recordSystemId}?sysparm_exclude_reference_link=True&sysparm_display_value=False"
-    #We need to get servicenowId for the policy
-    serviceNowHeaders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id 
-    }
-    serviceNowResponse = httpx.get(serviceNowIncidentUrl, headers=serviceNowHeaders)
-    if (serviceNowResponse.status_code == 200):
-        incident = serviceNowResponse.json()
-        return f"Incident: {incident}"
+    response = httpx.get(f"{APIM_GATEWAY_URL}/search?q={query}&type=artist%2Calbum%2Ctrack&limit=5&market=US", headers=get_headers(ctx))
+    print("SEARCH RESULT:", response)
+    if (response.status_code == 200):
+        return f"Search results: {response.json()}"
     else:
-        return f"Unable to Get Incidents. Status code: {serviceNowResponse.status_code}, Response: {serviceNowResponse.text}"
+        return f"Unable to search. Status code: {response.status_code}, Response: {response.text}"
 
 # Keep - no change needed
 def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlette:
     """Create a Starlette application that can server the provied mcp server with SSE."""
-    sse = SseServerTransport("/servicenow/messages/")
+    sse = SseServerTransport("/spotify/mcp/messages/")
 
     async def handle_sse(request: Request) -> None:
         print(f"handling sse")
@@ -252,8 +271,8 @@ def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlett
     return Starlette(
         debug=debug,
         routes=[
-            Route("/servicenow/sse", endpoint=handle_sse),
-            Mount("/servicenow/messages/", app=sse.handle_post_message),
+            Route("/spotify/mcp/sse", endpoint=handle_sse),
+            Mount("/spotify/mcp/messages/", app=sse.handle_post_message),
         ],
     )
 
