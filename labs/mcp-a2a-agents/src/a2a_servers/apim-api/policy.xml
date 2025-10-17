@@ -1,5 +1,11 @@
 <policies>
     <inbound>
+        <cors allow-credentials="false">
+            <allowed-origins>
+                <origin>https://copilotstudio.preprod.microsoft.com</origin>
+                <origin>https://copilotstudio.microsoft.com</origin>
+            </allowed-origins>
+        </cors>
         <base />
     </inbound>
     <backend>

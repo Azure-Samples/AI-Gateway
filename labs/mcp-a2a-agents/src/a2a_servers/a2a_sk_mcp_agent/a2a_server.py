@@ -97,7 +97,7 @@ def _get_agent_card(host_url: str) -> AgentCard:
     skill = AgentSkill(
         id=f'{TITLE}_forecast_sk',
         name=f'Semantic Kernel {TITLE} forecasting agent',
-        description=f'Answers questions about the {TITLE} using the tools provided',
+        description=f'Answers questions about the {TITLE} using the tools provided, breakdown the requests one question at a time.',
         tags=[f'{TITLE}', 'semantic-kernel'],
         examples=[
             "What's the weather like in Cairo?",
