@@ -1,0 +1,16 @@
+# FastMCP and MCP dependencies
+fastmcp
+mcp
+
+# Web framework
+starlette>=0.37.2
+uvicorn[standard]>=0.27.0
+
+# Azure and Microsoft Graph
+azure-identity>=1.15.0
+azure-core>=1.29.0
+msgraph-sdk>=1.2.0
+msal>=1.26.0
+
+# Utilities
+python-dotenv>=1.0.0
