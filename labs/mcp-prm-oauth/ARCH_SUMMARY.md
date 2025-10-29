@@ -110,7 +110,7 @@ Several parameters are declared but not used in the current implementation:
 │ MCP Client   │
 └──────┬───────┘
        │
-       │ 1. GET /.well-known/oauth-protected-resource
+       │ 1. GET /mcp/.well-known/oauth-protected-resource
        ├────────────────────────────────────►┌────────────────┐
        │                                     │ APIM Gateway   │
        │ 2. Returns PRM metadata             │ (Anonymous)    │

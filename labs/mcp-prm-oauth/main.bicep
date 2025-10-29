@@ -2,7 +2,6 @@
 //    PARAMETERS
 // ------------------
 
-param appRegName string = 'mcp-prm-app-reg'
 param aiServicesConfig array = []
 param modelsConfig array = []
 param apimSku string
@@ -23,7 +22,7 @@ param encryptionKey string
 param oauthScopes string
 
 @description('The display name for the MCP Entra application')
-param mcpAppDisplayName string = appRegName
+param mcpEntraAppName string
 
 @description('MCP App Client ID - if already created manually, provide it here to skip automatic creation')
 param mcpClientId string = ''
@@ -33,14 +32,13 @@ param tags object = {}
 
 param location string = resourceGroup().location
 
-param prmAPIPath string = '/mcp'
+param mcpPrmPath string = 'mcp'
 
 // ------------------
 //    VARIABLES
 // ------------------
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
-var mcpAppUniqueName = 'mcp-app-${resourceSuffix}'
 
 
 // ------------------
@@ -231,8 +229,8 @@ resource mcpServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' 
 module mcpEntraAppModule 'src/bicep/identity/mcp-entra-app.bicep' = if (empty(mcpClientId)) {
   name: 'mcpEntraAppModule'
   params: {
-    mcpAppUniqueName: mcpAppUniqueName
-    mcpAppDisplayName: mcpAppDisplayName
+    mcpAppUniqueName: mcpEntraAppName
+    mcpAppDisplayName: mcpEntraAppName
     tenantId: subscription().tenantId
     userAssignedIdentityPrincipleId: managedIdentityModule.outputs.identityPrincipalId
     webAppName: mcpServerContainerApp.name
@@ -247,9 +245,23 @@ module mcpApiModule 'src/bicep/apim-mcp/mcp-api.bicep' = {
     webAppName: mcpServerContainerApp.name
     mcpAppId: !empty(mcpClientId) ? mcpClientId : (mcpEntraAppModule.?outputs.mcpAppId ?? '')
     mcpAppTenantId: subscription().tenantId
+    mcpApiPath: mcpPrmPath
   }
 }
 
+resource dynamicDiscovery 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
+  parent: apimService
+  name: 'mcp-prm-dynamic-discovery'
+  properties: {
+    displayName: 'Dynamic Discovery Endpoint'
+    description: 'Model Context Protocol Dynamic Discovery Endpoint'
+    subscriptionRequired: false
+    path: '/.well-known/oauth-protected-resource'
+    protocols: [
+      'https'
+    ]
+  }
+}
 
 // ------------------
 //    OUTPUTS
@@ -285,7 +297,5 @@ output mcpServerURL string = 'https://${mcpServerContainerApp.properties.configu
 // MCP Configuration
 output mcpAppId string = !empty(mcpClientId) ? mcpClientId : (mcpEntraAppModule.?outputs.mcpAppId ?? 'Not created - provide mcpClientId parameter')
 output mcpAppTenantId string = subscription().tenantId
-output mcpApiEndpoint string = '${apimModule.outputs.gatewayUrl}${prmAPIPath}'
-output mcpPrmEndpoint string = '${apimModule.outputs.gatewayUrl}/.well-known/oauth-protected-resource'
-
-
+output mcpApiEndpoint string = '${apimModule.outputs.gatewayUrl}/${mcpPrmPath}'
+output mcpPrmEndpoint string = '${apimModule.outputs.gatewayUrl}/${mcpPrmPath}/.well-known/oauth-protected-resource'
