@@ -127,7 +127,7 @@ resource inferenceBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-p
         errorReasons: [
           'Server errors'
         ]
-        interval: 'PT5M'
+        interval: 'PT1M'
         statusCodeRanges: [
           {
           min: 429

@@ -6,6 +6,8 @@
     <backend>
         <!--Set count to one less than the number of backends in the pool to try all backends until the backend pool is temporarily unavailable.-->
         <retry count="2" interval="0" first-fast-retry="true" condition="@(context.Response.StatusCode == 429 || (context.Response.StatusCode == 503 && !context.Response.StatusReason.Contains("Backend pool") && !context.Response.StatusReason.Contains("is temporarily unavailable")))">
+            <!--Switch back to same backend pool which will have automatically removed the faulty backend -->
+            <set-backend-service backend-id="{backend-id}" />
             <forward-request buffer-request-body="true" />
         </retry>
     </backend>
