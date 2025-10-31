@@ -1,15 +1,21 @@
 # APIM ❤️ MCP
 
-## [MCP Client Authorization lab](mcp-client-authorization.ipynb)
+## MCP Protected Resources Metadata - PRM
 
-[![flow](../../images/mcp-client-authorization.gif)](mcp-client-authorization.ipynb)
+![flow](../../images/mcp-prm-oauth.gif)
 
-Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) with the [client authorization flow](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization#2-10-third-party-authorization-flow). In this flow, Azure API Management act both as an OAuth client connecting to the [Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/architecture/auth-oauth2) authorization server and as an OAuth authorization server for the MCP client ([MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector) in this lab).
+Playground to experiment the [Model Context Protocol](https://modelcontextprotocol.io/) with the [client authorization flow](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization#2-10-third-party-authorization-flow). 
 
-⚠️ Due to the evolving nature of the [MCP Authorization proposal](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization), direct use of this implementation in production environments is not yet recommended.
+In this flow, Azure API Management act both as an OAuth client connecting to the [Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/architecture/auth-oauth2) authorization server and as an OAuth authorization server for the MCP client ([MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector) in this lab), VS Code or Copilot Studio.
+
+Full documentation of the assets created in this lab and how they interact is documented in [Arch decisions summary](ARCH_SUMMARY.md) and in [MCP PRM Server implementation](src/mcp-prm-server/README.md)
+
+
+⚠️ This lab implements the [MCP Authorization proposal](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization) and [RFC9729](https://datatracker.ietf.org/doc/html/rfc9728), this is as close to production-grade security for MCP servers as it gets, and is inspired by the amazing work by [blackchoey/remote-mcp-apim-oauth-prm](https://github.com/blackchoey/remote-mcp-apim-oauth-prm) - originally written in C#
 
 ### Prerequisites
 
+- Entra ID permissions to create and manage App Registrations
 - [Python 3.12 or later version](https://www.python.org/) installed
 - [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
 - [Python environment](https://code.visualstudio.com/docs/python/environments#_creating-environments) with the [requirements.txt](../../requirements.txt) or run `pip install -r requirements.txt` in your terminal
