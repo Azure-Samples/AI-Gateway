@@ -1,7 +1,8 @@
 aiohttp
 openai
 openai[realtime]
-fastrtc[vad]
+fastrtc[vad]==0.0.20
+gradio==5.42.0
 azure-identity
 mcp
 semantic-kernel[mcp]

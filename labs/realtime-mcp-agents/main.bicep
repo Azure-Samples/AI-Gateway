@@ -9,7 +9,7 @@ param apimSubscriptionsConfig array = []
 param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
 param inferenceAPIType string = 'AzureOpenAI'
 param foundryProjectName string = 'default'
-param spotifyAPIPath string = 'spotify'
+param spotifyAPIPath string = 'spotify_mcp'
 param weatherAPIPath string = 'weather'
 
 // ------------------
@@ -383,21 +383,21 @@ resource promptsAndCompletionsFunction 'Microsoft.OperationalInsights/workspaces
   }
 }
 
-module spotifyAPIModule 'src/spotify/apim-api/api.bicep' = {
+module spotifyAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   name: 'spotifyAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: spotifyAPIPath
-    MCPServiceURL: 'https://${spotifyMCPServerContainerApp.properties.configuration.ingress.fqdn}/${spotifyAPIPath}/mcp'
+    MCPPath: spotifyAPIPath
+    MCPServiceURL: 'https://${spotifyMCPServerContainerApp.properties.configuration.ingress.fqdn}/${spotifyAPIPath}'
   }
 }
 
-module weatherAPIModule 'src/weather/apim-api/api.bicep' = {
+module weatherAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   name: 'weatherAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: weatherAPIPath
-    APIServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
+    MCPPath: weatherAPIPath
+    MCPServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
   }
 }
 
@@ -419,6 +419,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =  
 output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
+output apimServiceName string = apimModule.outputs.name
 
 output apimSubscriptions array = apimModule.outputs.apimSubscriptions
 
