@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["uvicorn", "mcp-server:starlette_app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "mcp_server:app", "--host", "0.0.0.0", "--port", "8080"]
