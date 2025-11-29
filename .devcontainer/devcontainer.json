@@ -1,30 +1,18 @@
 {
 	"name": "AI Gateway Dev Container",
-	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	"image": "mcr.microsoft.com/devcontainers/python:3.13",
 	"hostRequirements": {
-	  "cpus": 4
+	  "cpus": 8
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/azure-cli:1": {
 			"installBicep": true,
 			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/python:1": {
-			"installTools": true,
-			"version": "3.13.5",
-			"installPip": true,
-            "installPipx": true,
-            "installPoetry": true,
-            "installMyPy": true
-		},
-		"ghcr.io/stuartleeks/dev-container-features/azure-cli-persistence:0": {},
-		"ghcr.io/azure/azure-dev/azd:0": {
-			"version": "stable"
 		}
 	},
 	"waitFor": "onCreateCommand",
-	"updateContentCommand": "python3 -m pip install -r requirements.txt",
-	"postCreateCommand": "",
+    "updateContentCommand": "python3 -m pip install -r requirements.txt",
+    "postCreateCommand": "",
 	"customizations": {
 	  "codespaces": {
 		"openFiles": []
