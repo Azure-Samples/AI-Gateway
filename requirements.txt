@@ -28,11 +28,11 @@ azure-functions
 azure-mgmt-apimanagement
 
 # MCP Labs
-mcp
+mcp==1.19.0
 autogen-core 
 autogen-ext[openai,azure,mcp] 
 autogen-agentchat
-semantic-kernel[mcp]
+semantic-kernel[mcp]==1.34.0
 
 # Agent Framework
 agent-framework
