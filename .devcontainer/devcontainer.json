@@ -1,6 +1,6 @@
 {
 	"name": "AI Gateway Dev Container",
-	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	"image": "mcr.microsoft.com/devcontainers/python:3.13",
 	"hostRequirements": {
 	  "cpus": 4
 	},
