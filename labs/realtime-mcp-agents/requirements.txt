@@ -6,6 +6,6 @@ fastrtc[vad]==0.0.19
 gradio==5.23.3
 uvicorn==0.32.0
 azure-identity
-mcp==1.19.0
+mcp==1.23.0
 semantic-kernel[mcp]==1.34.0
 semantic-kernel[realtime]==1.34.0
