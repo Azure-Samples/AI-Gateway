@@ -1,4 +1,4 @@
-aiohttp==3.11.11
+aiohttp==3.12.14
 openai
 openai[realtime]
 azure-identity
