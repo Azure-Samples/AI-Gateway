@@ -38,7 +38,7 @@ pip install -r requirements.txt
 
 ### 2. Deploy Infrastructure
 
-Open the [Jupyter notebook](notebooks/private-connectivity.ipynb) and execute the cells to:
+Open the [Jupyter notebook](./foundry-private-mcp.ipynb) and execute the cells to:
 
 1. **Initialize variables** - Set deployment name, locations, and model configurations
 2. **Create resource group** - Provision the Azure resource group
