@@ -32,7 +32,7 @@ Core Components:
 
 ```bash
 git clone <repository-url>
-cd foundry-private-connectivity
+cd AI-Gateway
 pip install -r requirements.txt
 ```
 
