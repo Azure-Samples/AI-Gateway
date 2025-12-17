@@ -126,26 +126,26 @@ Now you can test the agent:
 - Access the APIM endpoint directly through its public URL
 - Expected Result: Request should be blocked or restricted, demonstrating that direct APIM access is protected
 
-![Execution Evidence](docs/unauthorized_apim.png)
+![Execution Evidence](./docs/unauthorized_apim.png)
 
 ##### Test 2: Unauthorized MCP Access
 
 - Attempt to call the MCP server without an authorization token
 - Expected Result: 401 Unauthorized, validating OAuth enforcement
 
- ![Execution Evidence](docs/unauthorized_mcp.png)
+ ![Execution Evidence](./docs/unauthorized_mcp.png)
 
 ##### Test 3: Authorized Access via Front Door
 
 - Access the MCP server through Front Door with a valid authorization token
 - Expected Result: Successful response, demonstrating the complete secure flow: Client → Front Door → Private Link → APIM → MCP Server
 
-![Execution Evidence](docs/execution-evidence.png)
+![Execution Evidence](./docs/execution-evidence.png)
 
 ## 🧹 Clean Up Resources
 
 When finished, delete all resources to avoid charges: <br>
-Use [clean-up-resources notebook](notebooks/clean-up-resources.ipynb).
+Use [clean-up-resources notebook](./clean-up-resources.ipynb).
 
 ## 📚 Additional Resources
 
