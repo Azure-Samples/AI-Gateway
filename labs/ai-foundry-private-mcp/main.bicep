@@ -736,15 +736,19 @@ resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' =
         apt-get update
         
         # Install Python and venv
-        apt-get install -y python3 python3-pip python3-venv python3-full
+        apt-get install -y python3 python3-pip python3-venv python3-full vim wget
         
         # Create a virtual environment for the azureuser
         mkdir -p /home/azureuser/scripts
         python3 -m venv /home/azureuser/venv
+
+        wget -O /home/azureuser/requirements.txt https://raw.githubusercontent.com/Azure-Samples/AI-Gateway/refs/heads/main/requirements.txt
         
         # Install packages in the virtual environment
         /home/azureuser/venv/bin/pip install --upgrade pip
-        /home/azureuser/venv/bin/pip install requests azure-identity azure-ai-projects azure-ai-agents==1.2.0b6 requests jsonref python-dotenv azure-keyvault-secrets
+        /home/azureuser/venv/bin/pip install -r /home/azureuser/requirements.txt
+
+        echo "source /home/azureuser/venv/bin/activate" >> /home/azureuser/.bashrc
 
         # Set ownership
         chown -R azureuser:azureuser /home/azureuser/venv
@@ -872,7 +876,7 @@ module keyVaultModule './modules/keyvault.bicep' = {
     privateEndpointSubnetId: subnetPe.id
     virtualNetworkId: virtualNetwork.id
     secrets: {
-      'MCP-SERVER-URL': 'https://${frontDoorEndpoint.properties.hostName}/order-mcp/mcp'
+      'MCP-SERVER-URL': '${frontDoorEndpoint.properties.hostName}/order-mcp/mcp'
       'MCP-SERVER-LABEL': 'order_mcp'
       'AZURE-AI-PROJECT-ENDPOINT': foundryAccountModule.outputs.aiFoundryProjectEndpoint
       'AZURE-AI-MODEL-DEPLOYMENT-NAME': modelsConfig[0].name
@@ -896,3 +900,4 @@ output frontDoorEndpointHostName string = frontDoorEndpoint.properties.hostName
 output ai_project_endpoint string = foundryAccountModule.outputs.aiFoundryProjectEndpoint
 output ai_model_deployment_name string = modelsConfig[0].name
 output keyVaultUrl string = keyVaultModule.outputs.keyVaultUrl
+output vmResourceId string = vm.id
