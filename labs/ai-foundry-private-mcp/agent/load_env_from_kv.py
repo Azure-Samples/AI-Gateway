@@ -21,5 +21,6 @@ def load_secrets_from_keyvault(vault_url: str):
             env_var_name = secret_name.replace("-", "_")
             os.environ[env_var_name] = secret.value
         except Exception as e:
+            print(f"Error loading secret {secret_name}: {e}")
     
     print("Environment variables loaded successfully!")
