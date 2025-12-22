@@ -7,7 +7,7 @@ A hands-on lab demonstrating secure agent consumption through private networking
 
 This lab demonstrates a fully private AI infrastructure:
 
-![architecture](architecture.png)
+![architecture](../../images/mcp-private-endpoint-entra-id.gif)
 
 Core Components:
 - **Azure AI Foundry**: AI Services account with private endpoint access only
