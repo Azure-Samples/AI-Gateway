@@ -4,6 +4,9 @@
 
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
+_If you are interested in quickly setting up many API Management infrastructures and experiment with various scenarios, please check out the excellent [APIM Samples](https://aka.ms/apim/samples) GitHub repository._  
+_For much more API Management content, please also check out [APIM Love](https://aka.ms/apimlove)._
+
 ## What's new ✨
 
 ➕ [**AI Gateway workshop**](https://aka.ms/ai-gateway/workshop) provides a comprehensive learning experience using the Azure Portal  
