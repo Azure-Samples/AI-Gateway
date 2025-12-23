@@ -4,9 +4,6 @@
 
 [![Open Source Love](https://firstcontributions.github.io/open-source-badges/badges/open-source-v1/open-source.svg)](https://github.com/firstcontributions/open-source-badges)
 
-_If you are interested in quickly setting up many API Management infrastructures and experiment with various scenarios, please check out the excellent [APIM Samples](https://aka.ms/apim/samples) GitHub repository._  
-_For much more API Management content, please also check out [APIM Love](https://aka.ms/apimlove)._
-
 ## What's new ✨
 
 ➕ [**AI Gateway workshop**](https://aka.ms/ai-gateway/workshop) provides a comprehensive learning experience using the Azure Portal  
@@ -283,6 +280,8 @@ The [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-ar
 * [Learning Modules](https://learn.microsoft.com/en-us/training/browse/?products=azure-api-management)
 * [News and announcements](https://techcommunity.microsoft.com/tag/API%20Management?nodeId=board%3AIntegrationsonAzureBlog)
 * [APIM Releases](https://github.com/Azure/API-Management/releases)
+
+_For much more API Management content, please also check out [APIM Love](https://aka.ms/apimlove)._
 
 > We believe that there may be valuable content that we are currently unaware of. We would greatly appreciate any suggestions or recommendations to enhance this list.
 
