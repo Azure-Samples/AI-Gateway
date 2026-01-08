@@ -15,4 +15,4 @@ typing_extensions==4.12.2
 uvicorn==0.34.0
 azure.identity==1.21.0
 azure-mgmt-apimanagement==4.0.1
-fastmcp==2.12.4
+fastmcp==2.13.0
