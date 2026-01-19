@@ -2,7 +2,7 @@ aiohttp==3.11.11
 openai
 openai[realtime]
 azure-identity
-gradio==5.23.3
+gradio==5.31.0
 gradio_client==1.8.0
 fastrtc==0.0.19
 uvicorn==0.32.0
