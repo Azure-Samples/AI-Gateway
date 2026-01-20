@@ -492,11 +492,11 @@ output apimSubscriptions array = apimModule.outputs.apimSubscriptions
 
 output foundryProjectEndpoint string = foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectEndpoint
 
-output bingSearchConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${bingSearchConnection.name}'
+output bingSearchConnectionId string = '${foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectId}/connections/${bingSearchConnection.name}'
 
-output weatherAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${weatherAPIConnection.name}'
+output weatherAPIConnectionId string = '${foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectId}/connections/${weatherAPIConnection.name}'
 
-output placeOrderAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${placeOrderAPIConnection.name}'
+output placeOrderAPIConnectionId string = '${foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectId}/connections/${placeOrderAPIConnection.name}'
 
-output productCatalogAPIConnectionId string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.CognitiveServices/accounts/${foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName}/projects/${foundryProjectName}/connections/${productCatalogAPIConnection.name}'
+output productCatalogAPIConnectionId string = '${foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectId}/connections/${productCatalogAPIConnection.name}'
 
