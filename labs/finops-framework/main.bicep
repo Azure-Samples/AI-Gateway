@@ -684,7 +684,7 @@ resource actionGroupUpdateSub 'microsoft.insights/actionGroups@2024-10-01-previe
   }
 }
 
-resource ruleSuspendSub 'microsoft.insights/scheduledqueryrules@2024-01-01-preview' = {
+resource ruleSuspendSub 'microsoft.insights/scheduledqueryrules@2025-01-01-preview' = {
   name: 'alert-suspend-sub-${resourceSuffix}'
   location: 'westeurope'
   kind: 'LogAlert'
@@ -735,7 +735,7 @@ resource ruleSuspendSub 'microsoft.insights/scheduledqueryrules@2024-01-01-previ
   }
 }
 
-resource ruleActivateSub 'microsoft.insights/scheduledqueryrules@2024-01-01-preview' = {
+resource ruleActivateSub 'microsoft.insights/scheduledqueryrules@2025-01-01-preview' = {
   name: 'alert-activate-sub-${resourceSuffix}'
   location: 'westeurope'
   kind: 'LogAlert'
