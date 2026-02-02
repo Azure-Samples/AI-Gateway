@@ -81,7 +81,7 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existi
 var endpointPath = (inferenceAPIType == 'AzureOpenAIV1') ? 'openai/v1' : (inferenceAPIType == 'AzureOpenAI') ? 'openai' : (inferenceAPIType == 'AzureAI') ? 'models' : ''
 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
-resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
+resource api 'Microsoft.ApiManagement/service/apis@2025-03-01-preview' = {
   name: inferenceAPIName
   parent: apimService
   properties: {
@@ -96,6 +96,8 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
     subscriptionKeyParameterNames: {
       header: 'api-key'
       query: 'api-key'
+      #disable-next-line BCP037
+      bearer: 'enabled'
     }
     subscriptionRequired: true
     type: 'http'
@@ -114,7 +116,7 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-pre
 
 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
-resource inferenceBackend 'Microsoft.ApiManagement/service/backends@2025-03-01-preview' =  [for (config, i) in aiServicesConfig: if(length(aiServicesConfig) > 0) {
+resource inferenceBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' =  [for (config, i) in aiServicesConfig: if(length(aiServicesConfig) > 0) {
   name: config.name
   parent: apimService
   properties: {
@@ -153,7 +155,7 @@ resource inferenceBackend 'Microsoft.ApiManagement/service/backends@2025-03-01-p
 }]
 
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
-resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2025-03-01-preview' = if(length(aiServicesConfig) > 1) {
+resource backendPoolOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = if(length(aiServicesConfig) > 1) {
   name: inferenceBackendPoolName
   parent: apimService
   // BCP035: protocol and url are not needed in the Pool type. This is an incorrect error.
