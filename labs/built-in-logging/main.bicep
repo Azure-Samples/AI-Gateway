@@ -29,7 +29,7 @@ module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
 }
 
 // 3. API Management
-module apimModule '../../modules/apim/v2/apim.bicep' = {
+module apimModule '../../modules/apim/v3/apim.bicep' = {
   name: 'apimModule'
   params: {
     apimSku: apimSku
@@ -52,7 +52,7 @@ module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
   }
 
 // 5. APIM Inference API
-module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+module inferenceAPIModule '../../modules/apim/v3/inference-api.bicep' = {
   name: 'inferenceAPIModule'
   params: {
     policyXml: loadTextContent('policy.xml')
