@@ -15,10 +15,6 @@ param geminiApiKey string
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var policyXml = loadTextContent('policy.xml')
-var logSettings = {
-  headers: [ 'Content-type', 'User-agent', 'x-ms-region', 'x-ratelimit-remaining-tokens' , 'x-ratelimit-remaining-requests' ]
-  body: { bytes: 8192 }
-}
 
 // ------------------
 //    RESOURCES
@@ -137,6 +133,8 @@ resource geminiOpenAIAPI 'Microsoft.ApiManagement/service/apis@2024-06-01-previe
     subscriptionKeyParameterNames: {
       header: 'api-key'
       query: 'api-key'
+      #disable-next-line BCP037
+      bearer: 'enabled'
     }
     subscriptionRequired: true
     type: 'http'
@@ -163,28 +161,57 @@ resource geminiAPIPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-
   ]
 }
 
-// API Diagnostics for logging
+// API Diagnostics for LLM logging (built-in logging)
 resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2024-06-01-preview' = {
-  name: 'applicationinsights'
+  name: 'azuremonitor'
   parent: geminiOpenAIAPI
   properties: {
     alwaysLog: 'allErrors'
-    httpCorrelationProtocol: 'W3C'
-    logClientIp: true
-    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apimService.name, 'appinsights-logger')
-    metrics: true
     verbosity: 'verbose'
+    logClientIp: true
+    loggerId: apimModule.outputs.loggerId
     sampling: {
       samplingType: 'fixed'
-      percentage: 100
+      percentage: json('100')
     }
     frontend: {
-      request: logSettings
-      response: logSettings
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
     }
     backend: {
-      request: logSettings
-      response: logSettings
+      request: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+      response: {
+        headers: []
+        body: {
+          bytes: 0
+        }
+      }
+    }
+    largeLanguageModel: {
+      logs: 'enabled'
+      requests: {
+        messages: 'all'
+        maxSizeInBytes: 262144
+      }
+      responses: {
+        messages: 'all'
+        maxSizeInBytes: 262144
+      }
     }
   }
 }
