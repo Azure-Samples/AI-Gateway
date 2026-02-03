@@ -1,3 +1,13 @@
+---
+name: "Backend Pool Load Balancing",
+architectureDiagram: images/built-in-logging.gif
+categories: ["Platform Capabilities"]
+services: ["Azure AI Foundry", "Azure OpenAI"],
+shortDescription": "Built-in load balancing using APIM backend pool functionality across multiple Azure AI Foundry endpoints.",
+detailedDescription": "This lab demonstrates the built-in load balancing backend pool functionality of Azure API Management to distribute traffic across a list of Azure AI Foundry endpoints. This is a typical prioritized PTU with fallback consumption scenario. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.",
+authors: ["dariuszparys"]
+---
+
 # APIM ❤️ AI Foundry
 
 ## [Built-in logging lab](built-in-logging.ipynb)
