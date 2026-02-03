@@ -2,9 +2,6 @@
     <inbound>
         <base />
         <set-backend-service backend-id="{backend-id}" />
-        <llm-token-limit counter-key="@(context.Subscription.Id)"
-            tokens-per-minute="100" estimate-prompt-tokens="false" remaining-tokens-variable-name="remainingTokens">
-        </llm-token-limit>        
     </inbound>
     <backend>
         <base />
