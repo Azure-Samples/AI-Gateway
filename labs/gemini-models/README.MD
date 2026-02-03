@@ -1,20 +1,10 @@
----
-name: "Backend Pool Load Balancing",
-architectureDiagram: images/built-in-logging.gif
-categories: ["Platform Capabilities"]
-services: ["Azure AI Foundry", "Azure OpenAI"],
-shortDescription": "Built-in load balancing using APIM backend pool functionality across multiple Azure AI Foundry endpoints.",
-detailedDescription": "This lab demonstrates the built-in load balancing backend pool functionality of Azure API Management to distribute traffic across a list of Azure AI Foundry endpoints. This is a typical prioritized PTU with fallback consumption scenario. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.",
-authors: ["dariuszparys"]
----
+# APIM ❤️ 3rd Party Models
 
-# APIM ❤️ AI Foundry
+## [Gemini Models lab](gemini-models.ipynb)
 
-## [Built-in logging lab](built-in-logging.ipynb)
+[![flow](../../images/gemini-models.gif)](gemini-models.ipynb)
 
-[![flow](../../images/built-in-logging.gif)](built-in-logging.ipynb)
-
-Playground to try the [built-in LLM logging capabilities of API Management](https://learn.microsoft.com/en-us/azure/api-management/monitor-api-management#modify-api-logging-settings). Consumed tokens, prompts and completions are logged automatically into Azure Monitor.
+Playground to try Gemini Models served trough the AI Gateway. This lab creates two API's: one with native Gemini API compatibility and another one with OpenAI compatibility.
 
 ### Prerequisites
 
@@ -23,10 +13,11 @@ Playground to try the [built-in LLM logging capabilities of API Management](http
 - [Python environment](https://code.visualstudio.com/docs/python/environments#_creating-environments) with the [requirements.txt](../../requirements.txt) or run `pip install -r requirements.txt` in your terminal
 - [An Azure Subscription](https://azure.microsoft.com/free/) with [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor) + [RBAC Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator) or [Owner](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#owner) roles
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and [Signed into your Azure subscription](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
+- [Gemini API Key from Google](https://aistudio.google.com/apikey)
 
 ### 🚀 Get started
 
-Proceed by opening the [Jupyter notebook](built-in-logging.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](gemini-models.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 
