@@ -1,0 +1,234 @@
+name: Update Labs Config
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'labs/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'labs/**'
+  workflow_dispatch:
+    inputs:
+      lab_folder:
+        description: 'Specific lab folder to update (leave empty to update all changed labs)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update-labs-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install js-yaml
+
+      - name: Get changed lab folders
+        id: changed-labs
+        run: |
+          if [ -n "${{ github.event.inputs.lab_folder }}" ]; then
+            # Manual trigger with specific lab
+            echo "labs=${{ github.event.inputs.lab_folder }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, get changed files from the PR - extract lab folder name from any changed file path
+            CHANGED_LABS=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep '^labs/' | sed 's|labs/\([^/]*\)/.*|\1|' | grep -v '^_' | sort -u | tr '\n' ' ')
+            echo "labs=$CHANGED_LABS" >> $GITHUB_OUTPUT
+          else
+            # For push events, get changed files from the commit - extract lab folder name from any changed file path
+            CHANGED_LABS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^labs/' | sed 's|labs/\([^/]*\)/.*|\1|' | grep -v '^_' | sort -u | tr '\n' ' ')
+            echo "labs=$CHANGED_LABS" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update labs-config.json
+        if: steps.changed-labs.outputs.labs != ''
+        run: |
+          cat << 'EOF' > update-config.js
+          const fs = require('fs');
+          const yaml = require('js-yaml');
+          const path = require('path');
+
+          const REPO_OWNER = process.env.GITHUB_REPOSITORY_OWNER || 'Azure-Samples';
+          const REPO_NAME = process.env.GITHUB_REPOSITORY?.split('/')[1] || 'AI-Gateway';
+          const GITHUB_BASE_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}/tree/main/labs`;
+          const LABS_CONFIG_PATH = 'docs/labs-config.json';
+          const LABS_DIR = 'labs';
+
+          // Get list of changed labs from environment variable
+          const changedLabs = process.env.CHANGED_LABS?.trim().split(/\s+/).filter(Boolean) || [];
+
+          console.log('Changed labs:', changedLabs);
+
+          if (changedLabs.length === 0) {
+            console.log('No labs to update');
+            process.exit(0);
+          }
+
+          // Read existing config
+          let labsConfig = [];
+          if (fs.existsSync(LABS_CONFIG_PATH)) {
+            try {
+              labsConfig = JSON.parse(fs.readFileSync(LABS_CONFIG_PATH, 'utf8'));
+            } catch (e) {
+              console.error('Error reading labs-config.json:', e.message);
+              labsConfig = [];
+            }
+          }
+
+          // Create a map for quick lookup by id
+          const configMap = new Map(labsConfig.map(lab => [lab.id, lab]));
+
+          // Process each changed lab
+          for (const labFolder of changedLabs) {
+            const readmePath = path.join(LABS_DIR, labFolder, 'README.md');
+            
+            if (!fs.existsSync(readmePath)) {
+              console.log(`README.md not found for ${labFolder}, skipping...`);
+              continue;
+            }
+
+            console.log(`Processing ${labFolder}...`);
+
+            const readmeContent = fs.readFileSync(readmePath, 'utf8');
+            
+            // Extract frontmatter
+            const frontmatterMatch = readmeContent.match(/^---\n([\s\S]*?)\n---/);
+            
+            if (!frontmatterMatch) {
+              console.log(`No frontmatter found in ${labFolder}/README.md, skipping...`);
+              continue;
+            }
+
+            try {
+              const frontmatter = yaml.load(frontmatterMatch[1]);
+              
+              // Build the lab config entry
+              const labEntry = {
+                id: labFolder,
+                name: frontmatter.name || labFolder,
+                architectureDiagram: frontmatter.architectureDiagram || '',
+                categories: Array.isArray(frontmatter.categories) ? frontmatter.categories : [],
+                services: Array.isArray(frontmatter.services) ? frontmatter.services : [],
+                shortDescription: frontmatter.shortDescription || '',
+                detailedDescription: frontmatter.detailedDescription || '',
+                authors: Array.isArray(frontmatter.authors) ? frontmatter.authors : [],
+                tags: Array.isArray(frontmatter.tags) ? frontmatter.tags : [],
+                githubPath: `${GITHUB_BASE_URL}/${labFolder}`,
+                lastCommitDate: new Date().toISOString()
+              };
+
+              // Update or add the lab entry
+              if (configMap.has(labFolder)) {
+                // Preserve existing fields not in frontmatter, but update the rest
+                const existing = configMap.get(labFolder);
+                configMap.set(labFolder, { ...existing, ...labEntry });
+                console.log(`Updated existing entry for ${labFolder}`);
+              } else {
+                configMap.set(labFolder, labEntry);
+                console.log(`Added new entry for ${labFolder}`);
+              }
+
+            } catch (e) {
+              console.error(`Error parsing frontmatter for ${labFolder}:`, e.message);
+            }
+          }
+
+          // Convert map back to array and sort by id
+          const updatedConfig = Array.from(configMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+
+          // Write updated config
+          fs.writeFileSync(LABS_CONFIG_PATH, JSON.stringify(updatedConfig, null, 2) + '\n');
+          console.log(`Updated ${LABS_CONFIG_PATH} with ${updatedConfig.length} labs`);
+          EOF
+
+          CHANGED_LABS="${{ steps.changed-labs.outputs.labs }}" node update-config.js
+
+      - name: Commit changes to main branch
+        if: steps.changed-labs.outputs.labs != '' && github.event_name != 'pull_request'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          if git diff --quiet docs/labs-config.json; then
+            echo "No changes to commit on main branch"
+          else
+            git add docs/labs-config.json
+            git commit -m "chore: update labs-config.json for changed labs [skip ci]"
+            git push origin main
+            echo "Changes committed to main branch"
+          fi
+
+      - name: Update gh-pages branch
+        if: steps.changed-labs.outputs.labs != '' && github.event_name != 'pull_request'
+        run: |
+          # Save the updated config file
+          cp docs/labs-config.json /tmp/labs-config.json
+          
+          # Fetch and checkout gh-pages
+          git fetch origin gh-pages:gh-pages || echo "gh-pages branch does not exist yet"
+          
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git checkout gh-pages
+            
+            # Create docs directory if it doesn't exist
+            mkdir -p docs
+            
+            # Copy the updated config
+            cp /tmp/labs-config.json docs/labs-config.json
+            
+            if git diff --quiet docs/labs-config.json; then
+              echo "No changes to commit on gh-pages branch"
+            else
+              git add docs/labs-config.json
+              git commit -m "chore: update labs-config.json for changed labs [skip ci]"
+              git push origin gh-pages
+              echo "Changes committed to gh-pages branch"
+            fi
+            
+            # Switch back to main
+            git checkout main
+          else
+            echo "gh-pages branch does not exist, skipping update"
+          fi
+
+      - name: Report results (PR comment)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const changedLabs = '${{ steps.changed-labs.outputs.labs }}'.trim().split(/\s+/).filter(Boolean);
+            
+            if (changedLabs.length === 0) {
+              return;
+            }
+            
+            const body = `## 📋 Labs Config Preview
+            
+            The following labs will be updated in \`docs/labs-config.json\` when this PR is merged:
+            
+            ${changedLabs.map(lab => `- \`${lab}\``).join('\n')}
+            
+            The config will be updated on both \`main\` and \`gh-pages\` branches.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
