@@ -3,6 +3,7 @@ let labs = [];
 let filteredLabs = [];
 let selectedCategories = new Set();
 let selectedServices = new Set();
+let currentSort = 'all';
 
 // GitHub repository info for raw images
 const GITHUB_REPO = 'Azure-Samples/AI-Gateway';
@@ -185,16 +186,48 @@ function filterLabs() {
         const matchesService = selectedServices.size === 0 ||
             lab.services.some(svc => selectedServices.has(svc));
         
-        return matchesSearch && matchesCategory && matchesService;
+        // Featured filter
+        const matchesFeatured = currentSort !== 'featured' || lab.featured === true;
+        
+        return matchesSearch && matchesCategory && matchesService && matchesFeatured;
     });
     
+    // Sort based on current sort option
+    sortLabs();
+    
     renderLabs();
+}
+
+// Sort labs
+function sortLabs() {
+    if (currentSort === 'latest') {
+        filteredLabs.sort((a, b) => {
+            const dateA = new Date(a.lastCommitDate || 0);
+            const dateB = new Date(b.lastCommitDate || 0);
+            return dateB - dateA; // Most recent first
+        });
+    } else if (currentSort === 'featured') {
+        // Featured labs are already filtered, no additional sorting needed
+        // But we can optionally sort featured by latest as well
+        filteredLabs.sort((a, b) => {
+            const dateA = new Date(a.lastCommitDate || 0);
+            const dateB = new Date(b.lastCommitDate || 0);
+            return dateB - dateA;
+        });
+    }
+    // 'all' keeps original order
 }
 
 // Setup event listeners
 function setupEventListeners() {
     // Search
     document.getElementById('searchInput').addEventListener('input', filterLabs);
+    
+    // Sort dropdown
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        filterLabs();
+    });
     
     // Filter checkboxes
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
@@ -225,6 +258,8 @@ function setupEventListeners() {
         selectedCategories.clear();
         selectedServices.clear();
         document.getElementById('searchInput').value = '';
+        document.getElementById('sortSelect').value = 'all';
+        currentSort = 'all';
         document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
         filterLabs();
     });

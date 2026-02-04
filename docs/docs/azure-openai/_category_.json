@@ -1,0 +1,9 @@
+{
+    "label": "Azure OpenAI",
+    "position": 3,
+    "link": {
+      "type": "generated-index",
+      "description": "Managing Azure OpenAI resources"
+    } 
+}
+  

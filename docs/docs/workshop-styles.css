@@ -1,0 +1,479 @@
+:root {
+    --primary-color: #0078d4;
+    --primary-dark: #005a9e;
+    --secondary-color: #50e6ff;
+    --background: #ffffff;
+    --surface: #f8f9fa;
+    --surface-hover: #e9ecef;
+    --text-primary: #1f1f1f;
+    --text-secondary: #605e5c;
+    --border: #dee2e6;
+    --shadow: rgba(0, 0, 0, 0.08);
+    --shadow-hover: rgba(0, 0, 0, 0.12);
+    --code-bg: #f6f8fa;
+    --link-color: #0078d4;
+    --success: #107c10;
+    --warning: #ffb900;
+    --error: #d13438;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+    --sidebar-width: 300px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    color: var(--text-primary);
+    background-color: var(--background);
+    line-height: 1.7;
+}
+
+/* Header */
+.workshop-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: var(--spacing-md) 0;
+    box-shadow: 0 2px 8px var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.logo h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.tagline {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.header-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.btn-link, .btn-github {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 0.6rem var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: var(--transition);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.btn-link:hover, .btn-github:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Main Layout */
+.workshop-main {
+    padding: var(--spacing-lg) 0;
+    min-height: calc(100vh - 200px);
+}
+
+.workshop-main .container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    gap: var(--spacing-xl);
+    align-items: start;
+}
+
+/* Sidebar */
+.workshop-sidebar {
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    padding-right: var(--spacing-sm);
+}
+
+.doc-nav {
+    background: var(--surface);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.nav-section {
+    margin-bottom: var(--spacing-md);
+}
+
+.nav-section:last-child {
+    margin-bottom: 0;
+}
+
+.nav-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.nav-list {
+    list-style: none;
+}
+
+.nav-link {
+    display: block;
+    padding: 0.5rem var(--spacing-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: var(--transition);
+    font-size: 0.95rem;
+}
+
+.nav-link:hover {
+    background: var(--surface-hover);
+    color: var(--primary-color);
+}
+
+.nav-link.active {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+/* Table of Contents */
+.toc-container {
+    background: var(--surface);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    display: none; /* Show when TOC is populated */
+}
+
+.toc-container.visible {
+    display: block;
+}
+
+.toc-container h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.toc {
+    list-style: none;
+}
+
+.toc a {
+    display: block;
+    padding: 0.4rem 0;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border-left: 2px solid transparent;
+    padding-left: var(--spacing-sm);
+    transition: var(--transition);
+}
+
+.toc a:hover {
+    color: var(--primary-color);
+    border-left-color: var(--primary-color);
+}
+
+.toc a.active {
+    color: var(--primary-color);
+    border-left-color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Content Area */
+.workshop-content {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    box-shadow: 0 1px 3px var(--shadow);
+    min-height: 600px;
+}
+
+/* Loading State */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    color: var(--text-secondary);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: var(--spacing-md);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Error Message */
+.error-message {
+    background: #fff4f4;
+    border: 1px solid var(--error);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    color: var(--error);
+    margin: var(--spacing-md) 0;
+}
+
+/* Markdown Content Styles */
+.markdown-content {
+    max-width: 900px;
+}
+
+.markdown-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: var(--spacing-sm);
+}
+
+.markdown-content h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.markdown-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.markdown-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.markdown-content p {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.markdown-content a {
+    color: var(--link-color);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.markdown-content a:hover {
+    border-bottom-color: var(--link-color);
+}
+
+.markdown-content ul, .markdown-content ol {
+    margin-bottom: var(--spacing-md);
+    padding-left: var(--spacing-lg);
+}
+
+.markdown-content li {
+    margin-bottom: var(--spacing-xs);
+}
+
+.markdown-content strong {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.markdown-content code {
+    background: var(--code-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #e83e8c;
+}
+
+.markdown-content pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-md);
+}
+
+.markdown-content pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+.markdown-content blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.markdown-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    margin: var(--spacing-md) 0;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.markdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-md) 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.markdown-content th {
+    background: var(--surface);
+    font-weight: 600;
+}
+
+.markdown-content iframe {
+    max-width: 100%;
+    margin: var(--spacing-md) 0;
+    border-radius: var(--border-radius);
+}
+
+/* Alert/Admonition Styles */
+.markdown-content .admonition {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    border-radius: var(--border-radius);
+    border-left: 4px solid;
+}
+
+.markdown-content .admonition.tip {
+    background: #e7f9f0;
+    border-color: var(--success);
+}
+
+.markdown-content .admonition.important {
+    background: #fff4e5;
+    border-color: var(--warning);
+}
+
+/* Footer */
+.workshop-footer {
+    background: var(--surface);
+    padding: var(--spacing-lg) 0;
+    text-align: center;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-xl);
+    border-top: 1px solid var(--border);
+}
+
+.workshop-footer p {
+    margin: 0.25rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .workshop-main .container {
+        grid-template-columns: 250px 1fr;
+    }
+    
+    :root {
+        --sidebar-width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .workshop-main .container {
+        grid-template-columns: 1fr;
+    }
+    
+    .workshop-sidebar {
+        position: relative;
+        top: 0;
+        max-height: none;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .markdown-content h1 {
+        font-size: 2rem;
+    }
+    
+    .markdown-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .workshop-content {
+        padding: var(--spacing-md);
+    }
+}
+
+/* Scrollbar Styling */
+.workshop-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.workshop-sidebar::-webkit-scrollbar-track {
+    background: var(--surface);
+    border-radius: 4px;
+}
+
+.workshop-sidebar::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.workshop-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
