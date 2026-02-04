@@ -8,6 +8,7 @@ services:
   - Azure OpenAI
 shortDescription: Control costs and prevent abuse with token-based rate limiting policies.
 detailedDescription: Implement sophisticated token-based rate limiting to control API usage and costs. This lab shows how to set up rate limits based on token consumption rather than just request counts, providing more granular control over Azure OpenAI usage and costs. Learn to configure different rate limits for different user tiers and implement quota management.
+tags: []
 authors:
   - vieiraae
 ---

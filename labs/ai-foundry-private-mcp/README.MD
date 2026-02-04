@@ -13,6 +13,7 @@ services:
   - Managed Identity
 shortDescription: Create a private network for consuming MCPs using Foundry Agents Classic.
 detailedDescription: Playground to show how to create a private network for consuming REST API managed as MCPs using Foundry Agents Classic. This lab demonstrates how to create a private network for consuming MCPs from Foundry Agents Classic using Private Link Services, Azure API Management (APIM), and Azure Front Door.
+tags: []
 authors:
   - pablocast
   - nourshaker-msft

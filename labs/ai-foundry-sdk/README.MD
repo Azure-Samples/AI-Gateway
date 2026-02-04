@@ -8,6 +8,7 @@ services:
   - Azure AI Foundry
 shortDescription: Use Azure AI Foundry SDK with API Management for enhanced AI applications.
 detailedDescription: Learn to leverage the Azure AI Foundry SDK in combination with Azure API Management for building sophisticated AI applications. This lab demonstrates how to use the SDK for model deployment, prompt flow execution, and evaluation, while routing traffic through API Management for governance, security, and monitoring.
+tags: []
 authors:
   - vieiraae
 ---

@@ -9,6 +9,7 @@ services:
   - Azure OpenAI
 shortDescription: Enable real-time audio processing and speech-to-speech AI interactions.
 detailedDescription: Build real-time audio applications using Azure OpenAI's audio capabilities through Azure API Management. This lab covers setting up WebSocket connections for streaming audio, implementing speech-to-text and text-to-speech conversions, managing real-time conversations, and handling audio streaming efficiently with low latency.
+tags: []
 authors:
   - nourshaker-msft
 ---

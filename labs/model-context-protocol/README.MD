@@ -9,6 +9,7 @@ services:
   - Azure OpenAI
 shortDescription: Implement the Model Context Protocol for standardized AI integrations.
 detailedDescription: Learn to implement the Model Context Protocol (MCP), an open standard for enabling AI models to securely access external data sources and tools. This lab demonstrates how to set up MCP servers, expose them through Azure API Management, and enable AI models to interact with databases, APIs, and other services using this standardized protocol.
+tags: []
 authors:
   - vieiraae
   - nourshaker-msft

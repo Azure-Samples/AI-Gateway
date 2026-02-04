@@ -7,6 +7,7 @@ services:
   - MCP
 shortDescription: Transform existing REST APIs to Model Context Protocol with Azure API Management.
 detailedDescription: Playground to transform an existing REST API to the Model Context Protocol with Azure API Management. This lab demonstrates how to expose traditional REST APIs through the MCP standard, enabling AI models to interact with your existing services using the protocol.
+tags: []
 authors:
   - vieiraae
 ---

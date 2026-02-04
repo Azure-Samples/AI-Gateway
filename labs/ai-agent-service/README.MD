@@ -8,6 +8,7 @@ services:
   - Azure OpenAI
 shortDescription: Build and orchestrate AI agents with specialized capabilities.
 detailedDescription: Create sophisticated AI agent services that can perform specialized tasks and orchestrate multiple agents. This lab demonstrates how to build agents with specific capabilities (like weather lookup, order placement, or data analysis), use function calling to enable agent actions, and coordinate multiple agents through Azure API Management for complex workflows.
+tags: []
 authors:
   - vieiraae
   - nourshaker-msft

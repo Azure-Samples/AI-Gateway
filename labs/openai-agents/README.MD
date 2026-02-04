@@ -8,6 +8,7 @@ services:
   - Azure OpenAI
 shortDescription: Build AI agents using OpenAI's Assistants API through Azure.
 detailedDescription: Explore building AI agents using OpenAI's Assistants API deployed on Azure. This lab demonstrates how to create assistants with custom instructions, enable code interpreter and retrieval capabilities, manage threads and messages, and expose these capabilities through Azure API Management for secure, scalable agent deployments.
+tags: []
 authors:
   - vieiraae
 ---

@@ -9,6 +9,7 @@ services:
   - Multi-Cloud AI
 shortDescription: Integrate Google Gemini models with MCP-based agents through Azure API Management.
 detailedDescription: Learn to integrate Google Gemini models with Model Context Protocol (MCP) agents through Azure API Management. This lab demonstrates multi-cloud AI architectures, showing how to expose Gemini's capabilities alongside Azure OpenAI, implement MCP servers for tool access, and manage cross-cloud AI services through a unified gateway.
+tags: []
 authors:
   - nourshaker-msft
 ---

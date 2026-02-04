@@ -8,6 +8,7 @@ services:
   - Azure OpenAI
 shortDescription: Built-in load balancing using APIM backend pool functionality across multiple Azure AI Foundry endpoints.
 detailedDescription: This lab demonstrates the built-in load balancing backend pool functionality of Azure API Management to distribute traffic across a list of Azure AI Foundry endpoints. This is a typical prioritized PTU with fallback consumption scenario. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.
+tags: []
 authors:
   - vieiraae
 ---

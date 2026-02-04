@@ -8,6 +8,7 @@ services:
   - Azure OpenAI
 shortDescription: Progressive implementation combining load balancing, token metrics, rate limiting, and semantic caching.
 detailedDescription: Playground to create a combination of several policies in an iterative approach. We start with load balancing, then progressively add token emitting, rate limiting, and eventually semantic caching. Each of these sets of policies is derived from other labs in this repo, providing a comprehensive path from basic setup to production-ready configuration.
+tags: []
 authors:
   - simonkurtz-MSFT
 ---
