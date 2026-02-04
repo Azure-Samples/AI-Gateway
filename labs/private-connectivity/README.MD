@@ -1,3 +1,18 @@
+---
+name: Private Connectivity
+architectureDiagram: images/private-connectivity.gif
+categories:
+  - Governance & Responsible AI
+  - Platform Capabilities
+services:
+  - Private Link
+  - VNet
+shortDescription: Secure AI services with private network connectivity using Azure Private Link.
+detailedDescription: Implement end-to-end private connectivity for your AI services using Azure Private Link and Virtual Networks. This lab demonstrates how to configure Azure API Management in internal mode, set up private endpoints for Azure OpenAI and other services, implement network security groups, and ensure all traffic remains within your private network for maximum security.
+authors:
+  - HoussemDellai
+---
+
 # APIM ❤️ OpenAI
 
 ## [Private Connectivity Lab](private-connectivity.ipynb)

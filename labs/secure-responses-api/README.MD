@@ -1,3 +1,17 @@
+---
+name: Secure Responses API
+architectureDiagram: images/built-in-logging.gif
+categories:
+  - Governance & Responsible AI
+  - Models Usage
+services:
+  - Azure OpenAI
+shortDescription: Implement Azure OpenAI Responses API in a secure manner through APIM.
+detailedDescription: Playground to try the Azure OpenAI Responses API in a secure manner. This lab demonstrates how to properly secure and expose the Responses API through Azure API Management, ensuring proper authentication, authorization, and monitoring of API responses.
+authors:
+  - anotherRedbeard
+---
+
 # APIM ❤️ AI Foundry
 
 ## [Secure Responses API lab](secure-responses-api.ipynb)

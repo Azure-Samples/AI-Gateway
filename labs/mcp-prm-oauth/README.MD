@@ -1,3 +1,18 @@
+---
+name: MCP Protected Resources Metadata (PRM)
+architectureDiagram: images/mcp-prm-oauth.gif
+categories:
+  - Knowledge & Tools
+  - Governance & Responsible AI
+services:
+  - MCP
+  - Microsoft Entra ID
+shortDescription: Production-grade MCP implementation with OAuth and Protected Resources Metadata (RFC9729).
+detailedDescription: Playground to experiment with the Model Context Protocol implementing the MCP Authorization proposal and RFC9729 for Protected Resources Metadata. Azure API Management acts as both OAuth client (to Microsoft Entra ID) and OAuth authorization server (for MCP clients like VS Code or Copilot Studio). This is as close to production-grade security for MCP servers as it gets.
+authors:
+  - nourshaker-msft
+---
+
 # APIM ❤️ MCP
 
 ## MCP Protected Resources Metadata - PRM

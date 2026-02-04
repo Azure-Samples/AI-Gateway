@@ -1,3 +1,19 @@
+---
+name: MCP Registry with API Center (CI/CD)
+architectureDiagram: images/apic-registry.gif
+categories:
+  - Knowledge & Tools
+  - Platform Capabilities
+services:
+  - Azure API Center
+  - MCP
+  - GitHub Actions
+shortDescription: Automated MCP server registry with Azure API Center using GitOps and GitHub CI/CD pipelines.
+detailedDescription: Demonstrates a fully automated Model Context Protocol server registry integrating with Azure API Center using GitHub CI/CD pipelines. Developers add MCP servers by committing JSON files, GitHub Actions automatically validate and deploy changes, and Azure API Center becomes the centralized registry for organizational MCP server discovery. Complete GitOps solution with infrastructure as code using Bicep.
+authors:
+  - frankqianms
+---
+
 # MCP Registry to Azure API Center using CI/CD pipelines
 
 

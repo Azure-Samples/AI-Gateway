@@ -1,24 +1,25 @@
 ---
-name: OpenAI Agents
-architectureDiagram: images/openai-agents.gif
+name: MCP Registry with API Center
+architectureDiagram: images/apic-registry.gif
 categories:
-  - AI Agents
+  - Knowledge & Tools
+  - Platform Capabilities
 services:
-  - Assistants API
-  - Azure OpenAI
-shortDescription: Build AI agents using OpenAI's Assistants API through Azure.
-detailedDescription: Explore building AI agents using OpenAI's Assistants API deployed on Azure. This lab demonstrates how to create assistants with custom instructions, enable code interpreter and retrieval capabilities, manage threads and messages, and expose these capabilities through Azure API Management for secure, scalable agent deployments.
+  - Azure API Center
+  - MCP
+shortDescription: Centralized MCP server registry using Azure API Center for enterprise governance.
+detailedDescription: To unlock the full potential of Model Context Protocol, enterprises need a centralized registry for server discovery and metadata management. Azure API Center serves as a governed, enterprise-grade repository for managing remote MCP servers. This lab demonstrates creating an API Center service and registering example remote MCP servers with centralized oversight for better version control and access management.
 authors:
-  - vieiraae
+  - jukasper
 ---
 
-# APIM ❤️ AI Agents
+# APIM ❤️ MCP Registry
 
-## [OpenAI Agents lab](openai-agents.ipynb)
+## [MCP Registry with API Center lab](mcp-registry-apic.ipynb)
 
-[![flow](../../images/openai-agents.gif)](openai-agents.ipynb)
+[![flow](../../images/apic-registry.gif)](mcp-registry-apic.ipynb)
 
-Playground to try the [OpenAI Agents](https://openai.github.io/openai-agents-python/) with Azure OpenAI models and API based tools through Azure API Management. This enables limitless opportunities for AI agents while maintaining control through Azure API Management!
+Playground to experiment with Azure API Center as a centralized registry for Model Context Protocol (MCP) servers. This enables enterprise governance and discovery of MCP servers across your organization.
 
 ### Prerequisites
 
@@ -28,11 +29,9 @@ Playground to try the [OpenAI Agents](https://openai.github.io/openai-agents-pyt
 - [An Azure Subscription](https://azure.microsoft.com/free/) with [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor) + [RBAC Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator) or [Owner](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#owner) roles
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and [Signed into your Azure subscription](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
 
-▶️ Click `Run All` to execute all steps sequentially, or execute them `Step by Step`...
-
 ### 🚀 Get started
 
-Proceed by opening the [Jupyter notebook](openai-agents.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](mcp-registry-apic.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 
