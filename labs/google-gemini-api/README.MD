@@ -1,8 +1,23 @@
+---
+name: Google Gemini API
+architectureDiagram: images/gemini-models.gif
+categories:
+  - Models Usage
+  - Platform Capabilities
+services:
+  - Gemini
+  - Multi-Cloud AI
+shortDescription: Access Google Gemini models through OpenAI-compatible endpoint that can be accessed through Azure API Management.
+detailedDescription: Playground to try the Google Gemini models with the AI Gateway using the OpenAI-compatible endpoint. This lab demonstrates how to import an OpenAI-compatible Google Gemini API into Azure API Management.
+authors:
+  - seilorjunior
+---
+
 # APIM ❤️ all the Models
 
 ## [Google Gemini API lab](google-gemini-api.ipynb)
 
-[![flow](../../images/google-gemini-api.gif)](google-gemini-api.ipynb)
+[![flow](../../images/gemini-models.gif)](google-gemini-api.ipynb)
 
 Playground to try the [Google Gemini models](https://learn.microsoft.com/en-us/azure/api-management/openai-compatible-google-gemini-api) with the AI Gateway using the OpenAI-compatible endpoint. This lab demonstrates how to import an OpenAI-compatible Google Gemini API into Azure API Management.
 

@@ -1,3 +1,16 @@
+---
+name: (Terraform) Backend Pool Load Balancing (Terraform)
+architectureDiagram: images/backend-pool-load-balancing.gif
+categories:
+  - Platform Capabilities
+services:
+  - Azure OpenAI
+shortDescription: Built-in load balancing with Terraform - prioritized PTU with fallback consumption scenario.
+detailedDescription: Playground to try the built-in load balancing backend pool functionality of APIM to a list of Azure OpenAI endpoints using Terraform for infrastructure as code. This is a typical prioritized PTU with fallback consumption scenario. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ OpenAI
 
 ## [Backend pool Load Balancing lab](backend-pool-load-balancing-tf.ipynb) (with Terraform)

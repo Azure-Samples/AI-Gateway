@@ -1,3 +1,18 @@
+---
+name: Session Awareness
+architectureDiagram: images/session-awareness.gif
+categories:
+  - Platform Capabilities
+  - Models Usage
+services:
+  - Azure Cosmos DB
+  - Azure OpenAI
+shortDescription: Maintain conversation context across multiple requests using session management.
+detailedDescription: Build session-aware AI applications that maintain conversation context across multiple requests. This lab demonstrates how to implement session management using Azure API Management policies, store session state in Azure Cosmos DB, and provide context-aware responses by including conversation history in subsequent requests to Azure OpenAI.
+authors:
+  - dbarkol
+---
+
 # APIM ❤️ AI Foundry
 
 ## [Session Awareness lab](session-awareness.ipynb)

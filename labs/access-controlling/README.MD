@@ -1,3 +1,19 @@
+---
+name: Access Controlling
+architectureDiagram: images/access-controlling.gif
+categories:
+  - Governance & Responsible AI
+  - Platform Capabilities
+services:
+  - Entra ID
+  - Managed Identity
+shortDescription: Implement authentication and authorization for AI Gateway APIs.
+detailedDescription: Secure your AI Gateway with comprehensive access control mechanisms. This lab covers implementing OAuth 2.0, Azure AD authentication, API keys, and managed identities. Learn to set up subscription-based access, implement JWT validation, configure CORS policies, and create different access tiers for your AI services.
+authors:
+  - vieiraae
+  - nourshaker-msft
+---
+
 # APIM ❤️ AI Foundry
 
 ## [Access Controlling lab](access-controlling.ipynb)

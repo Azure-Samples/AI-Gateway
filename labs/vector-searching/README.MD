@@ -1,3 +1,17 @@
+---
+name: Vector Searching
+architectureDiagram: images/vector-searching.gif
+categories:
+  - Knowledge & Tools
+services:
+  - Azure AI Search
+  - Azure OpenAI
+shortDescription: Implement semantic search using vector embeddings and Azure AI Search.
+detailedDescription: Build a semantic search solution using vector embeddings and Azure AI Search. This lab demonstrates how to generate embeddings using Azure OpenAI, store them in Azure AI Search, and implement efficient vector-based search queries through Azure API Management. Learn to build RAG (Retrieval-Augmented Generation) patterns for enhanced AI responses.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ OpenAI
 
 ## [Vector Searching lab](vector-searching.ipynb)

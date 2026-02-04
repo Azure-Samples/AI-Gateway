@@ -1,3 +1,22 @@
+---
+name: Realtime Audio with MCP Agents
+architectureDiagram: images/realtime-mcp-agents.gif
+categories:
+  - AI Agents
+  - Models Usage
+  - Knowledge & Tools
+services:
+  - MCP
+  - Audio Agents
+  - Realtime API
+  - Azure OpenAI
+shortDescription: Realtime audio API with MCP tools integration for weather, Spotify, and ServiceNow.
+detailedDescription: Playground to experiment with Azure OpenAI Realtime API for text and audio with integrations via Model Context Protocol and Azure API Management. Includes MCP servers for weather service, Spotify (playlists, playback control), and ServiceNow incidents. Leverages the credential manager for OAuth 2.0 tokens and client token validation for end-to-end authentication.
+authors:
+  - nourshaker-msft
+  - vieiraae
+---
+
 # APIM ❤️ AI Agents
 
 ## [Realtime Audio with MCP tools and Agents lab](realtime-mcp-agents.ipynb)

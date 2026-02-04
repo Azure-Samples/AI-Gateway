@@ -1,3 +1,18 @@
+---
+name: Function Calling
+architectureDiagram: images/function-calling.gif
+categories:
+  - Models Usage
+  - Knowledge & Tools
+services:
+  - Azure Functions
+  - Azure OpenAI
+shortDescription: Enable AI models to call external functions and APIs for enhanced capabilities.
+detailedDescription: Explore the function calling capabilities of Azure OpenAI models integrated through Azure API Management. This lab demonstrates how to define functions, enable AI models to intelligently call external APIs and services, and process the results. Learn to build AI agents that can interact with real-world systems and data sources.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ OpenAI
 
 ## [Function calling lab](function-calling.ipynb)

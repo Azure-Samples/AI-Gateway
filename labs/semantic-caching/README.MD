@@ -1,3 +1,18 @@
+---
+name: Semantic Caching
+architectureDiagram: images/semantic-caching.gif
+categories:
+  - Platform Capabilities
+  - Models Usage
+services:
+  - Azure Cache
+  - Azure OpenAI
+shortDescription: Reduce latency and costs using semantic caching for Azure OpenAI API requests.
+detailedDescription: The azure-openai-semantic-cache-lookup policy conducts a cache lookup of responses on Azure OpenAI Chat Completion API and Completion API requests from a pre-configured external cache. It operates by comparing the vector proximity of the prompt to prior requests and using a specific similarity score threshold. Caching responses helps reduce bandwidth and processing demands on the backend Azure OpenAI API, thus reducing latency perceived by API consumers.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ AI Foundry
 
 ## [Semantic Caching lab](semantic-caching.ipynb)

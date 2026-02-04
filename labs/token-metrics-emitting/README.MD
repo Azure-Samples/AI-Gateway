@@ -1,3 +1,18 @@
+---
+name: Token Metrics Emitting
+architectureDiagram: images/token-metrics-emitting.gif
+categories:
+  - Platform Capabilities
+  - Governance & Responsible AI
+services:
+  - Azure Monitor
+  - Application Insights
+shortDescription: Emit and track detailed token usage metrics for cost analysis and optimization.
+detailedDescription: Learn how to emit detailed token usage metrics from Azure API Management to Azure Monitor and Application Insights. This lab demonstrates how to track prompt tokens, completion tokens, and total token usage across different models and users. Build dashboards and alerts to monitor costs and usage patterns in real-time.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ AI Foundry
 
 ## [Token Metrics Emitting lab](token-metrics-emitting.ipynb)

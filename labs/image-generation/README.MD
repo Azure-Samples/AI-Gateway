@@ -1,3 +1,17 @@
+---
+name: Image Generation
+architectureDiagram: images/image-gen.gif
+categories:
+  - Models Usage
+services:
+  - Image Generation
+  - Azure OpenAI
+shortDescription: Generate images using DALL-E through Azure API Management gateway.
+detailedDescription: Learn how to expose and manage Azure OpenAI's DALL-E image generation capabilities through Azure API Management. This lab covers setting up the gateway for image generation requests, implementing size and quality controls, managing costs through rate limiting, and handling image responses efficiently.
+authors:
+  - nourshaker-msft
+---
+
 # APIM ❤️ AI Foundry
 
 ## 🎨 Image Generation and multi-modal analysis + Authentication using JWT
