@@ -1,3 +1,18 @@
+---
+name: SLM Self Hosting
+architectureDiagram: images/slm-self-hosting.gif
+categories:
+  - Models Usage
+  - Platform Capabilities
+services:
+  - Phi-3
+  - Self-Hosted Gateway
+shortDescription: Self-host Phi-3 Small Language Model through APIM self-hosted gateway with OpenAI compatibility.
+detailedDescription: Playground to try the self-hosted Phi-3 Small Language Model (SLM) through the APIM self-hosted gateway with OpenAI API compatibility. The Phi-3-Mini-4K-Instruct is a 3.8B parameters, lightweight, state-of-the-art open model. The APIM self-hosted gateway enables use cases where the SLM is running on-premises, bringing the gateway to where your APIs are hosted.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ OpenAI
 
 ## [SLM self hosting lab](slm-self-hosting.ipynb)

@@ -1,3 +1,19 @@
+---
+name: Model Routing
+architectureDiagram: images/model-routing.gif
+categories:
+  - Models Usage
+  - Platform Capabilities
+services:
+  - Azure AI Foundry
+  - Azure OpenAI
+shortDescription: Intelligently route requests to different AI models based on content and requirements.
+detailedDescription: Implement intelligent model routing strategies to direct requests to the most appropriate AI model based on factors like request content, user tier, cost optimization, or capability requirements. This lab demonstrates how to use Azure API Management policies to analyze incoming requests and route them to different models (GPT-3.5, GPT-4, custom models) for optimal performance and cost efficiency.
+authors:
+  - simonkurtz-MSFT
+  - nourshaker-msft
+---
+
 # APIM ❤️ AI Foundry
 
 ## [Model Routing lab](model-routing.ipynb)

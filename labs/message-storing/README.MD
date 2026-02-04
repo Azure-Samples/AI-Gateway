@@ -1,3 +1,17 @@
+---
+name: Message Storing
+architectureDiagram: images/message-storing.gif
+categories:
+  - Platform Capabilities
+services:
+  - Azure Cosmos DB
+  - Azure Storage
+shortDescription: Store conversation history and messages for compliance and analysis.
+detailedDescription: Implement message storage solutions to persist conversation history for compliance, auditing, and analysis purposes. This lab shows how to use Azure API Management policies to store messages in Azure Cosmos DB or Azure Storage, manage retention policies, and retrieve conversation history for continuing sessions or compliance reporting.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ AI Foundry
 
 ## [Message Storing lab](message-storing.ipynb)

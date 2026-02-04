@@ -1,3 +1,18 @@
+---
+name: Realtime Audio
+architectureDiagram: images/realtime-audio.gif
+categories:
+  - Models Usage
+services:
+  - Audio Agents
+  - Realtime API
+  - Azure OpenAI
+shortDescription: Enable real-time audio processing and speech-to-speech AI interactions.
+detailedDescription: Build real-time audio applications using Azure OpenAI's audio capabilities through Azure API Management. This lab covers setting up WebSocket connections for streaming audio, implementing speech-to-text and text-to-speech conversions, managing real-time conversations, and handling audio streaming efficiently with low latency.
+authors:
+  - nourshaker-msft
+---
+
 # APIM ❤️ OpenAI
 
 ## [Azure OpenAI Realtime Audio lab](realtime-audio.ipynb)

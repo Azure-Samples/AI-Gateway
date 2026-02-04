@@ -1,3 +1,16 @@
+---
+name: MCP from REST API
+architectureDiagram: images/model-context-protocol.gif
+categories:
+  - Knowledge & Tools
+services:
+  - MCP
+shortDescription: Transform existing REST APIs to Model Context Protocol with Azure API Management.
+detailedDescription: Playground to transform an existing REST API to the Model Context Protocol with Azure API Management. This lab demonstrates how to expose traditional REST APIs through the MCP standard, enabling AI models to interact with your existing services using the protocol.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ AI Agents
 
 ## [Model Context Protocol (MCP) from REST API lab](mcp-from-api.ipynb)

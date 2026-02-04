@@ -1,3 +1,21 @@
+---
+name: MCP A2A Agents
+architectureDiagram: images/mcp-a2a-agents.gif
+categories:
+  - AI Agents
+  - Knowledge & Tools
+services:
+  - MCP
+  - Azure Container Apps
+  - Semantic Kernel
+  - Autogen
+  - A2A Protocol
+shortDescription: Multi-agent system using Agent-to-Agent protocol with MCP servers and heterogeneous orchestrators.
+detailedDescription: Playground to experiment with A2A-enabled agents with Model Context Protocol through Azure API Management. Demonstrates heterogeneous multi-agent systems with agents built using Semantic Kernel and Autogen, communicating through APIM for authentication and authorization. Includes MCP servers for oncall service, weather, and GitHub issues with OAuth integration.
+authors:
+  - nourshaker-msft
+---
+
 # APIM ❤️ AI Agents
 
 ## MCP-enabled A2A agents lab (initial release)

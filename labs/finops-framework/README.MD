@@ -1,3 +1,19 @@
+---
+name: FinOps Framework
+architectureDiagram: images/finops-framework.gif
+categories:
+  - Governance & Responsible AI
+  - Platform Capabilities
+services:
+  - Azure Monitor
+  - Cost Management
+  - FinOps
+shortDescription: Implement comprehensive cost tracking and optimization for AI services.
+detailedDescription: Implement a complete FinOps framework for managing AI service costs. This lab covers setting up detailed cost tracking, creating chargeback models for different teams or customers, implementing budget alerts, optimizing token usage, and building dashboards for cost visibility. Learn to balance performance, quality, and cost in your AI deployments.
+authors:
+  - vieiraae
+---
+
 # APIM ❤️ FinOps
 
 ## [FinOps Framework lab](finops-framework.ipynb)
