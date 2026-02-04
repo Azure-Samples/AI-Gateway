@@ -9,6 +9,7 @@ services:
   - MCP
 shortDescription: Centralized MCP server registry using Azure API Center for enterprise governance.
 detailedDescription: To unlock the full potential of Model Context Protocol, enterprises need a centralized registry for server discovery and metadata management. Azure API Center serves as a governed, enterprise-grade repository for managing remote MCP servers. This lab demonstrates creating an API Center service and registering example remote MCP servers with centralized oversight for better version control and access management.
+tags: []
 authors:
   - jukasper
 ---

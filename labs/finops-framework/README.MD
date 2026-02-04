@@ -10,6 +10,7 @@ services:
   - FinOps
 shortDescription: Implement comprehensive cost tracking and optimization for AI services.
 detailedDescription: Implement a complete FinOps framework for managing AI service costs. This lab covers setting up detailed cost tracking, creating chargeback models for different teams or customers, implementing budget alerts, optimizing token usage, and building dashboards for cost visibility. Learn to balance performance, quality, and cost in your AI deployments.
+tags: []
 authors:
   - vieiraae
 ---

@@ -8,6 +8,7 @@ services:
   - Azure OpenAI
 shortDescription: Implement content filtering and safety checks for AI-generated responses.
 detailedDescription: This lab demonstrates how to implement Azure AI Content Safety to filter and moderate content in both requests and responses. Learn how to protect your applications from harmful content including hate speech, violence, self-harm, and sexual content using Azure's advanced content moderation capabilities integrated with Azure API Management.
+tags: []
 authors:
   - vieiraae
 ---

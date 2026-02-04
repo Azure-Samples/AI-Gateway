@@ -8,6 +8,7 @@ services:
   - Multi-Cloud AI
 shortDescription: Access AWS Bedrock models through Azure API Management gateway.
 detailedDescription: Build a multi-cloud AI architecture by integrating AWS Bedrock models with Azure API Management. This lab demonstrates how to expose Claude, Llama, and other Bedrock models through your Azure gateway, implement unified authentication and rate limiting across cloud providers, and create a consistent API interface for multi-cloud AI consumption.
+tags: []
 authors:
   - vieiraae
 ---

@@ -9,6 +9,7 @@ services:
   - Microsoft Entra ID
 shortDescription: Implement MCP client authorization flow with APIM as OAuth client and authorization server.
 detailedDescription: Playground to experiment with the Model Context Protocol client authorization flow. In this flow, Azure API Management acts both as an OAuth client connecting to Microsoft Entra ID authorization server and as an OAuth authorization server for the MCP client (MCP inspector). Note: Due to the evolving nature of the MCP Authorization proposal, direct production use is not yet recommended.
+tags: []
 authors:
   - vieiraae
   - nourshaker-msft

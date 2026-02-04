@@ -8,6 +8,7 @@ services:
   - Azure OpenAI
 shortDescription: Generate images using DALL-E through Azure API Management gateway.
 detailedDescription: Learn how to expose and manage Azure OpenAI's DALL-E image generation capabilities through Azure API Management. This lab covers setting up the gateway for image generation requests, implementing size and quality controls, managing costs through rate limiting, and handling image responses efficiently.
+tags: []
 authors:
   - nourshaker-msft
 ---

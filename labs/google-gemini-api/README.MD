@@ -9,6 +9,7 @@ services:
   - Multi-Cloud AI
 shortDescription: Access Google Gemini models through OpenAI-compatible endpoint that can be accessed through Azure API Management.
 detailedDescription: Playground to try the Google Gemini models with the AI Gateway using the OpenAI-compatible endpoint. This lab demonstrates how to import an OpenAI-compatible Google Gemini API into Azure API Management.
+tags: []
 authors:
   - seilorjunior
 ---

@@ -9,6 +9,7 @@ services:
   - Deepseek R1
 shortDescription: Experiment with Deepseek R1 model via Azure AI Foundry's Model Inference API.
 detailedDescription: Playground to try the Deepseek R1 model via the AI Model Inference from Azure AI Foundry. This lab uses the Azure AI Model Inference API and two APIM LLM policies (llm-token-limit and llm-emit-token-metric) to manage and monitor token usage while accessing cutting-edge reasoning models.
+tags: []
 authors:
   - vieiraae
 ---

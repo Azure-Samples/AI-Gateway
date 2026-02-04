@@ -12,6 +12,7 @@ services:
   - A2A Protocol
 shortDescription: Multi-agent system using Agent-to-Agent protocol with MCP servers and heterogeneous orchestrators.
 detailedDescription: Playground to experiment with A2A-enabled agents with Model Context Protocol through Azure API Management. Demonstrates heterogeneous multi-agent systems with agents built using Semantic Kernel and Autogen, communicating through APIM for authentication and authorization. Includes MCP servers for oncall service, weather, and GitHub issues with OAuth integration.
+tags: []
 authors:
   - nourshaker-msft
 ---

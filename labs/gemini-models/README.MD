@@ -9,6 +9,7 @@ services:
   - Multi-Cloud AI
 shortDescription: Access Google Gemini models through Azure API Management with native and OpenAI compatibility.
 detailedDescription: Playground to try Gemini Models served through the AI Gateway. This lab creates two APIs - one with native Gemini API compatibility and another one with OpenAI compatibility. Learn to integrate third-party AI models through Azure API Management for unified governance and monitoring.
+tags: []
 authors:
   - vieiraae
 ---

@@ -9,6 +9,7 @@ services:
   - Application Insights
 shortDescription: Emit and track detailed token usage metrics for cost analysis and optimization.
 detailedDescription: Learn how to emit detailed token usage metrics from Azure API Management to Azure Monitor and Application Insights. This lab demonstrates how to track prompt tokens, completion tokens, and total token usage across different models and users. Build dashboards and alerts to monitor costs and usage patterns in real-time.
+tags: []
 authors:
   - vieiraae
 ---

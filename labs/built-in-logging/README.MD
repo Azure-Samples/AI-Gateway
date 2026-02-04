@@ -7,7 +7,8 @@ services:
   - Application Insights
   - Log Analytics
 shortDescription: Enable comprehensive logging for debugging and monitoring AI Gateway operations.
-detailedDescription: Configure built-in logging capabilities in the AI Gateway to capture detailed request and response data. This lab covers how to set up logging to Application Insights and Log Analytics, configure log levels, implement custom logging policies, and build queries to analyze API traffic patterns and troubleshoot issues.
+detailedDescription: Configure built-in logging capabilities in API Management to capture detailed request and response data. This lab covers how to set up logging to Application Insights and Log Analytics, configure log levels, implement custom logging policies, and build queries to analyze API traffic patterns and troubleshoot issues.
+tags: []
 authors:
   - vieiraae
 ---

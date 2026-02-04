@@ -12,6 +12,7 @@ services:
   - Azure OpenAI
 shortDescription: Realtime audio API with MCP tools integration for weather, Spotify, and ServiceNow.
 detailedDescription: Playground to experiment with Azure OpenAI Realtime API for text and audio with integrations via Model Context Protocol and Azure API Management. Includes MCP servers for weather service, Spotify (playlists, playback control), and ServiceNow incidents. Leverages the credential manager for OAuth 2.0 tokens and client token validation for end-to-end authentication.
+tags: []
 authors:
   - nourshaker-msft
   - vieiraae

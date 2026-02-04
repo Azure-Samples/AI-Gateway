@@ -7,6 +7,7 @@ services:
   - Azure OpenAI
 shortDescription: Built-in load balancing with Terraform - prioritized PTU with fallback consumption scenario.
 detailedDescription: Playground to try the built-in load balancing backend pool functionality of APIM to a list of Azure OpenAI endpoints using Terraform for infrastructure as code. This is a typical prioritized PTU with fallback consumption scenario. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.
+tags: []
 authors:
   - vieiraae
 ---
