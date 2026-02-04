@@ -138,11 +138,13 @@
       "Log Analytics"
     ],
     "shortDescription": "Enable comprehensive logging for debugging and monitoring AI Gateway operations.",
-    "detailedDescription": "Configure built-in logging capabilities in Azure API Management to capture detailed request and response data. This lab covers how to set up logging to Application Insights and Log Analytics, configure log levels, implement custom logging policies, and build queries to analyze API traffic patterns and troubleshoot issues.",
+    "detailedDescription": "Configure built-in logging capabilities in the AI Gateway to capture detailed request and response data. This lab covers how to set up logging to Application Insights and Log Analytics, configure log levels, implement custom logging policies, and build queries to analyze API traffic patterns and troubleshoot issues.",
     "authors": [
-      "dariuszparys"
+      "vieiraae"
     ],
-    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/built-in-logging"
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/built-in-logging",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T12:50:02.820Z"
   },
   {
     "id": "content-safety",
