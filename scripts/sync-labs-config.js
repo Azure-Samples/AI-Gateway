@@ -48,7 +48,7 @@ function parseFrontmatter(content) {
 }
 
 /**
- * Get all lab folders that have a README.md
+ * Get all lab folders that have a README.md or README.MD
  */
 function getLabFolders() {
   const folders = [];
@@ -64,8 +64,10 @@ function getLabFolders() {
     if (!entry.isDirectory()) continue;
     if (IGNORE_FOLDERS.includes(entry.name)) continue;
     
-    const readmePath = path.join(LABS_DIR, entry.name, 'README.md');
-    if (fs.existsSync(readmePath)) {
+    // Check for README.md or README.MD (case variations)
+    const readmePathLower = path.join(LABS_DIR, entry.name, 'README.md');
+    const readmePathUpper = path.join(LABS_DIR, entry.name, 'README.MD');
+    if (fs.existsSync(readmePathLower) || fs.existsSync(readmePathUpper)) {
       folders.push(entry.name);
     }
   }
@@ -101,7 +103,11 @@ function syncLabsConfig() {
   let skipped = 0;
   
   for (const labFolder of labFolders) {
-    const readmePath = path.join(LABS_DIR, labFolder, 'README.md');
+    // Check for README.md or README.MD (case variations)
+    let readmePath = path.join(LABS_DIR, labFolder, 'README.md');
+    if (!fs.existsSync(readmePath)) {
+      readmePath = path.join(LABS_DIR, labFolder, 'README.MD');
+    }
     const content = fs.readFileSync(readmePath, 'utf8');
     
     const frontmatter = parseFrontmatter(content);

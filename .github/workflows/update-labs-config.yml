@@ -67,7 +67,7 @@ jobs:
           const REPO_OWNER = process.env.GITHUB_REPOSITORY_OWNER || 'Azure-Samples';
           const REPO_NAME = process.env.GITHUB_REPOSITORY?.split('/')[1] || 'AI-Gateway';
           const GITHUB_BASE_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}/tree/main/labs`;
-          const LABS_CONFIG_PATH = 'docs/labs-config.json';
+          const LABS_CONFIG_PA  TH = 'docs/labs-config.json';
           const LABS_DIR = 'labs';
 
           // Get list of changed labs from environment variable
@@ -96,10 +96,14 @@ jobs:
 
           // Process each changed lab
           for (const labFolder of changedLabs) {
-            const readmePath = path.join(LABS_DIR, labFolder, 'README.md');
+            // Check for README.md or README.MD (case variations)
+            let readmePath = path.join(LABS_DIR, labFolder, 'README.md');
+            if (!fs.existsSync(readmePath)) {
+              readmePath = path.join(LABS_DIR, labFolder, 'README.MD');
+            }
             
             if (!fs.existsSync(readmePath)) {
-              console.log(`README.md not found for ${labFolder}, skipping...`);
+              console.log(`README.md/README.MD not found for ${labFolder}, skipping...`);
               continue;
             }
 
