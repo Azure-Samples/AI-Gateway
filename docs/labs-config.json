@@ -231,6 +231,27 @@
     "lastCommitDate": "2026-02-04T13:09:52.730Z"
   },
   {
+    "id": "foundry-models-evals",
+    "name": "Foundry Models Evals",
+    "architectureDiagram": "images/foundry-models-evals.gif",
+    "categories": [
+      "Monitoring & Logging",
+      "LLMOps"
+    ],
+    "services": [
+      "Microsoft Foundry",
+      "Log Analytics"
+    ],
+    "shortDescription": "Extract LLM logs from APIM and run evaluations in Microsoft Foundry.",
+    "detailedDescription": "This lab demonstrates how to extract LLM request/response data from Azure API Management's built-in logging (ApiManagementGatewayLlmLog) and use it as input for running cloud evaluations in Microsoft Foundry. Learn to transform API logs into evaluation datasets and run quality assessments using built-in evaluators like coherence, fluency, and groundedness.",
+    "authors": [
+      "vieiraae"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-models-evals",
+    "lastCommitDate": "2026-02-04T18:13:32.653Z"
+  },
+  {
     "id": "function-calling",
     "name": "Function Calling",
     "architectureDiagram": "images/function-calling.gif",
