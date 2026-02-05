@@ -3,24 +3,22 @@
 <div align="center">
 
 # ✨ AI Gateway Labs
-
-### Explore the enterprise-grade gateway for managing AI Models, Tools, and Agents
-
 [![Open Source](https://img.shields.io/badge/Open%20Source-❤️-blue)](https://github.com/Azure-Samples/AI-Gateway)
 [![GitHub Stars](https://img.shields.io/github/stars/Azure-Samples/AI-Gateway?style=social)](https://github.com/Azure-Samples/AI-Gateway/stargazers)
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-orange?logo=github)](https://codespaces.new/Azure-Samples/AI-Gateway)
 
 
+[![AI-Gateway Labs](images/ai-gateway-labs-banner.png)](http://aka.ms/ai-gateway/labs)
+
+### Explore the enterprise-grade gateway for managing AI Models, Tools, and Agents
 
 <br/>
 
-![AI-Gateway flow](images/ai-gateway.gif)
+[![AI-Gateway flow](images/ai-gateway.gif)](http://aka.ms/ai-gateway/labs)
 
-[![Azure](https://img.shields.io/badge/Powered%20by-Azure%20API%20Management-0078D4)](https://learn.microsoft.com/azure/api-management/genai-gateway-capabilities)  [![Browse the Available Labs](https://img.shields.io/badge/🧪%20Browse%20the%20Labs-30+-brightgreen)](http://aka.ms/ai-gateway/labs)
+[![Azure](https://img.shields.io/badge/Powered%20by-Azure%20API%20Management-0078D4)](https://learn.microsoft.com/azure/api-management/genai-gateway-capabilities)
 
 </div>
-
----
 
 ## Why AI Gateway?
 
@@ -34,15 +32,11 @@ Building production-ready AI applications requires more than just calling model 
 - 💰 **Cost Control** — Rate limiting, quota management, FinOps framework
 - 🔌 **Extensibility** — MCP protocol support, function calling, multi-model routing
 
----
-
 ## 📚 Explore the Labs
 
 > **🔗 Browse all 30+ labs at [aka.ms/ai-gateway/labs](http://aka.ms/ai-gateway/labs)**
 
 Each lab is a hands-on Jupyter notebook with step-by-step instructions, Bicep infrastructure templates, and APIM policies you can deploy to your Azure subscription.
-
----
 
 ## 🧠 AI Gateway for Models
 
@@ -56,8 +50,6 @@ Manage and control access to Large Language Models with enterprise-grade policie
 | [**Model Routing**](labs/model-routing/model-routing.ipynb) | Route requests to different backends based on model and version |
 | [**FinOps Framework**](labs/finops-framework/finops-framework.ipynb) | Manage AI budgets with automated quota controls |
 
----
-
 ## 🔧 AI Gateway for Tools
 
 Enable secure tool access with MCP protocol and function calling capabilities.
@@ -69,8 +61,6 @@ Enable secure tool access with MCP protocol and function calling capabilities.
 | [**Function Calling**](labs/function-calling/function-calling.ipynb) | Use OpenAI function calling with Azure Functions backend |
 | [**Realtime Audio + MCP**](labs/realtime-mcp-agents/realtime-mcp-agents.ipynb) | Combine realtime voice API with MCP tools |
 
----
-
 ## 🤖 AI Gateway for Agents
 
 Build and control agentic applications with orchestration frameworks.
@@ -81,8 +71,6 @@ Build and control agentic applications with orchestration frameworks.
 | [**OpenAI Agents SDK**](labs/openai-agents/openai-agents.ipynb) | Use OpenAI Agents with Azure OpenAI and APIM-managed tools |
 | [**Gemini MCP Agents**](labs/gemini-mcp-agents/gemini-mcp-agents.ipynb) | Integrate Google Gemini models with MCP tools |
 | [**A2A Enabled Agents**](labs/mcp-a2a-agents/mcp-agent-as-a2a-server.ipynb) | A2A-enabled Agents with models and MCP plug & play tools |
-
----
 
 ## 🚀 Quick Start
 
@@ -108,8 +96,6 @@ code .
 
 Or launch instantly with **[GitHub Codespaces](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main)** ☁️
 
----
-
 ## 🔨 Developer Tools
 
 The [`tools/`](tools/) folder provides utilities for testing and development:
@@ -121,8 +107,6 @@ The [`tools/`](tools/) folder provides utilities for testing and development:
 | [**Rate Limit Tester**](tools/rate-limit.ipynb) | Validate rate limiting configurations |
 | [**Mock Server**](tools/mock-server/mock-server.ipynb) | OpenAI API mock for local development and testing |
 | [**OAuth Client**](tools/client-oauth.ipynb) | Test OAuth authentication flows |
-
----
 
 ## 👩‍💻 Build Your Own Labs with AI
 
@@ -162,8 +146,6 @@ Copilot will generate the complete lab structure including:
 - 📖 README documentation
 - 🧹 Cleanup notebook
 
----
-
 ## 🏛️ Well-Architected Framework
 
 Labs are designed following [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/what-is-well-architected-framework) principles:
@@ -176,7 +158,11 @@ Labs are designed following [Azure Well-Architected Framework](https://learn.mic
 | **Operations** | Built-in logging, Token metrics emitting |
 | **Cost** | FinOps framework, Semantic caching |
 
----
+## 📕 Enterprise AI Gateway e-Book
+
+| | |
+|:---:|:---|
+| <a href="docs/media/Enterprise%20AI%20Gateway%20eBook%20-%20Feb%202026.pdf"><img src="images/ebook.png" alt="Enterprise AI Gateway e-Book" width="180"/></a> | Download the **[Enterprise AI Gateway e-Book](docs/media/Enterprise%20AI%20Gateway%20eBook%20-%20Feb%202026.pdf)** for comprehensive guidance on using Azure API Management and Microsoft Foundry to secure, observe and control AI Apps and Agents. |
 
 ## 🎬 Conferences & Webcasts
 
@@ -189,36 +175,27 @@ Learn from experts through these videos covering AI Gateway concepts and impleme
 [![Token Emit Metric](https://i.ytimg.com/vi/2pW6Z2VwHmQ/mqdefault.jpg)](https://www.youtube.com/watch?v=2pW6Z2VwHmQ) | [![GenAI Gateway](https://i.ytimg.com/vi/dBTCgzTe900/mqdefault.jpg)](https://www.youtube.com/watch?v=dBTCgzTe900) | [![Control AI Services](https://i.ytimg.com/vi/yYt1-a7RocU/mqdefault.jpg)](https://www.youtube.com/watch?v=yYt1-a7RocU) | [![John Savill](https://i.ytimg.com/vi/l_8dTUwrqNw/mqdefault.jpg)](https://www.youtube.com/watch?v=l_8dTUwrqNw)
 [![Houssem Dellai](https://i.ytimg.com/vi/C17qTB3fL3Y/mqdefault.jpg)](https://www.youtube.com/watch?v=C17qTB3fL3Y) | [![Turbo360](https://i.ytimg.com/vi/QRCHKN9PX7o/mqdefault.jpg)](https://www.youtube.com/watch?v=QRCHKN9PX7o) | | | |
 
----
-
 ## 📖 Resources
 
 - 📘 [AI Gateway Documentation](https://learn.microsoft.com/azure/api-management/genai-gateway-capabilities)
 - 🎓 [AI Gateway Workshop](https://aka.ms/ai-gateway/workshop)
+- ⚙️ [APIM Samples](https://github.com/Azure-Samples/Apim-Samples)
 - 📚 [APIM Learning Modules](https://learn.microsoft.com/training/browse/?products=azure-api-management)
 - 💡 [Landing Zone Accelerator](https://learn.microsoft.com/azure/cloud-adoption-framework/scenarios/app-platform/api-management/landing-zone-accelerator)
 - 🏛️ [Foundry Ctadel](https://aka.ms/foundry-citadel)
 - 📰 [API Management News](https://techcommunity.microsoft.com/tag/API%20Management)
 
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.MD) for guidelines.
-
----
 
 ## ⚠️ Disclaimer
 
 > This software is provided for demonstration purposes only. It is not intended to be relied upon for any purpose. The creators make no representations or warranties about the completeness, accuracy, reliability, or suitability of this software.
 
----
 
 <div align="center">
 
-**[⬆ Back to Top](#-ai-gateway)**
-
 [![APIM Love](https://img.shields.io/badge/APIM%20Love-❤️-blue)](http://aka.ms/apimlove)
-
 
 </div>
