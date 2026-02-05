@@ -164,7 +164,7 @@ Labs are designed following [Azure Well-Architected Framework](https://learn.mic
 
 Download the <a href="docs/media/Enterprise%20AI%20Gateway%20eBook%20-%20Feb%202026.pdf">Enterprise AI Gateway e-Book</a> for comprehensive end-to-end view of the Enterprise AI Gateway pattern, explaining why a centralized governance layer is essential for organizations adopting AI at scale and how it can be practically implemented using Azure API Management and Microsoft Foundry.  
 It describes the AI Gateway as a control plane that mediates all interactions between AI apps and agents and the underlying models, data, and tools, enabling consistent enforcement of security, safety, cost controls, resiliency, scalability, observability, and governance.  
-Overall, the eBook positions the Enterprise AI Gateway as a foundational architectural component that allows enterprises to innovate rapidly with AI while maintaining trust, compliance, visibility, and control.
+Overall, the e-Book positions the Enterprise AI Gateway as a foundational architectural component that allows enterprises to innovate rapidly with AI while maintaining trust, compliance, visibility, and control.
 <br clear="left"/>
 
 ## 🎬 Conferences & Webcasts
