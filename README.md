@@ -160,9 +160,12 @@ Labs are designed following [Azure Well-Architected Framework](https://learn.mic
 
 ## 📕 Enterprise AI Gateway e-Book
 
-| | |
-|:---:|:---|
-| <a href="docs/media/Enterprise%20AI%20Gateway%20eBook%20-%20Feb%202026.pdf"><img src="images/ebook.png" alt="Enterprise AI Gateway e-Book" width="180"/></a> | Download the **[Enterprise AI Gateway e-Book](docs/media/Enterprise%20AI%20Gateway%20eBook%20-%20Feb%202026.pdf)** for comprehensive guidance on using Azure API Management and Microsoft Foundry to secure, observe and control AI Apps and Agents. |
+<table>
+  <tr>
+    <td><a href="docs/media/Enterprise%20AI%20Gateway%20eBook%20-%20Feb%202026.pdf"><img src="images/ebook.png" alt="Enterprise AI Gateway e-Book" width="200"/></a></td>
+    <td>Download the <a href="docs/media/Enterprise%20AI%20Gateway%20eBook%20-%20Feb%202026.pdf">Enterprise AI Gateway e-Book</a> for comprehensive end-to-end view of the Enterprise AI Gateway pattern, explaining why a centralized governance layer is essential for organizations adopting AI at scale and how it can be practically implemented using Azure API Management and Microsoft Foundry.</td>
+  </tr>
+</table>
 
 ## 🎬 Conferences & Webcasts
 
