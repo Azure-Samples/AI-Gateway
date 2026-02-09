@@ -1,17 +1,17 @@
 <policies>
     <inbound>
         <base />
-        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" /> 
-        <set-header name="Authorization" exists-action="override">  
-            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>  
-        </set-header>
         <set-backend-service backend-id="{backend-id}" />
         <llm-content-safety backend-id="content-safety-backend" shield-prompt="true">
             <categories output-type="EightSeverityLevels">
                 <category name="SelfHarm" threshold="4" />
                 <category name="Hate" threshold="4" />
                 <category name="Violence" threshold="4" />
+                <category name="Sexual" threshold="4" />
             </categories>
+            <blocklists>
+                <id>blocklist1</id>            
+            </blocklists>   
         </llm-content-safety>
     </inbound>
     <backend>
