@@ -40,7 +40,6 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-agent-service",
     "tags": [],
-    "featured": true,
     "lastCommitDate": "2026-02-04T13:09:52.727Z"
   },
   {
@@ -62,7 +61,6 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-deepseek",
     "tags": [],
-    "featured": true,
     "lastCommitDate": "2026-02-04T13:09:52.727Z"
   },
   {
@@ -207,7 +205,8 @@
       "vieiraae"
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/content-safety",
-    "tags": [],    "featured": true,    "lastCommitDate": "2026-02-04T13:09:52.730Z"
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.730Z"
   },
   {
     "id": "finops-framework",
@@ -237,8 +236,7 @@
     "architectureDiagram": "images/foundry-models-evals.gif",
     "categories": [
       "Monitoring & Logging",
-      "Governance & Responsible AI",
-      "Platform Capabilities"
+      "LLMOps"
     ],
     "services": [
       "Microsoft Foundry",
@@ -249,7 +247,6 @@
     "authors": [
       "vieiraae"
     ],
-    "featured": true,
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-models-evals",
     "lastCommitDate": "2026-02-04T18:13:32.653Z"
@@ -278,7 +275,7 @@
   {
     "id": "gemini-mcp-agents",
     "name": "Gemini MCP Agents",
-    "architectureDiagram": "images/gemini-mcp-content-safety.gif",
+    "architectureDiagram": "images/gemini-mcp-agents.gif",
     "categories": [
       "AI Agents",
       "Models Usage"
@@ -349,20 +346,19 @@
       "Image Generation",
       "Azure OpenAI"
     ],
-    "shortDescription": "Generate images using GPT-Image and Flux models through Azure API Management gateway.",
-    "detailedDescription": "Learn how to expose and manage Azure OpenAI's GPT-Image and Flux models image generation capabilities through Azure API Management. This lab covers setting up the gateway for image generation requests, implementing size and quality controls, managing costs through rate limiting, and handling image responses efficiently.",
+    "shortDescription": "Generate images using DALL-E through Azure API Management gateway.",
+    "detailedDescription": "Learn how to expose and manage Azure OpenAI's DALL-E image generation capabilities through Azure API Management. This lab covers setting up the gateway for image generation requests, implementing size and quality controls, managing costs through rate limiting, and handling image responses efficiently.",
     "authors": [
       "nourshaker-msft"
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/image-generation",
     "tags": [],
-    "featured": true,
     "lastCommitDate": "2026-02-04T13:09:52.733Z"
   },
   {
     "id": "mcp-a2a-agents",
     "name": "MCP A2A Agents",
-    "architectureDiagram": "images/mcp-agent-2-agent.gif",
+    "architectureDiagram": "images/mcp-a2a-agents.gif",
     "categories": [
       "AI Agents",
       "Knowledge & Tools"
@@ -379,7 +375,6 @@
     "authors": [
       "nourshaker-msft"
     ],
-    "featured": true,
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-a2a-agents",
     "tags": [],
     "lastCommitDate": "2026-02-04T13:09:52.733Z"
@@ -420,7 +415,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-from-api",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.734Z"
+    "lastCommitDate": "2026-02-18T22:32:42.100Z"
   },
   {
     "id": "mcp-prm-oauth",
@@ -441,7 +436,6 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-prm-oauth",
     "tags": [],
-    "featured": true,
     "lastCommitDate": "2026-02-04T13:09:52.735Z"
   },
   {
@@ -461,7 +455,6 @@
     "authors": [
       "jukasper"
     ],
-    "featured": true,
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-registry-apic",
     "tags": [],
     "lastCommitDate": "2026-02-04T13:09:52.735Z"
@@ -548,7 +541,6 @@
       "simonkurtz-MSFT",
       "nourshaker-msft"
     ],
-    "featured": true,
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-routing",
     "tags": [],
     "lastCommitDate": "2026-02-04T13:09:52.736Z"
@@ -638,7 +630,6 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/realtime-mcp-agents",
     "tags": [],
-    "featured": true,
     "lastCommitDate": "2026-02-04T13:09:52.738Z"
   },
   {
@@ -803,7 +794,6 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/zero-to-production",
     "tags": [],
-    "featured": true,
     "lastCommitDate": "2026-02-04T13:09:52.740Z"
   }
 ]
