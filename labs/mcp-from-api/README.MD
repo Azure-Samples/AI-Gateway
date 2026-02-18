@@ -18,7 +18,9 @@ authors:
 
 [![flow](../../images/model-context-protocol.gif)](mcp-from-api.ipynb)
 
-Playground to transform an existing REST API to the [Model Context Protocol](https://modelcontextprotocol.io/) with Azure API Management. 
+Playground to transform an existing REST API to the [Model Context Protocol](https://modelcontextprotocol.io/) with Azure API Management.
+
+Follow this [guide](./COPILOT-STUDIO.md) to use the APIM MCP servers in Copilot Studio.
 
 ### Prerequisites
 
