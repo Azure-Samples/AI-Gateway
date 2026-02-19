@@ -40,23 +40,8 @@ module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
     }
   }
 
-// 3. APIM Inference API
-module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
-  name: 'inferenceAPIModule'
-  params: {
-    policyXml: loadTextContent('policy.xml')
-    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
-    inferenceAPIType: inferenceAPIType
-    inferenceAPIPath: inferenceAPIPath
-    configureCircuitBreaker: true
-  }
-}
-
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: 'apim-${resourceSuffix}'
-  dependsOn: [
-    inferenceAPIModule
-  ]
 }
 
 // 4. Content Safety
@@ -146,6 +131,24 @@ resource contentSafetyBackend 'Microsoft.ApiManagement/service/backends@2024-06-
       }
     }
   }
+  dependsOn: [
+    apimModule
+  ]
+}
+
+// 3. APIM Inference API - Must be deployed after Content Safety backend
+module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+  name: 'inferenceAPIModule'
+  params: {
+    policyXml: loadTextContent('policy.xml')
+    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    inferenceAPIType: inferenceAPIType
+    inferenceAPIPath: inferenceAPIPath
+    configureCircuitBreaker: true
+  }
+  dependsOn: [
+    contentSafetyBackend
+  ]
 }
 
 // ------------------
