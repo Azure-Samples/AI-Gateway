@@ -87,7 +87,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-private-mcp",
-    "lastCommitDate": "2026-02-04T13:09:52.727Z"
+    "lastCommitDate": "2026-02-19T12:42:08.760Z"
   },
   {
     "id": "ai-foundry-sdk",
@@ -147,7 +147,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/backend-pool-load-balancing",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.728Z"
+    "lastCommitDate": "2026-02-19T12:42:08.760Z"
   },
   {
     "id": "backend-pool-load-balancing-tf",
@@ -166,7 +166,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/backend-pool-load-balancing-tf",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.729Z"
+    "lastCommitDate": "2026-02-19T12:42:08.761Z"
   },
   {
     "id": "built-in-logging",
@@ -584,7 +584,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/private-connectivity",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.737Z"
+    "lastCommitDate": "2026-02-19T12:42:08.761Z"
   },
   {
     "id": "realtime-audio",
@@ -794,6 +794,6 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/zero-to-production",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.740Z"
+    "lastCommitDate": "2026-02-19T12:42:08.762Z"
   }
 ]
