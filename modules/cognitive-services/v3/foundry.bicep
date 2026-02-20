@@ -31,6 +31,22 @@ param appInsightsInstrumentationKey string = ''
 @description('The resource ID for Application Insights')
 param appInsightsId string = ''
 
+@description('Agent subnet resource ID for network injection')
+param agentSubnetResourceId string = ''
+
+@description('User-assigned managed identity resource ID for AI Services')
+param managedIdentityResourceId string = ''
+
+@description('Public network access setting')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param publicNetworkAccess string = 'Enabled'
+
+@description('IP address to allow access (optional)')
+param allowedIpAddress string = ''
+
 
 // ------------------
 //    VARIABLES
@@ -40,6 +56,9 @@ var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var azureRoles = loadJsonContent('../../azure-roles.json')
 var cognitiveServicesUserRoleDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', azureRoles.CognitiveServicesUser)
 
+// Check if user-assigned managed identity is provided
+var useUserAssignedIdentity = !empty(managedIdentityResourceId)
+
 
 // ------------------
 //    RESOURCES
@@ -48,7 +67,12 @@ var cognitiveServicesUserRoleDefinitionID = resourceId('Microsoft.Authorization/
 resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2025-06-01' = [for config in aiServicesConfig: {
   name: '${config.name}-${resourceSuffix}'
   location: config.location
-  identity: {
+  identity: useUserAssignedIdentity ? {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${managedIdentityResourceId}': {}
+    }
+  } : {
     type: 'SystemAssigned'
   }
   sku: {
@@ -63,7 +87,30 @@ resource cognitiveServices 'Microsoft.CognitiveServices/accounts@2025-06-01' = [
 
     disableLocalAuth: false
 
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: publicNetworkAccess
+
+    // Network ACLs for IP-based access control
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Allow'
+      ipRules: empty(allowedIpAddress) ? [] : [
+        {
+          value: allowedIpAddress
+        }
+      ]
+      virtualNetworkRules: []
+    }
+
+    // Network injection for Foundry Agents Service
+    networkInjections: (!empty(agentSubnetResourceId)
+      ? [
+          {
+            scenario: 'agent'
+            subnetArmId: agentSubnetResourceId
+            useMicrosoftManagedNetwork: false
+          }
+        ]
+      : null)
   }  
 }]
 

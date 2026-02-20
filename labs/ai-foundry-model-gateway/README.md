@@ -1,6 +1,6 @@
 ---
 name: AI Foundry Model Gateway
-architectureDiagram: images/foundry-ai-gateway.gif
+architectureDiagram: images/foundry-model-gateway.gif
 categories:
   - Platform Capabilities
   - Models Usage
@@ -23,7 +23,7 @@ authors:
 
 ## AI Foundry with APIM Model Gateway lab
 
-![flow](../../images/foundry-ai-gateway.gif)
+![flow](../../images/foundry-model-gateway.gif)
 
 This lab demonstrates how to configure **Azure API Management (APIM)** as a **Model Gateway** for **Azure AI Foundry**. By establishing this connection, you can leverage APIM's enterprise-grade capabilities including:
 
