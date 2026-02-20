@@ -1,41 +1,24 @@
 
 param apimServiceName string
-param MCPServiceURL string
-param MCPPath string = 'github'
+param APIPath string = 'github'
+param APIServiceURL string = 'https://api.github.com'
+param authorizationProviderName string = 'github'
 
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apimServiceName
 }
 
-resource mcpBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' ={
+resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   parent: apim
-  name: '${MCPPath}-mcp-backend'
+  name: 'github-api'
   properties: {
-    protocol: 'http'
-    url: MCPServiceURL
-    tls: {
-      validateCertificateChain: true
-      validateCertificateName: true
-    }
-    type: 'Single'
-  }  
-}
-
-resource mcp 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
-  parent: apim
-  name: '${MCPPath}-mcp-tools'
-  properties: {
-    displayName: '${MCPPath} MCP Tools'
-    type: 'mcp'
+    displayName: 'GitHub API'
     subscriptionRequired: false
-    backendId: mcpBackend.name
-    path: MCPPath
+    serviceUrl: APIServiceURL
+    path: '${APIPath}/api'
     protocols: [
       'https'
     ]
-    mcpProperties:{
-      transportType: 'streamable'
-    }
     authenticationSettings: {
       oAuth2AuthenticationSettings: []
       openidAuthenticationSettings: []
@@ -45,11 +28,30 @@ resource mcp 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
       query: 'subscription-key'
     }
     isCurrent: true
+    format: 'openapi+json'
+    value: loadTextContent('openapi.json')
+  }
+}
+
+resource apiInsights 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
+  name: 'applicationinsights'
+  parent: api
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apimServiceName, 'appinsights-logger')
+    metrics: true
+    verbosity: 'verbose'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
   }
 }
 
 resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-preview' = {
-  parent: mcp
+  parent: api
   name: 'policy'
   properties: {
     value: loadTextContent('policy.xml')
@@ -57,13 +59,12 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
   }
 }
 
-
-
+/*
 resource authorizationProvider 'Microsoft.ApiManagement/service/authorizationProviders@2024-06-01-preview' = {
   parent: apim
-  name: 'github'
+  name: authorizationProviderName
   properties: {
-    displayName: 'github'
+    displayName: authorizationProviderName
     identityProvider: 'github'
     oauth2: {
       redirectUrl: 'https://authorization-manager.consent.azure-apim.net/redirect/apim/${apim.name}'
@@ -76,37 +77,5 @@ resource authorizationProvider 'Microsoft.ApiManagement/service/authorizationPro
     }
   }
 }
+*/
 
-resource userOperation 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' existing = {
-  parent: mcp
-  name: 'user'
-}
-
-resource userOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-06-01-preview' = {
-  parent: userOperation
-  name: 'policy'
-  properties: {
-    value: loadTextContent('operation-policy.xml')
-    format: 'rawxml'
-  }
-  dependsOn: [
-    apim
-  ]
-}
-
-resource issuesOperation 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' existing = {
-  parent: mcp
-  name: 'issues'
-}
-
-resource issuesOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2024-06-01-preview' = {
-  parent: issuesOperation
-  name: 'policy'
-  properties: {
-    value: loadTextContent('operation-policy.xml')
-    format: 'rawxml'
-  }
-  dependsOn: [
-    apim
-  ]
-}

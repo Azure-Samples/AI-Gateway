@@ -1,212 +1,102 @@
-import random
-import uvicorn
-import httpx, os, uuid
-from typing import Any
+import httpx
+import os
+from fastmcp import FastMCP, Context
+from credential_manager import CredentialManager
 
-# Support either the standalone 'fastmcp' package or the 'mcp' package layout.
-try:
-    from fastmcp import FastMCP, Context  # pip install fastmcp
-except ModuleNotFoundError:  # fall back to the layout you used originally
-    from mcp.server.fastmcp import FastMCP, Context  # pip install mcp
-
-from starlette.applications import Starlette
-from starlette.routing import Mount
-
-from azure.identity import DefaultAzureCredential
-from azure.mgmt.apimanagement import ApiManagementClient
-from azure.mgmt.apimanagement.models import AuthorizationContract, AuthorizationAccessPolicyContract, AuthorizationLoginRequestContract
-
-mcp = FastMCP("Github")
-
-# Environment variables
 APIM_GATEWAY_URL = str(os.getenv("APIM_GATEWAY_URL"))
-SUBSCRIPTION_ID = str(os.getenv("SUBSCRIPTION_ID"))
-RESOURCE_GROUP_NAME = str(os.getenv("RESOURCE_GROUP_NAME"))
-APIM_SERVICE_NAME = str(os.getenv("APIM_SERVICE_NAME"))
-AZURE_TENANT_ID = str(os.getenv("AZURE_TENANT_ID"))
-AZURE_CLIENT_ID = str(os.getenv("AZURE_CLIENT_ID"))
-POST_LOGIN_REDIRECT_URL = str(os.getenv("POST_LOGIN_REDIRECT_URL"))
-APIM_IDENTITY_OBJECT_ID = str(os.getenv("APIM_IDENTITY_OBJECT_ID"))
-idp = "github"
 
-@mcp.tool()
-async def authorize_github(ctx: Context) -> str:
-    """Validate Credential Manager connection exists and is connected.
-    
-    Args:
-        idp: The identity provider to authorize
-    Returns:
-        401: Login URL for the user to authorize the connection
-        200: Connection authorized
-    """
-    print("Authorizing connection...")
-    print(f"AZURE_TENANT_ID: {AZURE_TENANT_ID}")
-    print(f"APIM Gateway URL: {APIM_GATEWAY_URL}")
+mcp = FastMCP("GitHub")
 
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"
-    
-    print(f"SessionId: {session_id}")
+credential_manager = CredentialManager(
+    tenant_id=str(os.getenv("AZURE_TENANT_ID")),
+    subscription_id=str(os.getenv("SUBSCRIPTION_ID")),
+    resource_group_name=str(os.getenv("RESOURCE_GROUP_NAME")),
+    service_name=str(os.getenv("APIM_SERVICE_NAME")),
+    apim_identity_object_id=str(os.getenv("APIM_IDENTITY_OBJECT_ID")),
+    post_login_redirect_url=str(os.getenv("POST_LOGIN_REDIRECT_URL")),
+    authorization_provider_id=str(os.getenv("AUTHORIZATION_PROVIDER_ID")),
+)
 
-    print("Creating API Management client...")
-    client = ApiManagementClient(
-        credential=DefaultAzureCredential(),
-        subscription_id=SUBSCRIPTION_ID,
-    )
 
-    try:
-        response = client.authorization.get(
-            resource_group_name=RESOURCE_GROUP_NAME,
-            service_name=APIM_SERVICE_NAME,
-            authorization_provider_id=idp,
-            authorization_id=authorization_id,
-        )
-        if response.status == "Connected":
-            print("GitHub authorization is already connected.")
-            return "Connection authorized."
-    except Exception as e:
-        print(f"Failed to get authorization")
+def _get_session_id(ctx: Context) -> str:
+    """Extract the session id from the MCP context."""
+    return str(id(ctx.session))
 
-    print("Getting authorization provider...")
-    response = client.authorization_provider.get(
-        resource_group_name=RESOURCE_GROUP_NAME,
-        service_name=APIM_SERVICE_NAME,
-        authorization_provider_id=idp,
-    )
 
-    authContract: AuthorizationContract = AuthorizationContract(
-        authorization_type="OAuth2",
-        o_auth2_grant_type="AuthorizationCode"
-    )
+def _get_github_headers(session_id: str) -> dict:
+    """Build headers for GitHub API calls via APIM."""
+    authorization_id = credential_manager._get_authorization_id(session_id)
+    return {
+        "Content-Type": "application/json",
+        "authorizationId": authorization_id,
+        "providerId": credential_manager.authorization_provider_id,
+    }
 
-    print("Creating or updating authorization...")
-    response = client.authorization.create_or_update(
-        resource_group_name=RESOURCE_GROUP_NAME,
-        service_name=APIM_SERVICE_NAME,
-        authorization_provider_id=idp,
-        authorization_id=authorization_id,
-        parameters=authContract
-    )
 
-    authPolicyContract: AuthorizationAccessPolicyContract = AuthorizationAccessPolicyContract(
-        tenant_id=AZURE_TENANT_ID,
-        object_id=APIM_IDENTITY_OBJECT_ID
-    )
+async def _ensure_authorized(session_id: str) -> str | None:
+    """Check authorization and return login URL if not yet authorized."""
+    if not credential_manager.is_authorized(session_id):
+        login_url = credential_manager.get_login_url(session_id)
+        return f"Please authorize by opening this link: {login_url}"
+    return None
 
-    print("Creating or updating authorization access policy...")
-    response = client.authorization_access_policy.create_or_update(
-        resource_group_name=RESOURCE_GROUP_NAME,
-        service_name=APIM_SERVICE_NAME,
-        authorization_provider_id=idp,
-        authorization_id=authorization_id,
-        authorization_access_policy_id=str(uuid.uuid4())[:33],
-        parameters=authPolicyContract
-    )
-
-    authPolicyContract: AuthorizationAccessPolicyContract = AuthorizationAccessPolicyContract(
-        tenant_id=AZURE_TENANT_ID,
-        object_id=AZURE_CLIENT_ID
-    )
-
-    print("Creating or updating authorization access policy...")
-    response = client.authorization_access_policy.create_or_update(
-        resource_group_name=RESOURCE_GROUP_NAME,
-        service_name=APIM_SERVICE_NAME,
-        authorization_provider_id=idp,
-        authorization_id=authorization_id,
-        authorization_access_policy_id=str(uuid.uuid4())[:33],
-        parameters=authPolicyContract
-    )
-
-    authLoginRequestContract: AuthorizationLoginRequestContract = AuthorizationLoginRequestContract(
-        post_login_redirect_url=POST_LOGIN_REDIRECT_URL
-    )
-
-    print("Getting authorization link...")
-    response = client.authorization_login_links.post(
-        resource_group_name=RESOURCE_GROUP_NAME,
-        service_name=APIM_SERVICE_NAME,
-        authorization_provider_id=idp,
-        authorization_id=authorization_id,
-        parameters=authLoginRequestContract
-    )
-    print("Login URL: ", response.login_link)
-    return f"Please authorize by opening this link: {response.login_link}"
 
 @mcp.tool()
 async def get_user(ctx: Context) -> str:
     """Get user associated with GitHub access token.
 
     Returns:
-        GitHub user information
-    """    
-    print("Getting user info...")
+        GitHub user information if the connection is authorized, otherwise a message with the login URL.
+    """
+    session_id = _get_session_id(ctx)
+    print(f"Getting user info... SessionId: {session_id}")
 
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"
-    
-    print(f"SessionId: {session_id}")
+    auth_message = await _ensure_authorized(session_id)
+    if auth_message:
+        return auth_message
 
-    githubUserUrl = f"{APIM_GATEWAY_URL}/user"
-    githubHeaders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id
-    }
-
-    githubResponse = httpx.get(githubUserUrl, headers=githubHeaders)
-    if (githubResponse.status_code == 200):
-        user = githubResponse.json()
-        return f"User: {user}"
+    response = httpx.get(
+        f"{APIM_GATEWAY_URL}/user",
+        headers=_get_github_headers(session_id),
+    )
+    if response.status_code == 200:
+        return f"User: {response.json()}"
     else:
-        return f"Unable to get user info. Status code: {githubResponse.status_code}, Response: {githubResponse.text}"
-    
+        return f"Unable to get user info. Status code: {response.status_code}, Response: {response.text}"
+
+
 @mcp.tool()
 async def get_issues(ctx: Context, username: str, repo: str) -> str:
     """Get all issues for the specified repository for the authenticated user.
-    
+
     Args:
         username: The GitHub username
         repo: The repository name
-    
+
     Returns:
-        A list of issues
+        A list of issues if the connection is authorized, otherwise a message with the login URL.
     """
-    print("Getting the list of issues...")
+    session_id = _get_session_id(ctx)
+    print(f"Getting the list of issues... SessionId: {session_id}")
 
-    session_id = str(id(ctx.session))
-    provider_id = idp.lower()
-    authorization_id = f"{provider_id}-{session_id}"
-    
-    print(f"SessionId: {session_id}")
+    auth_message = await _ensure_authorized(session_id)
+    if auth_message:
+        return auth_message
 
-    githubIssuesUrl = f"{APIM_GATEWAY_URL}/repos/{username}/{repo}/issues"
-    githubHeaders = {
-        "Content-Type": "application/json",
-        "authorizationId": authorization_id,
-        "providerId": provider_id
-    }
-
-    githubResponse = httpx.get(githubIssuesUrl, headers=githubHeaders)
-    if (githubResponse.status_code == 200):
-        issues = githubResponse.json()
-        return f"Issues: {issues}"
+    response = httpx.get(
+        f"{APIM_GATEWAY_URL}/repos/{username}/{repo}/issues",
+        headers=_get_github_headers(session_id),
+    )
+    if response.status_code == 200:
+        return f"Issues: {response.json()}"
     else:
-        return f"Unable to get issues. Status code: {githubResponse.status_code}, Response: {githubResponse.text}"
+        return f"Unable to get issues. Status code: {response.status_code}, Response: {response.text}"
 
-# Expose an ASGI app that speaks Streamable HTTP at /mcp/
-mcp_asgi = mcp.http_app()
-app = Starlette(
-    routes=[Mount("/github", app=mcp_asgi)],  # MCP will be at /weather/mcp/
-    lifespan=mcp_asgi.lifespan, 
-)
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Run MCP Streamable-HTTP server")
+    parser = argparse.ArgumentParser(description=f"Run {mcp.name} MCP Streamable-HTTP server")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8080, help="Port to listen on")
     args = parser.parse_args()
-    uvicorn.run(app, host=args.host, port=args.port)
+    mcp.run(transport="http", path=f"/mcp", port=args.port, host=args.host)

@@ -10,11 +10,11 @@ param inferenceAPIType string = 'AzureOpenAI'
 param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
 param foundryProjectName string = 'default'
 
-
-param githubAPIPath string = 'github'
-param weatherAPIPath string = 'weather'
-param oncallAPIPath string = 'oncall'
-param servicenowAPIPath string = 'servicenow'
+param gitHubAuthorizationProviderName string = 'github'
+param githubPath string = 'github'
+param weatherPath string = 'weather'
+param oncallPath string = 'oncall'
+param servicenowPath string = 'servicenow'
 param serviceNowInstanceName string = ''
 
 // ------------------
@@ -188,7 +188,7 @@ resource gitHubMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pre
           env: [
             {
               name: 'APIM_GATEWAY_URL'
-              value: '${apimService.properties.gatewayUrl}/${githubAPIPath}'
+              value: '${apimService.properties.gatewayUrl}/${githubPath}/api'
             }
             {
               name: 'AZURE_CLIENT_ID'
@@ -211,8 +211,12 @@ resource gitHubMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-pre
               value: apimService.name
             }                         
             {
+              name: 'AUTHORIZATION_PROVIDER_ID'
+              value: gitHubAuthorizationProviderName
+            } 
+            {
               name: 'POST_LOGIN_REDIRECT_URL'
-              value: 'http://www.bing.com'
+              value: 'http://www.github.com'
             }                         
             {
               name: 'APIM_IDENTITY_OBJECT_ID'
@@ -352,7 +356,7 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
           env: [
             {
               name: 'APIM_GATEWAY_URL'
-              value: '${apimService.properties.gatewayUrl}/${servicenowAPIPath}'
+              value: '${apimService.properties.gatewayUrl}/${servicenowPath}/api'
             }
             {
               name: 'AZURE_CLIENT_ID'
@@ -397,40 +401,59 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
   }
 }
 
-module githubAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
+module githubAPIModule './src/github/apim-api/api.bicep' = {
   name: 'githubAPIModule'
   params: {
     apimServiceName: apimService.name
-    MCPPath: githubAPIPath
-    MCPServiceURL: 'https://${gitHubMCPServerContainerApp.properties.configuration.ingress.fqdn}/${githubAPIPath}'
+    APIPath: githubPath
+    APIServiceURL: 'https://api.github.com'
+    authorizationProviderName: gitHubAuthorizationProviderName
   }
 }
 
-module weatherAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
-  name: 'weatherAPIModule'
+module githubMCPModule '../../modules/apim-streamable-mcp/api.bicep' = {
+  name: 'githubMCPModule'
   params: {
     apimServiceName: apimService.name
-    MCPPath: weatherAPIPath
-    MCPServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
+    MCPPath: githubPath
+    MCPServiceURL: 'https://${gitHubMCPServerContainerApp.properties.configuration.ingress.fqdn}'
   }
 }
 
-module oncallAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
-  name: 'oncallAPIModule'
+module weatherMCPModule '../../modules/apim-streamable-mcp/api.bicep' = {
+  name: 'weatherMCPModule'
   params: {
     apimServiceName: apimService.name
-    MCPPath: oncallAPIPath
-    MCPServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}/${oncallAPIPath}'
+    MCPPath: weatherPath
+    MCPServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}'
   }
 }
 
-module serviceNowAPIModule 'src/servicenow/apim-api/api.bicep' = if(length(serviceNowInstanceName) > 0) {
+module oncallMCPModule '../../modules/apim-streamable-mcp/api.bicep' = {
+  name: 'oncallMCPModule'
+  params: {
+    apimServiceName: apimService.name
+    MCPPath: oncallPath
+    MCPServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}'
+  }
+}
+
+module servicenowAPIModule './src/servicenow/apim-api/api.bicep' = if(length(serviceNowInstanceName) > 0) {
   name: 'servicenowAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: servicenowAPIPath
-    APIServiceURL: 'https://${servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn}/${servicenowAPIPath}'
+    APIPath: servicenowPath
+    APIServiceURL: 'https://api.servicenow.com'
     serviceNowInstanceName: serviceNowInstanceName
+  }
+}
+
+module serviceNowMCPModule '../../modules/apim-streamable-mcp/api.bicep' = if(length(serviceNowInstanceName) > 0) {
+  name: 'servicenowMCPModule'
+  params: {
+    apimServiceName: apimService.name
+    MCPPath: servicenowPath
+    MCPServiceURL: 'https://${servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn}/${servicenowPath}/mcp'    
   }
 }
 

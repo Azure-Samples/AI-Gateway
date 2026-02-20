@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.1",
     "info": {
-      "title": "ServiceNow MCP",
+      "title": "ServiceNow API",
       "description": "",
       "version": "1.0"
     },
@@ -570,62 +570,6 @@
                   }
                 }
               }
-            }
-          }
-        }
-      },
-      "/messages/": {
-        "post": {
-          "tags": [
-            "MCP"
-          ],
-          "summary": "messages",
-          "description": "messages",
-          "operationId": "messages",
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "in": "header",
-              "required": true,
-              "schema": {
-                "enum": [
-                  ""
-                ],
-                "type": ""
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "null"
-            }
-          }
-        }
-      },
-      "/sse": {
-        "get": {
-          "tags": [
-            "MCP"
-          ],
-          "summary": "sse",
-          "description": "sse",
-          "operationId": "sse",
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "in": "header",
-              "required": true,
-              "schema": {
-                "enum": [
-                  ""
-                ],
-                "type": ""
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "null"
             }
           }
         }

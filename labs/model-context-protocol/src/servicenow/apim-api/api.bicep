@@ -1,32 +1,23 @@
 param apimServiceName string
-param APIServiceURL string
-param APIPath string = 'servicenow'
 param serviceNowInstanceName string
+param APIServiceURL string = 'https://${serviceNowInstanceName}.service-now.com'
+param APIPath string = 'servicenow'
 
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apimServiceName
-}
-
-resource servicenowBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
-  name: 'servicenow-backend'
-  parent: apim
-  properties: {
-    description: 'Backend for ServiceNow API'
-    url: 'https://${serviceNowInstanceName}.service-now.com'
-    protocol: 'http'
-  }
-}
- 
+} 
 
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   parent: apim
-  name: 'servicenow-mcp'
+  name: 'servicenow-api'
   properties: {
-    displayName: 'ServiceNow MCP'
+    displayName: 'ServiceNow API'
     apiRevision: '1'
     subscriptionRequired: false
+    type: 'http'
+    apiType: 'http'
     serviceUrl: APIServiceURL
-    path: APIPath
+    path: '${APIPath}/api'
     protocols: [
       'https'
     ]
