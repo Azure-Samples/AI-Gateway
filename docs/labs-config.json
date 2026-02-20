@@ -64,6 +64,33 @@
     "lastCommitDate": "2026-02-04T13:09:52.727Z"
   },
   {
+    "id": "ai-foundry-model-gateway",
+    "name": "AI Foundry Model Gateway",
+    "architectureDiagram": "images/foundry-model-gateway.gif",
+    "categories": [
+      "Platform Capabilities",
+      "Models Usage",
+      "Gateway Pattern"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure API Management"
+    ],
+    "shortDescription": "Configure Azure API Management as a Model Gateway for Azure AI Foundry Agents Service.",
+    "detailedDescription": "Learn how to deploy Azure AI Foundry and configure Azure API Management (APIM) as a Model Gateway. This lab demonstrates the complete setup including deploying AI Services, creating model deployments, establishing the gateway connection, and leveraging APIM's enterprise features like rate limiting, caching, monitoring, and security policies for AI model inference requests through Foundry Agents Service.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [
+      "Model Gateway",
+      "AI Foundry",
+      "APIM Gateway",
+      "Enterprise AI"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-model-gateway",
+    "lastCommitDate": "2026-02-20T22:14:10.923Z"
+  },
+  {
     "id": "ai-foundry-private-mcp",
     "name": "Azure AI Foundry Private Connectivity with MCP",
     "architectureDiagram": "images/mcp-private-endpoint-entra-id.gif",
