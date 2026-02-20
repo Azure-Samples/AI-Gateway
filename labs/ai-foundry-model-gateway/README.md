@@ -16,7 +16,7 @@ tags:
   - APIM Gateway
   - Enterprise AI
 authors:
-  - vieiraae
+  - nourshaker-msft
 ---
 
 # APIM ❤️ Microsoft Foundry
