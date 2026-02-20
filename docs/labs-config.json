@@ -377,7 +377,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-a2a-agents",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.733Z"
+    "lastCommitDate": "2026-02-20T22:13:30.447Z"
   },
   {
     "id": "mcp-client-authorization",
@@ -521,7 +521,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-context-protocol",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.736Z"
+    "lastCommitDate": "2026-02-20T22:13:30.448Z"
   },
   {
     "id": "model-routing",
@@ -630,7 +630,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/realtime-mcp-agents",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.738Z"
+    "lastCommitDate": "2026-02-20T22:13:30.448Z"
   },
   {
     "id": "secure-responses-api",
