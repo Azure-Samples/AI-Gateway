@@ -163,4 +163,5 @@ output extendedAIServicesConfig array = [for (config, i) in aiServicesConfig: {
   cognitiveServicesId: cognitiveServices[i].id
   endpoint: cognitiveServices[i].properties.endpoint
   foundryProjectEndpoint: 'https://${cognitiveServices[i].name}.services.ai.azure.com/api/projects/${aiProject[i].name}'
+  foundryProjectId: aiProject[i].id
 }]
