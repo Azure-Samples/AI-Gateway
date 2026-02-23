@@ -10,7 +10,9 @@ param inferenceAPIType string = 'AzureOpenAI'
 param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
 param foundryProjectName string = 'default'
 
+param databricksAuthorizationProviderName string = 'databricks'
 param gitHubAuthorizationProviderName string = 'github'
+param databricksGeniePath string = 'genie'
 param githubPath string = 'github'
 param weatherPath string = 'weather'
 param oncallPath string = 'oncall'
@@ -216,7 +218,7 @@ resource genieMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-prev
             }                         
             {
               name: 'AUTHORIZATION_PROVIDER_ID'
-              value: gitHubAuthorizationProviderName
+              value: databricksAuthorizationProviderName
             } 
             {
               name: 'POST_LOGIN_REDIRECT_URL'
@@ -487,6 +489,25 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
   }
 }
 
+module genieAPIModule './src/databricks-genie/apim-api/api.bicep' = {
+  name: 'genieAPIModule'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: githubPath
+    APIServiceURL: 'https://api.databricks.com'
+    authorizationProviderName: databricksAuthorizationProviderName
+  }
+}
+
+module genieMCPModule '../../modules/apim-streamable-mcp/api.bicep' = {
+  name: 'genieMCPModule'
+  params: {
+    apimServiceName: apimService.name
+    MCPPath: databricksGeniePath
+    MCPServiceURL: 'https://${genieMCPServerContainerApp.properties.configuration.ingress.fqdn}'
+  }
+}
+
 module githubAPIModule './src/github/apim-api/api.bicep' = {
   name: 'githubAPIModule'
   params: {
@@ -571,6 +592,9 @@ output oncallMCPServerContainerAppFQDN string = oncallMCPServerContainerApp.prop
 
 output servicenowMCPServerContainerAppResourceName string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.name: ''
 output servicenowMCPServerContainerAppFQDN string = (length(serviceNowInstanceName) > 0) ? servicenowMCPServerContainerApp.properties.configuration.ingress.fqdn: ''
+
+output genieMCPServerContainerAppResourceName string = genieMCPServerContainerApp.name
+output genieMCPServerContainerAppFQDN string = genieMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
