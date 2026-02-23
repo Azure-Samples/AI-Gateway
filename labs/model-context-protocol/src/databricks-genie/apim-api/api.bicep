@@ -1,8 +1,8 @@
 
 param apimServiceName string
-param APIPath string = 'github'
-param APIServiceURL string = 'https://api.github.com'
-param authorizationProviderName string = 'github'
+param APIPath string = 'databricks'
+param APIServiceURL string = 'https://api.databricks.com'
+param authorizationProviderName string = 'databricks'
 
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apimServiceName
@@ -10,9 +10,9 @@ resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
 
 resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   parent: apim
-  name: 'github-api'
+  name: 'databricks-api'
   properties: {
-    displayName: 'GitHub API'
+    displayName: 'Databricks API'
     subscriptionRequired: false
     serviceUrl: APIServiceURL
     path: '${APIPath}/api'
@@ -65,7 +65,7 @@ resource authorizationProvider 'Microsoft.ApiManagement/service/authorizationPro
   name: authorizationProviderName
   properties: {
     displayName: authorizationProviderName
-    identityProvider: 'github'
+    identityProvider: 'databricks'
     oauth2: {
       redirectUrl: 'https://authorization-manager.consent.azure-apim.net/redirect/apim/${apim.name}'
       grantTypes: {
