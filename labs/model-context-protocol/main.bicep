@@ -199,7 +199,7 @@ resource genieMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-prev
             }
             {
               name: 'APIM_GATEWAY_URL'
-              value: '${apimService.properties.gatewayUrl}/${githubPath}/api'
+              value: '${apimService.properties.gatewayUrl}/${databricksGeniePath}/api'
             }
             {
               name: 'AZURE_CLIENT_ID'
@@ -280,7 +280,7 @@ resource confluenceMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
           env: [
             {
               name: 'APIM_GATEWAY_URL'
-              value: '${apimService.properties.gatewayUrl}/${githubPath}/api'
+              value: '${apimService.properties.gatewayUrl}/${confluencePath}/api'
             }
             {
               name: 'AZURE_CLIENT_ID'
@@ -361,7 +361,7 @@ resource jiraMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-previ
           env: [
             {
               name: 'APIM_GATEWAY_URL'
-              value: '${apimService.properties.gatewayUrl}/${githubPath}/api'
+              value: '${apimService.properties.gatewayUrl}/${jiraPath}/api'
             }
             {
               name: 'AZURE_CLIENT_ID'
