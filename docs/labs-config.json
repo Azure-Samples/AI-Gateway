@@ -40,7 +40,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-agent-service",
     "tags": [],
-    "lastCommitDate": "2026-02-23T14:51:40.109Z"
+    "lastCommitDate": "2026-02-23T15:05:59.376Z"
   },
   {
     "id": "ai-foundry-deepseek",
@@ -297,7 +297,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/function-calling",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.731Z"
+    "lastCommitDate": "2026-02-23T15:05:59.377Z"
   },
   {
     "id": "gemini-mcp-agents",
@@ -385,7 +385,7 @@
   {
     "id": "mcp-a2a-agents",
     "name": "MCP A2A Agents",
-    "architectureDiagram": "images/mcp-a2a-agents.gif",
+    "architectureDiagram": "images/mcp-agent-2-agent.gif",
     "categories": [
       "AI Agents",
       "Knowledge & Tools"
@@ -404,7 +404,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-a2a-agents",
     "tags": [],
-    "lastCommitDate": "2026-02-20T22:13:30.447Z"
+    "lastCommitDate": "2026-02-23T15:05:59.377Z"
   },
   {
     "id": "mcp-client-authorization",
@@ -463,7 +463,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-prm-oauth",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.735Z"
+    "lastCommitDate": "2026-02-23T15:05:59.377Z"
   },
   {
     "id": "mcp-registry-apic",
@@ -821,6 +821,6 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/zero-to-production",
     "tags": [],
-    "lastCommitDate": "2026-02-19T12:42:08.762Z"
+    "lastCommitDate": "2026-02-23T15:05:59.378Z"
   }
 ]
