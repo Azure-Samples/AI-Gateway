@@ -493,7 +493,7 @@ module genieAPIModule './src/databricks-genie/apim-api/api.bicep' = {
   name: 'genieAPIModule'
   params: {
     apimServiceName: apimService.name
-    APIPath: githubPath
+    APIPath: databricksGeniePath
     APIServiceURL: 'https://api.databricks.com'
     authorizationProviderName: databricksAuthorizationProviderName
   }
