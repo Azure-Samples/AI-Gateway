@@ -144,6 +144,9 @@ module modelDeployments 'deployments.bicep' = [for (config, i) in aiServicesConf
     cognitiveServiceName: cognitiveServices[i].name
     modelsConfig: modelsConfig
   }
+  dependsOn: [
+    aiProject[i]
+  ]
 }]
 
 
