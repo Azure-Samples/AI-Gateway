@@ -11,13 +11,18 @@ param inferenceAPIPath string = 'inference' // Path to the inference API in the 
 param foundryProjectName string = 'default'
 
 param databricksAuthorizationProviderName string = 'databricks'
-param gitHubAuthorizationProviderName string = 'github'
 param databricksGeniePath string = 'genie'
+param gitHubAuthorizationProviderName string = 'github'
 param githubPath string = 'github'
 param weatherPath string = 'weather'
 param oncallPath string = 'oncall'
 param servicenowPath string = 'servicenow'
 param serviceNowInstanceName string = ''
+
+param confluenceAuthorizationProviderName string = 'confluence'
+param confluencePath string = 'confluence'
+param jiraAuthorizationProviderName string = 'jira'
+param jiraPath string = 'jira'
 
 // ------------------
 //    VARIABLES
@@ -243,6 +248,167 @@ resource genieMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-prev
   }
 }
 
+resource confluenceMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-confluence-${resourceSuffix}'
+  location: resourceGroup().location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppUAI.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        allowInsecure: false
+      }
+      registries: [
+        {
+          identity: containerAppUAI.id
+          server: containerRegistry.properties.loginServer
+        }
+      ]      
+    }
+    template: {
+      containers: [
+        {
+          name: 'aca-${resourceSuffix}'
+          image: 'docker.io/jfxs/hello-world:latest'
+          env: [
+            {
+              name: 'APIM_GATEWAY_URL'
+              value: '${apimService.properties.gatewayUrl}/${githubPath}/api'
+            }
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: containerAppUAI.properties.clientId
+            }                         
+            {
+              name: 'AZURE_TENANT_ID'
+              value: subscription().tenantId
+            }                         
+            {
+              name: 'SUBSCRIPTION_ID'
+              value: subscription().subscriptionId
+            }                         
+            {
+              name: 'RESOURCE_GROUP_NAME'
+              value: resourceGroup().name
+            }                         
+            {
+              name: 'APIM_SERVICE_NAME'
+              value: apimService.name
+            }                         
+            {
+              name: 'AUTHORIZATION_PROVIDER_ID'
+              value: confluenceAuthorizationProviderName
+            } 
+            {
+              name: 'POST_LOGIN_REDIRECT_URL'
+              value: 'http://www.adidas.com'
+            }                         
+            {
+              name: 'APIM_IDENTITY_OBJECT_ID'
+              value: apimService.identity.principalId
+            }                                     
+          ]
+          resources: {
+            cpu: json('.5')
+            memory: '1Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
+      }
+    }
+  }
+}
+
+resource jiraMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-jira-${resourceSuffix}'
+  location: resourceGroup().location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppUAI.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        allowInsecure: false
+      }
+      registries: [
+        {
+          identity: containerAppUAI.id
+          server: containerRegistry.properties.loginServer
+        }
+      ]      
+    }
+    template: {
+      containers: [
+        {
+          name: 'aca-${resourceSuffix}'
+          image: 'docker.io/jfxs/hello-world:latest'
+          env: [
+            {
+              name: 'APIM_GATEWAY_URL'
+              value: '${apimService.properties.gatewayUrl}/${githubPath}/api'
+            }
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: containerAppUAI.properties.clientId
+            }                         
+            {
+              name: 'AZURE_TENANT_ID'
+              value: subscription().tenantId
+            }                         
+            {
+              name: 'SUBSCRIPTION_ID'
+              value: subscription().subscriptionId
+            }                         
+            {
+              name: 'RESOURCE_GROUP_NAME'
+              value: resourceGroup().name
+            }                         
+            {
+              name: 'APIM_SERVICE_NAME'
+              value: apimService.name
+            }                         
+            {
+              name: 'AUTHORIZATION_PROVIDER_ID'
+              value: jiraAuthorizationProviderName
+            } 
+            {
+              name: 'POST_LOGIN_REDIRECT_URL'
+              value: 'http://www.adidas.com'
+            }                         
+            {
+              name: 'APIM_IDENTITY_OBJECT_ID'
+              value: apimService.identity.principalId
+            }                                     
+          ]
+          resources: {
+            cpu: json('.5')
+            memory: '1Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
+      }
+    }
+  }
+}
 
 resource gitHubMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: 'aca-github-${resourceSuffix}'
@@ -489,6 +655,44 @@ resource servicenowMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02
   }
 }
 
+module confluenceAPIModule './src/confluence/apim-api/api.bicep' = {
+  name: 'confluenceAPIModule'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: confluencePath
+    APIServiceURL: 'https://api.atlassian.com'
+    authorizationProviderName: confluenceAuthorizationProviderName
+  }
+}
+
+module confluenceMCPModule '../../modules/apim-streamable-mcp/api.bicep' = {
+  name: 'confluenceMCPModule'
+  params: {
+    apimServiceName: apimService.name
+    MCPPath: confluencePath
+    MCPServiceURL: 'https://${confluenceMCPServerContainerApp.properties.configuration.ingress.fqdn}'
+  }
+}
+
+module jiraAPIModule './src/jira/apim-api/api.bicep' = {
+  name: 'jiraAPIModule'
+  params: {
+    apimServiceName: apimService.name
+    APIPath: jiraPath
+    APIServiceURL: 'https://api.atlassian.com'
+    authorizationProviderName: jiraAuthorizationProviderName
+  }
+}
+
+module jiraMCPModule '../../modules/apim-streamable-mcp/api.bicep' = {
+  name: 'jiraMCPModule'
+  params: {
+    apimServiceName: apimService.name
+    MCPPath: jiraPath
+    MCPServiceURL: 'https://${jiraMCPServerContainerApp.properties.configuration.ingress.fqdn}'
+  }
+}
+
 module genieAPIModule './src/databricks-genie/apim-api/api.bicep' = {
   name: 'genieAPIModule'
   params: {
@@ -595,6 +799,12 @@ output servicenowMCPServerContainerAppFQDN string = (length(serviceNowInstanceNa
 
 output genieMCPServerContainerAppResourceName string = genieMCPServerContainerApp.name
 output genieMCPServerContainerAppFQDN string = genieMCPServerContainerApp.properties.configuration.ingress.fqdn
+
+output confluenceMCPServerContainerAppResourceName string = confluenceMCPServerContainerApp.name
+output confluenceMCPServerContainerAppFQDN string = confluenceMCPServerContainerApp.properties.configuration.ingress.fqdn
+
+output jiraMCPServerContainerAppResourceName string = jiraMCPServerContainerApp.name
+output jiraMCPServerContainerAppFQDN string = jiraMCPServerContainerApp.properties.configuration.ingress.fqdn
 
 output applicationInsightsAppId string = appInsightsModule.outputs.appId
 output applicationInsightsName string = appInsightsModule.outputs.applicationInsightsName
