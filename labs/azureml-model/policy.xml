@@ -1,0 +1,30 @@
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="{backend-id}" />
+        <llm-emit-token-metric namespace="llm">
+            <dimension name="Subscription ID" value="@(context.Subscription.Id)" />
+            <dimension name="Client IP" value="@(context.Request.IpAddress)" />
+            <dimension name="API ID" value="@(context.Api.Id)" />
+        </llm-emit-token-metric>
+    </inbound>
+    <backend>
+        <retry count="2" interval="0" first-fast-retry="true" condition="@(context.Response.StatusCode == 429 || (context.Response.StatusCode == 503 && !context.Response.StatusReason.Contains("Backend pool") && !context.Response.StatusReason.Contains("is temporarily unavailable")))">
+            <set-backend-service backend-id="{backend-id}" />
+            <forward-request buffer-request-body="true" />
+        </retry>
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+        <choose>
+            <when condition="@(context.Response.StatusCode == 503)">
+                <return-response>
+                    <set-status code="503" reason="Service Unavailable" />
+                </return-response>
+            </when>
+        </choose>
+    </on-error>
+</policies>

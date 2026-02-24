@@ -1,0 +1,19 @@
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="{backend-id}" />
+        <authentication-managed-identity resource="https://ml.azure.com" output-token-variable-name="aml-access-token" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["aml-access-token"])</value>
+        </set-header>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
