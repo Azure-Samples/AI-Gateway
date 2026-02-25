@@ -60,22 +60,6 @@ module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
   }
 }
 
-// 4b. Apply SecurityControl tag to the AI Services account used by Foundry
-resource foundryAIServices 'Microsoft.CognitiveServices/accounts@2025-06-01' existing = {
-  name: '${aiServicesConfig[0].name}-${resourceSuffix}'
-}
-
-resource foundrySecurityTag 'Microsoft.Resources/tags@2024-03-01' = {
-  name: 'default'
-  scope: foundryAIServices
-  dependsOn: [foundryModule]
-  properties: {
-    tags: {
-      SecurityControl: 'Ignore'
-    }
-  }
-}
-
 // 5. APIM Inference API
 module inferenceAPIModule '../../modules/apim/v3/inference-api.bicep' = {
   name: 'inferenceAPIModule'
@@ -92,9 +76,6 @@ module inferenceAPIModule '../../modules/apim/v3/inference-api.bicep' = {
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: 'st${resourceSuffix}'
   location: resourceGroup().location
-  tags: {
-    SecurityControl: 'Ignore'
-  }
   sku: {
     name: 'Standard_LRS'
   }
