@@ -66,7 +66,7 @@
   {
     "id": "ai-foundry-hosted-agents",
     "name": "AI Foundry Hosted Agents",
-    "architectureDiagram": "",
+    "architectureDiagram": "images/ai-foundry-hosted-agents.gif",
     "categories": [
       "AI Agents"
     ],
