@@ -13,6 +13,8 @@ authors: ["jonesethan"]
 
 Playground to deploy a trained ML model to an Azure ML online endpoint and expose it as an MCP server through Azure API Management for cloud-based agents in Foundry.
 
+![flow](../../images/azure-ml-models.gif)
+
 ### Key Features
 
 | Feature | Description |
@@ -23,21 +25,6 @@ Playground to deploy a trained ML model to an Azure ML online endpoint and expos
 | **Built-in LLM Logging** | Track token usage with `llm-emit-token-metric` policy and dimensions (Subscription ID, Client IP, API ID) |
 | **Retry Policy** | Automatic retries on 429 (throttled) and 503 (unavailable) errors in the backend section |
 | **Managed Identity Auth** | APIM authenticates to Azure ML using its system-assigned managed identity — no API keys needed |
-
-### Architecture
-
-```
-┌──────────────┐     ┌──────────────────────────────────────────────────────────┐     ┌─────────────────────┐
-│              │     │                  Azure API Management                     │     │                     │
-│  Foundry     │────▶│  Inference API ──▶ AI Foundry (GPT-4.1-mini)            │     │  Azure ML Workspace │
-│  Agent       │     │                                                          │     │                     │
-│              │◀───▶│  MCP Server ──▶ ML Prediction API ──────────────────────▶│────▶│  Online Endpoint    │
-│              │     │                                                          │     │  (sklearn model)    │
-└──────────────┘     │  📊 LLM Logging (llm-emit-token-metric)                │     └─────────────────────┘
-                     │  🔄 Retry Policy (429/503)                              │
-                     │  📈 App Insights + Log Analytics                        │
-                     └──────────────────────────────────────────────────────────┘
-```
 
 ### Prerequisites
 
