@@ -1,10 +1,10 @@
 ---
 name: "AI Foundry Hosted Agents"
-categories: ["AI Agents & MCP"]
-services: ["Azure AI Foundry", "Azure API Management", "Azure Container Apps", "Bing Search"]
+categories: ["AI Agents"]
+services: ["Azure AI Foundry", "Azure API Management", "Azure Container Apps", "MCP"]
 shortDescription: "Deploy a hosted AI agent to Azure Container Apps using Azure AI Foundry, APIM for inference routing, Bing Grounding, and a Weather MCP server."
 detailedDescription: "This lab demonstrates how to build and deploy an AI Foundry Hosted Agent to Azure Container Apps. The agent uses Azure API Management as the inference gateway (routing to a gpt-4.1 model deployment), Bing Grounding for web search via Azure AI Foundry connections, and a custom Weather MCP server exposed through APIM's streamable MCP support. The lab covers local testing, Docker image builds, and ACA deployment."
-authors: ["azure-ai-gateway"]
+authors: ["nourshaker-msft"]
 ---
 
 # APIM ❤️ AI Foundry
