@@ -17,7 +17,7 @@ param amlEndpointName string = 'forecast-endpoint'
 
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var amlWorkspaceName = 'aml-${resourceSuffix}'
-var amlEndpointBaseUrl = 'https://${amlEndpointName}.${resourceGroup().location}.inference.ml.azure.com'
+var amlEndpointBaseUrl = 'https://${amlEndpointName}${resourceSuffix}.${resourceGroup().location}.inference.ml.azure.com'
 
 // ------------------
 //    RESOURCES
@@ -84,6 +84,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
     accessTier: 'Hot'
     allowSharedKeyAccess: true
   }
+  tags: {
+    SecurityControl: 'ignore'
+  }
 }
 
 // 7. Key Vault (for Azure ML workspace)
@@ -98,6 +101,9 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
     }
     accessPolicies: []
   }
+  tags: {
+    SecurityControl: 'ignore'
+  }
 }
 
 // 8. Container Registry (for Azure ML model images)
@@ -109,6 +115,9 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   }
   properties: {
     adminUserEnabled: true
+  }
+  tags: {
+    SecurityControl: 'ignore'
   }
 }
 
@@ -124,18 +133,21 @@ resource mlWorkspace 'Microsoft.MachineLearningServices/workspaces@2024-04-01' =
     tier: 'Basic'
   }
   properties: {
-    friendlyName: 'Azure ML Workspace'
+    friendlyName: amlWorkspaceName
     storageAccount: storageAccount.id
     keyVault: keyVault.id
     containerRegistry: containerRegistry.id
     applicationInsights: appInsightsModule.outputs.id
+  }
+  tags: {
+    SecurityControl: 'ignore'
   }
 }
 
 // 10. Azure ML Online Endpoint (empty - deployment created via CLI in notebook)
 resource mlEndpoint 'Microsoft.MachineLearningServices/workspaces/onlineEndpoints@2024-04-01' = {
   parent: mlWorkspace
-  name: amlEndpointName
+  name: '${amlEndpointName}${resourceSuffix}'
   location: resourceGroup().location
   identity: {
     type: 'SystemAssigned'
@@ -147,7 +159,7 @@ resource mlEndpoint 'Microsoft.MachineLearningServices/workspaces/onlineEndpoint
 
 // 11. Role Assignment - APIM managed identity gets AzureML Data Scientist role on ML workspace
 resource apimMlRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(amlWorkspaceName, resourceSuffix, 'f6c7c914-8db3-469d-8ca1-694a8f32e121')
+  name: '11-${guid(amlWorkspaceName, resourceSuffix, 'f6c7c914-8db3-469d-8ca1-694a8f32e121')}'
   scope: mlWorkspace
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f6c7c914-8db3-469d-8ca1-694a8f32e121')
