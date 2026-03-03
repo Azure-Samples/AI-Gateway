@@ -34,7 +34,7 @@ Deploy [SGLang](https://docs.sglang.ai/) on [Azure Container Apps](https://learn
 
 ### ⚠️ Cost warning
 
-GPU Container Apps use `Consumption-GPU-NC24-A100` workload profiles which are expensive (~$8/hr). **Remember to clean up resources when done.**
+GPU Container Apps use `Consumption-GPU-NC24-A100` workload profiles which are expensive (~$4/hr). **Remember to clean up resources when done.**
 
 ### 🚀 Get started
 
