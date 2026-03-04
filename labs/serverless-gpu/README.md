@@ -1,5 +1,6 @@
 ---
 name: "Serverless GPU Inference"
+architectureDiagram: images/serverless-gpu.gif
 categories: ["Models Usage"]
 services: ["Azure Container Apps", "Azure API Management", "Serverless GPUs"]
 shortDescription: "Deploy SGLang on Azure Container Apps with GPU and expose through APIM"
