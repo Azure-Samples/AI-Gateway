@@ -181,10 +181,10 @@
   {
     "id": "azure-ml-models",
     "name": "Azure ML Model as MCP Server",
-    "architectureDiagram": "",
+    "architectureDiagram": "images/azure-ml-models.gif",
     "categories": [
-      "AI Agents & MCP",
-      "Model Integration"
+      "AI Agents",
+      "Knowledge & Tools"
     ],
     "services": [
       "Azure API Management",
