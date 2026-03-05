@@ -1,0 +1,6 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+endpoint_name: forecast-endpoint
+instance_count: 1
+instance_type: Standard_DS3_v2
+model: azureml:forecast-model:1
+name: forecast-deployment

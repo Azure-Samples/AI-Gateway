@@ -1,0 +1,122 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "ML Prediction API",
+    "description": "API for invoking an Azure ML online endpoint that serves a vaccine delivery forecasting model. Accepts a distributor ID and delivery date, returns a predicted value.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/score": {
+      "post": {
+        "operationId": "predict-forecast",
+        "summary": "Generate a forecast prediction",
+        "description": "Invoke the Azure ML managed online endpoint to generate a time-series forecasting prediction for vaccine delivery based on a distributor ID and scheduled delivery date.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictionRequest"
+              },
+              "example": {
+                "input_data": {
+                  "index": [0],
+                  "columns": [
+                    "ShipToDistributorOrgRefId",
+                    "ScheduledDeliveryDate"
+                  ],
+                  "data": [
+                    [
+                      52080158.0,
+                      "2019-12-12"
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful prediction response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                },
+                "example": [
+                  42.5
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid authentication"
+          },
+          "500": {
+            "description": "Internal server error from the ML endpoint"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PredictionRequest": {
+        "type": "object",
+        "required": [
+          "input_data"
+        ],
+        "properties": {
+          "input_data": {
+            "type": "object",
+            "required": [
+              "index",
+              "columns",
+              "data"
+            ],
+            "properties": {
+              "index": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "description": "Row index values for the input data",
+                "example": [0]
+              },
+              "columns": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Column names for the input data",
+                "example": [
+                  "ShipToDistributorOrgRefId",
+                  "ScheduledDeliveryDate"
+                ]
+              },
+              "data": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {}
+                },
+                "description": "Array of input rows, each row is an array of values matching the columns"
+              }
+            }
+          }
+        }
+      },
+      "PredictionResponse": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "Array of prediction values, one per input row"
+      }
+    }
+  }
+}
