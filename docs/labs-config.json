@@ -66,7 +66,7 @@
   {
     "id": "ai-foundry-hosted-agents",
     "name": "AI Foundry Hosted Agents",
-    "architectureDiagram": "images/ai-foundry-hosted-agents.gif",
+    "architectureDiagram": "",
     "categories": [
       "AI Agents"
     ],
@@ -177,6 +177,29 @@
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/aws-bedrock",
     "tags": [],
     "lastCommitDate": "2026-02-04T13:09:52.728Z"
+  },
+  {
+    "id": "azure-ml-models",
+    "name": "Azure ML Model as MCP Server",
+    "architectureDiagram": "",
+    "categories": [
+      "AI Agents & MCP",
+      "Model Integration"
+    ],
+    "services": [
+      "Azure API Management",
+      "Azure Machine Learning",
+      "Azure AI Foundry",
+      "Azure Monitor"
+    ],
+    "shortDescription": "Deploy a trained ML model to Azure ML and expose it as an MCP server via APIM for Foundry agents",
+    "detailedDescription": "This lab demonstrates how to take a pre-trained sklearn forecasting model, deploy it to an Azure ML managed online endpoint, expose it as a REST API through Azure API Management, and wrap it as an MCP server for cloud-based agents in Azure AI Foundry. Includes built-in LLM logging for tracking token usage and tool calling, retry policies for resilience, and managed identity authentication.",
+    "authors": [
+      "jonesethan"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/azure-ml-models",
+    "lastCommitDate": "2026-03-05T12:49:19.498Z"
   },
   {
     "id": "backend-pool-load-balancing",
