@@ -163,6 +163,83 @@ resource containerAppUAIRoleAssignment 'Microsoft.Authorization/roleAssignments@
   }
 }
 
+resource credentialManagerClientContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
+  name: 'aca-cm-client-${resourceSuffix}'
+  location: resourceGroup().location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppUAI.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8080
+        allowInsecure: false
+      }
+      registries: [
+        {
+          identity: containerAppUAI.id
+          server: containerRegistry.properties.loginServer
+        }
+      ]      
+    }
+    template: {
+      containers: [
+        {
+          name: 'aca-${resourceSuffix}'
+          image: 'docker.io/jfxs/hello-world:latest'
+          env: [
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: containerAppUAI.properties.clientId
+            }                         
+            {
+              name: 'AZURE_TENANT_ID'
+              value: subscription().tenantId
+            }                         
+            {
+              name: 'SUBSCRIPTION_ID'
+              value: subscription().subscriptionId
+            }                         
+            {
+              name: 'RESOURCE_GROUP_NAME'
+              value: resourceGroup().name
+            }                         
+            {
+              name: 'APIM_SERVICE_NAME'
+              value: apimService.name
+            }                         
+            {
+              name: 'AUTHORIZATION_PROVIDER_ID'
+              value: databricksAuthorizationProviderName
+            } 
+            {
+              name: 'POST_LOGIN_REDIRECT_URL'
+              value: 'https://learn.microsoft.com/en-us/azure/api-management/get-authorization-context-policy'
+            }                         
+            {
+              name: 'APIM_IDENTITY_OBJECT_ID'
+              value: apimService.identity.principalId
+            }                                     
+          ]
+          resources: {
+            cpu: json('.5')
+            memory: '1Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
+      }
+    }
+  }
+}
+
 resource genieMCPServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' = {
   name: 'aca-genie-${resourceSuffix}'
   location: resourceGroup().location

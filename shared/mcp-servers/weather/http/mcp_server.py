@@ -2,8 +2,31 @@ import random
 import httpx
 import os
 from fastmcp import FastMCP, Context
+from dataclasses import dataclass
 
 mcp = FastMCP("Weather")
+
+@dataclass
+class UserInfo:
+    name: str
+    city: str
+    age: int
+
+@mcp.tool
+async def collect_user_info(ctx: Context) -> str:
+    """Collect user information through interactive prompts."""
+    result = await ctx.elicit(
+        message="Please provide your information",
+        response_type=UserInfo
+    )
+    
+    if result.action == "accept":
+        user = result.data
+        return f"Hello {user.name}, you are {user.age} years old and live in {user.city}"
+    elif result.action == "decline":
+        return "Information not provided"
+    else:  # cancel
+        return "Operation cancelled"
 
 @mcp.tool()
 async def get_cities(ctx: Context, country: str) -> str:
