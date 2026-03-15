@@ -1,0 +1,15 @@
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="{backend-id}" />
+    </inbound>
+    <backend>
+        <forward-request timeout="240" buffer-request-body="true" />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
