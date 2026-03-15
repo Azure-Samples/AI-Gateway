@@ -50,12 +50,15 @@ module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
     inferenceAPIPath: inferenceAPIPath
     configureCircuitBreaker: true
   }
+  dependsOn: [
+    contentSafetyBackend
+  ]
 }
 
 resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: 'apim-${resourceSuffix}'
   dependsOn: [
-    inferenceAPIModule
+    apimModule
   ]
 }
 
@@ -81,35 +84,35 @@ resource raiBlocklist 'Microsoft.CognitiveServices/accounts/raiBlocklists@2025-0
   }  
 }
 
-/*
-// the following blocklist items fail to deploy with error: [{"code":"IfMatchPreconditionFailed","message":"The specified precondition 'If-Match = \"\"d00087d4-0000-0200-0000-687798f10000\"\"' failed."},{"code":"IfMatchPreconditionFailed","message":"The specified precondition 'If-Match = \"\"d00087d4-0000-0200-0000-687798f10000\"\"' failed."}]}}
-resource raiBlocklistItemName 'Microsoft.CognitiveServices/accounts/raiBlocklists/raiBlocklistItems@2025-06-01' = {
-  parent: raiBlocklist
-  name: 'name'
-  properties: {
+var blocklistItems = [
+  {
+    name: 'name'
     isRegex: false
     pattern: 'Alex'
   }
-}
-
-resource raiBlocklistItemSSN 'Microsoft.CognitiveServices/accounts/raiBlocklists/raiBlocklistItems@2025-06-01' = {
-  parent: raiBlocklist
-  name: 'ssn'
-  properties: {
+  {
+    name: 'ssn'
     isRegex: true
     pattern: '^\\d{3}-?\\d{2}-?\\d{4}$'
   }
-}
-
-resource raiBlocklistItemCreditCard 'Microsoft.CognitiveServices/accounts/raiBlocklists/raiBlocklistItems@2025-06-01' = {
-  parent: raiBlocklist
-  name: 'creditcard'
-  properties: {
+  {
+    name: 'creditcard'
     isRegex: true
     pattern: '^(?:4[0-9]{12}(?:[0-9]{3})?|[25][1-7][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11})$'
   }
-}
-*/
+]
+
+@batchSize(1)
+resource raiBlocklistItems 'Microsoft.CognitiveServices/accounts/raiBlocklists/raiBlocklistItems@2025-06-01' = [
+  for item in blocklistItems: {
+    parent: raiBlocklist
+    name: item.name
+    properties: {
+      isRegex: item.isRegex
+      pattern: item.pattern
+    }
+  }
+]
 
 var cognitiveServicesReaderDefinitionID = resourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')
 resource contentSafetyRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -135,6 +138,9 @@ resource contentSafetyRoleAssignmentToDeployer 'Microsoft.Authorization/roleAssi
 resource contentSafetyBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   name: 'content-safety-backend' // this name is hard coded in the policy.xml file
   parent: apim
+  dependsOn: [
+    apimModule
+  ]
   properties: {
     description: 'Content Safety Backend'
     url: contentSafetyResource.properties.endpoint
