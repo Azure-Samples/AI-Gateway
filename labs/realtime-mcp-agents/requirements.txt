@@ -1,4 +1,4 @@
-aiohttp==3.11.11
+aiohttp==3.13.3
 openai
 openai[realtime]
 fastrtc==0.0.19
