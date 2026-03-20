@@ -746,6 +746,27 @@
     "lastCommitDate": "2026-02-04T13:09:52.739Z"
   },
   {
+    "id": "serverless-gpu",
+    "name": "Serverless GPU Inference",
+    "architectureDiagram": "images/serverless-gpu.gif",
+    "categories": [
+      "Models Usage"
+    ],
+    "services": [
+      "Azure Container Apps",
+      "Azure API Management",
+      "Serverless GPUs"
+    ],
+    "shortDescription": "Deploy SGLang on Azure Container Apps with GPU and expose through APIM",
+    "detailedDescription": "Deploy the SGLang high-performance LLM serving framework on Azure Container Apps with NVIDIA A100 GPU workload profiles, and expose the OpenAI-compatible inference endpoint through Azure API Management for secure, managed access.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/serverless-gpu",
+    "lastCommitDate": "2026-03-20T23:53:05.181Z"
+  },
+  {
     "id": "session-awareness",
     "name": "Session Awareness",
     "architectureDiagram": "images/session-awareness.gif",
