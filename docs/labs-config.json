@@ -91,8 +91,7 @@
     "architectureDiagram": "images/foundry-model-gateway.gif",
     "categories": [
       "Platform Capabilities",
-      "Models Usage",
-      "Gateway Pattern"
+      "Models Usage"
     ],
     "services": [
       "Azure AI Foundry",
@@ -183,8 +182,8 @@
     "name": "Azure ML Model as MCP Server",
     "architectureDiagram": "",
     "categories": [
-      "AI Agents & MCP",
-      "Model Integration"
+      "AI Agents",
+      "Knowledge & Tools"
     ],
     "services": [
       "Azure API Management",
@@ -301,6 +300,28 @@
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/finops-framework",
     "tags": [],
     "lastCommitDate": "2026-02-04T13:09:52.730Z"
+  },
+  {
+    "id": "foundry-iq-agent-svc",
+    "name": "Foundry IQ Agent Service Integration",
+    "architectureDiagram": "images/foundry-iq-agent-svc.gif",
+    "categories": [
+      "AI Agents",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure AI Search",
+      "Azure API Management"
+    ],
+    "shortDescription": "Integrate Foundry Agent Service with Foundry IQ Knowledge Base via MCP, with APIM as the AI Gateway.",
+    "detailedDescription": "End-to-end lab integrating the Foundry Agent Service with a Foundry IQ Knowledge Base through MCP (Model Context Protocol). APIM serves as the Model Gateway for all agent inference traffic and provides unified observability. The agent uses the knowledge_base_retrieve MCP tool to answer questions with citations. Covers both the Conversations API and Classic Agent API invocation patterns.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agent-svc",
+    "lastCommitDate": "2026-03-22T20:40:18.931Z"
   },
   {
     "id": "foundry-models-evals",
