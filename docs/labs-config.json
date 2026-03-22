@@ -302,6 +302,28 @@
     "lastCommitDate": "2026-02-04T13:09:52.730Z"
   },
   {
+    "id": "foundry-iq-agent-svc",
+    "name": "Foundry IQ Agent Service Integration",
+    "architectureDiagram": "images/foundry-iq-agent-svc.gif",
+    "categories": [
+      "AI Agents",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure AI Search",
+      "Azure API Management"
+    ],
+    "shortDescription": "Integrate Foundry Agent Service with Foundry IQ Knowledge Base via MCP, with APIM as the AI Gateway.",
+    "detailedDescription": "End-to-end lab integrating the Foundry Agent Service with a Foundry IQ Knowledge Base through MCP (Model Context Protocol). APIM serves as the Model Gateway for all agent inference traffic and provides unified observability. The agent uses the knowledge_base_retrieve MCP tool to answer questions with citations. Covers both the Conversations API and Classic Agent API invocation patterns.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agent-svc",
+    "lastCommitDate": "2026-03-22T20:40:18.931Z"
+  },
+  {
     "id": "foundry-models-evals",
     "name": "Foundry Models Evals",
     "architectureDiagram": "images/foundry-models-evals.gif",
@@ -321,33 +343,6 @@
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-models-evals",
     "lastCommitDate": "2026-02-04T18:13:32.653Z"
-  },
-  {
-    "id": "foundry-iq-agent-svc",
-    "name": "Foundry IQ Agent Service Integration",
-    "architectureDiagram": "images/foundry-iq-agent-svc.gif",
-    "categories": [
-      "AI Agents",
-      "Knowledge & Tools"
-    ],
-    "services": [
-      "Azure AI Foundry",
-      "Azure AI Search",
-      "Azure API Management"
-    ],
-    "shortDescription": "Integrate Foundry Agent Service with Foundry IQ Knowledge Base via MCP, with APIM as the AI Gateway.",
-    "detailedDescription": "End-to-end lab integrating the Foundry Agent Service with a Foundry IQ Knowledge Base through MCP (Model Context Protocol). APIM serves as the Model Gateway for all agent inference traffic and provides unified observability. The agent uses the knowledge_base_retrieve MCP tool to answer questions with citations. Covers both the Conversations API and Classic Agent API invocation patterns.",
-    "authors": [
-      "nourshaker-msft"
-    ],
-    "tags": [
-      "Foundry IQ",
-      "Agentic Retrieval",
-      "MCP",
-      "Knowledge Base"
-    ],
-    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agent-svc",
-    "lastCommitDate": "2026-03-21T00:00:00.000Z"
   },
   {
     "id": "function-calling",
