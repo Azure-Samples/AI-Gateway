@@ -1,0 +1,20 @@
+<policies>
+	<!-- Throttle, authorize, validate, cache, or transform the requests -->
+	<inbound>
+		<authentication-managed-identity resource="https://search.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
+		<set-header name="Authorization" exists-action="override">
+			<value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
+		</set-header>
+	</inbound>
+	<!-- Control if and how the requests are forwarded to services  -->
+	<backend>
+		<base />
+	</backend>
+	<!-- Customize the responses -->
+	<outbound>
+	</outbound>
+	<!-- Handle exceptions and customize error responses  -->
+	<on-error>
+		<base />
+	</on-error>
+</policies>

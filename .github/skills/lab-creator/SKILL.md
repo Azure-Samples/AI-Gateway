@@ -339,6 +339,14 @@ Create `clean-up-resources.ipynb` with these cells:
 ```markdown
 ### 🗑️ Clean up resources
 
+The categories for the labs should be chosen only from the following list:
+- `AI Agents` - Model Context Protocol, agents, agentic workflows
+- `Knowledge & Tools` - Retrieval, vector databases, tool use
+- `Models Usage` - Using models via APIM, prompt engineering, response handling
+- `Governance & Responsible AI` - Authentication, content safety, access control
+- `Platform Capabilities` - APIM features like policies, logging, rate limits, monitoring, load balancing, etc.
+
+
 When you're finished with the lab, you should remove all your deployed resources from Azure to avoid extra charges and keep your Azure subscription uncluttered.
 ```
 
