@@ -345,6 +345,61 @@
     "lastCommitDate": "2026-02-04T18:13:32.653Z"
   },
   {
+    "id": "foundry-iq-agent-svc",
+    "name": "Foundry IQ Agent Service Integration",
+    "architectureDiagram": "images/foundry-iq-agent-svc.gif",
+    "categories": [
+      "AI Agents",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure AI Search",
+      "Azure API Management"
+    ],
+    "shortDescription": "Integrate Foundry Agent Service with Foundry IQ Knowledge Base via MCP, with APIM as the AI Gateway.",
+    "detailedDescription": "End-to-end lab integrating the Foundry Agent Service with a Foundry IQ Knowledge Base through MCP (Model Context Protocol). APIM serves as the Model Gateway for all agent inference traffic and provides unified observability. The agent uses the knowledge_base_retrieve MCP tool to answer questions with citations. Covers both the Conversations API and Classic Agent API invocation patterns.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [
+      "Foundry IQ",
+      "Agentic Retrieval",
+      "MCP",
+      "Knowledge Base"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agent-svc",
+    "lastCommitDate": "2026-03-21T00:00:00.000Z"
+  },
+  {
+    "id": "foundry-iq-agentfw",
+    "name": "Foundry IQ with Microsoft Agent Framework",
+    "architectureDiagram": "images/foundry-iq-agentfw.gif",
+    "categories": [
+      "AI Agents",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure AI Search",
+      "Azure API Management"
+    ],
+    "shortDescription": "Integrate Microsoft Agent Framework with Foundry IQ Knowledge Base via AzureAISearchContextProvider, with APIM as the AI Gateway.",
+    "detailedDescription": "End-to-end lab integrating the Microsoft Agent Framework with a Foundry IQ Knowledge Base using the AzureAISearchContextProvider. APIM serves as the AI Gateway for embedding traffic and provides unified observability. Demonstrates both semantic (fast hybrid search) and agentic (intelligent multi-hop retrieval) modes. Based on the official Agent Framework + Foundry IQ integration pattern.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [
+      "Foundry IQ",
+      "Agent Framework",
+      "Agentic Retrieval",
+      "Knowledge Base",
+      "Context Providers"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agentfw",
+    "lastCommitDate": "2026-03-23T00:00:00.000Z"
+  },
+  {
     "id": "function-calling",
     "name": "Function Calling",
     "architectureDiagram": "images/function-calling.gif",

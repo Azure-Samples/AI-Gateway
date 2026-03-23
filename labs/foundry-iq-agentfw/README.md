@@ -1,6 +1,6 @@
 ---
-name: "Foundry IQ Agent Service Integration"
-architectureDiagram: images/foundry-iq-agent-svc.gif
+name: "Foundry IQ with Microsoft Agent Framework"
+architectureDiagram: images/foundry-iq-agentfw.gif
 categories:
   - AI Agents
   - Knowledge & Tools
@@ -8,34 +8,32 @@ services:
   - Azure AI Foundry
   - Azure AI Search
   - Azure API Management
-shortDescription: Integrate Foundry Agent Service with Foundry IQ Knowledge Base via MCP, with APIM as the AI Gateway.
-detailedDescription: End-to-end lab integrating the Foundry Agent Service with a Foundry IQ Knowledge Base through MCP (Model Context Protocol). APIM serves as the Model Gateway for all agent inference traffic and provides unified observability. The agent uses the knowledge_base_retrieve MCP tool to answer questions with citations. Covers both the Conversations API and Classic Agent API invocation patterns.
+shortDescription: Integrate Microsoft Agent Framework with Foundry IQ Knowledge Base via AzureAISearchContextProvider, with APIM as the AI Gateway.
+detailedDescription: End-to-end lab integrating the Microsoft Agent Framework with a Foundry IQ Knowledge Base using the AzureAISearchContextProvider. APIM serves as the AI Gateway for embedding traffic and provides unified observability. Demonstrates both semantic (fast hybrid search) and agentic (intelligent multi-hop retrieval) modes. Based on the official Agent Framework + Foundry IQ integration pattern.
 authors:
   - nourshaker-msft
 ---
 
 # APIM ❤️ Foundry IQ
 
-## [Foundry IQ Agent Service Integration lab](foundry-iq-agent-svc.ipynb)
+## [Foundry IQ with Microsoft Agent Framework lab](foundry-iq-agentfw.ipynb)
 
-[![flow](../../images/foundry-iq-agent-svc.gif)](foundry-iq-agent-svc.ipynb)
+[![flow](../../images/foundry-iq-agentfw.gif)](foundry-iq-agentfw.ipynb)
 
-This lab integrates the **Foundry Agent Service** with a **Foundry IQ Knowledge Base** through **MCP (Model Context Protocol)**, with **Azure API Management** serving as the AI Gateway for all agent inference and embedding traffic.
-
+This lab integrates the **Microsoft Agent Framework** with a **Foundry IQ Knowledge Base** using the `AzureAISearchContextProvider`, with **Azure API Management** serving as the AI Gateway for embedding traffic.
 
 ### What you'll build
 
 1. **Azure AI Search Knowledge Base** — Foundry IQ agentic retrieval pipeline with vector + semantic search
-2. **APIM AI Gateway** — Managed identity auth, token metrics emission for all OpenAI traffic
-3. **Foundry Agent** — Agent with `knowledge_base_retrieve` MCP tool for grounded answers with citations
-4. **Two invocation patterns** — Conversations API (simple) and Classic Agent API (multi-turn threads)
+2. **APIM AI Gateway** — Managed identity auth, token metrics emission for all OpenAI embedding traffic
+3. **Agent Framework ChatAgent** — Agent with `AzureAISearchContextProvider` for grounded answers with citations
+4. **Two retrieval modes** — Semantic (fast hybrid search) and Agentic (Foundry IQ intelligent multi-hop retrieval)
 
 ### Key APIM integration points
 
 | Traffic Path | APIM Feature |
 |-------------|--------------|
 | Embedding generation (vectorizer + upload) | Token metrics, managed identity auth |
-| Agent inference (chat completions) | Token rate limiting, load balancing |
 | All OpenAI traffic | Centralized observability via Application Insights |
 
 ### Prerequisites
@@ -48,7 +46,7 @@ This lab integrates the **Foundry Agent Service** with a **Foundry IQ Knowledge 
 
 ### 🚀 Get started
 
-Proceed by opening the [Jupyter notebook](foundry-iq-agent-svc.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](foundry-iq-agentfw.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 
