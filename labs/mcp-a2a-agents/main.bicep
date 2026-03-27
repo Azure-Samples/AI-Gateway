@@ -362,6 +362,7 @@ module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
     openAIAPIVersion: openAIAPIVersion
     appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
     appInsightsId: appInsightsModule.outputs.id
+    apimLoggerName: apimLoggerName
   }
 }
 
