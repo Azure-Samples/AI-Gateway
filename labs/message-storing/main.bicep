@@ -110,7 +110,7 @@ module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
   }
 
 // 5. APIM Inference API
-module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+module inferenceAPIModule '../../modules/apim/v3/inference-api.bicep' = {
   name: 'inferenceAPIModule'
   params: {
     policyXml: loadTextContent('policy.xml')
@@ -314,6 +314,10 @@ resource cosmosDBAccountResource 'Microsoft.DocumentDB/databaseAccounts@2022-05-
     databaseAccountOfferType: 'Standard'
     locations: cosmosDBLocations
     enableAnalyticalStorage: true
+    disableLocalAuth: false
+  }
+  tags: {
+    SecurityControl: 'ignore'
   }
 }
 

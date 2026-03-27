@@ -1,9 +1,11 @@
 # MCP Labs
-mcp
-semantic-kernel[mcp]
+mcp==1.9.0
+semantic-kernel[mcp]==1.30.0
 
 # A2A Labs
 jwcrypto
 a2a-sdk==0.2.3
 
-openai
+openai==1.82.0
+uvicorn==0.34.2
+starlette==0.46.2
