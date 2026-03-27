@@ -5,7 +5,7 @@
 // Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
 
 param apimSku string
-param apimLoggerName string = 'apim-logger'
+param apimLoggerName string = 'appinsights-logger'
 param openAIConfig array = []
 param openAIModelName string
 param openAIModelVersion string
@@ -378,7 +378,7 @@ module weatherAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   params: {
     apimServiceName: apimService.name
     MCPPath: weatherAPIPath
-    MCPServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}/${weatherAPIPath}'
+    MCPServiceURL: 'https://${weatherMCPServerContainerApp.properties.configuration.ingress.fqdn}'
   }
 }
 
@@ -387,13 +387,13 @@ module oncallAPIModule '../../modules/apim-streamable-mcp/api.bicep' = {
   params: {
     apimServiceName: apimService.name
     MCPPath: oncallAPIPath
-    MCPServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}/${oncallAPIPath}'
+    MCPServiceURL: 'https://${oncallMCPServerContainerApp.properties.configuration.ingress.fqdn}'
   }
 }
 
 // A2A APIs
-module WeatherAgentA2AAPI 'src/a2a_servers/apim-api/api.bicep' = {
-  name: 'WeatherAgentA2AAPI'
+module a2aWeatherAgentA2AAPI 'src/a2a_servers/apim-api/v2/api.bicep' = {
+  name: 'a2aWeatherAgentModule'
   params: {
     apimServiceName: apimService.name
     agentName: a2aweatherAPIPath
@@ -402,8 +402,8 @@ module WeatherAgentA2AAPI 'src/a2a_servers/apim-api/api.bicep' = {
   }
 }
 
-module a2aOncallAPIModule 'src/a2a_servers/apim-api/api.bicep' = {
-  name: 'a2aOncallAPIModule'
+module a2aOncallAgentA2AAPI 'src/a2a_servers/apim-api/v2/api.bicep' = {
+  name: 'a2aOncallAgentModule'
   params: {
     apimServiceName: apimService.name
     agentName: a2aoncallAPIPath

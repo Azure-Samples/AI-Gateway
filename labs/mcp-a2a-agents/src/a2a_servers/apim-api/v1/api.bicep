@@ -41,6 +41,3 @@ resource APIPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
     format: 'rawxml'
   }
 }
-
-
-
