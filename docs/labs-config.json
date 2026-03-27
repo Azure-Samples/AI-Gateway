@@ -492,7 +492,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-a2a-agents",
     "tags": [],
-    "lastCommitDate": "2026-02-23T15:05:59.377Z"
+    "lastCommitDate": "2026-03-27T11:08:14.714Z"
   },
   {
     "id": "mcp-client-authorization",
@@ -614,7 +614,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/message-storing",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.736Z"
+    "lastCommitDate": "2026-03-27T11:08:14.714Z"
   },
   {
     "id": "model-context-protocol",
