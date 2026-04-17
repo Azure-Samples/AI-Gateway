@@ -20,6 +20,8 @@
 
 </div>
 
+> 📰 **New!** The [AI Gateway Dev Portal](https://aka.ms/ai-gateway/dev-portal) is now live — A starting point for building your own developer portal on top of Azure API Management AI Gateway's. Fork it, open it in VS Code with GitHub Copilot (or any coding agent), and shape it to fit your needs!
+
 ## Why AI Gateway?
 
 Building production-ready AI applications requires more than just calling model APIs. You need **security**, **reliability**, **observability**, and **cost control**—without slowing down innovation.
@@ -191,10 +193,9 @@ Learn from experts through these videos covering AI Gateway concepts and impleme
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.MD) for guidelines.
 
-## ⚠️ Disclaimer
+## License
 
-> This software is provided for demonstration purposes only. It is not intended to be relied upon for any purpose. The creators make no representations or warranties about the completeness, accuracy, reliability, or suitability of this software.
-
+[MIT](LICENSE)
 
 <div align="center">
 
