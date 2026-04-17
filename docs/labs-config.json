@@ -768,6 +768,27 @@
     "lastCommitDate": "2026-02-04T13:09:52.738Z"
   },
   {
+    "id": "self-hosted-ollama",
+    "name": "Self-Hosted Ollama behind APIM",
+    "architectureDiagram": "",
+    "categories": [
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure API Management",
+      "Azure Container Instances",
+      "Azure Container Registry"
+    ],
+    "shortDescription": "Deploy a self-hosted Ollama embedding model on ACI, exposed through APIM",
+    "detailedDescription": "This lab deploys a CPU-only Ollama container running the mxbai-embed-large embedding model on Azure Container Instances, with Azure API Management as the secure gateway. All embedding requests are routed through APIM using a subscription key. Based on the Ollama_in_Azure repo.",
+    "authors": [
+      "loreaa"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/self-hosted-ollama",
+    "lastCommitDate": "2026-04-17T07:57:18.624Z"
+  },
+  {
     "id": "semantic-caching",
     "name": "Semantic Caching",
     "architectureDiagram": "images/semantic-caching.gif",
