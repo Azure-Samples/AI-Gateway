@@ -431,7 +431,6 @@ module searchMiToOpenAIRoleAssignment 'modules/search-mi-to-openai-role-assignme
 module searchToAiServicesSharedPrivateLink 'modules/search-shared-private-link-to-aiservices.bicep' = {
   name: 'search-spl-aiservices-${uniqueSuffix}-deployment'
   params: {
-    location: location
     searchServiceName: aiDependencies.outputs.aiSearchName
     aiServicesAccountName: aiAccount.outputs.accountName
   }
@@ -589,6 +588,13 @@ module bastionJumpbox 'modules/bastion-jumpbox.bicep' = if (deployBastion) {
     adminUsername: jumpboxAdminUsername
     adminPassword: jumpboxAdminPassword
   }
+  // Serialize VNet subnet creation to avoid AnotherOperationInProgress errors:
+  // the bastion module adds AzureBastionSubnet + jumpbox-subnet to the VNet
+  // while other modules (apimSubnet, private endpoints) are also mutating it.
+  dependsOn: [
+    apimSubnet
+    privateEndpointAndDNS
+  ]
 }
 
 // ---------------------------------------------------------------------------
@@ -612,3 +618,6 @@ output logAnalyticsWorkspaceId string = deployApplicationInsights ? applicationI
 output vnetName string = vnet.outputs.virtualNetworkName
 output bastionName string = deployBastion ? bastionJumpbox.outputs.bastionName : ''
 output jumpboxName string = deployBastion ? bastionJumpbox.outputs.vmName : ''
+
+output aiSearchName string = aiDependencies.outputs.aiSearchName
+output sharedPrivateLinkName string = searchToAiServicesSharedPrivateLink.outputs.sharedPrivateLinkName

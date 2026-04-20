@@ -56,51 +56,61 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         vnetAddress
       ]
     }
-    subnets: [
+  }
+}
+
+resource agentSubnetRes 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
+  parent: virtualNetwork
+  name: agentSubnetName
+  properties: {
+    addressPrefix: agentSubnet
+    delegations: [
       {
-        name: agentSubnetName
+        name: 'Microsoft.app/environments'
         properties: {
-          addressPrefix: agentSubnet
-          delegations: [
-            {
-              name: 'Microsoft.app/environments'
-              properties: {
-                serviceName: 'Microsoft.App/environments'
-              }
-            }
-          ]
-        }
-      }
-      {
-        name: peSubnetName
-        properties: {
-          addressPrefix: peSubnet
-        }
-      }
-      {
-        name: mcpSubnetName
-        properties: {
-          addressPrefix: mcpSubnet
-          delegations: [
-            {
-              name: 'Microsoft.App/environments'
-              properties: {
-                serviceName: 'Microsoft.App/environments'
-              }
-            }
-          ]
+          serviceName: 'Microsoft.App/environments'
         }
       }
     ]
   }
 }
+
+resource peSubnetRes 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
+  parent: virtualNetwork
+  name: peSubnetName
+  properties: {
+    addressPrefix: peSubnet
+  }
+  dependsOn: [
+    agentSubnetRes
+  ]
+}
+
+resource mcpSubnetRes 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
+  parent: virtualNetwork
+  name: mcpSubnetName
+  properties: {
+    addressPrefix: mcpSubnet
+    delegations: [
+      {
+        name: 'Microsoft.App/environments'
+        properties: {
+          serviceName: 'Microsoft.App/environments'
+        }
+      }
+    ]
+  }
+  dependsOn: [
+    peSubnetRes
+  ]
+}
 // Output variables
 output peSubnetName string = peSubnetName
 output agentSubnetName string = agentSubnetName
 output mcpSubnetName string = mcpSubnetName
-output agentSubnetId string = '${virtualNetwork.id}/subnets/${agentSubnetName}'
-output peSubnetId string = '${virtualNetwork.id}/subnets/${peSubnetName}'
-output mcpSubnetId string = '${virtualNetwork.id}/subnets/${mcpSubnetName}'
+output agentSubnetId string = agentSubnetRes.id
+output peSubnetId string = peSubnetRes.id
+output mcpSubnetId string = mcpSubnetRes.id
 output virtualNetworkName string = virtualNetwork.name
 output virtualNetworkId string = virtualNetwork.id
 output virtualNetworkResourceGroup string = resourceGroup().name
