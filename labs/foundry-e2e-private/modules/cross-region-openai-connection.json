@@ -1,0 +1,314 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.42.1.51946",
+      "templateHash": "13635089898951472172"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure region for the cross-region OpenAI resource"
+      }
+    },
+    "accountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the AI Foundry account to connect to"
+      }
+    },
+    "projectName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the project"
+      }
+    },
+    "openAIName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name for the cross-region Azure OpenAI resource"
+      }
+    },
+    "customSubDomainName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Custom subdomain name for the OpenAI resource (required for private endpoints)"
+      }
+    },
+    "modelName": {
+      "type": "string",
+      "defaultValue": "gpt-4o",
+      "metadata": {
+        "description": "Model name to deploy"
+      }
+    },
+    "modelVersion": {
+      "type": "string",
+      "defaultValue": "2024-11-20",
+      "metadata": {
+        "description": "Model version"
+      }
+    },
+    "modelSkuName": {
+      "type": "string",
+      "defaultValue": "GlobalStandard",
+      "metadata": {
+        "description": "Model SKU"
+      }
+    },
+    "modelCapacity": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "Model capacity (TPM)"
+      }
+    },
+    "apimName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the APIM service to route through"
+      }
+    },
+    "apimApiName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Name for the APIM API (defaults to azure-openai-{location})"
+      }
+    },
+    "connectionName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Name for the gateway connection on the project (defaults to apim-gateway-{location})"
+      }
+    },
+    "inferenceApiVersion": {
+      "type": "string",
+      "defaultValue": "2024-10-21",
+      "metadata": {
+        "description": "API version for inference calls"
+      }
+    },
+    "apimSubscriptionKeyName": {
+      "type": "string",
+      "defaultValue": "master",
+      "metadata": {
+        "description": "APIM subscription name for API key"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "VNet name for the private endpoint (in the primary region)"
+      }
+    },
+    "peSubnetName": {
+      "type": "string",
+      "defaultValue": "pe-subnet",
+      "metadata": {
+        "description": "Subnet name for the private endpoint"
+      }
+    },
+    "vnetResourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Resource group of the VNet"
+      }
+    }
+  },
+  "variables": {
+    "finalCustomDomain": "[if(not(empty(parameters('customSubDomainName'))), parameters('customSubDomainName'), parameters('openAIName'))]",
+    "createPrivateEndpoint": "[not(empty(parameters('vnetName')))]",
+    "finalApimApiName": "[if(not(empty(parameters('apimApiName'))), parameters('apimApiName'), format('azure-openai-{0}', parameters('location')))]",
+    "finalConnectionName": "[if(not(empty(parameters('connectionName'))), parameters('connectionName'), format('apim-gateway-{0}', parameters('location')))]",
+    "staticModels": [
+      {
+        "name": "[parameters('modelName')]",
+        "properties": {
+          "model": {
+            "name": "[parameters('modelName')]",
+            "version": "[parameters('modelVersion')]",
+            "format": "OpenAI"
+          }
+        }
+      }
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2025-04-01-preview",
+      "name": "[parameters('openAIName')]",
+      "location": "[parameters('location')]",
+      "kind": "OpenAI",
+      "sku": {
+        "name": "S0"
+      },
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "customSubDomainName": "[variables('finalCustomDomain')]"
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-04-01-preview",
+      "name": "[format('{0}/{1}', parameters('openAIName'), parameters('modelName'))]",
+      "sku": {
+        "name": "[parameters('modelSkuName')]",
+        "capacity": "[parameters('modelCapacity')]"
+      },
+      "properties": {
+        "model": {
+          "name": "[parameters('modelName')]",
+          "format": "OpenAI",
+          "version": "[parameters('modelVersion')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]",
+      "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
+      "properties": {
+        "principalId": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '2024-05-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal",
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/apis",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', parameters('apimName'), variables('finalApimApiName'))]",
+      "properties": {
+        "displayName": "[format('Azure OpenAI {0}', parameters('location'))]",
+        "path": "[format('openai-{0}', parameters('location'))]",
+        "protocols": [
+          "https"
+        ],
+        "format": "openapi-link",
+        "value": "[format('https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/{0}/inference.json', parameters('inferenceApiVersion'))]",
+        "serviceUrl": "[format('https://{0}.openai.azure.com/openai', variables('finalCustomDomain'))]",
+        "subscriptionRequired": false
+      }
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/apis/policies",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}/{2}', parameters('apimName'), variables('finalApimApiName'), 'policy')]",
+      "properties": {
+        "format": "xml",
+        "value": "<policies><inbound><base /><authentication-managed-identity resource=\"https://cognitiveservices.azure.com/\" /></inbound><backend><base /></backend><outbound><base /></outbound><on-error><base /></on-error></policies>"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName'))]"
+      ]
+    },
+    {
+      "condition": "[variables('createPrivateEndpoint')]",
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}-private-endpoint', parameters('openAIName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "subnet": {
+          "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('vnetResourceGroupName')), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('peSubnetName'))]"
+        },
+        "privateLinkServiceConnections": [
+          {
+            "name": "[format('{0}-private-link-service-connection', parameters('openAIName'))]",
+            "properties": {
+              "privateLinkServiceId": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]",
+              "groupIds": [
+                "account"
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+      ]
+    },
+    {
+      "condition": "[variables('createPrivateEndpoint')]",
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}-private-endpoint', parameters('openAIName')), format('{0}-dns-group', parameters('openAIName')))]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "openai-dns-config",
+            "properties": {
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.openai.azure.com')]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-private-endpoint', parameters('openAIName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/projects/connections",
+      "apiVersion": "2025-04-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('accountName'), parameters('projectName'), variables('finalConnectionName'))]",
+      "properties": {
+        "category": "ApiManagement",
+        "target": "[format('{0}/{1}', reference(resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '2024-05-01').gatewayUrl, reference(resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName')), '2024-05-01').path)]",
+        "authType": "ApiKey",
+        "isSharedToAll": true,
+        "credentials": {
+          "key": "[listSecrets(resourceId('Microsoft.ApiManagement/service/subscriptions', parameters('apimName'), parameters('apimSubscriptionKeyName')), '2024-05-01').primaryKey]"
+        },
+        "metadata": {
+          "deploymentInPath": "true",
+          "inferenceAPIVersion": "[parameters('inferenceApiVersion')]",
+          "models": "[string(variables('staticModels'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName'))]",
+        "[resourceId('Microsoft.ApiManagement/service/apis/policies', parameters('apimName'), variables('finalApimApiName'), 'policy')]",
+        "[extensionResourceId(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('openAIName'), parameters('modelName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "openAIName": {
+      "type": "string",
+      "value": "[parameters('openAIName')]"
+    },
+    "openAIEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), '2025-04-01-preview').endpoint]"
+    },
+    "connectionName": {
+      "type": "string",
+      "value": "[variables('finalConnectionName')]"
+    },
+    "modelDeploymentName": {
+      "type": "string",
+      "value": "[parameters('modelName')]"
+    },
+    "apimApiPath": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName')), '2024-05-01').path]"
+    }
+  }
+}

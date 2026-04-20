@@ -1,0 +1,25 @@
+<!--
+    APIM inbound policy for the Azure OpenAI inference API.
+    Uses the APIM service's system-assigned managed identity to obtain a
+    bearer token for the Microsoft Foundry / Azure OpenAI backend.
+    The APIM identity must be granted the `Cognitive Services OpenAI User`
+    role (or equivalent) on the target Foundry account.
+-->
+<policies>
+    <inbound>
+        <base />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com/" output-token-variable-name="managed-id-access-token" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
+        </set-header>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
