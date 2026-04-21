@@ -139,6 +139,9 @@ param autoApproveSharedPrivateLink bool = false
 @secure()
 param jumpboxAdminPassword string = ''
 
+@description('When true, run a first-boot bootstrap on the jump-box that installs Python 3.12, Azure CLI, Git, VS Code, PowerShell 7 and Windows Terminal via winget, then clones the AI-Gateway repo and installs Python + VS Code dependencies. Logs to C:\\bootstrap.log on the VM.')
+param installDevTools bool = true
+
 // ---------------------------------------------------------------------------
 // Capability host name
 // ---------------------------------------------------------------------------
@@ -602,6 +605,7 @@ module bastionJumpbox 'modules/bastion-jumpbox.bicep' = if (deployBastion) {
     vmName: '${uniqueSuffix}-jumpbox'
     adminUsername: jumpboxAdminUsername
     adminPassword: jumpboxAdminPassword
+    installDevTools: installDevTools
   }
   // Serialize VNet subnet creation to avoid AnotherOperationInProgress errors:
   // the bastion module adds AzureBastionSubnet + jumpbox-subnet to the VNet

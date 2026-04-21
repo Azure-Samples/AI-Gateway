@@ -40,7 +40,7 @@ Components:
 - **APIM gateway connection** on the Foundry project (default name `apim-gateway`). Agents call models as `apim-gateway/<model-name>`.
 - **Cross-region Azure OpenAI account** in a secondary region with a private endpoint into the primary VNet, exposed through APIM as `apim-gateway-crossregion/<model-name>`.
 - **Application Insights + Log Analytics**, connected to the Foundry project for agent tracing.
-- **Azure Bastion + Windows jump-box VM** for testing the private deployment from inside the VNet.
+- **Azure Bastion + Windows jump-box VM** for testing the private deployment from inside the VNet. The jump-box is **pre-loaded with Python 3.12, Azure CLI, Git, VS Code, PowerShell 7, Windows Terminal** (installed via Chocolatey), and the `Azure-Samples/AI-Gateway` repo cloned to `C:\Git\AI-Gateway` with `requirements.txt` already installed.
 
 ## ✨ Key features
 
@@ -48,7 +48,7 @@ Components:
 - Two AI Gateway connections on the Foundry project: primary region (`apim-gateway/<model>`) and cross-region (`apim-gateway-crossregion/<model>`).
 - Managed-identity authentication from APIM to Foundry / OpenAI — no API keys in flight.
 - Private DNS, private endpoints, and `publicNetworkAccess: Disabled` on the Foundry account and cross-region OpenAI — no public traffic reaches the AI services.
-- Optional Bastion + jump-box VM toggled by parameter.
+- Optional Bastion + jump-box VM toggled by parameter, with first-boot tooling bootstrap (`installDevTools: true` by default). The bootstrap is idempotent and writes a transcript to `C:\bootstrap.log` on the VM; expect ~5-10 min after the VM shows `Succeeded` before everything is installed.
 - Optional auto-approval of the AI Search → Foundry shared private link via a Bicep `deploymentScript`. **Disabled by default**, because `Microsoft.Resources/deploymentScripts` requires shared-key access on its backing storage account and is therefore blocked in tenants that enforce `KeyBasedAuthenticationNotPermitted`. Set `autoApproveSharedPrivateLink: true` if your tenant allows it; otherwise the notebook approves the SPL with a single `az network private-endpoint-connection approve` call.
 
 ## 📋 Prerequisites

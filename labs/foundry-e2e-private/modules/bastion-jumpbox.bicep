@@ -41,6 +41,9 @@ param adminUsername string = 'azureuser'
 @secure()
 param adminPassword string
 
+@description('When true, run a first-boot bootstrap script that installs Python 3.12, Azure CLI, Git, VS Code, PowerShell 7 and Windows Terminal via winget, then clones the AI-Gateway repo and installs Python + VS Code dependencies. Logs to C:\\bootstrap.log on the VM.')
+param installDevTools bool = true
+
 // ---- NAT Gateway for outbound internet ----
 resource natGatewayPip 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: '${vmName}-nat-pip'
@@ -191,3 +194,20 @@ resource jumpboxVm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
 output bastionName string = bastionHost.name
 output vmName string = jumpboxVm.name
 output vmPrivateIp string = vmNic.properties.ipConfigurations[0].properties.privateIPAddress
+
+// ---- Bootstrap dev tooling on first boot ----
+// Uses VM Run Command (managed) so the PowerShell script can be passed inline
+// without needing a storage account or base64 wrapping. The script is
+// idempotent and writes a transcript to C:\bootstrap.log.
+resource jumpboxBootstrap 'Microsoft.Compute/virtualMachines/runCommands@2024-07-01' = if (installDevTools) {
+  parent: jumpboxVm
+  name: 'install-dev-tools'
+  location: location
+  properties: {
+    source: {
+      script: loadTextContent('jumpbox-bootstrap.ps1')
+    }
+    timeoutInSeconds: 1800
+    treatFailureAsDeploymentFailure: false
+  }
+}
