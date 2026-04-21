@@ -770,7 +770,7 @@
   {
     "id": "self-hosted-ollama",
     "name": "Self-Hosted Ollama behind APIM",
-    "architectureDiagram": "",
+    "architectureDiagram": "images/self-hosted-ollama.gif",
     "categories": [
       "Platform Capabilities"
     ],
@@ -786,7 +786,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/self-hosted-ollama",
-    "lastCommitDate": "2026-04-21T13:22:25.329Z"
+    "lastCommitDate": "2026-04-21T13:28:48.484Z"
   },
   {
     "id": "semantic-caching",
