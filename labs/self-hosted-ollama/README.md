@@ -1,5 +1,6 @@
 ---
 name: "Self-Hosted Ollama behind APIM"
+architectureDiagram: images/self-hosted-ollama.gif
 categories: ["Platform Capabilities"]
 services: ["Azure API Management", "Azure Container Instances", "Azure Container Registry"]
 shortDescription: "Deploy a self-hosted Ollama embedding model on ACI, exposed through APIM"
