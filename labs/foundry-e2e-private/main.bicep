@@ -132,6 +132,9 @@ param deployBastion bool = true
 @description('Admin username for the jump-box VM.')
 param jumpboxAdminUsername string = 'azureuser'
 
+@description('Auto-approve the AI Search → AI Services shared private link via a deployment script. Default is false because Microsoft.Resources/deploymentScripts requires shared-key storage access, which is blocked by the `KeyBasedAuthenticationNotPermitted` tenant policy in some environments. When false, approve the connection from the notebook.')
+param autoApproveSharedPrivateLink bool = false
+
 @description('Admin password for the jump-box VM (required when deployBastion is true).')
 @secure()
 param jumpboxAdminPassword string = ''
@@ -439,6 +442,18 @@ module searchToAiServicesSharedPrivateLink 'modules/search-shared-private-link-t
     aiAccount
     privateEndpointAndDNS
     searchMiToOpenAIRoleAssignment
+  ]
+}
+
+module splAutoApprove 'modules/spl-auto-approve.bicep' = if (autoApproveSharedPrivateLink) {
+  name: 'spl-auto-approve-${uniqueSuffix}-deployment'
+  params: {
+    location: location
+    aiServicesAccountName: aiAccount.outputs.accountName
+    sharedPrivateLinkName: searchToAiServicesSharedPrivateLink.outputs.sharedPrivateLinkName
+  }
+  dependsOn: [
+    searchToAiServicesSharedPrivateLink
   ]
 }
 

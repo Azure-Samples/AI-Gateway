@@ -49,6 +49,7 @@ Components:
 - Managed-identity authentication from APIM to Foundry / OpenAI — no API keys in flight.
 - Private DNS, private endpoints, and `publicNetworkAccess: Disabled` on the Foundry account and cross-region OpenAI — no public traffic reaches the AI services.
 - Optional Bastion + jump-box VM toggled by parameter.
+- Optional auto-approval of the AI Search → Foundry shared private link via a Bicep `deploymentScript`. **Disabled by default**, because `Microsoft.Resources/deploymentScripts` requires shared-key access on its backing storage account and is therefore blocked in tenants that enforce `KeyBasedAuthenticationNotPermitted`. Set `autoApproveSharedPrivateLink: true` if your tenant allows it; otherwise the notebook approves the SPL with a single `az network private-endpoint-connection approve` call.
 
 ## 📋 Prerequisites
 
