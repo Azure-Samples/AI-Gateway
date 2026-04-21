@@ -12,7 +12,7 @@ authors: ["loreaa"]
 ## [Self-Hosted Ollama behind APIM lab](self-hosted-ollama.ipynb)
 
 
-![Demo](APIM_Ollama.gif)
+![Demo](../../images/self-hosted-ollama.gif)
 
 This lab deploys a **CPU-only Ollama** container on **Azure Container Instances** with the `mxbai-embed-large` embedding model, fronted by **Azure API Management**.
 
