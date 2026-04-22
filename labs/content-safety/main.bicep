@@ -40,26 +40,7 @@ module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
     }
   }
 
-// 3. APIM Inference API
-module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
-  name: 'inferenceAPIModule'
-  params: {
-    policyXml: loadTextContent('policy.xml')
-    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
-    inferenceAPIType: inferenceAPIType
-    inferenceAPIPath: inferenceAPIPath
-    configureCircuitBreaker: true
-  }
-}
-
-resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
-  name: 'apim-${resourceSuffix}'
-  dependsOn: [
-    inferenceAPIModule
-  ]
-}
-
-// 4. Content Safety
+// 3. Content Safety
 resource contentSafetyResource 'Microsoft.CognitiveServices/accounts@2024-04-01-preview' = {
   name: 'contentsafety-${resourceSuffix}'
   location: resourceGroup().location
@@ -79,6 +60,11 @@ resource raiBlocklist 'Microsoft.CognitiveServices/accounts/raiBlocklists@2025-0
   properties: {
     description: 'Forbidden inputs blocklist'
   }  
+}
+
+// Reference to the APIM resource created by apimModule
+resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+  name: 'apim-${resourceSuffix}'
 }
 
 /*
@@ -131,7 +117,6 @@ resource contentSafetyRoleAssignmentToDeployer 'Microsoft.Authorization/roleAssi
   }
 }
 
-// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/backends
 resource contentSafetyBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   name: 'content-safety-backend' // this name is hard coded in the policy.xml file
   parent: apim
@@ -146,6 +131,21 @@ resource contentSafetyBackend 'Microsoft.ApiManagement/service/backends@2024-06-
       }
     }
   }
+}
+
+// 4. APIM Inference API
+module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+  name: 'inferenceAPIModule'
+  params: {
+    policyXml: loadTextContent('policy.xml')
+    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    inferenceAPIType: inferenceAPIType
+    inferenceAPIPath: inferenceAPIPath
+    configureCircuitBreaker: true
+  }
+  dependsOn:[
+    contentSafetyBackend
+  ]
 }
 
 // ------------------
