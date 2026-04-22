@@ -2,7 +2,7 @@
 	"name": "AI Gateway Dev Container",
 	"image": "mcr.microsoft.com/devcontainers/python:3.13",
 	"hostRequirements": {
-	  "cpus": 8
+	  "cpus": 2
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/azure-cli:1": {
