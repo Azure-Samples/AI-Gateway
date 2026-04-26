@@ -84,7 +84,7 @@ fsspec==2025.3.2
 fusepy==3.0.1
 gensim==4.3.2
 gitdb==4.0.12
-gitpython==3.1.44
+gitpython==3.1.47
 google-api-core==2.24.2
 google-auth==2.38.0
 googleapis-common-protos==1.70.0
