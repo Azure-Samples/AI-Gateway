@@ -2,20 +2,15 @@
 //    PARAMETERS
 // ------------------
 
-// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
-
+param aiServicesConfig array = []
+param modelsConfig array = []
 param apimSku string
-param openAIConfig array = []
-param openAIModelName string
-param openAIModelVersion string
-param openAIModelSKU string
-param openAIDeploymentName string
-param openAIModelCapacity int
-param openAIAPIVersion string
+param apimSubscriptionsConfig array = []
+param inferenceAPIType string = 'AzureOpenAI'
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param foundryProjectName string = 'default'
 
-param embeddingsDeploymentName string = 'text-embedding-ada-002'
-param embeddingsModelName string = 'text-embedding-ada-002'
-param embeddingsModelVersion string = '2'
+param embeddingsModel string
 
 param redisCacheName string = 'rediscache'
 param redisCacheSKU string = 'Balanced_B0'
@@ -27,28 +22,22 @@ param redisCachePort int = 10000
 var resourceSuffix = uniqueString(subscription().id, resourceGroup().id)
 var apiManagementName = 'apim-${resourceSuffix}'
 
-// Account for all placeholders in the polixy.xml file.
-var policyXml = loadTextContent('policy.xml')
-var updatedPolicyXml = replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name)
 
 // ------------------
 //    RESOURCES
 // ------------------
 
-// 1. Redis Cache
-// 2/4/25: 2024-10-01 is not yet available in all regions. 2024-09-01-preview is more widely available.
-
+// 1. Redis
 // https://learn.microsoft.com/azure/templates/microsoft.cache/redisenterprise
-resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-09-01-preview' = {
+resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2025-05-01-preview' = {
   name: '${redisCacheName}-${resourceSuffix}'
   location: resourceGroup().location
   sku: {
     name: redisCacheSKU
   }
 }
-
 // https://learn.microsoft.com/azure/templates/microsoft.cache/redisenterprise/databases
-resource redisCache 'Microsoft.Cache/redisEnterprise/databases@2024-09-01-preview' = {
+resource redisCache 'Microsoft.Cache/redisEnterprise/databases@2025-05-01-preview' = {
   name: 'default'
   parent: redisEnterprise
   properties: {
@@ -64,17 +53,18 @@ resource redisCache 'Microsoft.Cache/redisEnterprise/databases@2024-09-01-previe
 }
 
 // 2. API Management
-module apimModule '../../modules/apim/v1/apim.bicep' = {
+module apimModule '../../modules/apim/v2/apim.bicep' = {
   name: 'apimModule'
   params: {
     apimSku: apimSku
+    apimSubscriptionsConfig: apimSubscriptionsConfig
   }
 }
 
+// 3. APIM Cache
 resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = if (length(apimModule.outputs.id) > 0) {
   name: apiManagementName
 }
-
 // https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/caches
 resource apimCache 'Microsoft.ApiManagement/service/caches@2024-06-01-preview' = {
   name: 'Default'
@@ -86,57 +76,36 @@ resource apimCache 'Microsoft.ApiManagement/service/caches@2024-06-01-preview' =
   }
 }
 
-// 2. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
-  name: 'openAIModule'
-  params: {
-    openAIConfig: openAIConfig
-    openAIDeploymentName: openAIDeploymentName
-    openAIModelName: openAIModelName
-    openAIModelVersion: openAIModelVersion
-    openAIModelSKU: openAIModelSKU
-    openAIModelCapacity: openAIModelCapacity
-    apimPrincipalId: apimModule.outputs.principalId
-  }
-}
-resource cognitiveService 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
-  name: '${openAIConfig[0].name}-${resourceSuffix}'
-}
-resource embeddingsDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
-  name: embeddingsDeploymentName
-  parent: cognitiveService
-  properties: {
-    model: {
-      format: (length(openAIModule.outputs.extendedOpenAIConfig) > 0) ? 'OpenAI': ''
-      name: embeddingsModelName
-      version: embeddingsModelVersion
+// 4. AI Foundry
+module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
+    name: 'foundryModule'
+    params: {
+      aiServicesConfig: aiServicesConfig
+      modelsConfig: modelsConfig
+      apimPrincipalId: apimModule.outputs.principalId
+      foundryProjectName: foundryProjectName
     }
   }
-  sku: {
-      name: 'Standard'
-      capacity: 20
-  }
-  dependsOn: [
-    cognitiveService
-  ]
-}
 
-// 3. APIM OpenAI API
+// 5. Embeddings Backend
 resource backendEmbeddings 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   name: 'embeddings-backend' // this name is hard coded in the policy.xml file
   parent: apimService
   properties: {
     description: 'Embeddings Backend'
-    url: '${openAIModule.outputs.extendedOpenAIConfig[0].endpoint}openai/deployments/${embeddingsDeploymentName}/embeddings'
+    url: '${foundryModule.outputs.extendedAIServicesConfig[0].endpoint}openai/deployments/${embeddingsModel}/embeddings'
     protocol: 'http'
   }
 }
-module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
-  name: 'openAIAPIModule'
+
+// 6. APIM Inference API
+module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+  name: 'inferenceAPIModule'
   params: {
-    policyXml: updatedPolicyXml
-    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
-    openAIAPIVersion: openAIAPIVersion
+    policyXml: loadTextContent('policy.xml')
+    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    inferenceAPIType: inferenceAPIType
+    inferenceAPIPath: inferenceAPIPath
   }
   dependsOn: [
     backendEmbeddings
@@ -144,11 +113,12 @@ module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
 }
 
 // ------------------
-//    MARK: OUTPUTS
+//    OUTPUTS
 // ------------------
+
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
-output apimSubscriptionKey string = openAIAPIModule.outputs.subscriptionPrimaryKey
+output apimSubscriptions array = apimModule.outputs.apimSubscriptions
 
 output redisCacheHost string = redisEnterprise.properties.hostName
 #disable-next-line outputs-should-not-contain-secrets

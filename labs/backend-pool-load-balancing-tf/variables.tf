@@ -1,34 +1,34 @@
 variable "resource_group_name" {
-  type        = string
-  default     = "lab-backend-pool-load-balancing-terraform"
+  type    = string
+  default = "lab-backend-pool-load-balancing-terraform"
 }
 
 variable "resource_group_location" {
-  type        = string
-  default     = "westeurope"
+  type    = string
+  default = "westeurope"
 }
 
-variable "openai_backend_pool_name" {
-  type        = string
-  default     = "openai-backend-pool"
+variable "aiservices_backend_pool_name" {
+  type    = string
+  default = "aiservices-backend-pool"
 }
 
-variable "openai_config" {
+variable "aiservices_config" {
   default = {
-    openai-uks = {
-      name     = "openai1",
+    aiservices-uks = {
+      name     = "foundry1",
       location = "uksouth",
       priority = 1,
       weight   = 100
     },
-    openai-swc = {
-      name     = "openai2",
+    aiservices-swc = {
+      name     = "foundry2",
       location = "swedencentral",
       priority = 2,
       weight   = 50
     },
-    openai-frc = {
-      name     = "openai3",
+    aiservices-frc = {
+      name     = "foundry3",
       location = "francecentral",
       priority = 2,
       weight   = 50
@@ -36,52 +36,52 @@ variable "openai_config" {
   }
 }
 
-variable "openai_deployment_name" {
-  type        = string
-  default     = "gpt-4o"
+variable "model_deployment_name" {
+  type    = string
+  default = "gpt-4o-mini"
 }
 
-variable "openai_sku" {
-  type        = string
-  default     = "S0"
+variable "aiservices_sku" {
+  type    = string
+  default = "S0"
 }
 
-variable "openai_model_name" {
-  type        = string
-  default     = "gpt-4o"
+variable "model_name" {
+  type    = string
+  default = "gpt-4o-mini"
 }
 
-variable "openai_model_version" {
-  type        = string
-  default     = "2024-08-06"
+variable "model_version" {
+  type    = string
+  default = "2024-07-18"
 }
 
-variable "openai_model_capacity" {
-  type        = number
-  default     = 8
+variable "model_capacity" {
+  type    = number
+  default = 1
 }
 
-variable "openai_api_spec_url" {
-  type        = string
-  default     = "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-10-21/inference.json"
+variable "model_api_spec_url" {
+  type    = string
+  default = "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-10-21/inference.json"
 }
 
 variable "apim_resource_name" {
-  type        = string
-  default     = "apim"
+  type    = string
+  default = "apim"
 }
 
 variable "apim_resource_location" {
-  type        = string
-  default     = "westeurope" # APIM SKU StandardV2 is not yet supported in the region Sweden Central
+  type    = string
+  default = "westeurope" # APIM SKU StandardV2 is not yet supported in the region Sweden Central
 }
 
 variable "apim_sku" {
-  type        = string
-  default     = "BasicV2"
+  type    = string
+  default = "BasicV2"
 }
 
-variable "openai_api_version" {
-  type        = string
-  default     = "2024-10-21"
+variable "model_api_version" {
+  type    = string
+  default = "2024-10-21"
 }

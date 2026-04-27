@@ -1,0 +1,29 @@
+{
+  "x-ms-icon": "https://avatars.githubusercontent.com/u/77690634?s=64",
+  "x-ms-partner": true,
+  "repository": {
+    "url": "https://github.com/neondatabase-labs/mcp-server-neon",
+    "source": "partner",
+    "id": ""
+  },
+  "documentations": [
+    {
+      "title": "Neon MCP Server Guide",
+      "description": "Getting started with Neon MCP Server",
+      "url": "https://github.com/neondatabase-labs/mcp-server-neon#readme"
+    },
+    {
+      "title": "Neon Database Documentation",
+      "description": "Learn about Neon serverless Postgres",
+      "url": "https://neon.tech/docs"
+    }
+  ],
+  "tags": ["database", "postgresql", "neon", "sql", "serverless"],
+  "category": "Database",
+  "publisher": "Neon",
+  "license": "Apache-2.0",
+  "pricing": {
+    "model": "freemium",
+    "tiers": ["free", "pro", "enterprise"]
+  }
+}

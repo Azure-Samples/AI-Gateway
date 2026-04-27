@@ -2,7 +2,7 @@
 
 ## [Developer tooling lab](developer-tooling.ipynb)
 
-[![flow](../../images/developer-tooling.gif)](developer-tooling.ipynb)
+[![flow](../../../images/developer-tooling.gif)](developer-tooling.ipynb)
 
 Playground to try the developer tooling available with APIM to develop, debugg, test and publish AI Service APIs.
 

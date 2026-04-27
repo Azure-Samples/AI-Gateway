@@ -1,0 +1,12 @@
+{
+  "x-ms-icon": "https://avatars.githubusercontent.com/microsoft?s=64",
+  "x-ms-partner": true,
+  "tags": ["documentation", "microsoft", "learning", "reference"],
+  "category": "Documentation",
+  "publisher": "Microsoft",
+  "license": "Proprietary",
+  "support": {
+    "url": "https://learn.microsoft.com/support",
+    "email": "docs@microsoft.com"
+  }
+}

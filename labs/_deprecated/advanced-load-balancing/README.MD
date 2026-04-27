@@ -2,7 +2,7 @@
 
 ## [Advanced Load Balancing lab](advanced-load-balancing.ipynb)
 
-[![flow](../../images/advanced-load-balancing.gif)](advanced-load-balancing.ipynb)
+[![flow](../../../images/advanced-load-balancing.gif)](advanced-load-balancing.ipynb)
 
 Playground to try the advanced load balancing to either a list of Azure OpenAI endpoints or mock servers.
 

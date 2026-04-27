@@ -1,0 +1,957 @@
+[
+  {
+    "id": "access-controlling",
+    "name": "Access Controlling",
+    "architectureDiagram": "images/access-controlling.gif",
+    "categories": [
+      "Governance & Responsible AI",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Entra ID",
+      "Managed Identity"
+    ],
+    "shortDescription": "Implement authentication and authorization for AI Gateway APIs.",
+    "detailedDescription": "Secure your AI Gateway with comprehensive access control mechanisms. This lab covers implementing OAuth 2.0, Azure AD authentication, API keys, and managed identities. Learn to set up subscription-based access, implement JWT validation, configure CORS policies, and create different access tiers for your AI services.",
+    "authors": [
+      "vieiraae",
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/access-controlling",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.726Z"
+  },
+  {
+    "id": "ai-agent-service",
+    "name": "AI Agent Service",
+    "architectureDiagram": "images/ai-agent-service-small.gif",
+    "categories": [
+      "AI Agents"
+    ],
+    "services": [
+      "Azure Functions",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Build and orchestrate AI agents with specialized capabilities.",
+    "detailedDescription": "Create sophisticated AI agent services that can perform specialized tasks and orchestrate multiple agents. This lab demonstrates how to build agents with specific capabilities (like weather lookup, order placement, or data analysis), use function calling to enable agent actions, and coordinate multiple agents through Azure API Management for complex workflows.",
+    "authors": [
+      "vieiraae",
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-agent-service",
+    "tags": [],
+    "lastCommitDate": "2026-04-22T21:03:32.955Z"
+  },
+  {
+    "id": "ai-foundry-deepseek",
+    "name": "AI Foundry Deepseek",
+    "architectureDiagram": "images/ai-foundry-deepseek.gif",
+    "categories": [
+      "Models Usage",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Deepseek R1"
+    ],
+    "shortDescription": "Experiment with Deepseek R1 model via Azure AI Foundry's Model Inference API.",
+    "detailedDescription": "Playground to try the Deepseek R1 model via the AI Model Inference from Azure AI Foundry. This lab uses the Azure AI Model Inference API and two APIM LLM policies (llm-token-limit and llm-emit-token-metric) to manage and monitor token usage while accessing cutting-edge reasoning models.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-deepseek",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.727Z"
+  },
+  {
+    "id": "ai-foundry-hosted-agents",
+    "name": "AI Foundry Hosted Agents",
+    "architectureDiagram": "",
+    "categories": [
+      "AI Agents"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure API Management",
+      "Azure Container Apps",
+      "MCP"
+    ],
+    "shortDescription": "Deploy a hosted AI agent to Azure Container Apps using Azure AI Foundry, APIM for inference routing, Bing Grounding, and a Weather MCP server.",
+    "detailedDescription": "This lab demonstrates how to build and deploy an AI Foundry Hosted Agent to Azure Container Apps. The agent uses Azure API Management as the inference gateway (routing to a gpt-4.1 model deployment), Bing Grounding for web search via Azure AI Foundry connections, and a custom Weather MCP server exposed through APIM's streamable MCP support. The lab covers local testing, Docker image builds, and ACA deployment.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-hosted-agents",
+    "lastCommitDate": "2026-03-02T11:38:30.603Z"
+  },
+  {
+    "id": "ai-foundry-model-gateway",
+    "name": "AI Foundry Model Gateway",
+    "architectureDiagram": "images/foundry-model-gateway.gif",
+    "categories": [
+      "Platform Capabilities",
+      "Models Usage",
+      "Gateway Pattern"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure API Management"
+    ],
+    "shortDescription": "Configure Azure API Management as a Model Gateway for Azure AI Foundry Agents Service.",
+    "detailedDescription": "Learn how to deploy Azure AI Foundry and configure Azure API Management (APIM) as a Model Gateway. This lab demonstrates the complete setup including deploying AI Services, creating model deployments, establishing the gateway connection, and leveraging APIM's enterprise features like rate limiting, caching, monitoring, and security policies for AI model inference requests through Foundry Agents Service.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [
+      "Model Gateway",
+      "AI Foundry",
+      "APIM Gateway",
+      "Enterprise AI"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-model-gateway",
+    "lastCommitDate": "2026-04-22T21:03:32.956Z"
+  },
+  {
+    "id": "ai-foundry-private-mcp",
+    "name": "Azure AI Foundry Private Connectivity with MCP",
+    "architectureDiagram": "images/mcp-private-endpoint-entra-id.gif",
+    "categories": [
+      "AI Agents",
+      "Knowledge & Tools",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "MCP",
+      "Azure Front Door",
+      "Private Link",
+      "Azure AI Foundry",
+      "Managed Identity"
+    ],
+    "shortDescription": "Create a private network for consuming MCPs using Foundry Agents Classic.",
+    "detailedDescription": "Playground to show how to create a private network for consuming REST API managed as MCPs using Foundry Agents Classic. This lab demonstrates how to create a private network for consuming MCPs from Foundry Agents Classic using Private Link Services, Azure API Management (APIM), and Azure Front Door.",
+    "authors": [
+      "pablocast",
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-private-mcp",
+    "lastCommitDate": "2026-02-19T12:42:08.760Z"
+  },
+  {
+    "id": "ai-foundry-sdk",
+    "name": "AI Foundry SDK",
+    "architectureDiagram": "images/ai-foundry-sdk.gif",
+    "categories": [
+      "Platform Capabilities",
+      "Models Usage"
+    ],
+    "services": [
+      "Azure AI Foundry"
+    ],
+    "shortDescription": "Use Azure AI Foundry SDK with API Management for enhanced AI applications.",
+    "detailedDescription": "Learn to leverage the Azure AI Foundry SDK in combination with Azure API Management for building sophisticated AI applications. This lab demonstrates how to use the SDK for model deployment, prompt flow execution, and evaluation, while routing traffic through API Management for governance, security, and monitoring.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-sdk",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.728Z"
+  },
+  {
+    "id": "aws-bedrock",
+    "name": "AWS Bedrock Integration",
+    "architectureDiagram": "images/aws-bedrock.gif",
+    "categories": [
+      "Models Usage",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Multi-Cloud AI"
+    ],
+    "shortDescription": "Access AWS Bedrock models through Azure API Management gateway.",
+    "detailedDescription": "Build a multi-cloud AI architecture by integrating AWS Bedrock models with Azure API Management. This lab demonstrates how to expose Claude, Llama, and other Bedrock models through your Azure gateway, implement unified authentication and rate limiting across cloud providers, and create a consistent API interface for multi-cloud AI consumption.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/aws-bedrock",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.728Z"
+  },
+  {
+    "id": "azure-ml-models",
+    "name": "Azure ML Model as MCP Server",
+    "architectureDiagram": "",
+    "categories": [
+      "AI Agents",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "Azure API Management",
+      "Azure Machine Learning",
+      "Azure AI Foundry",
+      "Azure Monitor"
+    ],
+    "shortDescription": "Deploy a trained ML model to Azure ML and expose it as an MCP server via APIM for Foundry agents",
+    "detailedDescription": "This lab demonstrates how to take a pre-trained sklearn forecasting model, deploy it to an Azure ML managed online endpoint, expose it as a REST API through Azure API Management, and wrap it as an MCP server for cloud-based agents in Azure AI Foundry. Includes built-in LLM logging for tracking token usage and tool calling, retry policies for resilience, and managed identity authentication.",
+    "authors": [
+      "jonesethan"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/azure-ml-models",
+    "lastCommitDate": "2026-03-05T12:49:19.498Z"
+  },
+  {
+    "id": "backend-pool-load-balancing",
+    "name": "Backend Pool Load Balancing",
+    "architectureDiagram": "images/backend-pool-load-balancing.gif",
+    "categories": [
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Built-in load balancing using APIM backend pool functionality across multiple Azure AI Foundry endpoints.",
+    "detailedDescription": "This lab demonstrates the built-in load balancing backend pool functionality of Azure API Management to distribute traffic across a list of Azure AI Foundry endpoints. This is a typical prioritized PTU with fallback consumption scenario. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/backend-pool-load-balancing",
+    "tags": [],
+    "lastCommitDate": "2026-02-19T12:42:08.760Z"
+  },
+  {
+    "id": "backend-pool-load-balancing-tf",
+    "name": "(Terraform) Backend Pool Load Balancing (Terraform)",
+    "architectureDiagram": "images/backend-pool-load-balancing.gif",
+    "categories": [
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Built-in load balancing with Terraform - prioritized PTU with fallback consumption scenario.",
+    "detailedDescription": "Playground to try the built-in load balancing backend pool functionality of APIM to a list of Azure OpenAI endpoints using Terraform for infrastructure as code. This is a typical prioritized PTU with fallback consumption scenario. The lab specifically showcases how a priority 1 (highest) backend is exhausted before gracefully falling back to two equally-weighted priority 2 backends.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/backend-pool-load-balancing-tf",
+    "tags": [],
+    "lastCommitDate": "2026-02-19T12:42:08.761Z"
+  },
+  {
+    "id": "built-in-logging",
+    "name": "Built-in Logging",
+    "architectureDiagram": "images/built-in-logging.gif",
+    "categories": [
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Application Insights",
+      "Log Analytics"
+    ],
+    "shortDescription": "Enable comprehensive logging for debugging and monitoring AI Gateway operations.",
+    "detailedDescription": "Configure built-in logging capabilities in API Management to capture detailed request and response data. This lab covers how to set up logging to Application Insights and Log Analytics, configure log levels, implement custom logging policies, and build queries to analyze API traffic patterns and troubleshoot issues.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/built-in-logging",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T18:19:33.465Z"
+  },
+  {
+    "id": "content-safety",
+    "name": "Content Safety",
+    "architectureDiagram": "images/content-safety.gif",
+    "categories": [
+      "Governance & Responsible AI"
+    ],
+    "services": [
+      "Azure AI Content Safety",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Implement content filtering and safety checks for AI-generated responses.",
+    "detailedDescription": "This lab demonstrates how to implement Azure AI Content Safety to filter and moderate content in both requests and responses. Learn how to protect your applications from harmful content including hate speech, violence, self-harm, and sexual content using Azure's advanced content moderation capabilities integrated with Azure API Management.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/content-safety",
+    "tags": [],
+    "lastCommitDate": "2026-04-22T21:03:32.956Z"
+  },
+  {
+    "id": "finops-framework",
+    "name": "FinOps Framework",
+    "architectureDiagram": "images/finops-framework.gif",
+    "categories": [
+      "Governance & Responsible AI",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure Monitor",
+      "Cost Management",
+      "FinOps"
+    ],
+    "shortDescription": "Implement comprehensive cost tracking and optimization for AI services.",
+    "detailedDescription": "Implement a complete FinOps framework for managing AI service costs. This lab covers setting up detailed cost tracking, creating chargeback models for different teams or customers, implementing budget alerts, optimizing token usage, and building dashboards for cost visibility. Learn to balance performance, quality, and cost in your AI deployments.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/finops-framework",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.730Z"
+  },
+  {
+    "id": "foundry-iq-agent-svc",
+    "name": "Foundry IQ Agent Service Integration",
+    "architectureDiagram": "images/foundry-iq-agent-svc.gif",
+    "categories": [
+      "AI Agents",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure AI Search",
+      "Azure API Management"
+    ],
+    "shortDescription": "Integrate Foundry Agent Service with Foundry IQ Knowledge Base via MCP, with APIM as the AI Gateway.",
+    "detailedDescription": "End-to-end lab integrating the Foundry Agent Service with a Foundry IQ Knowledge Base through MCP (Model Context Protocol). APIM serves as the Model Gateway for all agent inference traffic and provides unified observability. The agent uses the knowledge_base_retrieve MCP tool to answer questions with citations. Covers both the Conversations API and Classic Agent API invocation patterns.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agent-svc",
+    "lastCommitDate": "2026-03-23T17:18:59.805Z"
+  },
+  {
+    "id": "foundry-iq-agentfw",
+    "name": "Foundry IQ with Microsoft Agent Framework",
+    "architectureDiagram": "images/foundry-iq-agentfw.gif",
+    "categories": [
+      "AI Agents",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure AI Search",
+      "Azure API Management"
+    ],
+    "shortDescription": "Integrate Microsoft Agent Framework with Foundry IQ Knowledge Base via AzureAISearchContextProvider, with APIM as the AI Gateway.",
+    "detailedDescription": "End-to-end lab integrating the Microsoft Agent Framework with a Foundry IQ Knowledge Base using the AzureAISearchContextProvider. APIM serves as the AI Gateway for embedding traffic and provides unified observability. Demonstrates both semantic (fast hybrid search) and agentic (intelligent multi-hop retrieval) modes. Based on the official Agent Framework + Foundry IQ integration pattern.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agentfw",
+    "lastCommitDate": "2026-03-23T17:18:59.806Z"
+  },
+  {
+    "id": "foundry-models-evals",
+    "name": "Foundry Models Evals",
+    "architectureDiagram": "images/foundry-models-evals.gif",
+    "categories": [
+      "Monitoring & Logging",
+      "LLMOps"
+    ],
+    "services": [
+      "Microsoft Foundry",
+      "Log Analytics"
+    ],
+    "shortDescription": "Extract LLM logs from APIM and run evaluations in Microsoft Foundry.",
+    "detailedDescription": "This lab demonstrates how to extract LLM request/response data from Azure API Management's built-in logging (ApiManagementGatewayLlmLog) and use it as input for running cloud evaluations in Microsoft Foundry. Learn to transform API logs into evaluation datasets and run quality assessments using built-in evaluators like coherence, fluency, and groundedness.",
+    "authors": [
+      "vieiraae"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-models-evals",
+    "lastCommitDate": "2026-02-04T18:13:32.653Z"
+  },
+  {
+    "id": "function-calling",
+    "name": "Function Calling",
+    "architectureDiagram": "images/function-calling.gif",
+    "categories": [
+      "Models Usage",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "Azure Functions",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Enable AI models to call external functions and APIs for enhanced capabilities.",
+    "detailedDescription": "Explore the function calling capabilities of Azure OpenAI models integrated through Azure API Management. This lab demonstrates how to define functions, enable AI models to intelligently call external APIs and services, and process the results. Learn to build AI agents that can interact with real-world systems and data sources.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/function-calling",
+    "tags": [],
+    "lastCommitDate": "2026-02-23T15:05:59.377Z"
+  },
+  {
+    "id": "gemini-mcp-agents",
+    "name": "Gemini MCP Agents",
+    "architectureDiagram": "images/gemini-mcp-agents.gif",
+    "categories": [
+      "AI Agents",
+      "Models Usage"
+    ],
+    "services": [
+      "MCP",
+      "Multi-Cloud AI"
+    ],
+    "shortDescription": "Integrate Google Gemini models with MCP-based agents through Azure API Management.",
+    "detailedDescription": "Learn to integrate Google Gemini models with Model Context Protocol (MCP) agents through Azure API Management. This lab demonstrates multi-cloud AI architectures, showing how to expose Gemini's capabilities alongside Azure OpenAI, implement MCP servers for tool access, and manage cross-cloud AI services through a unified gateway.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/gemini-mcp-agents",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.732Z"
+  },
+  {
+    "id": "gemini-models",
+    "name": "Gemini Models",
+    "architectureDiagram": "images/gemini-models.gif",
+    "categories": [
+      "Models Usage",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Gemini",
+      "Multi-Cloud AI"
+    ],
+    "shortDescription": "Access Google Gemini models through Azure API Management with native and OpenAI compatibility.",
+    "detailedDescription": "Playground to try Gemini Models served through the AI Gateway. This lab creates two APIs - one with native Gemini API compatibility and another one with OpenAI compatibility. Learn to integrate third-party AI models through Azure API Management for unified governance and monitoring.",
+    "authors": [
+      "vieiraae"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/gemini-models",
+    "lastCommitDate": "2026-02-04T13:09:52.732Z"
+  },
+  {
+    "id": "google-gemini-api",
+    "name": "Google Gemini API",
+    "architectureDiagram": "images/gemini-models.gif",
+    "categories": [
+      "Models Usage",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Gemini",
+      "Multi-Cloud AI"
+    ],
+    "shortDescription": "Access Google Gemini models through OpenAI-compatible endpoint that can be accessed through Azure API Management.",
+    "detailedDescription": "Playground to try the Google Gemini models with the AI Gateway using the OpenAI-compatible endpoint. This lab demonstrates how to import an OpenAI-compatible Google Gemini API into Azure API Management.",
+    "authors": [
+      "seilorjunior"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/google-gemini-api",
+    "lastCommitDate": "2026-02-04T13:09:52.732Z"
+  },
+  {
+    "id": "image-generation",
+    "name": "Image Generation",
+    "architectureDiagram": "images/image-gen.gif",
+    "categories": [
+      "Models Usage"
+    ],
+    "services": [
+      "Image Generation",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Generate images using DALL-E through Azure API Management gateway.",
+    "detailedDescription": "Learn how to expose and manage Azure OpenAI's DALL-E image generation capabilities through Azure API Management. This lab covers setting up the gateway for image generation requests, implementing size and quality controls, managing costs through rate limiting, and handling image responses efficiently.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/image-generation",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.733Z"
+  },
+  {
+    "id": "mcp-a2a-agents",
+    "name": "MCP A2A Agents",
+    "architectureDiagram": "images/mcp-agent-2-agent.gif",
+    "categories": [
+      "AI Agents",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "MCP",
+      "Azure Container Apps",
+      "Semantic Kernel",
+      "Autogen",
+      "A2A Protocol"
+    ],
+    "shortDescription": "Multi-agent system using Agent-to-Agent protocol with MCP servers and heterogeneous orchestrators.",
+    "detailedDescription": "Playground to experiment with A2A-enabled agents with Model Context Protocol through Azure API Management. Demonstrates heterogeneous multi-agent systems with agents built using Semantic Kernel and Autogen, communicating through APIM for authentication and authorization. Includes MCP servers for oncall service, weather, and GitHub issues with OAuth integration.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-a2a-agents",
+    "tags": [],
+    "lastCommitDate": "2026-03-27T12:16:20.459Z"
+  },
+  {
+    "id": "mcp-client-authorization",
+    "name": "MCP Client Authorization",
+    "architectureDiagram": "images/mcp-client-authorization.gif",
+    "categories": [
+      "Knowledge & Tools",
+      "Governance & Responsible AI"
+    ],
+    "services": [
+      "MCP",
+      "Microsoft Entra ID"
+    ],
+    "shortDescription": "Implement MCP client authorization flow with APIM as OAuth client and authorization server.",
+    "detailedDescription": "Playground to experiment with the Model Context Protocol client authorization flow. In this flow, Azure API Management acts both as an OAuth client connecting to Microsoft Entra ID authorization server and as an OAuth authorization server for the MCP client (MCP inspector). Note: Due to the evolving nature of the MCP Authorization proposal, direct production use is not yet recommended.",
+    "authors": [
+      "dariuszparys"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-client-authorization"
+  },
+  {
+    "id": "mcp-from-api",
+    "name": "MCP from REST API",
+    "architectureDiagram": "images/model-context-protocol.gif",
+    "categories": [
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "MCP"
+    ],
+    "shortDescription": "Transform existing REST APIs to Model Context Protocol with Azure API Management.",
+    "detailedDescription": "Playground to transform an existing REST API to the Model Context Protocol with Azure API Management. This lab demonstrates how to expose traditional REST APIs through the MCP standard, enabling AI models to interact with your existing services using the protocol.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-from-api",
+    "tags": [],
+    "lastCommitDate": "2026-02-18T22:32:42.100Z"
+  },
+  {
+    "id": "mcp-prm-oauth",
+    "name": "MCP Protected Resources Metadata (PRM)",
+    "architectureDiagram": "images/mcp-prm-oauth.gif",
+    "categories": [
+      "Knowledge & Tools",
+      "Governance & Responsible AI"
+    ],
+    "services": [
+      "MCP",
+      "Microsoft Entra ID"
+    ],
+    "shortDescription": "Production-grade MCP implementation with OAuth and Protected Resources Metadata (RFC9729).",
+    "detailedDescription": "Playground to experiment with the Model Context Protocol implementing the MCP Authorization proposal and RFC9729 for Protected Resources Metadata. Azure API Management acts as both OAuth client (to Microsoft Entra ID) and OAuth authorization server (for MCP clients like VS Code or Copilot Studio). This is as close to production-grade security for MCP servers as it gets.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-prm-oauth",
+    "tags": [],
+    "lastCommitDate": "2026-02-23T15:05:59.377Z"
+  },
+  {
+    "id": "mcp-registry-apic",
+    "name": "MCP Registry with API Center",
+    "architectureDiagram": "images/apic-registry.gif",
+    "categories": [
+      "Knowledge & Tools",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure API Center",
+      "MCP"
+    ],
+    "shortDescription": "Centralized MCP server registry using Azure API Center for enterprise governance.",
+    "detailedDescription": "To unlock the full potential of Model Context Protocol, enterprises need a centralized registry for server discovery and metadata management. Azure API Center serves as a governed, enterprise-grade repository for managing remote MCP servers. This lab demonstrates creating an API Center service and registering example remote MCP servers with centralized oversight for better version control and access management.",
+    "authors": [
+      "jukasper"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-registry-apic",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.735Z"
+  },
+  {
+    "id": "mcp-registry-apic-github-workflow",
+    "name": "MCP Registry with API Center (CI/CD)",
+    "architectureDiagram": "images/apic-registry.gif",
+    "categories": [
+      "Knowledge & Tools",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure API Center",
+      "MCP",
+      "GitHub Actions"
+    ],
+    "shortDescription": "Automated MCP server registry with Azure API Center using GitOps and GitHub CI/CD pipelines.",
+    "detailedDescription": "Demonstrates a fully automated Model Context Protocol server registry integrating with Azure API Center using GitHub CI/CD pipelines. Developers add MCP servers by committing JSON files, GitHub Actions automatically validate and deploy changes, and Azure API Center becomes the centralized registry for organizational MCP server discovery. Complete GitOps solution with infrastructure as code using Bicep.",
+    "authors": [
+      "frankqianms"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-registry-apic-github-workflow",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.736Z"
+  },
+  {
+    "id": "message-storing",
+    "name": "Message Storing",
+    "architectureDiagram": "images/message-storing.gif",
+    "categories": [
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure Cosmos DB",
+      "Azure Storage"
+    ],
+    "shortDescription": "Store conversation history and messages for compliance and analysis.",
+    "detailedDescription": "Implement message storage solutions to persist conversation history for compliance, auditing, and analysis purposes. This lab shows how to use Azure API Management policies to store messages in Azure Cosmos DB or Azure Storage, manage retention policies, and retrieve conversation history for continuing sessions or compliance reporting.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/message-storing",
+    "tags": [],
+    "lastCommitDate": "2026-03-27T11:08:14.714Z"
+  },
+  {
+    "id": "model-context-protocol",
+    "name": "Model Context Protocol (MCP)",
+    "architectureDiagram": "images/model-context-protocol.gif",
+    "categories": [
+      "Knowledge & Tools",
+      "AI Agents"
+    ],
+    "services": [
+      "MCP",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Implement the Model Context Protocol for standardized AI integrations.",
+    "detailedDescription": "Learn to implement the Model Context Protocol (MCP), an open standard for enabling AI models to securely access external data sources and tools. This lab demonstrates how to set up MCP servers, expose them through Azure API Management, and enable AI models to interact with databases, APIs, and other services using this standardized protocol.",
+    "authors": [
+      "vieiraae",
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-context-protocol",
+    "tags": [],
+    "lastCommitDate": "2026-04-22T21:07:32.688Z"
+  },
+  {
+    "id": "model-routing",
+    "name": "Model Routing",
+    "architectureDiagram": "images/model-routing.gif",
+    "categories": [
+      "Models Usage",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Intelligently route requests to different AI models based on content and requirements.",
+    "detailedDescription": "Implement intelligent model routing strategies to direct requests to the most appropriate AI model based on factors like request content, user tier, cost optimization, or capability requirements. This lab demonstrates how to use Azure API Management policies to analyze incoming requests and route them to different models (GPT-3.5, GPT-4, custom models) for optimal performance and cost efficiency.",
+    "authors": [
+      "simonkurtz-MSFT",
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-routing",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.736Z"
+  },
+  {
+    "id": "openai-agents",
+    "name": "OpenAI Agents",
+    "architectureDiagram": "images/openai-agents.gif",
+    "categories": [
+      "AI Agents"
+    ],
+    "services": [
+      "Assistants API",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Build AI agents using OpenAI's Assistants API through Azure.",
+    "detailedDescription": "Explore building AI agents using OpenAI's Assistants API deployed on Azure. This lab demonstrates how to create assistants with custom instructions, enable code interpreter and retrieval capabilities, manage threads and messages, and expose these capabilities through Azure API Management for secure, scalable agent deployments.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/openai-agents",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.737Z"
+  },
+  {
+    "id": "private-connectivity",
+    "name": "Private Connectivity",
+    "architectureDiagram": "images/private-connectivity.gif",
+    "categories": [
+      "Governance & Responsible AI",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Private Link",
+      "VNet"
+    ],
+    "shortDescription": "Secure AI services with private network connectivity using Azure Private Link.",
+    "detailedDescription": "Implement end-to-end private connectivity for your AI services using Azure Private Link and Virtual Networks. This lab demonstrates how to configure Azure API Management in internal mode, set up private endpoints for Azure OpenAI and other services, implement network security groups, and ensure all traffic remains within your private network for maximum security.",
+    "authors": [
+      "HoussemDellai"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/private-connectivity",
+    "tags": [],
+    "lastCommitDate": "2026-02-19T12:42:08.761Z"
+  },
+  {
+    "id": "realtime-audio",
+    "name": "Realtime Audio",
+    "architectureDiagram": "images/realtime-audio.gif",
+    "categories": [
+      "Models Usage"
+    ],
+    "services": [
+      "Audio Agents",
+      "Realtime API",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Enable real-time audio processing and speech-to-speech AI interactions.",
+    "detailedDescription": "Build real-time audio applications using Azure OpenAI's audio capabilities through Azure API Management. This lab covers setting up WebSocket connections for streaming audio, implementing speech-to-text and text-to-speech conversions, managing real-time conversations, and handling audio streaming efficiently with low latency.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/realtime-audio",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.738Z"
+  },
+  {
+    "id": "realtime-mcp-agents",
+    "name": "Realtime Audio with MCP Agents",
+    "architectureDiagram": "images/realtime-mcp-agents.gif",
+    "categories": [
+      "AI Agents",
+      "Models Usage",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "MCP",
+      "Audio Agents",
+      "Realtime API",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Realtime audio API with MCP tools integration for weather, Spotify, and ServiceNow.",
+    "detailedDescription": "Playground to experiment with Azure OpenAI Realtime API for text and audio with integrations via Model Context Protocol and Azure API Management. Includes MCP servers for weather service, Spotify (playlists, playback control), and ServiceNow incidents. Leverages the credential manager for OAuth 2.0 tokens and client token validation for end-to-end authentication.",
+    "authors": [
+      "nourshaker-msft",
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/realtime-mcp-agents",
+    "tags": [],
+    "lastCommitDate": "2026-02-20T22:13:30.448Z"
+  },
+  {
+    "id": "secure-responses-api",
+    "name": "Secure Responses API",
+    "architectureDiagram": "images/built-in-logging.gif",
+    "categories": [
+      "Governance & Responsible AI",
+      "Models Usage"
+    ],
+    "services": [
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Implement Azure OpenAI Responses API in a secure manner through APIM.",
+    "detailedDescription": "Playground to try the Azure OpenAI Responses API in a secure manner. This lab demonstrates how to properly secure and expose the Responses API through Azure API Management, ensuring proper authentication, authorization, and monitoring of API responses.",
+    "authors": [
+      "anotherRedbeard"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/secure-responses-api",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.738Z"
+  },
+  {
+    "id": "self-hosted-ollama",
+    "name": "Self-Hosted Ollama behind APIM",
+    "architectureDiagram": "images/self-hosted-ollama.gif",
+    "categories": [
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure API Management",
+      "Azure Container Instances",
+      "Azure Container Registry"
+    ],
+    "shortDescription": "Deploy a self-hosted Ollama embedding model on ACI, exposed through APIM",
+    "detailedDescription": "This lab deploys a CPU-only Ollama container running the mxbai-embed-large embedding model on Azure Container Instances, with Azure API Management as the secure gateway. All embedding requests are routed through APIM using a subscription key. Based on the Ollama_in_Azure repo.",
+    "authors": [
+      "loreaa"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/self-hosted-ollama",
+    "lastCommitDate": "2026-04-21T13:28:48.484Z"
+  },
+  {
+    "id": "semantic-caching",
+    "name": "Semantic Caching",
+    "architectureDiagram": "images/semantic-caching.gif",
+    "categories": [
+      "Platform Capabilities",
+      "Models Usage"
+    ],
+    "services": [
+      "Azure Cache",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Reduce latency and costs using semantic caching for Azure OpenAI API requests.",
+    "detailedDescription": "The azure-openai-semantic-cache-lookup policy conducts a cache lookup of responses on Azure OpenAI Chat Completion API and Completion API requests from a pre-configured external cache. It operates by comparing the vector proximity of the prompt to prior requests and using a specific similarity score threshold. Caching responses helps reduce bandwidth and processing demands on the backend Azure OpenAI API, thus reducing latency perceived by API consumers.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/semantic-caching",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.739Z"
+  },
+  {
+    "id": "serverless-gpu",
+    "name": "Serverless GPU Inference",
+    "architectureDiagram": "images/serverless-gpu.gif",
+    "categories": [
+      "Models Usage"
+    ],
+    "services": [
+      "Azure Container Apps",
+      "Azure API Management",
+      "Serverless GPUs"
+    ],
+    "shortDescription": "Deploy SGLang on Azure Container Apps with GPU and expose through APIM",
+    "detailedDescription": "Deploy the SGLang high-performance LLM serving framework on Azure Container Apps with NVIDIA A100 GPU workload profiles, and expose the OpenAI-compatible inference endpoint through Azure API Management for secure, managed access.",
+    "authors": [
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/serverless-gpu",
+    "lastCommitDate": "2026-03-20T23:53:05.181Z"
+  },
+  {
+    "id": "session-awareness",
+    "name": "Session Awareness",
+    "architectureDiagram": "images/session-awareness.gif",
+    "categories": [
+      "Platform Capabilities",
+      "Models Usage"
+    ],
+    "services": [
+      "Azure Cosmos DB",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Maintain conversation context across multiple requests using session management.",
+    "detailedDescription": "Build session-aware AI applications that maintain conversation context across multiple requests. This lab demonstrates how to implement session management using Azure API Management policies, store session state in Azure Cosmos DB, and provide context-aware responses by including conversation history in subsequent requests to Azure OpenAI.",
+    "authors": [
+      "dbarkol"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/session-awareness",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.739Z"
+  },
+  {
+    "id": "slm-self-hosting",
+    "name": "SLM Self Hosting",
+    "architectureDiagram": "images/slm-self-hosting.gif",
+    "categories": [
+      "Models Usage",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Phi-3",
+      "Self-Hosted Gateway"
+    ],
+    "shortDescription": "Self-host Phi-3 Small Language Model through APIM self-hosted gateway with OpenAI compatibility.",
+    "detailedDescription": "Playground to try the self-hosted Phi-3 Small Language Model (SLM) through the APIM self-hosted gateway with OpenAI API compatibility. The Phi-3-Mini-4K-Instruct is a 3.8B parameters, lightweight, state-of-the-art open model. The APIM self-hosted gateway enables use cases where the SLM is running on-premises, bringing the gateway to where your APIs are hosted.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/slm-self-hosting",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.739Z"
+  },
+  {
+    "id": "token-metrics-emitting",
+    "name": "Token Metrics Emitting",
+    "architectureDiagram": "images/token-metrics-emitting.gif",
+    "categories": [
+      "Platform Capabilities",
+      "Governance & Responsible AI"
+    ],
+    "services": [
+      "Azure Monitor",
+      "Application Insights"
+    ],
+    "shortDescription": "Emit and track detailed token usage metrics for cost analysis and optimization.",
+    "detailedDescription": "Learn how to emit detailed token usage metrics from Azure API Management to Azure Monitor and Application Insights. This lab demonstrates how to track prompt tokens, completion tokens, and total token usage across different models and users. Build dashboards and alerts to monitor costs and usage patterns in real-time.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/token-metrics-emitting",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.740Z"
+  },
+  {
+    "id": "token-rate-limiting",
+    "name": "Token Rate Limiting",
+    "architectureDiagram": "images/token-rate-limiting.gif",
+    "categories": [
+      "Governance & Responsible AI",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Control costs and prevent abuse with token-based rate limiting policies.",
+    "detailedDescription": "Implement sophisticated token-based rate limiting to control API usage and costs. This lab shows how to set up rate limits based on token consumption rather than just request counts, providing more granular control over Azure OpenAI usage and costs. Learn to configure different rate limits for different user tiers and implement quota management.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/token-rate-limiting",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.740Z"
+  },
+  {
+    "id": "vector-searching",
+    "name": "Vector Searching",
+    "architectureDiagram": "images/vector-searching.gif",
+    "categories": [
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "Azure AI Search",
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Implement semantic search using vector embeddings and Azure AI Search.",
+    "detailedDescription": "Build a semantic search solution using vector embeddings and Azure AI Search. This lab demonstrates how to generate embeddings using Azure OpenAI, store them in Azure AI Search, and implement efficient vector-based search queries through Azure API Management. Learn to build RAG (Retrieval-Augmented Generation) patterns for enhanced AI responses.",
+    "authors": [
+      "vieiraae"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/vector-searching",
+    "tags": [],
+    "lastCommitDate": "2026-02-04T13:09:52.740Z"
+  },
+  {
+    "id": "zero-to-production",
+    "name": "Zero to Production",
+    "architectureDiagram": "images/backend-pool-load-balancing.gif",
+    "categories": [
+      "Platform Capabilities",
+      "Governance & Responsible AI"
+    ],
+    "services": [
+      "Azure OpenAI"
+    ],
+    "shortDescription": "Progressive implementation combining load balancing, token metrics, rate limiting, and semantic caching.",
+    "detailedDescription": "Playground to create a combination of several policies in an iterative approach. We start with load balancing, then progressively add token emitting, rate limiting, and eventually semantic caching. Each of these sets of policies is derived from other labs in this repo, providing a comprehensive path from basic setup to production-ready configuration.",
+    "authors": [
+      "simonkurtz-MSFT"
+    ],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/zero-to-production",
+    "tags": [],
+    "lastCommitDate": "2026-02-23T15:05:59.378Z"
+  }
+]

@@ -2,7 +2,7 @@
 
 ## [Backend Circuit Breaking lab](backend-circuit-breaking.ipynb)
 
-[![flow](../../images/backend-circuit-breaking.gif)](backend-circuit-breaking.ipynb)
+[![flow](../../../images/backend-circuit-breaking.gif)](backend-circuit-breaking.ipynb)
 
 Playground to try the built-in [backend circuit breaker functionality of APIM](https://learn.microsoft.com/azure/api-management/backends?tabs=bicep) to either an Azure OpenAI endpoints or a mock server.
 

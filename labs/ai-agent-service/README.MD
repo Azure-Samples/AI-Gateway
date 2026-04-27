@@ -1,10 +1,26 @@
+---
+name: AI Agent Service
+architectureDiagram: images/ai-agent-service-small.gif
+categories:
+  - AI Agents
+services:
+  - Azure Functions
+  - Azure OpenAI
+shortDescription: Build and orchestrate AI agents with specialized capabilities.
+detailedDescription: Create sophisticated AI agent services that can perform specialized tasks and orchestrate multiple agents. This lab demonstrates how to build agents with specific capabilities (like weather lookup, order placement, or data analysis), use function calling to enable agent actions, and coordinate multiple agents through Azure API Management for complex workflows.
+tags: []
+authors:
+  - vieiraae
+  - nourshaker-msft
+---
+
 # APIM ❤️ AI Agents
 
-## [Azure AI Agent Service lab](ai-agent-service.ipynb)
+## [Azure AI Agent Service lab](ai-agent-service-v2.ipynb)
 
 ![flow](../../images/ai-agent-service.gif)
 
-Use this playground to explore the [Azure AI Agent Service](https://learn.microsoft.com/en-us/azure/ai-services/agents/overview), leveraging Azure API Management to control multiple services, including Azure OpenAI models, Bing Web Search, Logic Apps Workflows, and OpenAPI-based APIs. This enables limitless opportunities for AI agents while maintaining control through Azure API Management!
+Use this playground to explore the [Azure AI Agent Service](https://learn.microsoft.com/en-us/azure/ai-services/agents/overview), leveraging Azure API Management to control multiple services, including Logic Apps Workflows, and OpenAPI-based APIs. This enables limitless opportunities for AI agents while maintaining control through Azure API Management!
 
 ### Prerequisites
 
@@ -16,7 +32,7 @@ Use this playground to explore the [Azure AI Agent Service](https://learn.micros
 
 ### 🚀 Get started
 
-Proceed by opening the [Jupyter notebook](ai-agent-service.ipynb), and follow the steps provided.
+Proceed by opening the [Jupyter notebook](ai-agent-service-v2.ipynb), and follow the steps provided.
 
 ### 🗑️ Clean up resources
 

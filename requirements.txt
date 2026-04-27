@@ -11,7 +11,7 @@ pandas
 matplotlib
 redis
 msal
-openai
+openai[realtime]
 azure-cli
 azure-identity
 opentelemetry-api
@@ -19,14 +19,15 @@ opentelemetry-sdk
 azure-monitor-opentelemetry
 azure-monitor-ingestion
 azure-ai-projects
+azure-ai-agents
 azure-ai-inference[prompts]
 azure-search-documents
 azure-functions
 azure-mgmt-apimanagement
 
 # MCP Labs
-mcp
-autogen-core 
-autogen-ext[openai,azure,mcp] 
+mcp==1.21.2
+autogen-core
+autogen-ext[openai,azure,mcp]
 autogen-agentchat
-semantic-kernel[mcp]
+semantic-kernel[mcp]==1.33.0

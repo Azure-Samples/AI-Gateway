@@ -1,0 +1,105 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Pass-through API",
+        "version": "1.0"
+    },
+    "servers": [{
+        "url": ""
+    }],
+    "paths": {
+        "/*": {
+            "head": {
+                "summary": "HEAD",
+                "operationId": "68710975baba4a299d36deb0",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "summary": "PATCH",
+                "operationId": "68710975652cd979619f5a83",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "summary": "PUT",
+                "operationId": "687109754b68aaea197b531c",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "summary": "DELETE",
+                "operationId": "68710975f9f8bdc276a491b6",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "get": {
+                "summary": "GET",
+                "operationId": "687109754f85de645e224a4a",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "options": {
+                "summary": "OPTIONS",
+                "operationId": "68710975b57233df8cb7124c",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "summary": "POST",
+                "operationId": "687109756160cf7e2bfc0f6d",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "trace": {
+                "summary": "TRACE",
+                "operationId": "68710975245aeaa3eb6b126d",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "subscription-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [{
+        "apiKeyHeader": []
+    }, {
+        "apiKeyQuery": []
+    }]
+}

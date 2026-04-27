@@ -72,7 +72,7 @@ resource APIPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-12-01-pre
 
 resource authorizationProvider 'Microsoft.ApiManagement/service/authorizationProviders@2024-06-01-preview' = {
   parent: apim
-  name: 'spotify'
+  name: 'spotify1'
   properties: {
     displayName: 'spotify'
     identityProvider: 'oauth2pkce'

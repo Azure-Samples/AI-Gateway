@@ -4,13 +4,14 @@ Core client functionality for Dolphin MCP.
 import logging
 import ast
 
-from mcp.client.sse import sse_client
+#from mcp.client.sse import sse_client
+from mcp.client.streamable_http import streamablehttp_client
 from mcp import ClientSession
 
 logger = logging.getLogger("dolphin_mcp")
 
-class SSEMCPClient:
-    """Implementation for a SSE-based MCP server."""
+class HTTPMCPClient:
+    """Implementation for a Streamable-based MCP server."""
 
     def __init__(self, server_name: str, url: str):
         self.server_name = server_name
@@ -22,17 +23,17 @@ class SSEMCPClient:
 
     async def start(self):
         try:
-            self._streams_context = sse_client(url=self.url)
+            self._streams_context = streamablehttp_client(url=self.url)
             streams = await self._streams_context.__aenter__()
 
-            self._session_context = ClientSession(*streams)
+            self._session_context = ClientSession(streams[0], streams[1])
             self.session = await self._session_context.__aenter__()
 
             # Initialize
             await self.session.initialize()
             return True
         except Exception as e:
-            logger.error(f"Server {self.server_name}: SSE connection error: {str(e)}")
+            logger.error(f"Server {self.server_name}: Streamable connection error: {str(e)}")
             return False
 
     async def list_tools(self):
@@ -40,7 +41,6 @@ class SSEMCPClient:
             return []
         try:
             response = await self.session.list_tools()
-            # 将 pydantic 模型转换为字典格式
             self.tools = [
                 {
                     "name": tool.name,
@@ -70,7 +70,7 @@ class SSEMCPClient:
         if self._streams_context:
             await self._streams_context.__aexit__(None, None, None)
 
-class OAI_RT_SSEMCPClient(SSEMCPClient):
+class OAI_RT_HTTPMCPClient(HTTPMCPClient):
     def __exit__(self, exc_type, exc_value, traceback):
         print("----------Tool Exited")
 
@@ -88,10 +88,10 @@ class OAI_RT_SSEMCPClient(SSEMCPClient):
                 }
                 for tool in response.tools
             ]
-            # print(self.tools)
+            print(self.tools)
             return self.tools
         except Exception as e:
-            # logger.error(f"Server {self.server_name}: List tools error: {str(e)}")
+            logger.error(f"Server {self.server_name}: List tools error: {str(e)}")
             return []
 
     async def call_tool(self, tool_call: dict):
@@ -99,7 +99,7 @@ class OAI_RT_SSEMCPClient(SSEMCPClient):
             return {"error": "Not connected"}
         try:
             response = await self.session.call_tool(tool_call['name'], ast.literal_eval(tool_call['arguments']))
-            # print(response.model_dump_json())
+            print(response.model_dump_json())
             oai_response = {
                         "call_id": tool_call['call_id'],
                         "type": "function_call_output",

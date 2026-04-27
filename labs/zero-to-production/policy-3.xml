@@ -20,7 +20,7 @@
     <backend>
         <!--Policy 1 - Apply load-balancing and retry mechanisms -->
         <!--Set count to one less than the number of backends in the pool to try all backends until the backend pool is temporarily unavailable.-->
-        <retry count="{retry-count}" interval="0" first-fast-retry="true" condition="@(context.Response.StatusCode == 429 || (context.Response.StatusCode == 503 && !context.Response.StatusReason.Contains("Backend pool") && !context.Response.StatusReason.Contains("is temporarily unavailable")))">
+        <retry count="{retry-count}" interval="0" first-fast-retry="true" condition="@(context.Response.StatusCode == 429 || context.Response.StatusCode == 503)">
             <forward-request buffer-request-body="true" />
         </retry>
     </backend>

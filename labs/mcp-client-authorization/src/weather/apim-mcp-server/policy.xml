@@ -1,0 +1,75 @@
+<policies>
+    <inbound>
+        <base />
+        <set-variable name="accessToken" value="@{
+                    if (context.Request.Headers.ContainsKey("Authorization"))
+                    {
+                        // Create SHA256 hash of Authorization header. This is part of the cache key.
+
+                        var authSplit = context.Request.Headers.GetValueOrDefault("Authorization", "").Split(null);
+
+                        // in case scheme is not passed. AuthenticationHeaderValue supports it but places it in Scheme
+                        // we will place in creds since Scheme is not hashed
+                        var authScheme = "";
+                        var authCredential = authSplit[0];
+
+                        if(authSplit.Length > 1){
+                        authScheme = authSplit[0];
+                        authCredential = authSplit[1];
+
+                        return authCredential;
+                        }
+                    }
+                    return "";
+            }" />
+        <!-- if we received an emtpy accessToken , we should return 401-->
+        <choose>
+            <when condition="@((string)context.Variables["accessToken"] == "")">
+                <return-response>
+                    <set-status code="401" reason="Unauthorized" />
+                    <set-header name="WWW-Authenticate" exists-action="override">
+                        <value>Bearer realm="example"</value>
+                    </set-header>
+                    <set-body>{
+                        "error": "unauthorized",
+                        "error_description": "no access token provided"
+                        }</set-body>
+                </return-response>
+            </when>
+        </choose>
+        <!-- IV needs to be generated and not hard coded -->
+        <set-variable name="IV" value="{{EncryptionIV}}" />
+        <set-variable name="key" value="{{EncryptionKey}}" />
+        <set-variable name="decryptedSessionId" value="@{
+            byte[] inBytes = Convert.FromBase64String((string)context.Variables["accessToken"]);
+            byte[] IV = Convert.FromBase64String((string)context.Variables["IV"]);
+            byte[] key = Convert.FromBase64String((string)context.Variables["key"]);
+            byte[] decryptedBytes = inBytes.Decrypt("Aes", key, IV);
+            return Encoding.UTF8.GetString(decryptedBytes);
+         }" />
+        <!-- if decrypted Session Id does not match the session we should throw error-->
+        <choose>
+            <when condition="@((string)context.Variables["decryptedSessionId"] != "sessionId123")">
+                <return-response>
+                    <set-status code="401" reason="Unauthorized" />
+                    <set-header name="WWW-Authenticate" exists-action="override">
+                        <value>Bearer realm="example"</value>
+                    </set-header>
+                    <set-body>{
+                        "error": "unauthorized",
+                        "error_description": "token is not valid"
+                        }</set-body>
+                </return-response>
+            </when>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

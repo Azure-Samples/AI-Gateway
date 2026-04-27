@@ -1,0 +1,7 @@
+# MCP Labs
+mcp==1.11.0
+semantic-kernel==1.34.0
+semantic-kernel[mcp]
+
+openai
+uvicorn

@@ -1,0 +1,12 @@
+{
+  "id": "msdocs-mcp-server",
+  "name": "Microsoft docs",
+  "description": "AI assistant with real-time access to official Microsoft documentation.",
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "transport_type": "sse",
+      "url": "https://learn.microsoft.com/api/mcp"
+    }
+  ]
+}

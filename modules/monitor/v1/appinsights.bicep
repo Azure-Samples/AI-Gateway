@@ -29,14 +29,14 @@ param customMetricsOptedInType string = 'Off'
 @description('Indicate whether workbook is used. Default is false')
 param useWorkbook bool = false
 
-@description('Name for the Workbook. Defaults to "OpenAIUsageAnalysis".')
-param workbookName string = 'OpenAIUsageAnalysis'
+@description('Name for the Workbook. Defaults to "UsageAnalysis".')
+param workbookName string = 'UsageAnalysis'
 
 @description('Location for the Workbook')
 param workbookLocation string = resourceGroup().location
 
-@description('Display Name for the Workbook. Defaults to "OpenAI Usage Analysis".')
-param workbookDisplayName string = 'OpenAI Usage Analysis'
+@description('Display Name for the Workbook. Defaults to "Usage Analysis".')
+param workbookDisplayName string = 'Usage Analysis'
 
 @description('JSON string for the Workbook')
 param workbookJson string = ''
@@ -73,7 +73,7 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = if (useWorkbook) {
     displayName: workbookDisplayName
     serializedData: workbookJson
     sourceId: applicationInsights.id
-    category: 'OpenAI'
+    category: 'UsageAnalysis'
   }
 }
 
@@ -82,6 +82,7 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = if (useWorkbook) {
 // ------------------
 
 output id string = applicationInsights.id
+output name string = applicationInsights.name
 output instrumentationKey string = applicationInsights.properties.InstrumentationKey
 output appId string = applicationInsights.properties.AppId
 output applicationInsightsName string = applicationInsightsName

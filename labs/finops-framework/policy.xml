@@ -1,0 +1,18 @@
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="{backend-id}" />
+        <azure-openai-emit-token-metric namespace="aiusage">
+            <dimension name="Product" value="@(context.Product.Id)" />
+        </azure-openai-emit-token-metric>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

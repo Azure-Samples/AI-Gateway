@@ -592,6 +592,21 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2024-05-01' = {
   }
 }
 
+// Public IP for VM
+resource publicIp 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
+  name: 'pip-${vmName}'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+  }
+}
+
+// Network Interface for VM
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
   name: 'nic-${vmName}'
   location: resourceGroup().location
@@ -603,6 +618,9 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-09-01' = {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
             id: virtualNetwork::subnetVm.id
+          }
+          publicIPAddress: {
+            id: publicIp.id
           }
         }
       }

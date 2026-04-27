@@ -3,7 +3,6 @@ param workspaceName string
 param workspaceId string
 param workbookCostAnalysisId string
 param workbookAzureOpenAIInsightsId string
-param workspaceOpenAIDimenstion string = 'openai'
 param appInsightsId string
 param appInsightsName string
 
@@ -12,7 +11,7 @@ resource finOpsDashboard 'Microsoft.Portal/dashboards@2022-12-01-preview' = {
   name: guid(resourceGroup().id, resourceSuffix, 'finOpsDashboard')
   location: resourceGroup().location
   tags: {
-    'hidden-title': 'APIM❤️OpenAI- FinOps dashboard'
+    'hidden-title': 'APIM❤️AI Foundry-FinOps dashboard'
   }
   properties: {
     lenses: [
@@ -112,7 +111,7 @@ resource finOpsDashboard 'Microsoft.Portal/dashboards@2022-12-01-preview' = {
                 }
                 {
                   name: 'Query'
-                  value: 'AppMetrics\n| where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\n| where Name == "Prompt Tokens" or Name == "Completion Tokens"\n| extend SubscriptionName = tostring(Properties["Subscription ID"])\n| extend ProductName = tostring(Properties["Product"])\n| extend ModelName = tostring(Properties["Model"])\n| extend Region = tostring(Properties["Region"])\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.ModelName == $right.Model\n| summarize\n    PromptTokens = sumif(Sum, Name == "Prompt Tokens"),\n    CompletionTokens = sumif(Sum, Name == "Completion Tokens")\n    by SubscriptionName, InputTokensPrice, OutputTokensPrice\n| extend InputCost = PromptTokens / 1000 * InputTokensPrice\n| extend OutputCost = CompletionTokens / 1000 * OutputTokensPrice\n| extend TotalCost = InputCost + OutputCost\n| summarize TotalCost = sum(TotalCost) by SubscriptionName\n| join kind=inner (\n    SUBSCRIPTION_QUOTA_CL\n    | summarize arg_max(TimeGenerated, *) by Subscription\n    | project Subscription, CostQuota\n) on $left.SubscriptionName == $right.Subscription\n| project SubscriptionName, CostQuota, TotalCost\n\n'
+                  value: 'let llmHeaderLogs = ApiManagementGatewayLlmLog\r\n| where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\r\n| where DeploymentName != "";\r\nlet llmLogsWithSubscriptionId = llmHeaderLogs\r\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId\r\n| project\r\n    SubscriptionName = ApimSubscriptionId, DeploymentName, PromptTokens, CompletionTokens, TotalTokens;\r\nllmLogsWithSubscriptionId\r\n| join kind=inner (\r\n    PRICING_CL\r\n    | summarize arg_max(TimeGenerated, *) by Model\r\n    | project Model, InputTokensPrice, OutputTokensPrice\r\n    )\r\n    on $left.DeploymentName == $right.Model\r\n| extend InputCost = PromptTokens * InputTokensPrice\r\n| extend OutputCost = CompletionTokens * OutputTokensPrice\r\n| summarize\r\n    InputCost = sum(InputCost), OutputCost = sum(OutputCost)\r\n    by SubscriptionName\r\n| extend TotalCost = (InputCost + OutputCost) / 1000\r\n| join kind=inner (\r\n    SUBSCRIPTION_QUOTA_CL\r\n    | summarize arg_max(TimeGenerated, *) by Subscription\r\n    | project Subscription, CostQuota\r\n) on $left.SubscriptionName == $right.Subscription\r\n| project SubscriptionName, CostQuota, TotalCost\r\n\r\n'
                   isOptional: true
                 }
                 {
@@ -127,7 +126,7 @@ resource finOpsDashboard 'Microsoft.Portal/dashboards@2022-12-01-preview' = {
                 }
                 {
                   name: 'PartTitle'
-                  value: 'Analytics'
+                  value: 'Budget analysis by subscription'
                   isOptional: true
                 }
                 {
@@ -366,7 +365,7 @@ resource finOpsDashboard 'Microsoft.Portal/dashboards@2022-12-01-preview' = {
                 }
                 {
                   name: 'Query'
-                  value: 'AppMetrics\n| where TimeGenerated >= startofmonth(now()) and TimeGenerated <= endofmonth(now())\n| where Name == "Prompt Tokens" or Name == "Completion Tokens"\n| extend SubscriptionName = tostring(Properties["Subscription ID"])\n| extend ProductName = tostring(Properties["Product"])\n| extend ModelName = tostring(Properties["Model"])\n| extend Region = tostring(Properties["Region"])\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.ModelName == $right.Model\n| summarize\n    PromptTokens = sumif(Sum, Name == "Prompt Tokens"),\n    CompletionTokens = sumif(Sum, Name == "Completion Tokens")\n    by SubscriptionName, InputTokensPrice, OutputTokensPrice\n| extend InputCost = PromptTokens / 1000 * InputTokensPrice\n| extend OutputCost = CompletionTokens / 1000 * OutputTokensPrice\n| extend TotalCost = InputCost + OutputCost\n| summarize TotalCost = sum(TotalCost) by SubscriptionName\n| project SubscriptionName, TotalCost\n\n'
+                  value: 'let llmHeaderLogs = ApiManagementGatewayLlmLog\n| where DeploymentName != \'\';\nlet llmLogsWithSubscriptionId = llmHeaderLogs\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId\n| project\n    SubscriptionName = ApimSubscriptionId, DeploymentName, PromptTokens, CompletionTokens, TotalTokens;\nllmLogsWithSubscriptionId\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.DeploymentName == $right.Model\n| extend InputCost = PromptTokens * InputTokensPrice\n| extend OutputCost = CompletionTokens * OutputTokensPrice\n| summarize\n    InputCost = sum(InputCost), OutputCost = sum(OutputCost)\n    by SubscriptionName\n| extend TotalCost = (InputCost + OutputCost) / 1000\n| project SubscriptionName, TotalCost\n\n'
                   isOptional: true
                 }
                 {
@@ -381,7 +380,7 @@ resource finOpsDashboard 'Microsoft.Portal/dashboards@2022-12-01-preview' = {
                 }
                 {
                   name: 'PartTitle'
-                  value: 'Analytics'
+                  value: 'Token usage by subscription'
                   isOptional: true
                 }
                 {
@@ -435,68 +434,108 @@ resource finOpsDashboard 'Microsoft.Portal/dashboards@2022-12-01-preview' = {
             metadata: {
               inputs: [
                 {
-                  name: 'options'
+                  name: 'resourceTypeMode'
+                  isOptional: true
+                }
+                {
+                  name: 'ComponentId'
+                  isOptional: true
+                }
+                {
+                  name: 'Scope'
                   value: {
-                    chart: {
-                      metrics: [
-                        {
-                          resourceMetadata: {
-                            id: appInsightsId
-                          }
-                          name: 'Total Tokens'
-                          aggregationType: 1
-                          namespace: workspaceOpenAIDimenstion
-                          metricVisualization: {
-                            displayName: 'Total Tokens'
-                          }
-                        }
-                      ]
-                      title: 'Total Tokens consumed by subscription'
-                      titleKind: 1
-                      visualization: {
-                        chartType: 3
-                        legendVisualization: {
-                          isVisible: true
-                          position: 2
-                          hideHoverCard: false
-                          hideLabelNames: true
-                        }
-                        axisVisualization: {
-                          x: {
-                            isVisible: true
-                            axisType: 2
-                          }
-                          y: {
-                            isVisible: true
-                            axisType: 1
-                          }
-                        }
-                      }
-                      grouping: {
-                        dimension: [
-                          'Subscription ID'
-                          'Product'
-                        ]
-                        sort: 2
-                        top: 10
-                      }
-                      timespan: {
-                        relative: {
-                          duration: 14400000
-                        }
-                        showUTCTime: false
-                        grain: 1
-                      }
-                    }
+                    resourceIds: [
+                      workspaceId
+                    ]
                   }
                   isOptional: true
                 }
                 {
-                  name: 'sharedTimeRange'
+                  name: 'PartId'
+                  value: '10e3bdbe-110a-498a-a9f5-e493c5c12d79'
+                  isOptional: true
+                }
+                {
+                  name: 'Version'
+                  value: '2.0'
+                  isOptional: true
+                }
+                {
+                  name: 'TimeRange'
+                  value: 'PT12H'
+                  isOptional: true
+                }
+                {
+                  name: 'DashboardId'
+                  isOptional: true
+                }
+                {
+                  name: 'DraftRequestParameters'
+                  isOptional: true
+                }
+                {
+                  name: 'Query'
+                  value: 'let llmHeaderLogs = ApiManagementGatewayLlmLog\n| where DeploymentName != \'\';\nlet llmLogsWithSubscriptionId = llmHeaderLogs\n| join kind=leftouter ApiManagementGatewayLogs on CorrelationId\n| project\n    TimeGenerated, SubscriptionName = ApimSubscriptionId, DeploymentName, PromptTokens, CompletionTokens, TotalTokens;\nllmLogsWithSubscriptionId\n| join kind=inner (\n    PRICING_CL\n    | summarize arg_max(TimeGenerated, *) by Model\n    | project Model, InputTokensPrice, OutputTokensPrice\n    )\n    on $left.DeploymentName == $right.Model\n| extend InputCost = PromptTokens * InputTokensPrice\n| extend OutputCost = CompletionTokens * OutputTokensPrice\n| summarize\n    InputCost = sum(InputCost), OutputCost = sum(OutputCost)\n    by SubscriptionName, bin(TimeGenerated, 1m)\n| extend TotalCost = (InputCost + OutputCost) / 1000\n| project TimeGenerated, SubscriptionName, TotalCost\n\n'
+                  isOptional: true
+                }
+                {
+                  name: 'ControlType'
+                  value: 'FrameControlChart'
+                  isOptional: true
+                }
+                {
+                  name: 'SpecificChart'
+                  value: 'UnstackedColumn'
+                  isOptional: true
+                }
+                {
+                  name: 'PartTitle'
+                  value: 'Token usage over time'
+                  isOptional: true
+                }
+                {
+                  name: 'PartSubTitle'
+                  value: 'workspace-kezupjmu7ssfc'
+                  isOptional: true
+                }
+                {
+                  name: 'Dimensions'
+                  value: {
+                    xAxis: {
+                      name: 'TimeGenerated'
+                      type: 'datetime'
+                    }
+                    yAxis: [
+                      {
+                        name: 'TotalCost'
+                        type: 'real'
+                      }
+                    ]
+                    splitBy: [
+                      {
+                        name: 'SubscriptionName'
+                        type: 'string'
+                      }
+                    ]
+                    aggregation: 'Sum'
+                  }
+                  isOptional: true
+                }
+                {
+                  name: 'LegendOptions'
+                  value: {
+                    isEnabled: true
+                    position: 'Bottom'
+                  }
+                  isOptional: true
+                }
+                {
+                  name: 'IsQueryContainTimeRange'
+                  value: false
                   isOptional: true
                 }
               ]
-              type: 'Extension/HubsExtension/PartType/MonitorChartPart'
+              type: 'Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart'
               settings: {
                 content: {}
               }

@@ -37,10 +37,8 @@ param openAIAPIDisplayName string = 'OpenAI'
 param openAIAPIPath string = 'openai'
 
 @description('The version of the OpenAI API in API Management. Defaults to "2024-02-01".')
+#disable-next-line no-unused-params
 param openAIAPIVersion string = '2024-02-01'
-
-@description('The URL for the OpenAI API specification')
-param openAIAPISpecURL string = 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/${openAIAPIVersion}/inference.json'
 
 @description('The name of the OpenAI backend pool. Defaults to "openai-backend-pool".')
 param openAIBackendPoolName string = 'openai-backend-pool'
@@ -85,7 +83,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
     apiType: 'http'
     description: openAIAPIDescription
     displayName: openAIAPIDisplayName
-    format: 'openapi-link'
+    format: 'openapi+json'
     path: openAIAPIPath
     protocols: [
       'https'
@@ -96,7 +94,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
     }
     subscriptionRequired: true
     type: 'http'
-    value: openAIAPISpecURL
+    value: string(loadJsonContent('./specs/AIFoundryOpenAI.json'))
   }
 }
 
@@ -139,6 +137,12 @@ resource backendOpenAI 'Microsoft.ApiManagement/service/backends@2024-06-01-prev
           acceptRetryAfter: true
         }
       ]
+    }
+    credentials: {
+      #disable-next-line BCP037
+      managedIdentity: {
+          resource: 'https://cognitiveservices.azure.com'
+      }
     }
   }
 }]

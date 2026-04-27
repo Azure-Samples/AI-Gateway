@@ -1,0 +1,19 @@
+<policies>
+    <inbound>
+        <base />
+		<rate-limit-by-key calls="5" renewal-period="30" counter-key="@(context.Request.IpAddress)" remaining-calls-variable-name="remainingCallsPerIP" />
+		<trace source="MS Learn MCP" severity="information">
+			<message>MS Learn MCP trace info</message>
+			<metadata name="agent-id" value="@(context.Request.Headers.GetValueOrDefault("agent-id", "n/a"))" />
+		</trace>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

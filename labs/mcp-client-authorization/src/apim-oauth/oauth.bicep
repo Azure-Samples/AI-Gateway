@@ -26,6 +26,18 @@ param encryptionKey string
 @description('The MCP client ID')
 param mcpClientId string
 
+@description('The name of the MCP Server to display in the consent page')
+param mcpServerName string = 'MCP Server'
+
+@description('The CosmosDB account endpoint')
+param cosmosDbEndpoint string
+
+@description('The CosmosDB database name')
+param cosmosDbDatabaseName string
+
+@description('The CosmosDB container name for client registrations')
+param cosmosDbContainerName string
+
 resource apimService 'Microsoft.ApiManagement/service@2021-08-01' existing = {
   name: apimServiceName
 }
@@ -121,6 +133,47 @@ resource APIMGatewayURLNamedValue 'Microsoft.ApiManagement/service/namedValues@2
   }
 }
 
+resource MCPServerNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  parent: apimService
+  name: 'MCPServerName'
+  properties: {
+    displayName: 'MCPServerName'
+    value: mcpServerName
+    secret: false
+  }
+}
+
+// CosmosDB Named Values
+resource CosmosDbEndpointNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  parent: apimService
+  name: 'CosmosDbEndpoint'
+  properties: {
+    displayName: 'CosmosDbEndpoint'
+    value: cosmosDbEndpoint
+    secret: false
+  }
+}
+
+resource CosmosDbDatabaseNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  parent: apimService
+  name: 'CosmosDbDatabase'
+  properties: {
+    displayName: 'CosmosDbDatabase'
+    value: cosmosDbDatabaseName
+    secret: false
+  }
+}
+
+resource CosmosDbContainerNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  parent: apimService
+  name: 'CosmosDbContainer'
+  properties: {
+    displayName: 'CosmosDbContainer'
+    value: cosmosDbContainerName
+    secret: false
+  }
+}
+
 // Create the OAuth API
 resource oauthApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
   parent: apimService
@@ -201,6 +254,9 @@ resource oauthCallbackPolicy 'Microsoft.ApiManagement/service/apis/operations/po
     format: 'rawxml'
     value: loadTextContent('oauth-callback.policy.xml')
   }
+  dependsOn: [
+    EncryptionIVNamedValue
+  ]
 }
 
 // Add a POST operation for the register endpoint
@@ -288,6 +344,50 @@ resource oauthMetadataGetPolicy 'Microsoft.ApiManagement/service/apis/operations
   properties: {
     format: 'rawxml'
     value: loadTextContent('oauthmetadata-get.policy.xml')
+  }
+}
+
+// Add a GET operation for the consent endpoint
+resource oauthConsentGetOperation 'Microsoft.ApiManagement/service/apis/operations@2021-08-01' = {
+  parent: oauthApi
+  name: 'consent-get'
+  properties: {
+    displayName: 'Consent Page'
+    method: 'GET'
+    urlTemplate: '/consent'
+    description: 'Client consent page endpoint'
+  }
+}
+
+// Add policy for the consent GET operation
+resource oauthConsentGetPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2021-08-01' = {
+  parent: oauthConsentGetOperation
+  name: 'policy'
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('consent.policy.xml')
+  }
+}
+
+// Add a POST operation for the consent endpoint
+resource oauthConsentPostOperation 'Microsoft.ApiManagement/service/apis/operations@2021-08-01' = {
+  parent: oauthApi
+  name: 'consent-post'
+  properties: {
+    displayName: 'Consent Submission'
+    method: 'POST'
+    urlTemplate: '/consent'
+    description: 'Client consent submission endpoint'
+  }
+}
+
+// Add policy for the consent POST operation
+resource oauthConsentPostPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2021-08-01' = {
+  parent: oauthConsentPostOperation
+  name: 'policy'
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('consent.policy.xml')
   }
 }
 

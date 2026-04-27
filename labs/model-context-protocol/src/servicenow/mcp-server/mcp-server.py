@@ -12,6 +12,8 @@ from azure.mgmt.apimanagement import ApiManagementClient
 from azure.mgmt.apimanagement.models import AuthorizationContract, AuthorizationAccessPolicyContract, AuthorizationLoginRequestContract
 
 
+### DEPRECATED IMPLEMENTATION - SEE shared/mcp-servers/github/http/mcp_server.py for reference implementation of credential management and authorization flow using APIM. This file is being kept for reference for the ServiceNow implementation.
+
 # Initialize FastMCP server for ServiceNow API
 mcp = FastMCP("ServiceNow")
 

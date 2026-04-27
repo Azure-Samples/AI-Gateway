@@ -2,66 +2,79 @@
 //    PARAMETERS
 // ------------------
 
-// Typically, parameters would be decorated with appropriate metadata and attributes, but as they are very repetetive in these labs we omit them for brevity.
-
+param aiServicesConfig array = []
+param modelsConfig array = []
 param apimSku string
-param openAIConfig array = []
-param openAIModelName string
-param openAIModelVersion string
-param openAIDeploymentName string
-param openAIModelSKU string
-param openAIModelCapacity int
-param openAIAPIVersion string
+param apimSubscriptionsConfig array = []
+param inferenceAPIType string = 'AzureOpenAI'
+param inferenceAPIPath string = 'inference' // Path to the inference API in the APIM service
+param foundryProjectName string = 'default'
 param tenantId string
 param clientId string
-
-// ------------------
-//    VARIABLES
-// ------------------
-
-// Account for all placeholders in the polixy.xml file.
-var policyXml = loadTextContent('policy.xml')
-var updatedPolicyXml = replace(replace(replace(policyXml, '{backend-id}', (length(openAIConfig) > 1) ? 'openai-backend-pool' : openAIConfig[0].name), '{tenant-id}', tenantId), '{client-application-id}', clientId)
 
 // ------------------
 //    RESOURCES
 // ------------------
 
-// 1. API Management
-module apimModule '../../modules/apim/v1/apim.bicep' = {
+// 1. Log Analytics Workspace
+module lawModule '../../modules/operational-insights/v1/workspaces.bicep' = {
+  name: 'lawModule'
+}
+
+// 2. Application Insights
+module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
+  name: 'appInsightsModule'
+  params: {
+    lawId: lawModule.outputs.id
+    customMetricsOptedInType: 'WithDimensions'
+  }
+}
+
+// 3. API Management
+module apimModule '../../modules/apim/v2/apim.bicep' = {
   name: 'apimModule'
   params: {
     apimSku: apimSku
+    apimSubscriptionsConfig: apimSubscriptionsConfig
+    lawId: lawModule.outputs.id
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
   }
 }
 
-// 2. Cognitive Services
-module openAIModule '../../modules/cognitive-services/v1/openai.bicep' = {
-  name: 'openAIModule'
+// 4. AI Foundry
+module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
+    name: 'foundryModule'
+    params: {
+      aiServicesConfig: aiServicesConfig
+      modelsConfig: modelsConfig
+      apimPrincipalId: apimModule.outputs.principalId
+      foundryProjectName: foundryProjectName
+    }
+  }
+
+// 5. APIM Inference API
+module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
+  name: 'inferenceAPIModule'
   params: {
-    openAIConfig: openAIConfig
-    openAIDeploymentName: openAIDeploymentName
-    openAIModelName: openAIModelName
-    openAIModelVersion: openAIModelVersion
-    openAIModelSKU: openAIModelSKU
-    openAIModelCapacity: openAIModelCapacity
-    apimPrincipalId: apimModule.outputs.principalId
+    policyXml: replace(replace(loadTextContent('policy.xml'), '{tenant-id}', tenantId), '{client-application-id}', clientId)
+    apimLoggerId: apimModule.outputs.loggerId
+    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    inferenceAPIType: inferenceAPIType
+    inferenceAPIPath: inferenceAPIPath
   }
 }
 
-// 3. APIM OpenAI API
-module openAIAPIModule '../../modules/apim/v1/openai-api.bicep' = {
-  name: 'openAIAPIModule'
-  params: {
-    policyXml: updatedPolicyXml
-    openAIConfig: openAIModule.outputs.extendedOpenAIConfig
-    openAIAPIVersion: openAIAPIVersion
-  }
-}
 
 // ------------------
-//    MARK: OUTPUTS
+//    OUTPUTS
 // ------------------
+
+output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
 output apimServiceId string = apimModule.outputs.id
 output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
-output apimSubscriptionKey string = openAIAPIModule.outputs.subscriptionPrimaryKey
+
+output apimSubscriptions array = apimModule.outputs.apimSubscriptions
+
+
+

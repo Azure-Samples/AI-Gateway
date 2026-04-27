@@ -1,0 +1,13 @@
+# MCP Labs
+mcp==1.9.0
+autogen-core==0.6.4
+autogen-ext[openai,azure,mcp]==0.6.4
+autogen-agentchat==0.6.4
+
+# A2A Labs
+jwcrypto
+a2a-sdk==0.2.3
+
+openai==1.82.0
+uvicorn==0.34.2
+starlette==0.46.2

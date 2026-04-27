@@ -1,0 +1,23 @@
+<policies>
+    <inbound>
+        <base />
+        <!-- Route to Gemini backend (credentials are configured in the backend) -->
+        <set-backend-service backend-id="gemini-backend" />
+        <!-- Emit token metrics for monitoring -->
+        <azure-openai-emit-token-metric namespace="gemini">
+            <dimension name="Subscription ID" value="@(context.Subscription.Id)" />
+            <dimension name="Client IP" value="@(context.Request.IpAddress)" />
+            <dimension name="API ID" value="@(context.Api.Id)" />
+            <dimension name="User ID" value="@(context.Request.Headers.GetValueOrDefault("x-user-id", "N/A"))" />
+        </azure-openai-emit-token-metric>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

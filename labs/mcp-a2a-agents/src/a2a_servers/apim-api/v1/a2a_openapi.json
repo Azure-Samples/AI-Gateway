@@ -1,0 +1,58 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "a2a Server",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "https://apim-ulp3pavelxqec.azure-api.net/a2a-server"
+        }
+    ],
+    "paths": {
+        "/.well-known/agent.json": {
+            "get": {
+                "summary": "well_known",
+                "operationId": "well-known",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/": {
+            "post": {
+                "summary": "a2a_requests",
+                "operationId": "a2a-requests",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "api-key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "subscription-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [
+        {
+            "apiKeyHeader": []
+        },
+        {
+            "apiKeyQuery": []
+        }
+    ]
+}

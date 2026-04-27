@@ -1,0 +1,53 @@
+<!--
+    MCP API POLICY
+    This policy applies to all operations in the MCP API.
+    It adds authorization header check for security.
+-->
+<policies>
+    <inbound>
+        <base />
+        <check-header name="Authorization" failed-check-httpcode="401" failed-check-error-message="Not authorized" ignore-case="false" />
+        <set-variable name="IV" value="{{EncryptionIV}}" />
+        <set-variable name="key" value="{{EncryptionKey}}" />
+        <set-variable name="decryptedSessionKey" value="@{
+            // Retrieve the encrypted session key from the request header
+            string authHeader = context.Request.Headers.GetValueOrDefault("Authorization");
+        
+            string encryptedSessionKey = authHeader.StartsWith("Bearer ") ? authHeader.Substring(7) : authHeader;
+            
+            // Decrypt the session key using AES
+            byte[] IV = Convert.FromBase64String((string)context.Variables["IV"]);
+            byte[] key = Convert.FromBase64String((string)context.Variables["key"]);
+            
+            byte[] encryptedBytes = Convert.FromBase64String(encryptedSessionKey);
+            byte[] decryptedBytes = encryptedBytes.Decrypt("Aes", key, IV);
+            
+            return Encoding.UTF8.GetString(decryptedBytes);
+        }" />
+        <cache-lookup-value key="@($"EntraToken-{context.Variables.GetValueOrDefault("decryptedSessionKey")}")" variable-name="accessToken" />
+        
+        <choose>
+            <when condition="@(context.Variables.GetValueOrDefault("accessToken") == null)">
+                <return-response>
+                    <set-status code="401" reason="Unauthorized" />
+                    <set-header name="WWW-Authenticate" exists-action="override">
+                        <value>Bearer error="invalid_token"</value>
+                    </set-header>
+                </return-response>
+            </when>
+        </choose>
+        
+        <set-header name="x-functions-key" exists-action="override">
+            <value>{{function-host-key}}</value>
+        </set-header>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

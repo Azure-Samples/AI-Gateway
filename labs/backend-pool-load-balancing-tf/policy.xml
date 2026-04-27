@@ -13,7 +13,7 @@
         <retry count="2" 
                interval="0" 
                first-fast-retry="true" 
-               condition="@(context.Response.StatusCode == 429 || (context.Response.StatusCode == 503 && !context.Response.StatusReason.Contains("Backend pool") && !context.Response.StatusReason.Contains("is temporarily unavailable")))">
+               condition="@(context.Response.StatusCode == 429 || context.Response.StatusCode == 503)">
             <forward-request buffer-request-body="true" />
         </retry>
     </backend>

@@ -24,6 +24,72 @@ class Output(object):
         except:
             self.json_data = json.loads("{}")   # return an empty JSON object if the output is not valid JSON rather than None as that makes consuming it easier this way
 
+
+def get_current_subscription():
+    try:
+        output = run("az account show", "Retrieved az account", "Failed to get the current az account")
+
+        if output.success and output.json_data:
+            subscription_id = output.json_data['id']
+            subscription_name = output.json_data['name']
+            print_info(f"Using Subscription ID: {subscription_id} ({subscription_name})")
+            return subscription_id
+        else:
+            print_error("No current subscription found.")
+            return None
+    except Exception as e:
+        print_error(f"Error retrieving current subscription: {e}")
+        return None
+
+# Retrieves resources in a resource group
+def get_resources(resource_group_name, config):
+    if not resource_group_name:
+        print_error("Missing resource group name parameter.")
+        return
+
+    resources = {}
+    try:
+        ## retrieve resource group location
+        output = run(f"az group show --name {resource_group_name}")
+
+        if output.success:
+            print_info(f"Using existing resource group '{resource_group_name}'")
+            output = run(f"az group show --name {resource_group_name} -o json", "Retrieved resource group ", "Failed to retrieve resource group")
+            if output.success and output.json_data:
+                resources['resourceGroupLocation'] = output.json_data["location"]
+
+                ## retrieve resources
+                output = run(f'az resource list -g {resource_group_name} -o json', "Listed resources", "Failed to list resources")
+                if output.success and output.json_data:
+                    for resource in output.json_data:
+                        match resource["type"].lower():
+                            case "microsoft.operationalinsights/workspaces":
+                                resources['logAnalyticsResourceId'] = resource["id"]
+                                resources['logAnalyticsResourceName'] = resource["name"]
+                            case "microsoft.insights/components":
+                                resources['appInsightsResourceId'] = resource["id"]
+                                resources['appInsightsResourceName'] = resource["name"]
+                                output = run(f'az resource show -g {resource_group_name} -n {resource["name"]} --resource-type "microsoft.insights/components" -o json', "Retrieved App Insights resource", "Failed to retrieve App Insights resource")
+                                if output.success and output.json_data:
+                                    resources['appInsightsInstrumentationKey'] = output.json_data["properties"]["InstrumentationKey"]
+                            case "microsoft.cognitiveservices/accounts":
+                                resources['foundryResourceId'] = resource["id"]
+                                resources['foundryResourceName'] = resource["name"]
+                            case "microsoft.cognitiveservices/accounts/projects":
+                                resources['foundryProjectId'] = resource["id"]
+                                resources['foundryProjectName'] = resource["name"]
+                            case "microsoft.apimanagement/service":
+                                resources['apimResourceId'] = resource["id"]
+                                resources['apimResourceName'] = resource["name"]
+                                resources['apimPrincipalId'] = resource["identity"]["principalId"]
+        else:
+            return config
+
+    except Exception as e:
+        print_error(f"Error retrieving resources: {e}")
+
+    return resources
+
 # Cleans up resources associated with a deployment in a resource group
 def cleanup_resources(deployment_name, resource_group_name = None):
     if not deployment_name:
@@ -43,8 +109,15 @@ def cleanup_resources(deployment_name, resource_group_name = None):
             provisioning_state = output.json_data.get("properties").get("provisioningState")
             print_info(f"Deployment provisioning state: {provisioning_state}")
 
+            # Delete AI Foundry projects
+            output = run(f'az resource list -g {resource_group_name} --resource-type "microsoft.cognitiveservices/accounts/projects"', "Retrieved AI Foundry projects", "Failed to list AI Foundry projects")
+            if output.success and output.json_data:
+                for resource in output.json_data:
+                    print_info(f"Deleting AI Foundry project '{resource['name']}' in resource group '{resource_group_name}'...")
+                    output = run(f'az resource delete --ids "{resource['id']}"', f"AI Foundry project '{resource['name']}' deleted", f"Failed to delete AI Foundry project '{resource['name']}'")
+
             # Delete and purge CognitiveService accounts
-            output = run(f" az cognitiveservices account list -g {resource_group_name}", f"Listed CognitiveService accounts", f"Failed to list CognitiveService accounts")
+            output = run(f"az cognitiveservices account list -g {resource_group_name}", f"Listed CognitiveService accounts", f"Failed to list CognitiveService accounts")
             if output.success and output.json_data:
                 for resource in output.json_data:
                     print_info(f"Deleting and purging Cognitive Service Account '{resource['name']}' in resource group '{resource_group_name}'...")
@@ -60,7 +133,7 @@ def cleanup_resources(deployment_name, resource_group_name = None):
                     output = run(f"az apim deletedservice purge --service-name {resource['name']} --location \"{resource['location']}\"", f"API Management '{resource['name']}' purged", f"Failed to purge API Management '{resource['name']}'")
 
             # Delete and purge Key Vault resources
-            output = run(f" az keyvault list -g {resource_group_name}", f"Listed Key Vault resources", f"Failed to list Key Vault resources")
+            output = run(f"az keyvault list -g {resource_group_name}", f"Listed Key Vault resources", f"Failed to list Key Vault resources")
             if output.success and output.json_data:
                 for resource in output.json_data:
                     print_info(f"Deleting and purging Key Vault '{resource['name']}' in resource group '{resource_group_name}'...")
@@ -158,6 +231,20 @@ def print_response_code(response):
     # Print the response status with the appropriate formatting
     print(f"Response status: {status_code_str}")
 
+# Simple: print full error body (JSON if available, else raw text)
+def print_full_http_error(response):
+    try:
+        data = response.json()
+        print_error("Request failed. Full JSON body:", json.dumps(data, indent=2))
+        # If ARM-style error present, surface message too
+        if isinstance(data, dict) and isinstance(data.get("error"), dict):
+            code = data["error"].get("code", "")
+            msg = data["error"].get("message", "")
+            if msg or code:
+                print_error(f"Service error:", f"{code} - {msg}")
+    except ValueError:
+        print_error("Request failed. Full text body:", response.text or "")
+
 def run(command, ok_message = '', error_message = '', print_output = False, print_command_to_run = True):
     if print_command_to_run:
         print_command(command)
@@ -165,8 +252,9 @@ def run(command, ok_message = '', error_message = '', print_output = False, prin
     start_time = time.time()
 
     try:
-        output_text = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode("utf-8")
-        success = True
+        completed_process = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        output_text = completed_process.stdout
+        success = completed_process.returncode == 0
     except subprocess.CalledProcessError as e:
         output_text = e.output.decode("utf-8")
         success = False
@@ -225,7 +313,11 @@ def update_api_policy(subscription_id, resource_group_name, apim_service_name, a
         }
 
         response = requests.put(url, headers = headers, json = body)
-        print_response_code(response)
+        if 200 <= response.status_code < 300:
+            print_response_code(response)
+        else:
+            print_response_code(response)
+            print_full_http_error(response)
 
 def update_api_operation_policy(subscription_id, resource_group_name, apim_service_name, api_id, operation_id, policy_xml):
     # We first need to obtain an access token for the REST API
@@ -252,3 +344,22 @@ def update_api_operation_policy(subscription_id, resource_group_name, apim_servi
 
         response = requests.put(url, headers = headers, json = body)
         print_response_code(response)
+
+def get_debug_credentials(apim_service_id, api_id, expire_after = 'PT1H') -> str | None:
+    request = {
+        "credentialsExpireAfter": expire_after,
+        "apiId": f"{apim_service_id}/apis/{api_id}",
+        "purposes": ["tracing"]
+    }
+    output = run(f"az rest --method post --uri {apim_service_id}/gateways/managed/listDebugCredentials?api-version=2023-05-01-preview --body \"{str(request)}\"",
+            "Retrieved APIM debug credentials", "Failed to get the APIM debug credentials")
+    return output.json_data['token'] if output.success and output.json_data else None
+        
+def get_trace(apim_service_id, trace_id) -> str | None:
+    request = {
+        "traceId": trace_id
+    }
+    output = run(f"az rest --method post --uri {apim_service_id}/gateways/managed/listTrace?api-version=2023-05-01-preview --body \"{str(request)}\"",
+            "Retrieved trace details", "Failed to get the trace details")
+    return output.json_data if output.success and output.json_data else None
+
