@@ -13,6 +13,12 @@
   available in the SYSTEM context. Re-running is safe (every step is idempotent).
 #>
 
+param(
+  [string]$ProjectEndpoint = '',
+  [string]$PrimaryAgentModel = '',
+  [string]$CrossRegionAgentModel = ''
+)
+
 $ErrorActionPreference = 'Continue'
 $ProgressPreference    = 'SilentlyContinue'
 
@@ -168,6 +174,151 @@ try {
   }
 } catch {
   Write-Warning "Failed to create desktop shortcut: $_"
+}
+
+# ---- 7. Public-Desktop test scripts (Test-AI-Gateway-*.ps1) ----
+# Drop ready-to-run PowerShell scripts on the Public Desktop so users can
+# right-click → Run with PowerShell to exercise the APIM AI Gateway through
+# the Foundry agent SDK without copy/pasting from the notebook.
+try {
+  if (-not [string]::IsNullOrWhiteSpace($ProjectEndpoint) -and -not [string]::IsNullOrWhiteSpace($PrimaryAgentModel)) {
+    $publicDesktop = 'C:\Users\Public\Desktop'
+    if (-not (Test-Path $publicDesktop)) { New-Item -ItemType Directory -Path $publicDesktop -Force | Out-Null }
+
+    # Single-quoted here-string: contents are literal, no PS variable expansion.
+    # Placeholders are substituted via String.Replace below before writing.
+    $template = @'
+<#
+.SYNOPSIS
+  Sends a test prompt through the APIM AI Gateway to a Foundry project.
+.DESCRIPTION
+  Uses azure-ai-projects (>= 2.0) and azure-identity (DefaultAzureCredential)
+  to call the Chat Completions API on the Foundry project, targeting the
+  model exposed via the APIM gateway connection. Prints the assistant
+  response and the run status.
+  Run `az login` once before invoking this script.
+  Note: this lab's APIM imports the stable Azure OpenAI inference OpenAPI
+  spec (2024-10-21), which exposes chat.completions but not /responses.
+  To use openai_client.responses.create(...) instead, update the API import
+  in modules/apim-gateway-connection.bicep to a preview spec that includes
+  /responses (e.g. preview/2025-03-01-preview or later).
+#>
+param(
+  [string]$Prompt = 'Tell me one fun fact about Azure API Management.'
+)
+
+$ErrorActionPreference = 'Stop'
+
+$projectEndpoint = '__PROJECT_ENDPOINT__'
+$agentModel      = '__AGENT_MODEL__'
+$connectionLabel = '__CONNECTION_LABEL__'
+
+Write-Host "==== Test-AI-Gateway ($connectionLabel) ====" -ForegroundColor Cyan
+Write-Host "Project endpoint: $projectEndpoint"
+Write-Host "Agent model    : $agentModel"
+Write-Host ""
+
+# 1) Make sure az + python are on PATH
+foreach ($cmd in @('az','python')) {
+  if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
+    Write-Error "$cmd is not on PATH. Check C:\bootstrap.log and re-run the bootstrap."
+    Read-Host 'Press Enter to close'
+    exit 1
+  }
+}
+
+# 2) Make sure the user is signed in to Azure CLI
+& az account show *> $null
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Not signed in to Azure CLI. Launching az login..." -ForegroundColor Yellow
+  & az login | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    Write-Error 'az login failed.'
+    Read-Host 'Press Enter to close'
+    exit 1
+  }
+}
+
+# 3) Idempotently install the SDKs we need.
+#    Uses the latest azure-ai-projects (>= 2.0) which exposes the Responses API
+#    via project_client.get_openai_client() and replaces the older
+#    agents.create_agent / threads / messages / runs API.
+Write-Host "Ensuring azure-ai-projects + azure-identity are installed..."
+& python -m pip install --quiet --upgrade "azure-ai-projects>=2.0" azure-identity
+if ($LASTEXITCODE -ne 0) {
+  Write-Warning "pip install reported a non-zero exit code; continuing anyway."
+}
+
+# 4) Run the test inline via python -c using chat.completions, which is the
+#    operation exposed by the current APIM import (stable/2024-10-21 spec).
+#    Values are passed in via environment variables to avoid PS-vs-Python
+#    quoting headaches. The Python source is built as a string array (instead
+#    of a here-string) so this template file itself can be embedded inside
+#    another PowerShell here-string without conflicting line-0 terminators.
+$py = @(
+    'import os',
+    'from azure.ai.projects import AIProjectClient',
+    'from azure.identity import DefaultAzureCredential',
+    '',
+    'endpoint = os.environ["AIGW_ENDPOINT"]',
+    'model    = os.environ["AIGW_MODEL"]',
+    'prompt   = os.environ["AIGW_PROMPT"]',
+    '',
+    'with (',
+    '    DefaultAzureCredential() as credential,',
+    '    AIProjectClient(endpoint=endpoint, credential=credential) as project,',
+    '):',
+    '    with project.get_openai_client() as openai_client:',
+    '        completion = openai_client.chat.completions.create(',
+    '            model=model,',
+    '            messages=[',
+    '                {"role": "system", "content": "You are a helpful assistant routed through the APIM AI Gateway."},',
+    '                {"role": "user", "content": prompt},',
+    '            ],',
+    '        )',
+    '        choice = completion.choices[0]',
+    '        print(f"assistant: {choice.message.content}")',
+    '        print(f"Finish reason: {choice.finish_reason}")'
+) -join [Environment]::NewLine
+
+$env:AIGW_ENDPOINT = $projectEndpoint
+$env:AIGW_MODEL    = $agentModel
+$env:AIGW_PROMPT   = $Prompt
+
+& python -c $py
+$exit = $LASTEXITCODE
+
+Write-Host ""
+if ($exit -eq 0) {
+  Write-Host "==== Test completed successfully ====" -ForegroundColor Green
+} else {
+  Write-Host "==== Test failed with exit code $exit ====" -ForegroundColor Red
+}
+
+Read-Host 'Press Enter to close'
+exit $exit
+'@
+
+    function Write-DesktopTest {
+      param([string]$FileName, [string]$Model, [string]$Label)
+      $content = $template.Replace('__PROJECT_ENDPOINT__', $ProjectEndpoint).Replace('__AGENT_MODEL__', $Model).Replace('__CONNECTION_LABEL__', $Label)
+      $path = Join-Path $publicDesktop $FileName
+      Set-Content -Path $path -Value $content -Encoding UTF8 -Force
+      Write-Host "---- Wrote $FileName to public desktop ($Label -> $Model)"
+    }
+
+    Write-DesktopTest -FileName 'Test-AI-Gateway-Primary.ps1'     -Model $PrimaryAgentModel     -Label 'primary'
+
+    if (-not [string]::IsNullOrWhiteSpace($CrossRegionAgentModel)) {
+      Write-DesktopTest -FileName 'Test-AI-Gateway-CrossRegion.ps1' -Model $CrossRegionAgentModel -Label 'cross-region'
+    } else {
+      Write-Host "---- Skipping Test-AI-Gateway-CrossRegion.ps1 (CrossRegionAgentModel not set)"
+    }
+  } else {
+    Write-Host "---- Skipping desktop test scripts (ProjectEndpoint or PrimaryAgentModel not provided)"
+  }
+} catch {
+  Write-Warning "Failed to write desktop test scripts: $_"
 }
 
 Write-Host "==== Bootstrap finished $(Get-Date -Format o) ===="

@@ -604,13 +604,19 @@ module bastionJumpbox 'modules/bastion-jumpbox.bicep' = if (deployBastion) {
     adminUsername: jumpboxAdminUsername
     adminPassword: jumpboxAdminPassword
     installDevTools: installDevTools
+    aiProjectEndpoint: 'https://${aiAccount.outputs.accountName}.services.ai.azure.com/api/projects/${aiProject.outputs.projectName}'
+    primaryAgentModel: '${apimConnectionName}/${modelName}'
+    crossRegionAgentModel: deployCrossRegionOpenAI ? '${apimCrossRegionConnectionName}/${crossRegionModelName}' : ''
   }
   // Serialize VNet subnet creation to avoid AnotherOperationInProgress errors:
   // the bastion module adds AzureBastionSubnet + jumpbox-subnet to the VNet
   // while other modules (apimSubnet, private endpoints) are also mutating it.
+  // Also wait for the APIM gateway connections so the desktop test scripts
+  // baked onto the VM reference connections that already exist on the project.
   dependsOn: [
     apimSubnet
     privateEndpointAndDNS
+    apimGatewayConnection
   ]
 }
 

@@ -44,6 +44,15 @@ param adminPassword string
 @description('When true, run a first-boot bootstrap script that installs Python 3.12, Azure CLI, Git, VS Code, PowerShell 7 and Windows Terminal via winget, then clones the AI-Gateway repo and installs Python + VS Code dependencies. Logs to C:\\bootstrap.log on the VM.')
 param installDevTools bool = true
 
+@description('Foundry project endpoint baked into the desktop test scripts (e.g. https://<account>.services.ai.azure.com/api/projects/<project>).')
+param aiProjectEndpoint string = ''
+
+@description('Primary agent model identifier baked into Test-AI-Gateway-Primary.ps1 (e.g. apim-gateway/gpt-4o-mini).')
+param primaryAgentModel string = ''
+
+@description('Cross-region agent model identifier baked into Test-AI-Gateway-CrossRegion.ps1 (e.g. apim-gateway-crossregion/gpt-4o). Empty disables the cross-region desktop script.')
+param crossRegionAgentModel string = ''
+
 // ---- NAT Gateway for outbound internet ----
 resource natGatewayPip 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: '${vmName}-nat-pip'
@@ -212,6 +221,20 @@ resource jumpboxBootstrap 'Microsoft.Compute/virtualMachines/runCommands@2024-07
     source: {
       script: loadTextContent('jumpbox-bootstrap.ps1')
     }
+    parameters: [
+      {
+        name: 'ProjectEndpoint'
+        value: aiProjectEndpoint
+      }
+      {
+        name: 'PrimaryAgentModel'
+        value: primaryAgentModel
+      }
+      {
+        name: 'CrossRegionAgentModel'
+        value: crossRegionAgentModel
+      }
+    ]
     timeoutInSeconds: 1800
     treatFailureAsDeploymentFailure: false
   }

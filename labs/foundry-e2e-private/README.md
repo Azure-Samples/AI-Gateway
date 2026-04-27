@@ -72,7 +72,18 @@ Open the [Jupyter notebook](foundry-e2e-private.ipynb) and run the cells in orde
 
 ## 🧪 Testing
 
-Because the Foundry project is **private**, the test snippets need to run from inside the VNet (or from a peered network). The notebook walks through:
+Because the Foundry project is **private**, the test snippets need to run from inside the VNet (or from a peered network).
+
+**Easiest path — desktop scripts on the jump-box:** the bootstrap drops two ready-to-run PowerShell scripts onto the jump-box's Public Desktop, with the project endpoint and APIM gateway model identifiers already baked in:
+
+- `Test-AI-Gateway-Primary.ps1` — calls the primary connection (default `apim-gateway/<model>`)
+- `Test-AI-Gateway-CrossRegion.ps1` — calls the cross-region connection (default `apim-gateway-crossregion/<model>`); only created when `deployCrossRegionOpenAI=true`
+
+After connecting via Bastion, sign in once with `az login`, then right-click either script → **Run with PowerShell**. The script idempotently `pip install`s `azure-ai-projects` (>=2.0) + `azure-identity`, then calls `project.get_openai_client().chat.completions.create(model=..., messages=...)` so the request flows through the APIM gateway connection on the Foundry project. It prints the assistant reply and the finish reason. Pass `-Prompt "..."` to override the default prompt.
+
+> **Why chat.completions and not Responses?** This lab imports the stable Azure OpenAI inference OpenAPI spec (`2024-10-21`) into APIM, which exposes `chat.completions`, `completions`, `embeddings`, audio and images — but not `/responses`. To use `openai_client.responses.create(...)` end-to-end, edit [modules/apim-gateway-connection.bicep](modules/apim-gateway-connection.bicep) and switch the OpenAPI link to a preview spec that includes `/responses`, e.g. `preview/2025-03-01-preview/inference.json` or later, and bump `inference_api_version` in the notebook to match.
+
+**Manual snippets** (notebook fallback):
 
 - Section 4 — using `azure-ai-projects` from the jump-box to create an agent with `model="apim-gateway/<model-name>"` and run a chat
 - Section 5 — same pattern for the cross-region connection (`model="apim-gateway-crossregion/<model-name>"`)
