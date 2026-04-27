@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/Azure-Samples/AI-Gateway?style=social)](https://github.com/Azure-Samples/AI-Gateway/stargazers)
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-orange?logo=github)](https://codespaces.new/Azure-Samples/AI-Gateway)
 
-## What's neww ✨
+## What's newww ✨
  
 ➕ **Realtime API (Audio and Text) with Azure OpenAI 🔥** experiments with the [**AOAI Realtime**](labs/realtime-audio/realtime-audio.ipynb)  
 ➕ **Realtime API (Audio and Text) with Azure OpenAI + MCP tools 🔥** experiments with the [**AOAI Realtime + MCP**](labs/realtime-mcp-agents/realtime-mcp-agents.ipynb)  
