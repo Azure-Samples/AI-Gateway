@@ -73,8 +73,13 @@ resource natGateway 'Microsoft.Network/natGateways@2024-05-01' = {
 }
 
 // ---- Bastion Subnet ----
+resource bastionVnet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = {
+  name: vnetName
+}
+
 resource bastionSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
-  name: '${vnetName}/AzureBastionSubnet'
+  parent: bastionVnet
+  name: 'AzureBastionSubnet'
   properties: {
     addressPrefix: bastionSubnetPrefix
   }

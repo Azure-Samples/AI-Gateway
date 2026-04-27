@@ -167,6 +167,7 @@ var existingDnsZones = {
   'privatelink.openai.azure.com': ''
   'privatelink.cognitiveservices.azure.com': ''
   'privatelink.search.windows.net': ''
+  #disable-next-line no-hardcoded-env-urls
   'privatelink.blob.core.windows.net': ''
   'privatelink.documents.azure.com': ''
   'privatelink.analysis.windows.net': ''
@@ -177,6 +178,7 @@ var dnsZoneNames = [
   'privatelink.openai.azure.com'
   'privatelink.cognitiveservices.azure.com'
   'privatelink.search.windows.net'
+  #disable-next-line no-hardcoded-env-urls
   'privatelink.blob.core.windows.net'
   'privatelink.documents.azure.com'
   'privatelink.analysis.windows.net'
@@ -442,7 +444,6 @@ module searchToAiServicesSharedPrivateLink 'modules/search-shared-private-link-t
   }
   dependsOn: [
     aiSearch
-    aiAccount
     privateEndpointAndDNS
     searchMiToOpenAIRoleAssignment
   ]
@@ -455,9 +456,6 @@ module splAutoApprove 'modules/spl-auto-approve.bicep' = if (autoApproveSharedPr
     aiServicesAccountName: aiAccount.outputs.accountName
     sharedPrivateLinkName: searchToAiServicesSharedPrivateLink.outputs.sharedPrivateLinkName
   }
-  dependsOn: [
-    searchToAiServicesSharedPrivateLink
-  ]
 }
 
 module accountToSearchRoleAssignment 'modules/ai-account-to-search-role-assignment.bicep' = {
@@ -629,13 +627,18 @@ output apimResourceId string = apimDependencies.outputs.apiManagementId
 output apimGatewayUrl string = 'https://${apimDependencies.outputs.apiManagementName}.azure-api.net'
 
 output apimGatewayConnectionName string = apimGatewayConnection.outputs.connectionName
+#disable-next-line BCP318
 output apimCrossRegionConnectionName string = deployCrossRegionOpenAI ? crossRegionOpenAI.outputs.connectionName : ''
 
+#disable-next-line BCP318
 output appInsightsConnectionString string = deployApplicationInsights ? applicationInsights.outputs.appInsightsConnectionString : ''
+#disable-next-line BCP318
 output logAnalyticsWorkspaceId string = deployApplicationInsights ? applicationInsights.outputs.logAnalyticsWorkspaceId : ''
 
 output vnetName string = vnet.outputs.virtualNetworkName
+#disable-next-line BCP318
 output bastionName string = deployBastion ? bastionJumpbox.outputs.bastionName : ''
+#disable-next-line BCP318
 output jumpboxName string = deployBastion ? bastionJumpbox.outputs.vmName : ''
 
 output aiSearchName string = aiDependencies.outputs.aiSearchName

@@ -481,8 +481,11 @@ resource aiServicesDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGr
     ]
   }
   dependsOn: [
+    #disable-next-line BCP321
     empty(aiServicesDnsZoneRG) ? aiServicesLink : null
+    #disable-next-line BCP321
     empty(openAiDnsZoneRG) ? openAiLink : null
+    #disable-next-line BCP321
     empty(cognitiveServicesDnsZoneRG) ? cognitiveServicesLink : null
   ]
 }
@@ -495,6 +498,7 @@ resource aiSearchDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGrou
     ]
   }
   dependsOn: [
+    #disable-next-line BCP321
     empty(aiSearchDnsZoneRG) ? aiSearchLink : null
   ]
 }
@@ -507,6 +511,7 @@ resource storageDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroup
     ]
   }
   dependsOn: [
+    #disable-next-line BCP321
     empty(storageDnsZoneRG) ? storageLink : null
   ]
 }
@@ -519,6 +524,7 @@ resource cosmosDBDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGrou
     ]
   }
   dependsOn: [
+    #disable-next-line BCP321
     empty(cosmosDBDnsZoneRG) ? cosmosDBLink : null
   ]
 }
@@ -533,6 +539,7 @@ resource fabricDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups
     ]
   }
   dependsOn: [
+    #disable-next-line BCP321
     (fabricPassedIn && empty(fabricDnsZoneRG)) ? fabricLink : null
   ]
 }
