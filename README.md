@@ -7,6 +7,27 @@
 [![GitHub Stars](https://img.shields.io/github/stars/Azure-Samples/AI-Gateway?style=social)](https://github.com/Azure-Samples/AI-Gateway/stargazers)
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-orange?logo=github)](https://codespaces.new/Azure-Samples/AI-Gateway)
 
+## What's newww ✨
+ 
+➕ **Realtime API (Audio and Text) with Azure OpenAI 🔥** experiments with the [**AOAI Realtime**](labs/realtime-audio/realtime-audio.ipynb)  
+➕ **Realtime API (Audio and Text) with Azure OpenAI + MCP tools 🔥** experiments with the [**AOAI Realtime + MCP**](labs/realtime-mcp-agents/realtime-mcp-agents.ipynb)  
+➕ **Model Context Protocol (MCP) ⚙️** experiments with the [**client authorization flow**](labs/mcp-client-authorization/mcp-client-authorization.ipynb)  
+➕ the [**FinOps Framework**](labs/finops-framework/finops-framework.ipynb) lab to manage AI budgets effectively 💰  
+➕ **Agentic ✨** experiments with [**Model Context Protocol (MCP)**](labs/model-context-protocol/model-context-protocol.ipynb).  
+➕ **Agentic ✨** experiments with [**OpenAI Agents SDK**](labs/openai-agents/openai-agents.ipynb).  
+➕ **Agentic ✨** experiments with [**AI Agent Service**](labs/ai-agent-service/ai-agent-service.ipynb) from [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry).  
+➕ the [**AI Foundry Deepseek**](labs/ai-foundry-deepseek/ai-foundry-deepseek.ipynb) lab with Deepseek R1 model from [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry).  
+➕ the [**Zero-to-Production**](labs/zero-to-production/zero-to-production.ipynb) lab with an iterative policy exploration to fine-tune the optimal production configuration.  
+➕ the [**Terraform flavor  of backend pool load balancing**](labs/backend-pool-load-balancing-tf/backend-pool-load-balancing-tf.ipynb) lab.  
+➕ the [**AI Foundry SDK**](labs/ai-foundry-sdk/ai-foundry-sdk.ipynb) lab.  
+➕ the [**Content filtering**](labs/content-filtering/content-filtering.ipynb) and [**Prompt shielding**](labs/content-filtering/prompt-shielding.ipynb) labs.  
+➕ the [**Model routing**](labs/model-routing/model-routing.ipynb) lab with OpenAI model based routing.  
+➕ the [**Prompt flow**](labs/prompt-flow/prompt-flow.ipynb) lab to try the [Azure AI Studio Prompt Flow](https://learn.microsoft.com/azure/ai-studio/how-to/prompt-flow) with Azure API Management.  
+➕ `priority` and `weight` parameters to the [**Backend pool load balancing**](labs/backend-pool-load-balancing/backend-pool-load-balancing.ipynb) lab.  
+➕ the [**Streaming**](streaming.ipynb) tool to test OpenAI streaming with Azure API Management.  
+➕ the [**Tracing**](tools/tracing.ipynb) tool to debug and troubleshoot OpenAI APIs using [Azure API Management tracing capability](https://learn.microsoft.com/azure/api-management/api-management-howto-api-inspector).  
+➕ image processing to the [**GPT-4o inferencing**](labs/GPT-4o-inferencing/GPT-4o-inferencing.ipynb) lab.  
+➕ the [**Function calling**](labs/function-calling/function-calling.ipynb) lab with a sample API on Azure Functions.
 
 [![AI-Gateway Labs](images/ai-gateway-labs-banner.png)](http://aka.ms/ai-gateway/labs)
 
