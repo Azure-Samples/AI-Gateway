@@ -1,11 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "0.42.1.51946",
-      "templateHash": "5776946400288195570"
+      "templateHash": "9237819094389495989"
     }
   },
   "parameters": {
@@ -312,14 +313,14 @@
       }
     ]
   },
-  "resources": [
-    {
+  "resources": {
+    "apimSubnetNsg": {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2024-05-01",
       "name": "[format('{0}-{1}-nsg', parameters('vnetName'), parameters('apimSubnetName'))]",
       "location": "[parameters('location')]"
     },
-    {
+    "vnet": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('vnet-{0}-deployment', variables('uniqueSuffix'))]",
@@ -1179,7 +1180,7 @@
         }
       }
     },
-    {
+    "apimSubnet": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('apim-subnet-{0}-deployment', variables('uniqueSuffix'))]",
@@ -1190,7 +1191,7 @@
         "mode": "Incremental",
         "parameters": {
           "vnetName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.virtualNetworkName.value]"
+            "value": "[reference('vnet').outputs.virtualNetworkName.value]"
           },
           "subnetName": {
             "value": "[parameters('apimSubnetName')]"
@@ -1281,11 +1282,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-{1}-nsg', parameters('vnetName'), parameters('apimSubnetName')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix')))]"
+        "apimSubnetNsg",
+        "vnet"
       ]
     },
-    {
+    "aiAccount": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))]",
@@ -1317,7 +1318,7 @@
             "value": "[parameters('modelCapacity')]"
           },
           "agentSubnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.agentSubnetId.value]"
+            "value": "[reference('vnet').outputs.agentSubnetId.value]"
           }
         },
         "template": {
@@ -1428,10 +1429,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix')))]"
+        "vnet"
       ]
     },
-    {
+    "applicationInsights": {
       "condition": "[parameters('deployApplicationInsights')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
@@ -1446,7 +1447,7 @@
             "value": "[parameters('location')]"
           },
           "accountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           },
           "appInsightsName": {
             "value": "[variables('appInsightsName')]"
@@ -1555,10 +1556,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]"
+        "aiAccount"
       ]
     },
-    {
+    "validateExistingResources": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('validate-existing-{0}-deployment', variables('uniqueSuffix'))]",
@@ -1722,7 +1723,7 @@
         }
       }
     },
-    {
+    "aiDependencies": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('dependencies-{0}-deployment', variables('uniqueSuffix'))]",
@@ -1748,19 +1749,19 @@
             "value": ""
           },
           "aiSearchExists": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('validate-existing-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchExists.value]"
+            "value": "[reference('validateExistingResources').outputs.aiSearchExists.value]"
           },
           "azureStorageAccountResourceId": {
             "value": ""
           },
           "azureStorageExists": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('validate-existing-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageExists.value]"
+            "value": "[reference('validateExistingResources').outputs.azureStorageExists.value]"
           },
           "cosmosDBResourceId": {
             "value": ""
           },
           "cosmosDBExists": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('validate-existing-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.cosmosDBExists.value]"
+            "value": "[reference('validateExistingResources').outputs.cosmosDBExists.value]"
           }
         },
         "template": {
@@ -1985,10 +1986,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('validate-existing-{0}-deployment', variables('uniqueSuffix')))]"
+        "validateExistingResources"
       ]
     },
-    {
+    "apimDependencies": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('apim-{0}-deployment', variables('uniqueSuffix'))]",
@@ -2017,7 +2018,7 @@
             "value": "[parameters('publisherName')]"
           },
           "apimSubnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-subnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.subnetId.value]"
+            "value": "[reference('apimSubnet').outputs.subnetId.value]"
           },
           "apiManagementResourceId": {
             "value": ""
@@ -2148,10 +2149,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('apim-subnet-{0}-deployment', variables('uniqueSuffix')))]"
+        "apimSubnet"
       ]
     },
-    {
+    "privateEndpointAndDNS": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('private-endpoints-{0}-deployment', variables('uniqueSuffix'))]",
@@ -2162,28 +2163,28 @@
         "mode": "Incremental",
         "parameters": {
           "aiAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           },
           "aiSearchName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchName.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchName.value]"
           },
           "storageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageName.value]"
+            "value": "[reference('aiDependencies').outputs.azureStorageName.value]"
           },
           "cosmosDBName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.cosmosDBName.value]"
+            "value": "[reference('aiDependencies').outputs.cosmosDBName.value]"
           },
           "fabricWorkspaceResourceId": {
             "value": ""
           },
           "apiManagementName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.apiManagementName.value]"
+            "value": "[reference('apimDependencies').outputs.apiManagementName.value]"
           },
           "vnetName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.virtualNetworkName.value]"
+            "value": "[reference('vnet').outputs.virtualNetworkName.value]"
           },
           "peSubnetName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.peSubnetName.value]"
+            "value": "[reference('vnet').outputs.peSubnetName.value]"
           },
           "suffix": {
             "value": "[variables('uniqueSuffix')]"
@@ -2836,13 +2837,13 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiAccount",
+        "aiDependencies",
+        "apimDependencies",
+        "vnet"
       ]
     },
-    {
+    "aiProject": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))]",
@@ -2865,34 +2866,34 @@
             "value": "[parameters('location')]"
           },
           "aiSearchName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchName.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchName.value]"
           },
           "aiSearchServiceResourceGroupName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchServiceResourceGroupName.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchServiceResourceGroupName.value]"
           },
           "aiSearchServiceSubscriptionId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchServiceSubscriptionId.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchServiceSubscriptionId.value]"
           },
           "cosmosDBName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.cosmosDBName.value]"
+            "value": "[reference('aiDependencies').outputs.cosmosDBName.value]"
           },
           "cosmosDBSubscriptionId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.cosmosDBSubscriptionId.value]"
+            "value": "[reference('aiDependencies').outputs.cosmosDBSubscriptionId.value]"
           },
           "cosmosDBResourceGroupName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.cosmosDBResourceGroupName.value]"
+            "value": "[reference('aiDependencies').outputs.cosmosDBResourceGroupName.value]"
           },
           "azureStorageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageName.value]"
+            "value": "[reference('aiDependencies').outputs.azureStorageName.value]"
           },
           "azureStorageSubscriptionId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageSubscriptionId.value]"
+            "value": "[reference('aiDependencies').outputs.azureStorageSubscriptionId.value]"
           },
           "azureStorageResourceGroupName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageResourceGroupName.value]"
+            "value": "[reference('aiDependencies').outputs.azureStorageResourceGroupName.value]"
           },
           "accountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           }
         },
         "template": {
@@ -3051,12 +3052,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiAccount",
+        "aiDependencies",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "formatProjectWorkspaceId": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('format-workspace-id-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3067,7 +3068,7 @@
         "mode": "Incremental",
         "parameters": {
           "projectWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectWorkspaceId.value]"
+            "value": "[reference('aiProject').outputs.projectWorkspaceId.value]"
           }
         },
         "template": {
@@ -3103,10 +3104,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]"
+        "aiProject"
       ]
     },
-    {
+    "storageAccountRoleAssignment": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('storage-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3117,10 +3118,10 @@
         "mode": "Incremental",
         "parameters": {
           "azureStorageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageName.value]"
+            "value": "[reference('aiDependencies').outputs.azureStorageName.value]"
           },
           "projectPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectPrincipalId.value]"
+            "value": "[reference('aiProject').outputs.projectPrincipalId.value]"
           }
         },
         "template": {
@@ -3157,12 +3158,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiDependencies",
+        "aiProject",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "cosmosAccountRoleAssignments": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('cosmos-account-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3173,10 +3174,10 @@
         "mode": "Incremental",
         "parameters": {
           "cosmosDBName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.cosmosDBName.value]"
+            "value": "[reference('aiDependencies').outputs.cosmosDBName.value]"
           },
           "projectPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectPrincipalId.value]"
+            "value": "[reference('aiProject').outputs.projectPrincipalId.value]"
           }
         },
         "template": {
@@ -3219,12 +3220,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiDependencies",
+        "aiProject",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "aiSearchRoleAssignments": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('ai-search-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3235,10 +3236,10 @@
         "mode": "Incremental",
         "parameters": {
           "aiSearchName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchName.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchName.value]"
           },
           "projectPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectPrincipalId.value]"
+            "value": "[reference('aiProject').outputs.projectPrincipalId.value]"
           }
         },
         "template": {
@@ -3292,12 +3293,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiDependencies",
+        "aiProject",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "searchMiToStorageRoleAssignment": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('search-mi-storage-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3308,10 +3309,10 @@
         "mode": "Incremental",
         "parameters": {
           "azureStorageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageName.value]"
+            "value": "[reference('aiDependencies').outputs.azureStorageName.value]"
           },
           "searchServicePrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchPrincipalId.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchPrincipalId.value]"
           }
         },
         "template": {
@@ -3354,11 +3355,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiDependencies",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "searchMiToOpenAIRoleAssignment": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('search-mi-openai-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3369,10 +3370,10 @@
         "mode": "Incremental",
         "parameters": {
           "accountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           },
           "searchServicePrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchPrincipalId.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchPrincipalId.value]"
           }
         },
         "template": {
@@ -3415,12 +3416,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiAccount",
+        "aiDependencies",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "searchToAiServicesSharedPrivateLink": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('search-spl-aiservices-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3431,10 +3432,10 @@
         "mode": "Incremental",
         "parameters": {
           "searchServiceName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchName.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchName.value]"
           },
           "aiServicesAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           }
         },
         "template": {
@@ -3508,13 +3509,13 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('search-mi-openai-ra-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiAccount",
+        "aiDependencies",
+        "privateEndpointAndDNS",
+        "searchMiToOpenAIRoleAssignment"
       ]
     },
-    {
+    "splAutoApprove": {
       "condition": "[parameters('autoApproveSharedPrivateLink')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
@@ -3529,10 +3530,10 @@
             "value": "[parameters('location')]"
           },
           "aiServicesAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           },
           "sharedPrivateLinkName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('search-spl-aiservices-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.sharedPrivateLinkName.value]"
+            "value": "[reference('searchToAiServicesSharedPrivateLink').outputs.sharedPrivateLinkName.value]"
           }
         },
         "template": {
@@ -3716,11 +3717,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('search-spl-aiservices-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiAccount",
+        "searchToAiServicesSharedPrivateLink"
       ]
     },
-    {
+    "accountToSearchRoleAssignment": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('account-search-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3731,10 +3732,10 @@
         "mode": "Incremental",
         "parameters": {
           "aiSearchName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchName.value]"
+            "value": "[reference('aiDependencies').outputs.aiSearchName.value]"
           },
           "accountPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountPrincipalId.value]"
+            "value": "[reference('aiAccount').outputs.accountPrincipalId.value]"
           }
         },
         "template": {
@@ -3788,12 +3789,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiAccount",
+        "aiDependencies",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "accountToStorageRoleAssignment": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('account-storage-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3804,10 +3805,10 @@
         "mode": "Incremental",
         "parameters": {
           "azureStorageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageName.value]"
+            "value": "[reference('aiDependencies').outputs.azureStorageName.value]"
           },
           "accountPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountPrincipalId.value]"
+            "value": "[reference('aiAccount').outputs.accountPrincipalId.value]"
           }
         },
         "template": {
@@ -3850,12 +3851,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiAccount",
+        "aiDependencies",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "addProjectCapabilityHost": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('caphost-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3866,19 +3867,19 @@
         "mode": "Incremental",
         "parameters": {
           "accountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           },
           "projectName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectName.value]"
+            "value": "[reference('aiProject').outputs.projectName.value]"
           },
           "cosmosDBConnection": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.cosmosDBConnection.value]"
+            "value": "[reference('aiProject').outputs.cosmosDBConnection.value]"
           },
           "azureStorageConnection": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageConnection.value]"
+            "value": "[reference('aiProject').outputs.azureStorageConnection.value]"
           },
           "aiSearchConnection": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchConnection.value]"
+            "value": "[reference('aiProject').outputs.aiSearchConnection.value]"
           },
           "projectCapHost": {
             "value": "[parameters('projectCapHost')]"
@@ -3947,16 +3948,15 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('ai-search-ra-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('cosmos-account-ra-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('storage-ra-{0}-deployment', variables('uniqueSuffix')))]"
+        "aiAccount",
+        "aiProject",
+        "aiSearchRoleAssignments",
+        "cosmosAccountRoleAssignments",
+        "privateEndpointAndDNS",
+        "storageAccountRoleAssignment"
       ]
     },
-    {
+    "storageContainersRoleAssignment": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('storage-containers-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -3967,13 +3967,13 @@
         "mode": "Incremental",
         "parameters": {
           "aiProjectPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectPrincipalId.value]"
+            "value": "[reference('aiProject').outputs.projectPrincipalId.value]"
           },
           "storageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.azureStorageName.value]"
+            "value": "[reference('aiDependencies').outputs.azureStorageName.value]"
           },
           "workspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('format-workspace-id-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.projectWorkspaceIdGuid.value]"
+            "value": "[reference('formatProjectWorkspaceId').outputs.projectWorkspaceIdGuid.value]"
           }
         },
         "template": {
@@ -4027,13 +4027,13 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('caphost-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('format-workspace-id-{0}-deployment', variables('uniqueSuffix')))]"
+        "addProjectCapabilityHost",
+        "aiDependencies",
+        "aiProject",
+        "formatProjectWorkspaceId"
       ]
     },
-    {
+    "cosmosContainerRoleAssignments": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('cosmos-containers-ra-{0}-deployment', variables('uniqueSuffix'))]",
@@ -4044,13 +4044,13 @@
         "mode": "Incremental",
         "parameters": {
           "cosmosAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.cosmosDBName.value]"
+            "value": "[reference('aiDependencies').outputs.cosmosDBName.value]"
           },
           "projectWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('format-workspace-id-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.projectWorkspaceIdGuid.value]"
+            "value": "[reference('formatProjectWorkspaceId').outputs.projectWorkspaceIdGuid.value]"
           },
           "projectPrincipalId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectPrincipalId.value]"
+            "value": "[reference('aiProject').outputs.projectPrincipalId.value]"
           }
         },
         "template": {
@@ -4099,14 +4099,14 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('caphost-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('format-workspace-id-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('storage-containers-ra-{0}-deployment', variables('uniqueSuffix')))]"
+        "addProjectCapabilityHost",
+        "aiDependencies",
+        "aiProject",
+        "formatProjectWorkspaceId",
+        "storageContainersRoleAssignment"
       ]
     },
-    {
+    "apimGatewayConnection": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('apim-gateway-connection-{0}-deployment', variables('uniqueSuffix'))]",
@@ -4117,16 +4117,16 @@
         "mode": "Incremental",
         "parameters": {
           "accountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           },
           "projectName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectName.value]"
+            "value": "[reference('aiProject').outputs.projectName.value]"
           },
           "apimName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.apiManagementName.value]"
+            "value": "[reference('apimDependencies').outputs.apiManagementName.value]"
           },
           "aiServicesEndpoint": {
-            "value": "[format('https://{0}.openai.azure.com', reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value)]"
+            "value": "[format('https://{0}.openai.azure.com', reference('aiAccount').outputs.accountName.value)]"
           },
           "connectionName": {
             "value": "[parameters('apimConnectionName')]"
@@ -4143,12 +4143,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "1995475249722346089"
+              "templateHash": "9426815145966780637"
             }
           },
           "parameters": {
@@ -4237,8 +4238,32 @@
             "hasModels": "[greater(length(parameters('modelDeployments')), 0)]",
             "metadata": "[union(createObject('deploymentInPath', parameters('deploymentInPath'), 'inferenceAPIVersion', parameters('inferenceApiVersion')), if(variables('hasModels'), createObject('models', string(parameters('modelDeployments'))), createObject()))]"
           },
-          "resources": [
-            {
+          "resources": {
+            "account": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2025-04-01-preview",
+              "name": "[parameters('accountName')]"
+            },
+            "project": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts/projects",
+              "apiVersion": "2025-04-01-preview",
+              "name": "[format('{0}/{1}', parameters('accountName'), parameters('projectName'))]"
+            },
+            "apimService": {
+              "existing": true,
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2024-05-01",
+              "name": "[parameters('apimName')]"
+            },
+            "apimMasterSubscription": {
+              "existing": true,
+              "type": "Microsoft.ApiManagement/service/subscriptions",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('apimName'), parameters('apimSubscriptionKeyName'))]"
+            },
+            "apimApi": {
               "type": "Microsoft.ApiManagement/service/apis",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}', parameters('apimName'), parameters('apimApiName'))]",
@@ -4251,10 +4276,28 @@
                 "format": "openapi-link",
                 "value": "[format('https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/{0}/inference.json', parameters('inferenceApiVersion'))]",
                 "serviceUrl": "[format('{0}/openai', parameters('aiServicesEndpoint'))]",
-                "subscriptionRequired": false
+                "subscriptionRequired": true,
+                "subscriptionKeyParameterNames": {
+                  "header": "api-key",
+                  "query": "api-key"
+                }
               }
             },
-            {
+            "apiSubscription": {
+              "type": "Microsoft.ApiManagement/service/subscriptions",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('apimName'), format('{0}-test', parameters('apimApiName')))]",
+              "properties": {
+                "displayName": "[format('Direct test access to {0}', parameters('apimApiName'))]",
+                "scope": "[resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), parameters('apimApiName'))]",
+                "state": "active",
+                "allowTracing": false
+              },
+              "dependsOn": [
+                "apimApi"
+              ]
+            },
+            "apimApiPolicy": {
               "type": "Microsoft.ApiManagement/service/apis/policies",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}/{2}', parameters('apimName'), parameters('apimApiName'), 'policy')]",
@@ -4263,39 +4306,49 @@
                 "value": "[parameters('policyXml')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), parameters('apimApiName'))]"
+                "apimApi"
               ]
             },
-            {
+            "aiAccount": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2025-04-01-preview",
+              "name": "[parameters('accountName')]"
+            },
+            "apimOpenAIUserRole": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
               "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName'))]",
               "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')), resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
               "properties": {
-                "principalId": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '2024-05-01', 'full').identity.principalId]",
+                "principalId": "[reference('apimService', '2024-05-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]"
-              }
+              },
+              "dependsOn": [
+                "apimService"
+              ]
             },
-            {
+            "apimConnection": {
               "type": "Microsoft.CognitiveServices/accounts/projects/connections",
               "apiVersion": "2025-04-01-preview",
               "name": "[format('{0}/{1}/{2}', parameters('accountName'), parameters('projectName'), parameters('connectionName'))]",
               "properties": {
                 "category": "ApiManagement",
-                "target": "[format('{0}/{1}', reference(resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '2024-05-01').gatewayUrl, reference(resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), parameters('apimApiName')), '2024-05-01').path)]",
+                "target": "[format('{0}/{1}', reference('apimService').gatewayUrl, reference('apimApi').path)]",
                 "authType": "ApiKey",
                 "isSharedToAll": "[parameters('isSharedToAll')]",
                 "credentials": {
-                  "key": "[listSecrets(resourceId('Microsoft.ApiManagement/service/subscriptions', parameters('apimName'), parameters('apimSubscriptionKeyName')), '2024-05-01').primaryKey]"
+                  "key": "[listSecrets('apimMasterSubscription', '2024-05-01').primaryKey]"
                 },
                 "metadata": "[variables('metadata')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), parameters('apimApiName'))]"
+                "apimApi",
+                "apimService"
               ]
             }
-          ],
+          },
           "outputs": {
             "connectionName": {
               "type": "string",
@@ -4303,24 +4356,32 @@
             },
             "targetUrl": {
               "type": "string",
-              "value": "[format('{0}/{1}', reference(resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '2024-05-01').gatewayUrl, reference(resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), parameters('apimApiName')), '2024-05-01').path)]"
+              "value": "[format('{0}/{1}', reference('apimService').gatewayUrl, reference('apimApi').path)]"
             },
             "apimApiName": {
               "type": "string",
               "value": "[parameters('apimApiName')]"
+            },
+            "apimApiPath": {
+              "type": "string",
+              "value": "[reference('apimApi').path]"
+            },
+            "apiSubscriptionKey": {
+              "type": "securestring",
+              "value": "[listSecrets('apiSubscription', '2024-05-01').primaryKey]"
             }
           }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('caphost-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]"
+        "addProjectCapabilityHost",
+        "aiAccount",
+        "aiProject",
+        "apimDependencies",
+        "privateEndpointAndDNS"
       ]
     },
-    {
+    "crossRegionOpenAI": {
       "condition": "[parameters('deployCrossRegionOpenAI')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
@@ -4335,10 +4396,10 @@
             "value": "[parameters('locationCrossRegion')]"
           },
           "accountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+            "value": "[reference('aiAccount').outputs.accountName.value]"
           },
           "projectName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectName.value]"
+            "value": "[reference('aiProject').outputs.projectName.value]"
           },
           "openAIName": {
             "value": "[variables('crossRegionOpenAIName')]"
@@ -4350,7 +4411,7 @@
             "value": "[parameters('crossRegionModelVersion')]"
           },
           "apimName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.apiManagementName.value]"
+            "value": "[reference('apimDependencies').outputs.apiManagementName.value]"
           },
           "connectionName": {
             "value": "[parameters('apimCrossRegionConnectionName')]"
@@ -4359,10 +4420,10 @@
             "value": "[parameters('inferenceApiVersion')]"
           },
           "vnetName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.virtualNetworkName.value]"
+            "value": "[reference('vnet').outputs.virtualNetworkName.value]"
           },
           "peSubnetName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.peSubnetName.value]"
+            "value": "[reference('vnet').outputs.peSubnetName.value]"
           },
           "policyXml": {
             "value": "[variables('apimPolicyXml')]"
@@ -4370,12 +4431,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "676856826976402627"
+              "templateHash": "2041338203025646573"
             }
           },
           "parameters": {
@@ -4519,8 +4581,8 @@
               }
             ]
           },
-          "resources": [
-            {
+          "resources": {
+            "openAI": {
               "type": "Microsoft.CognitiveServices/accounts",
               "apiVersion": "2025-04-01-preview",
               "name": "[parameters('openAIName')]",
@@ -4539,7 +4601,7 @@
                 "customSubDomainName": "[variables('finalCustomDomain')]"
               }
             },
-            {
+            "modelDeployment": {
               "type": "Microsoft.CognitiveServices/accounts/deployments",
               "apiVersion": "2025-04-01-preview",
               "name": "[format('{0}/{1}', parameters('openAIName'), parameters('modelName'))]",
@@ -4555,24 +4617,31 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+                "openAI"
               ]
             },
-            {
+            "apimService": {
+              "existing": true,
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2024-05-01",
+              "name": "[parameters('apimName')]"
+            },
+            "apimRoleAssignment": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
               "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]",
               "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
               "properties": {
-                "principalId": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '2024-05-01', 'full').identity.principalId]",
+                "principalId": "[reference('apimService', '2024-05-01', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal",
                 "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+                "apimService",
+                "openAI"
               ]
             },
-            {
+            "apimApi": {
               "type": "Microsoft.ApiManagement/service/apis",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}', parameters('apimName'), variables('finalApimApiName'))]",
@@ -4585,10 +4654,28 @@
                 "format": "openapi-link",
                 "value": "[format('https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/{0}/inference.json', parameters('inferenceApiVersion'))]",
                 "serviceUrl": "[format('https://{0}.openai.azure.com/openai', variables('finalCustomDomain'))]",
-                "subscriptionRequired": false
+                "subscriptionRequired": true,
+                "subscriptionKeyParameterNames": {
+                  "header": "api-key",
+                  "query": "api-key"
+                }
               }
             },
-            {
+            "apiSubscription": {
+              "type": "Microsoft.ApiManagement/service/subscriptions",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('apimName'), format('{0}-test', variables('finalApimApiName')))]",
+              "properties": {
+                "displayName": "[format('Direct test access to {0}', variables('finalApimApiName'))]",
+                "scope": "[resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName'))]",
+                "state": "active",
+                "allowTracing": false
+              },
+              "dependsOn": [
+                "apimApi"
+              ]
+            },
+            "apimApiPolicy": {
               "type": "Microsoft.ApiManagement/service/apis/policies",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}/{2}', parameters('apimName'), variables('finalApimApiName'), 'policy')]",
@@ -4597,10 +4684,26 @@
                 "value": "[parameters('policyXml')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName'))]"
+                "apimApi"
               ]
             },
-            {
+            "vnet": {
+              "condition": "[variables('createPrivateEndpoint')]",
+              "existing": true,
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2024-05-01",
+              "resourceGroup": "[parameters('vnetResourceGroupName')]",
+              "name": "[parameters('vnetName')]"
+            },
+            "peSubnet": {
+              "condition": "[variables('createPrivateEndpoint')]",
+              "existing": true,
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2024-05-01",
+              "resourceGroup": "[parameters('vnetResourceGroupName')]",
+              "name": "[format('{0}/{1}', parameters('vnetName'), parameters('peSubnetName'))]"
+            },
+            "openAIPrivateEndpoint": {
               "condition": "[variables('createPrivateEndpoint')]",
               "type": "Microsoft.Network/privateEndpoints",
               "apiVersion": "2024-05-01",
@@ -4623,10 +4726,10 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+                "openAI"
               ]
             },
-            {
+            "openAIDnsGroup": {
               "condition": "[variables('createPrivateEndpoint')]",
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
               "apiVersion": "2024-05-01",
@@ -4642,20 +4745,38 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-private-endpoint', parameters('openAIName')))]"
+                "openAIPrivateEndpoint"
               ]
             },
-            {
+            "account": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2025-04-01-preview",
+              "name": "[parameters('accountName')]"
+            },
+            "project": {
+              "existing": true,
+              "type": "Microsoft.CognitiveServices/accounts/projects",
+              "apiVersion": "2025-04-01-preview",
+              "name": "[format('{0}/{1}', parameters('accountName'), parameters('projectName'))]"
+            },
+            "apimMasterSubscription": {
+              "existing": true,
+              "type": "Microsoft.ApiManagement/service/subscriptions",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('apimName'), parameters('apimSubscriptionKeyName'))]"
+            },
+            "gatewayConnection": {
               "type": "Microsoft.CognitiveServices/accounts/projects/connections",
               "apiVersion": "2025-04-01-preview",
               "name": "[format('{0}/{1}/{2}', parameters('accountName'), parameters('projectName'), variables('finalConnectionName'))]",
               "properties": {
                 "category": "ApiManagement",
-                "target": "[format('{0}/{1}', reference(resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '2024-05-01').gatewayUrl, reference(resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName')), '2024-05-01').path)]",
+                "target": "[format('{0}/{1}', reference('apimService').gatewayUrl, reference('apimApi').path)]",
                 "authType": "ApiKey",
                 "isSharedToAll": true,
                 "credentials": {
-                  "key": "[listSecrets(resourceId('Microsoft.ApiManagement/service/subscriptions', parameters('apimName'), parameters('apimSubscriptionKeyName')), '2024-05-01').primaryKey]"
+                  "key": "[listSecrets('apimMasterSubscription', '2024-05-01').primaryKey]"
                 },
                 "metadata": {
                   "deploymentInPath": "true",
@@ -4664,13 +4785,14 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName'))]",
-                "[resourceId('Microsoft.ApiManagement/service/apis/policies', parameters('apimName'), variables('finalApimApiName'), 'policy')]",
-                "[extensionResourceId(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('openAIName'), parameters('modelName'))]"
+                "apimApi",
+                "apimApiPolicy",
+                "apimRoleAssignment",
+                "apimService",
+                "modelDeployment"
               ]
             }
-          ],
+          },
           "outputs": {
             "openAIName": {
               "type": "string",
@@ -4678,7 +4800,7 @@
             },
             "openAIEndpoint": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), '2025-04-01-preview').endpoint]"
+              "value": "[reference('openAI').endpoint]"
             },
             "connectionName": {
               "type": "string",
@@ -4690,22 +4812,26 @@
             },
             "apimApiPath": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ApiManagement/service/apis', parameters('apimName'), variables('finalApimApiName')), '2024-05-01').path]"
+              "value": "[reference('apimApi').path]"
+            },
+            "apiSubscriptionKey": {
+              "type": "securestring",
+              "value": "[listSecrets('apiSubscription', '2024-05-01').primaryKey]"
             }
           }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('caphost-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('apim-gateway-connection-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix')))]"
+        "addProjectCapabilityHost",
+        "aiAccount",
+        "aiProject",
+        "apimDependencies",
+        "apimGatewayConnection",
+        "privateEndpointAndDNS",
+        "vnet"
       ]
     },
-    {
+    "bastionJumpbox": {
       "condition": "[parameters('deployBastion')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
@@ -4720,7 +4846,7 @@
             "value": "[parameters('location')]"
           },
           "vnetName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.virtualNetworkName.value]"
+            "value": "[reference('vnet').outputs.virtualNetworkName.value]"
           },
           "bastionSubnetPrefix": {
             "value": "[parameters('bastionSubnetPrefix')]"
@@ -4745,7 +4871,25 @@
           },
           "installDevTools": {
             "value": "[parameters('installDevTools')]"
-          }
+          },
+          "apimGatewayUrl": {
+            "value": "[format('https://{0}.azure-api.net', reference('apimDependencies').outputs.apiManagementName.value)]"
+          },
+          "inferenceApiVersion": {
+            "value": "[parameters('inferenceApiVersion')]"
+          },
+          "primaryApiPath": {
+            "value": "[reference('apimGatewayConnection').outputs.apimApiPath.value]"
+          },
+          "primaryModelDeployment": {
+            "value": "[parameters('modelName')]"
+          },
+          "primarySubscriptionKey": {
+            "value": "[listOutputsWithSecureValues('apimGatewayConnection', '2025-04-01').apiSubscriptionKey]"
+          },
+          "crossRegionApiPath": "[if(parameters('deployCrossRegionOpenAI'), createObject('value', reference('crossRegionOpenAI').outputs.apimApiPath.value), createObject('value', ''))]",
+          "crossRegionModelDeployment": "[if(parameters('deployCrossRegionOpenAI'), createObject('value', parameters('crossRegionModelName')), createObject('value', ''))]",
+          "crossRegionSubscriptionKey": "[if(parameters('deployCrossRegionOpenAI'), createObject('value', listOutputsWithSecureValues('crossRegionOpenAI', '2025-04-01').apiSubscriptionKey), createObject('value', ''))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -4754,7 +4898,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.42.1.51946",
-              "templateHash": "12357095410309547575"
+              "templateHash": "12425492447680877805"
             }
           },
           "parameters": {
@@ -4831,10 +4975,66 @@
               "metadata": {
                 "description": "When true, run a first-boot bootstrap script that installs Python 3.12, Azure CLI, Git, VS Code, PowerShell 7 and Windows Terminal via winget, then clones the AI-Gateway repo and installs Python + VS Code dependencies. Logs to C:\\bootstrap.log on the VM."
               }
+            },
+            "apimGatewayUrl": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "APIM gateway base URL baked into the desktop test scripts (e.g. https://<apim>.azure-api.net). Used by callers that talk to APIM directly with a subscription key."
+              }
+            },
+            "inferenceApiVersion": {
+              "type": "string",
+              "defaultValue": "2024-10-21",
+              "metadata": {
+                "description": "API version sent to APIM by the desktop test scripts (matches the imported Azure OpenAI inference spec)."
+              }
+            },
+            "primaryApiPath": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "APIM API path for the primary Azure OpenAI API (e.g. openai). Combined with apimGatewayUrl to form the test base URL."
+              }
+            },
+            "primaryModelDeployment": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Model deployment name on the primary Foundry account (e.g. gpt-4o-mini). Used as the OpenAI \"model\" parameter in the primary test script."
+              }
+            },
+            "primarySubscriptionKey": {
+              "type": "securestring",
+              "defaultValue": "",
+              "metadata": {
+                "description": "APIM subscription key (primary) scoped to the primary Azure OpenAI API. Baked into the primary desktop test script as a protected run-command parameter."
+              }
+            },
+            "crossRegionApiPath": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "APIM API path for the cross-region Azure OpenAI API (e.g. openai-eastus2). Empty disables the cross-region desktop script."
+              }
+            },
+            "crossRegionModelDeployment": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Model deployment name on the cross-region OpenAI account (e.g. gpt-4o). Used as the OpenAI \"model\" parameter in the cross-region test script."
+              }
+            },
+            "crossRegionSubscriptionKey": {
+              "type": "securestring",
+              "defaultValue": "",
+              "metadata": {
+                "description": "APIM subscription key (primary) scoped to the cross-region Azure OpenAI API."
+              }
             }
           },
           "variables": {
-            "$fxv#0": "<#\r\n.SYNOPSIS\r\n  First-boot bootstrap for the AI-Gateway foundry-e2e-private lab jump-box.\r\n\r\n.DESCRIPTION\r\n  Installs the dev tooling needed to run the lab notebooks from inside the\r\n  private VNet (Python 3.12, Azure CLI, Git, VS Code, PowerShell 7,\r\n  Windows Terminal), clones the AI-Gateway repo, installs Python and VS Code\r\n  dependencies, and writes a transcript to C:\\bootstrap.log.\r\n\r\n  Designed to run via the VM Run Command (Managed) under the SYSTEM account.\r\n  Uses Chocolatey for installs because winget is per-user/AppX based and is not\r\n  available in the SYSTEM context. Re-running is safe (every step is idempotent).\r\n#>\r\n\r\n$ErrorActionPreference = 'Continue'\r\n$ProgressPreference    = 'SilentlyContinue'\r\n\r\n$logPath = 'C:\\bootstrap.log'\r\nStart-Transcript -Path $logPath -Append -Force | Out-Null\r\nWrite-Host \"==== Bootstrap started $(Get-Date -Format o) ====\"\r\n\r\nfunction Refresh-Path {\r\n  $machine = [Environment]::GetEnvironmentVariable('PATH', 'Machine')\r\n  $user    = [Environment]::GetEnvironmentVariable('PATH', 'User')\r\n  $env:PATH = ($machine, $user | Where-Object { $_ }) -join ';'\r\n}\r\n\r\n# ---- 1. Bootstrap Chocolatey ----\r\n[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12\r\n\r\nif (-not (Get-Command choco -ErrorAction SilentlyContinue)) {\r\n  Write-Host \"---- Installing Chocolatey\"\r\n  Set-ExecutionPolicy Bypass -Scope Process -Force\r\n  Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))\r\n  Refresh-Path\r\n} else {\r\n  Write-Host \"---- Chocolatey already installed: $(choco --version)\"\r\n}\r\n\r\nif (-not (Get-Command choco -ErrorAction SilentlyContinue)) {\r\n  Write-Error \"Chocolatey installation failed; aborting.\"\r\n  Stop-Transcript | Out-Null\r\n  exit 1\r\n}\r\n\r\n# Make Chocolatey unattended for the rest of the script\r\nchoco feature enable -n=allowGlobalConfirmation | Out-Null\r\n\r\n# ---- 2. Install dev tooling via Chocolatey ----\r\n$packages = @(\r\n  'python312',         # Python 3.12 (also adds python.exe + pip to PATH machine-wide)\r\n  'azure-cli',         # Azure CLI\r\n  'git',               # Git for Windows\r\n  'vscode',            # Visual Studio Code (system install)\r\n  'powershell-core',   # PowerShell 7\r\n  'microsoft-windows-terminal'\r\n)\r\n\r\nforeach ($p in $packages) {\r\n  Write-Host \"---- choco install $p\"\r\n  choco install $p -y --no-progress --limit-output\r\n  if ($LASTEXITCODE -notin 0, 1641, 3010) {\r\n    Write-Warning \"choco install $p exited with $LASTEXITCODE\"\r\n  }\r\n}\r\n\r\nRefresh-Path\r\n\r\n# ---- 3. Clone the AI-Gateway repo ----\r\n$repoRoot = 'C:\\Git'\r\n$repoPath = Join-Path $repoRoot 'AI-Gateway'\r\nif (-not (Test-Path $repoRoot)) { New-Item -ItemType Directory -Path $repoRoot -Force | Out-Null }\r\n\r\n$gitCmd = Get-Command git -ErrorAction SilentlyContinue\r\nif (-not $gitCmd) {\r\n  # choco may install to a path that needs explicit lookup\r\n  $gitExe = 'C:\\Program Files\\Git\\cmd\\git.exe'\r\n  if (Test-Path $gitExe) {\r\n    $env:PATH = \"C:\\Program Files\\Git\\cmd;\" + $env:PATH\r\n    $gitCmd = Get-Command git -ErrorAction SilentlyContinue\r\n  }\r\n}\r\n\r\nif ($gitCmd) {\r\n  if (Test-Path (Join-Path $repoPath '.git')) {\r\n    Write-Host \"---- AI-Gateway already cloned at $repoPath, pulling latest\"\r\n    Push-Location $repoPath\r\n    & git pull --ff-only\r\n    Pop-Location\r\n  } else {\r\n    Write-Host \"---- Cloning AI-Gateway to $repoPath\"\r\n    & git clone https://github.com/Azure-Samples/AI-Gateway.git $repoPath\r\n  }\r\n} else {\r\n  Write-Warning \"git not found on PATH after install; skipping clone\"\r\n}\r\n\r\n# ---- 4. pip install lab requirements ----\r\n# We install from a filtered copy of requirements.txt that drops the `azure-cli`\r\n# Python package because it pins old versions of azure-* libraries that conflict\r\n# with the newer azure-ai-projects / azure-ai-agents pinned later in the file\r\n# and sends pip's resolver into hours of backtracking. Azure CLI is already\r\n# installed system-wide as a native binary by Chocolatey above.\r\n$reqFile = Join-Path $repoPath 'requirements.txt'\r\n$pythonCmd = Get-Command python -ErrorAction SilentlyContinue\r\nif (-not $pythonCmd) {\r\n  $pythonExe = 'C:\\Python312\\python.exe'\r\n  if (Test-Path $pythonExe) {\r\n    $env:PATH = \"C:\\Python312;C:\\Python312\\Scripts;\" + $env:PATH\r\n    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue\r\n  }\r\n}\r\n\r\nif ($pythonCmd -and (Test-Path $reqFile)) {\r\n  Write-Host \"---- Installing Python requirements from $reqFile (azure-cli filtered out)\"\r\n  $filtered = Join-Path $env:TEMP 'requirements-bootstrap.txt'\r\n  Get-Content $reqFile | Where-Object { $_ -notmatch '^\\s*azure-cli\\s*$' } | Set-Content $filtered\r\n  & python -m pip install --upgrade pip\r\n  & python -m pip install --use-deprecated=legacy-resolver -r $filtered\r\n  if ($LASTEXITCODE -ne 0) { Write-Warning \"pip install -r exited with $LASTEXITCODE\" }\r\n} else {\r\n  if (-not $pythonCmd) { Write-Warning \"python not found on PATH; skipping pip install\" }\r\n  if (-not (Test-Path $reqFile)) { Write-Warning \"requirements.txt not found at $reqFile; skipping pip install\" }\r\n}\r\n\r\n# ---- 5. VS Code extensions ----\r\nWrite-Host \"---- Installing VS Code extensions\"\r\n$codeCmd = Get-Command code -ErrorAction SilentlyContinue\r\nif (-not $codeCmd) {\r\n  $codeBin = 'C:\\Program Files\\Microsoft VS Code\\bin\\code.cmd'\r\n  if (Test-Path $codeBin) {\r\n    $env:PATH = \"C:\\Program Files\\Microsoft VS Code\\bin;\" + $env:PATH\r\n    $codeCmd = Get-Command code -ErrorAction SilentlyContinue\r\n  }\r\n}\r\nif ($codeCmd) {\r\n  & code --install-extension ms-python.python      --force\r\n  & code --install-extension ms-toolsai.jupyter    --force\r\n  & code --install-extension ms-azuretools.vscode-bicep --force\r\n} else {\r\n  Write-Warning \"VS Code 'code' CLI not on PATH; skipping extension install\"\r\n}\r\n\r\n# ---- 6. Public-Desktop shortcut to the AI-Gateway repo root ----\r\n# Falls back to the labs/ folder, then the repo root, depending on what exists.\r\ntry {\r\n  $candidates = @(\r\n    (Join-Path $repoPath 'labs\\foundry-e2e-private'),\r\n    (Join-Path $repoPath 'labs'),\r\n    $repoPath\r\n  )\r\n  $labFolder = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1\r\n\r\n  $shortcut  = 'C:\\Users\\Public\\Desktop\\AI-Gateway Lab.lnk'\r\n  $codeBin = (Get-Command code -ErrorAction SilentlyContinue).Source\r\n  if (-not $codeBin) { $codeBin = 'C:\\Program Files\\Microsoft VS Code\\bin\\code.cmd' }\r\n  if ($labFolder -and (Test-Path $codeBin)) {\r\n    $ws = New-Object -ComObject WScript.Shell\r\n    $sc = $ws.CreateShortcut($shortcut)\r\n    $sc.TargetPath = $codeBin\r\n    $sc.Arguments  = \"`\"$labFolder`\"\"\r\n    $sc.WorkingDirectory = $labFolder\r\n    $sc.Save()\r\n    Write-Host \"---- Desktop shortcut created at $shortcut -> $labFolder\"\r\n  } else {\r\n    Write-Warning \"Skipped desktop shortcut (labFolder=$labFolder, code=$codeBin)\"\r\n  }\r\n} catch {\r\n  Write-Warning \"Failed to create desktop shortcut: $_\"\r\n}\r\n\r\nWrite-Host \"==== Bootstrap finished $(Get-Date -Format o) ====\"\r\nStop-Transcript | Out-Null\r\n"
+            "$fxv#0": "<#\r\n.SYNOPSIS\r\n  First-boot bootstrap for the AI-Gateway foundry-e2e-private lab jump-box.\r\n\r\n.DESCRIPTION\r\n  Installs the dev tooling needed to run the lab notebooks from inside the\r\n  private VNet (Python 3.12, Azure CLI, Git, VS Code, PowerShell 7,\r\n  Windows Terminal), clones the AI-Gateway repo, installs Python and VS Code\r\n  dependencies, and writes a transcript to C:\\bootstrap.log.\r\n\r\n  Designed to run via the VM Run Command (Managed) under the SYSTEM account.\r\n  Uses Chocolatey for installs because winget is per-user/AppX based and is not\r\n  available in the SYSTEM context. Re-running is safe (every step is idempotent).\r\n#>\r\n\r\nparam(\r\n  [string]$ApimGatewayUrl = '',\r\n  [string]$InferenceApiVersion = '2024-10-21',\r\n  [string]$PrimaryApiPath = '',\r\n  [string]$PrimaryModelDeployment = '',\r\n  [string]$PrimarySubscriptionKey = '',\r\n  [string]$CrossRegionApiPath = '',\r\n  [string]$CrossRegionModelDeployment = '',\r\n  [string]$CrossRegionSubscriptionKey = ''\r\n)\r\n\r\n$ErrorActionPreference = 'Continue'\r\n$ProgressPreference    = 'SilentlyContinue'\r\n\r\n$logPath = 'C:\\bootstrap.log'\r\nStart-Transcript -Path $logPath -Append -Force | Out-Null\r\nWrite-Host \"==== Bootstrap started $(Get-Date -Format o) ====\"\r\n\r\nfunction Refresh-Path {\r\n  $machine = [Environment]::GetEnvironmentVariable('PATH', 'Machine')\r\n  $user    = [Environment]::GetEnvironmentVariable('PATH', 'User')\r\n  $env:PATH = ($machine, $user | Where-Object { $_ }) -join ';'\r\n}\r\n\r\n# ---- 1. Bootstrap Chocolatey ----\r\n[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12\r\n\r\nif (-not (Get-Command choco -ErrorAction SilentlyContinue)) {\r\n  Write-Host \"---- Installing Chocolatey\"\r\n  Set-ExecutionPolicy Bypass -Scope Process -Force\r\n  Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))\r\n  Refresh-Path\r\n} else {\r\n  Write-Host \"---- Chocolatey already installed: $(choco --version)\"\r\n}\r\n\r\nif (-not (Get-Command choco -ErrorAction SilentlyContinue)) {\r\n  Write-Error \"Chocolatey installation failed; aborting.\"\r\n  Stop-Transcript | Out-Null\r\n  exit 1\r\n}\r\n\r\n# Make Chocolatey unattended for the rest of the script\r\nchoco feature enable -n=allowGlobalConfirmation | Out-Null\r\n\r\n# ---- 2. Install dev tooling via Chocolatey ----\r\n$packages = @(\r\n  'python312',         # Python 3.12 (also adds python.exe + pip to PATH machine-wide)\r\n  'azure-cli',         # Azure CLI\r\n  'git',               # Git for Windows\r\n  'vscode',            # Visual Studio Code (system install)\r\n  'powershell-core',   # PowerShell 7\r\n  'microsoft-windows-terminal'\r\n)\r\n\r\nforeach ($p in $packages) {\r\n  Write-Host \"---- choco install $p\"\r\n  choco install $p -y --no-progress --limit-output\r\n  if ($LASTEXITCODE -notin 0, 1641, 3010) {\r\n    Write-Warning \"choco install $p exited with $LASTEXITCODE\"\r\n  }\r\n}\r\n\r\nRefresh-Path\r\n\r\n# ---- 3. Clone the AI-Gateway repo ----\r\n$repoRoot = 'C:\\Git'\r\n$repoPath = Join-Path $repoRoot 'AI-Gateway'\r\nif (-not (Test-Path $repoRoot)) { New-Item -ItemType Directory -Path $repoRoot -Force | Out-Null }\r\n\r\n$gitCmd = Get-Command git -ErrorAction SilentlyContinue\r\nif (-not $gitCmd) {\r\n  # choco may install to a path that needs explicit lookup\r\n  $gitExe = 'C:\\Program Files\\Git\\cmd\\git.exe'\r\n  if (Test-Path $gitExe) {\r\n    $env:PATH = \"C:\\Program Files\\Git\\cmd;\" + $env:PATH\r\n    $gitCmd = Get-Command git -ErrorAction SilentlyContinue\r\n  }\r\n}\r\n\r\nif ($gitCmd) {\r\n  if (Test-Path (Join-Path $repoPath '.git')) {\r\n    Write-Host \"---- AI-Gateway already cloned at $repoPath, pulling latest\"\r\n    Push-Location $repoPath\r\n    & git pull --ff-only\r\n    Pop-Location\r\n  } else {\r\n    Write-Host \"---- Cloning AI-Gateway to $repoPath\"\r\n    & git clone https://github.com/Azure-Samples/AI-Gateway.git $repoPath\r\n  }\r\n} else {\r\n  Write-Warning \"git not found on PATH after install; skipping clone\"\r\n}\r\n\r\n# ---- 4. pip install lab requirements ----\r\n# We install from a filtered copy of requirements.txt that drops the `azure-cli`\r\n# Python package because it pins old versions of azure-* libraries that conflict\r\n# with the newer azure-ai-projects / azure-ai-agents pinned later in the file\r\n# and sends pip's resolver into hours of backtracking. Azure CLI is already\r\n# installed system-wide as a native binary by Chocolatey above.\r\n$reqFile = Join-Path $repoPath 'requirements.txt'\r\n$pythonCmd = Get-Command python -ErrorAction SilentlyContinue\r\nif (-not $pythonCmd) {\r\n  $pythonExe = 'C:\\Python312\\python.exe'\r\n  if (Test-Path $pythonExe) {\r\n    $env:PATH = \"C:\\Python312;C:\\Python312\\Scripts;\" + $env:PATH\r\n    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue\r\n  }\r\n}\r\n\r\nif ($pythonCmd -and (Test-Path $reqFile)) {\r\n  Write-Host \"---- Installing Python requirements from $reqFile (azure-cli filtered out)\"\r\n  $filtered = Join-Path $env:TEMP 'requirements-bootstrap.txt'\r\n  Get-Content $reqFile | Where-Object { $_ -notmatch '^\\s*azure-cli\\s*$' } | Set-Content $filtered\r\n  & python -m pip install --upgrade pip\r\n  & python -m pip install --use-deprecated=legacy-resolver -r $filtered\r\n  if ($LASTEXITCODE -ne 0) { Write-Warning \"pip install -r exited with $LASTEXITCODE\" }\r\n} else {\r\n  if (-not $pythonCmd) { Write-Warning \"python not found on PATH; skipping pip install\" }\r\n  if (-not (Test-Path $reqFile)) { Write-Warning \"requirements.txt not found at $reqFile; skipping pip install\" }\r\n}\r\n\r\n# ---- 5. VS Code extensions ----\r\nWrite-Host \"---- Installing VS Code extensions\"\r\n$codeCmd = Get-Command code -ErrorAction SilentlyContinue\r\nif (-not $codeCmd) {\r\n  $codeBin = 'C:\\Program Files\\Microsoft VS Code\\bin\\code.cmd'\r\n  if (Test-Path $codeBin) {\r\n    $env:PATH = \"C:\\Program Files\\Microsoft VS Code\\bin;\" + $env:PATH\r\n    $codeCmd = Get-Command code -ErrorAction SilentlyContinue\r\n  }\r\n}\r\nif ($codeCmd) {\r\n  & code --install-extension ms-python.python      --force\r\n  & code --install-extension ms-toolsai.jupyter    --force\r\n  & code --install-extension ms-azuretools.vscode-bicep --force\r\n} else {\r\n  Write-Warning \"VS Code 'code' CLI not on PATH; skipping extension install\"\r\n}\r\n\r\n# ---- 6. Public-Desktop shortcut to the AI-Gateway repo root ----\r\n# Falls back to the labs/ folder, then the repo root, depending on what exists.\r\ntry {\r\n  $candidates = @(\r\n    (Join-Path $repoPath 'labs\\foundry-e2e-private'),\r\n    (Join-Path $repoPath 'labs'),\r\n    $repoPath\r\n  )\r\n  $labFolder = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1\r\n\r\n  $shortcut  = 'C:\\Users\\Public\\Desktop\\AI-Gateway Lab.lnk'\r\n  $codeBin = (Get-Command code -ErrorAction SilentlyContinue).Source\r\n  if (-not $codeBin) { $codeBin = 'C:\\Program Files\\Microsoft VS Code\\bin\\code.cmd' }\r\n  if ($labFolder -and (Test-Path $codeBin)) {\r\n    $ws = New-Object -ComObject WScript.Shell\r\n    $sc = $ws.CreateShortcut($shortcut)\r\n    $sc.TargetPath = $codeBin\r\n    $sc.Arguments  = \"`\"$labFolder`\"\"\r\n    $sc.WorkingDirectory = $labFolder\r\n    $sc.Save()\r\n    Write-Host \"---- Desktop shortcut created at $shortcut -> $labFolder\"\r\n  } else {\r\n    Write-Warning \"Skipped desktop shortcut (labFolder=$labFolder, code=$codeBin)\"\r\n  }\r\n} catch {\r\n  Write-Warning \"Failed to create desktop shortcut: $_\"\r\n}\r\n\r\n# ---- 7. Public-Desktop test scripts (Test-AI-Gateway-*.ps1) ----\r\n# Drop ready-to-run PowerShell scripts on the Public Desktop so users can\r\n# right-click → Run with PowerShell to exercise the APIM AI Gateway directly\r\n# with a scoped APIM subscription key (no Azure AD / managed identity needed\r\n# from the caller). APIM still uses its own managed identity to authenticate\r\n# to the Azure OpenAI backend behind the gateway.\r\ntry {\r\n  if (-not [string]::IsNullOrWhiteSpace($ApimGatewayUrl)) {\r\n    $publicDesktop = 'C:\\Users\\Public\\Desktop'\r\n    if (-not (Test-Path $publicDesktop)) { New-Item -ItemType Directory -Path $publicDesktop -Force | Out-Null }\r\n\r\n    # Single-quoted here-string: contents are literal, no PS variable expansion.\r\n    # Placeholders are substituted via String.Replace below before writing.\r\n    $template = @'\r\n<#\r\n.SYNOPSIS\r\n  Sends a test prompt through the APIM AI Gateway to an Azure OpenAI deployment\r\n  using an APIM subscription key (no Azure AD sign-in required).\r\n.DESCRIPTION\r\n  Calls APIM at <gateway>/<api-path>/deployments/<model>/chat/completions using\r\n  the openai Python SDK (AzureOpenAI) configured with `api_key` set to the\r\n  scoped APIM subscription key. APIM in turn uses its system-assigned managed\r\n  identity to authenticate to the Azure OpenAI backend.\r\n  Note: this lab's APIM imports the stable Azure OpenAI inference OpenAPI\r\n  spec (2024-10-21), which exposes chat.completions but not /responses.\r\n#>\r\nparam(\r\n  [string]$Prompt = 'Tell me one fun fact about Azure API Management.'\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n\r\n$gatewayUrl       = '__GATEWAY_URL__'\r\n$apiPath          = '__API_PATH__'\r\n$modelDeployment  = '__MODEL_DEPLOYMENT__'\r\n$apiVersion       = '__API_VERSION__'\r\n$subscriptionKey  = '__SUBSCRIPTION_KEY__'\r\n$connectionLabel  = '__CONNECTION_LABEL__'\r\n\r\nWrite-Host \"==== Test-AI-Gateway ($connectionLabel) ====\" -ForegroundColor Cyan\r\nWrite-Host \"Gateway URL : $gatewayUrl\"\r\nWrite-Host \"API path    : $apiPath\"\r\nWrite-Host \"Deployment  : $modelDeployment\"\r\nWrite-Host \"API version : $apiVersion\"\r\nWrite-Host \"\"\r\n\r\n# 1) Make sure python is on PATH\r\nif (-not (Get-Command python -ErrorAction SilentlyContinue)) {\r\n  Write-Error 'python is not on PATH. Check C:\\bootstrap.log and re-run the bootstrap.'\r\n  Read-Host 'Press Enter to close'\r\n  exit 1\r\n}\r\n\r\n# 2) Idempotently install the openai SDK.\r\nWrite-Host 'Ensuring openai is installed...'\r\n& python -m pip install --quiet --upgrade openai\r\nif ($LASTEXITCODE -ne 0) {\r\n  Write-Warning \"pip install reported a non-zero exit code; continuing anyway.\"\r\n}\r\n\r\n# 3) Run the test inline via python -c. Values flow through environment\r\n#    variables to avoid PS-vs-Python quoting headaches. The Python source is\r\n#    a string array (instead of a here-string) so this template can sit inside\r\n#    another PowerShell here-string without conflicting line-0 terminators.\r\n$py = @(\r\n    'import os',\r\n    'from openai import AzureOpenAI',\r\n    '',\r\n    'gateway_url = os.environ[\"AIGW_GATEWAY_URL\"].rstrip(\"/\")',\r\n    'api_path    = os.environ[\"AIGW_API_PATH\"].strip(\"/\")',\r\n    'model       = os.environ[\"AIGW_MODEL\"]',\r\n    'api_version = os.environ[\"AIGW_API_VERSION\"]',\r\n    'api_key     = os.environ[\"AIGW_KEY\"]',\r\n    'prompt      = os.environ[\"AIGW_PROMPT\"]',\r\n    '',\r\n    'client = AzureOpenAI(',\r\n    '    api_key=api_key,',\r\n    '    api_version=api_version,',\r\n    '    base_url=f\"{gateway_url}/{api_path}\",',\r\n    ')',\r\n    '',\r\n    'completion = client.chat.completions.create(',\r\n    '    model=model,',\r\n    '    messages=[',\r\n    '        {\"role\": \"system\", \"content\": \"You are a helpful assistant routed through the APIM AI Gateway.\"},',\r\n    '        {\"role\": \"user\", \"content\": prompt},',\r\n    '    ],',\r\n    ')',\r\n    'choice = completion.choices[0]',\r\n    'print(f\"assistant: {choice.message.content}\")',\r\n    'print(f\"Finish reason: {choice.finish_reason}\")'\r\n) -join [Environment]::NewLine\r\n\r\n$env:AIGW_GATEWAY_URL = $gatewayUrl\r\n$env:AIGW_API_PATH    = $apiPath\r\n$env:AIGW_MODEL       = $modelDeployment\r\n$env:AIGW_API_VERSION = $apiVersion\r\n$env:AIGW_KEY         = $subscriptionKey\r\n$env:AIGW_PROMPT      = $Prompt\r\n\r\ntry {\r\n  & python -c $py\r\n  $exit = $LASTEXITCODE\r\n} finally {\r\n  # Scrub the key from the environment as soon as the call returns.\r\n  Remove-Item Env:AIGW_KEY -ErrorAction SilentlyContinue\r\n}\r\n\r\nWrite-Host ''\r\nif ($exit -eq 0) {\r\n  Write-Host '==== Test completed successfully ====' -ForegroundColor Green\r\n} else {\r\n  Write-Host \"==== Test failed with exit code $exit ====\" -ForegroundColor Red\r\n}\r\n\r\nRead-Host 'Press Enter to close'\r\nexit $exit\r\n'@\r\n\r\n    function Write-DesktopTest {\r\n      param(\r\n        [string]$FileName,\r\n        [string]$ApiPath,\r\n        [string]$ModelDeployment,\r\n        [string]$SubscriptionKey,\r\n        [string]$Label\r\n      )\r\n      $content = $template.\r\n        Replace('__GATEWAY_URL__',       $ApimGatewayUrl).\r\n        Replace('__API_PATH__',          $ApiPath).\r\n        Replace('__MODEL_DEPLOYMENT__',  $ModelDeployment).\r\n        Replace('__API_VERSION__',       $InferenceApiVersion).\r\n        Replace('__SUBSCRIPTION_KEY__',  $SubscriptionKey).\r\n        Replace('__CONNECTION_LABEL__',  $Label)\r\n      $path = Join-Path $publicDesktop $FileName\r\n      Set-Content -Path $path -Value $content -Encoding UTF8 -Force\r\n      # Restrict the script to Administrators + SYSTEM only because it embeds\r\n      # the APIM subscription key in cleartext.\r\n      try {\r\n        $acl = Get-Acl $path\r\n        $acl.SetAccessRuleProtection($true, $false)\r\n        $acl.Access | ForEach-Object { [void]$acl.RemoveAccessRule($_) }\r\n        $admins = New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544'\r\n        $system = New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-18'\r\n        $rights = [System.Security.AccessControl.FileSystemRights]'FullControl'\r\n        $allow  = [System.Security.AccessControl.AccessControlType]'Allow'\r\n        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($admins, $rights, $allow)))\r\n        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($system, $rights, $allow)))\r\n        Set-Acl -Path $path -AclObject $acl\r\n      } catch {\r\n        Write-Warning \"Failed to lock down ACL on $path : $_\"\r\n      }\r\n      Write-Host \"---- Wrote $FileName to public desktop ($Label -> $ApiPath/$ModelDeployment)\"\r\n    }\r\n\r\n    if (-not [string]::IsNullOrWhiteSpace($PrimaryApiPath) -and `\r\n        -not [string]::IsNullOrWhiteSpace($PrimaryModelDeployment) -and `\r\n        -not [string]::IsNullOrWhiteSpace($PrimarySubscriptionKey)) {\r\n      Write-DesktopTest -FileName 'Test-AI-Gateway-Primary.ps1' `\r\n                        -ApiPath $PrimaryApiPath `\r\n                        -ModelDeployment $PrimaryModelDeployment `\r\n                        -SubscriptionKey $PrimarySubscriptionKey `\r\n                        -Label 'primary'\r\n    } else {\r\n      Write-Host '---- Skipping Test-AI-Gateway-Primary.ps1 (primary path/model/key not provided)'\r\n    }\r\n\r\n    if (-not [string]::IsNullOrWhiteSpace($CrossRegionApiPath) -and `\r\n        -not [string]::IsNullOrWhiteSpace($CrossRegionModelDeployment) -and `\r\n        -not [string]::IsNullOrWhiteSpace($CrossRegionSubscriptionKey)) {\r\n      Write-DesktopTest -FileName 'Test-AI-Gateway-CrossRegion.ps1' `\r\n                        -ApiPath $CrossRegionApiPath `\r\n                        -ModelDeployment $CrossRegionModelDeployment `\r\n                        -SubscriptionKey $CrossRegionSubscriptionKey `\r\n                        -Label 'cross-region'\r\n    } else {\r\n      Write-Host '---- Skipping Test-AI-Gateway-CrossRegion.ps1 (cross-region path/model/key not provided)'\r\n    }\r\n  } else {\r\n    Write-Host '---- Skipping desktop test scripts (ApimGatewayUrl not provided)'\r\n  }\r\n} catch {\r\n  Write-Warning \"Failed to write desktop test scripts: $_\"\r\n}\r\n\r\nWrite-Host \"==== Bootstrap finished $(Get-Date -Format o) ====\"\r\nStop-Transcript | Out-Null\r\n"
           },
           "resources": [
             {
@@ -5004,6 +5204,42 @@
                 "source": {
                   "script": "[variables('$fxv#0')]"
                 },
+                "parameters": [
+                  {
+                    "name": "ApimGatewayUrl",
+                    "value": "[parameters('apimGatewayUrl')]"
+                  },
+                  {
+                    "name": "InferenceApiVersion",
+                    "value": "[parameters('inferenceApiVersion')]"
+                  },
+                  {
+                    "name": "PrimaryApiPath",
+                    "value": "[parameters('primaryApiPath')]"
+                  },
+                  {
+                    "name": "PrimaryModelDeployment",
+                    "value": "[parameters('primaryModelDeployment')]"
+                  },
+                  {
+                    "name": "CrossRegionApiPath",
+                    "value": "[parameters('crossRegionApiPath')]"
+                  },
+                  {
+                    "name": "CrossRegionModelDeployment",
+                    "value": "[parameters('crossRegionModelDeployment')]"
+                  }
+                ],
+                "protectedParameters": [
+                  {
+                    "name": "PrimarySubscriptionKey",
+                    "value": "[parameters('primarySubscriptionKey')]"
+                  },
+                  {
+                    "name": "CrossRegionSubscriptionKey",
+                    "value": "[parameters('crossRegionSubscriptionKey')]"
+                  }
+                ],
                 "timeoutInSeconds": 1800,
                 "treatFailureAsDeploymentFailure": false
               },
@@ -5029,12 +5265,15 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', format('apim-subnet-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('private-endpoints-{0}-deployment', variables('uniqueSuffix')))]",
-        "[resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix')))]"
+        "apimDependencies",
+        "apimGatewayConnection",
+        "apimSubnet",
+        "crossRegionOpenAI",
+        "privateEndpointAndDNS",
+        "vnet"
       ]
     }
-  ],
+  },
   "outputs": {
     "resourceGroupName": {
       "type": "string",
@@ -5042,63 +5281,63 @@
     },
     "aiServicesName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value]"
+      "value": "[reference('aiAccount').outputs.accountName.value]"
     },
     "aiProjectName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectName.value]"
+      "value": "[reference('aiProject').outputs.projectName.value]"
     },
     "aiProjectEndpoint": {
       "type": "string",
-      "value": "[format('https://{0}.services.ai.azure.com/api/projects/{1}', reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('accountName'), variables('uniqueSuffix'))), '2025-04-01').outputs.accountName.value, reference(resourceId('Microsoft.Resources/deployments', format('{0}-{1}-deployment', variables('projectName'), variables('uniqueSuffix'))), '2025-04-01').outputs.projectName.value)]"
+      "value": "[format('https://{0}.services.ai.azure.com/api/projects/{1}', reference('aiAccount').outputs.accountName.value, reference('aiProject').outputs.projectName.value)]"
     },
     "apimServiceName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.apiManagementName.value]"
+      "value": "[reference('apimDependencies').outputs.apiManagementName.value]"
     },
     "apimResourceId": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.apiManagementId.value]"
+      "value": "[reference('apimDependencies').outputs.apiManagementId.value]"
     },
     "apimGatewayUrl": {
       "type": "string",
-      "value": "[format('https://{0}.azure-api.net', reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.apiManagementName.value)]"
+      "value": "[format('https://{0}.azure-api.net', reference('apimDependencies').outputs.apiManagementName.value)]"
     },
     "apimGatewayConnectionName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-gateway-connection-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.connectionName.value]"
+      "value": "[reference('apimGatewayConnection').outputs.connectionName.value]"
     },
     "apimCrossRegionConnectionName": {
       "type": "string",
-      "value": "[if(parameters('deployCrossRegionOpenAI'), reference(resourceId('Microsoft.Resources/deployments', format('cross-region-openai-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.connectionName.value, '')]"
+      "value": "[if(parameters('deployCrossRegionOpenAI'), reference('crossRegionOpenAI').outputs.connectionName.value, '')]"
     },
     "appInsightsConnectionString": {
       "type": "string",
-      "value": "[if(parameters('deployApplicationInsights'), reference(resourceId('Microsoft.Resources/deployments', format('appinsights-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.appInsightsConnectionString.value, '')]"
+      "value": "[if(parameters('deployApplicationInsights'), reference('applicationInsights').outputs.appInsightsConnectionString.value, '')]"
     },
     "logAnalyticsWorkspaceId": {
       "type": "string",
-      "value": "[if(parameters('deployApplicationInsights'), reference(resourceId('Microsoft.Resources/deployments', format('appinsights-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceId.value, '')]"
+      "value": "[if(parameters('deployApplicationInsights'), reference('applicationInsights').outputs.logAnalyticsWorkspaceId.value, '')]"
     },
     "vnetName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('vnet-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.virtualNetworkName.value]"
+      "value": "[reference('vnet').outputs.virtualNetworkName.value]"
     },
     "bastionName": {
       "type": "string",
-      "value": "[if(parameters('deployBastion'), reference(resourceId('Microsoft.Resources/deployments', format('bastion-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.bastionName.value, '')]"
+      "value": "[if(parameters('deployBastion'), reference('bastionJumpbox').outputs.bastionName.value, '')]"
     },
     "jumpboxName": {
       "type": "string",
-      "value": "[if(parameters('deployBastion'), reference(resourceId('Microsoft.Resources/deployments', format('bastion-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.vmName.value, '')]"
+      "value": "[if(parameters('deployBastion'), reference('bastionJumpbox').outputs.vmName.value, '')]"
     },
     "aiSearchName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('dependencies-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.aiSearchName.value]"
+      "value": "[reference('aiDependencies').outputs.aiSearchName.value]"
     },
     "sharedPrivateLinkName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('search-spl-aiservices-{0}-deployment', variables('uniqueSuffix'))), '2025-04-01').outputs.sharedPrivateLinkName.value]"
+      "value": "[reference('searchToAiServicesSharedPrivateLink').outputs.sharedPrivateLinkName.value]"
     }
   }
 }

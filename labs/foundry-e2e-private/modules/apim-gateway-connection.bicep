@@ -82,7 +82,30 @@ resource apimApi 'Microsoft.ApiManagement/service/apis@2024-05-01' = {
     format: 'openapi-link'
     value: 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/${inferenceApiVersion}/inference.json'
     serviceUrl: '${aiServicesEndpoint}/openai'
-    subscriptionRequired: false
+    // Require an APIM subscription key for direct callers (e.g. the jump-box
+    // test scripts). The Foundry project connection still uses the APIM master
+    // subscription key, whose scope covers all APIs.
+    subscriptionRequired: true
+    // Accept the Azure OpenAI native 'api-key' header (and 'api-key' query
+    // parameter) as the subscription key so the openai SDK's AzureOpenAI
+    // client works without custom headers. The default APIM header
+    // 'Ocp-Apim-Subscription-Key' is still accepted in addition.
+    subscriptionKeyParameterNames: {
+      header: 'api-key'
+      query: 'api-key'
+    }
+  }
+}
+
+// ---- Dedicated APIM subscription scoped to this API for direct testing ----
+resource apiSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-05-01' = {
+  name: '${apimApiName}-test'
+  parent: apimService
+  properties: {
+    displayName: 'Direct test access to ${apimApiName}'
+    scope: apimApi.id
+    state: 'active'
+    allowTracing: false
   }
 }
 
@@ -142,3 +165,7 @@ resource apimConnection 'Microsoft.CognitiveServices/accounts/projects/connectio
 output connectionName string = apimConnection.name
 output targetUrl string = '${apimService.properties.gatewayUrl}/${apimApi.properties.path}'
 output apimApiName string = apimApi.name
+output apimApiPath string = apimApi.properties.path
+
+@secure()
+output apiSubscriptionKey string = apiSubscription.listSecrets(apiSubscription.apiVersion).primaryKey

@@ -288,17 +288,14 @@ module aiDependencies 'modules/standard-dependent-resources.bicep' = {
   }
 }
 
-resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
-  name: aiDependencies.outputs.azureStorageName
-}
-
-resource aiSearch 'Microsoft.Search/searchServices@2023-11-01' existing = {
-  name: aiDependencies.outputs.aiSearchName
-}
-
-resource cosmosDB 'Microsoft.DocumentDB/databaseAccounts@2024-11-15' existing = {
-  name: aiDependencies.outputs.cosmosDBName
-}
+// Note: we intentionally do NOT declare `existing` resources for the AI Search,
+// Storage, and Cosmos DB accounts here. Under Bicep `languageVersion 2.0`,
+// `existing` resources that are only referenced from `dependsOn` (never read
+// for any property) are elided from the compiled ARM JSON, and the orphaned
+// symbol references in `dependsOn` then fail validation with
+// "The template reference '<name>' is not valid: could not find template
+// resource". Implicit dependencies via `aiDependencies.outputs.*` already
+// serialize the dependent modules behind aiDependencies.
 
 // ---------------------------------------------------------------------------
 // API Management
@@ -335,11 +332,6 @@ module privateEndpointAndDNS 'modules/private-endpoint-and-dns.bicep' = {
     suffix: uniqueSuffix
     existingDnsZones: existingDnsZones
   }
-  dependsOn: [
-    aiSearch
-    storage
-    cosmosDB
-  ]
 }
 
 // ---------------------------------------------------------------------------
@@ -382,7 +374,6 @@ module storageAccountRoleAssignment 'modules/azure-storage-account-role-assignme
     projectPrincipalId: aiProject.outputs.projectPrincipalId
   }
   dependsOn: [
-    storage
     privateEndpointAndDNS
   ]
 }
@@ -394,7 +385,6 @@ module cosmosAccountRoleAssignments 'modules/cosmosdb-account-role-assignment.bi
     projectPrincipalId: aiProject.outputs.projectPrincipalId
   }
   dependsOn: [
-    cosmosDB
     privateEndpointAndDNS
   ]
 }
@@ -406,7 +396,6 @@ module aiSearchRoleAssignments 'modules/ai-search-role-assignments.bicep' = {
     projectPrincipalId: aiProject.outputs.projectPrincipalId
   }
   dependsOn: [
-    aiSearch
     privateEndpointAndDNS
   ]
 }
@@ -418,8 +407,6 @@ module searchMiToStorageRoleAssignment 'modules/search-mi-to-storage-role-assign
     searchServicePrincipalId: aiDependencies.outputs.aiSearchPrincipalId
   }
   dependsOn: [
-    aiSearch
-    storage
     privateEndpointAndDNS
   ]
 }
@@ -431,7 +418,6 @@ module searchMiToOpenAIRoleAssignment 'modules/search-mi-to-openai-role-assignme
     searchServicePrincipalId: aiDependencies.outputs.aiSearchPrincipalId
   }
   dependsOn: [
-    aiSearch
     privateEndpointAndDNS
   ]
 }
@@ -443,7 +429,6 @@ module searchToAiServicesSharedPrivateLink 'modules/search-shared-private-link-t
     aiServicesAccountName: aiAccount.outputs.accountName
   }
   dependsOn: [
-    aiSearch
     privateEndpointAndDNS
     searchMiToOpenAIRoleAssignment
   ]
@@ -465,7 +450,6 @@ module accountToSearchRoleAssignment 'modules/ai-account-to-search-role-assignme
     accountPrincipalId: aiAccount.outputs.accountPrincipalId
   }
   dependsOn: [
-    aiSearch
     privateEndpointAndDNS
   ]
 }
@@ -477,7 +461,6 @@ module accountToStorageRoleAssignment 'modules/ai-account-to-storage-role-assign
     accountPrincipalId: aiAccount.outputs.accountPrincipalId
   }
   dependsOn: [
-    storage
     privateEndpointAndDNS
   ]
 }
@@ -493,9 +476,6 @@ module addProjectCapabilityHost 'modules/add-project-capability-host.bicep' = {
     projectCapHost: projectCapHost
   }
   dependsOn: [
-    aiSearch
-    storage
-    cosmosDB
     privateEndpointAndDNS
     cosmosAccountRoleAssignments
     storageAccountRoleAssignment
@@ -604,19 +584,29 @@ module bastionJumpbox 'modules/bastion-jumpbox.bicep' = if (deployBastion) {
     adminUsername: jumpboxAdminUsername
     adminPassword: jumpboxAdminPassword
     installDevTools: installDevTools
-    aiProjectEndpoint: 'https://${aiAccount.outputs.accountName}.services.ai.azure.com/api/projects/${aiProject.outputs.projectName}'
-    primaryAgentModel: '${apimConnectionName}/${modelName}'
-    crossRegionAgentModel: deployCrossRegionOpenAI ? '${apimCrossRegionConnectionName}/${crossRegionModelName}' : ''
+    // The desktop test scripts call APIM directly with a scoped APIM
+    // subscription key (no Azure AD / managed identity from the caller).
+    apimGatewayUrl: 'https://${apimDependencies.outputs.apiManagementName}.azure-api.net'
+    inferenceApiVersion: inferenceApiVersion
+    primaryApiPath: apimGatewayConnection.outputs.apimApiPath
+    primaryModelDeployment: modelName
+    primarySubscriptionKey: apimGatewayConnection.outputs.apiSubscriptionKey
+    #disable-next-line BCP318
+    crossRegionApiPath: deployCrossRegionOpenAI ? crossRegionOpenAI.outputs.apimApiPath : ''
+    crossRegionModelDeployment: deployCrossRegionOpenAI ? crossRegionModelName : ''
+    #disable-next-line BCP318
+    crossRegionSubscriptionKey: deployCrossRegionOpenAI ? crossRegionOpenAI.outputs.apiSubscriptionKey : ''
   }
   // Serialize VNet subnet creation to avoid AnotherOperationInProgress errors:
   // the bastion module adds AzureBastionSubnet + jumpbox-subnet to the VNet
   // while other modules (apimSubnet, private endpoints) are also mutating it.
-  // Also wait for the APIM gateway connections so the desktop test scripts
-  // baked onto the VM reference connections that already exist on the project.
+  // Implicit dependencies via outputs already cover apimGatewayConnection
+  // and crossRegionOpenAI, so they are not repeated here.
   dependsOn: [
+    #disable-next-line no-unnecessary-dependson
     apimSubnet
+    #disable-next-line no-unnecessary-dependson
     privateEndpointAndDNS
-    apimGatewayConnection
   ]
 }
 

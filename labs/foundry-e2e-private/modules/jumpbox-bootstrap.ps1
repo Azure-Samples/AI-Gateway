@@ -14,9 +14,14 @@
 #>
 
 param(
-  [string]$ProjectEndpoint = '',
-  [string]$PrimaryAgentModel = '',
-  [string]$CrossRegionAgentModel = ''
+  [string]$ApimGatewayUrl = '',
+  [string]$InferenceApiVersion = '2024-10-21',
+  [string]$PrimaryApiPath = '',
+  [string]$PrimaryModelDeployment = '',
+  [string]$PrimarySubscriptionKey = '',
+  [string]$CrossRegionApiPath = '',
+  [string]$CrossRegionModelDeployment = '',
+  [string]$CrossRegionSubscriptionKey = ''
 )
 
 $ErrorActionPreference = 'Continue'
@@ -178,10 +183,12 @@ try {
 
 # ---- 7. Public-Desktop test scripts (Test-AI-Gateway-*.ps1) ----
 # Drop ready-to-run PowerShell scripts on the Public Desktop so users can
-# right-click → Run with PowerShell to exercise the APIM AI Gateway through
-# the Foundry agent SDK without copy/pasting from the notebook.
+# right-click → Run with PowerShell to exercise the APIM AI Gateway directly
+# with a scoped APIM subscription key (no Azure AD / managed identity needed
+# from the caller). APIM still uses its own managed identity to authenticate
+# to the Azure OpenAI backend behind the gateway.
 try {
-  if (-not [string]::IsNullOrWhiteSpace($ProjectEndpoint) -and -not [string]::IsNullOrWhiteSpace($PrimaryAgentModel)) {
+  if (-not [string]::IsNullOrWhiteSpace($ApimGatewayUrl)) {
     $publicDesktop = 'C:\Users\Public\Desktop'
     if (-not (Test-Path $publicDesktop)) { New-Item -ItemType Directory -Path $publicDesktop -Force | Out-Null }
 
@@ -190,18 +197,15 @@ try {
     $template = @'
 <#
 .SYNOPSIS
-  Sends a test prompt through the APIM AI Gateway to a Foundry project.
+  Sends a test prompt through the APIM AI Gateway to an Azure OpenAI deployment
+  using an APIM subscription key (no Azure AD sign-in required).
 .DESCRIPTION
-  Uses azure-ai-projects (>= 2.0) and azure-identity (DefaultAzureCredential)
-  to call the Chat Completions API on the Foundry project, targeting the
-  model exposed via the APIM gateway connection. Prints the assistant
-  response and the run status.
-  Run `az login` once before invoking this script.
+  Calls APIM at <gateway>/<api-path>/deployments/<model>/chat/completions using
+  the openai Python SDK (AzureOpenAI) configured with `api_key` set to the
+  scoped APIM subscription key. APIM in turn uses its system-assigned managed
+  identity to authenticate to the Azure OpenAI backend.
   Note: this lab's APIM imports the stable Azure OpenAI inference OpenAPI
   spec (2024-10-21), which exposes chat.completions but not /responses.
-  To use openai_client.responses.create(...) instead, update the API import
-  in modules/apim-gateway-connection.bicep to a preview spec that includes
-  /responses (e.g. preview/2025-03-01-preview or later).
 #>
 param(
   [string]$Prompt = 'Tell me one fun fact about Azure API Management.'
@@ -209,88 +213,85 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$projectEndpoint = '__PROJECT_ENDPOINT__'
-$agentModel      = '__AGENT_MODEL__'
-$connectionLabel = '__CONNECTION_LABEL__'
+$gatewayUrl       = '__GATEWAY_URL__'
+$apiPath          = '__API_PATH__'
+$modelDeployment  = '__MODEL_DEPLOYMENT__'
+$apiVersion       = '__API_VERSION__'
+$subscriptionKey  = '__SUBSCRIPTION_KEY__'
+$connectionLabel  = '__CONNECTION_LABEL__'
 
 Write-Host "==== Test-AI-Gateway ($connectionLabel) ====" -ForegroundColor Cyan
-Write-Host "Project endpoint: $projectEndpoint"
-Write-Host "Agent model    : $agentModel"
+Write-Host "Gateway URL : $gatewayUrl"
+Write-Host "API path    : $apiPath"
+Write-Host "Deployment  : $modelDeployment"
+Write-Host "API version : $apiVersion"
 Write-Host ""
 
-# 1) Make sure az + python are on PATH
-foreach ($cmd in @('az','python')) {
-  if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) {
-    Write-Error "$cmd is not on PATH. Check C:\bootstrap.log and re-run the bootstrap."
-    Read-Host 'Press Enter to close'
-    exit 1
-  }
+# 1) Make sure python is on PATH
+if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+  Write-Error 'python is not on PATH. Check C:\bootstrap.log and re-run the bootstrap.'
+  Read-Host 'Press Enter to close'
+  exit 1
 }
 
-# 2) Make sure the user is signed in to Azure CLI
-& az account show *> $null
-if ($LASTEXITCODE -ne 0) {
-  Write-Host "Not signed in to Azure CLI. Launching az login..." -ForegroundColor Yellow
-  & az login | Out-Null
-  if ($LASTEXITCODE -ne 0) {
-    Write-Error 'az login failed.'
-    Read-Host 'Press Enter to close'
-    exit 1
-  }
-}
-
-# 3) Idempotently install the SDKs we need.
-#    Uses the latest azure-ai-projects (>= 2.0) which exposes the Responses API
-#    via project_client.get_openai_client() and replaces the older
-#    agents.create_agent / threads / messages / runs API.
-Write-Host "Ensuring azure-ai-projects + azure-identity are installed..."
-& python -m pip install --quiet --upgrade "azure-ai-projects>=2.0" azure-identity
+# 2) Idempotently install the openai SDK.
+Write-Host 'Ensuring openai is installed...'
+& python -m pip install --quiet --upgrade openai
 if ($LASTEXITCODE -ne 0) {
   Write-Warning "pip install reported a non-zero exit code; continuing anyway."
 }
 
-# 4) Run the test inline via python -c using chat.completions, which is the
-#    operation exposed by the current APIM import (stable/2024-10-21 spec).
-#    Values are passed in via environment variables to avoid PS-vs-Python
-#    quoting headaches. The Python source is built as a string array (instead
-#    of a here-string) so this template file itself can be embedded inside
+# 3) Run the test inline via python -c. Values flow through environment
+#    variables to avoid PS-vs-Python quoting headaches. The Python source is
+#    a string array (instead of a here-string) so this template can sit inside
 #    another PowerShell here-string without conflicting line-0 terminators.
 $py = @(
     'import os',
-    'from azure.ai.projects import AIProjectClient',
-    'from azure.identity import DefaultAzureCredential',
+    'from openai import AzureOpenAI',
     '',
-    'endpoint = os.environ["AIGW_ENDPOINT"]',
-    'model    = os.environ["AIGW_MODEL"]',
-    'prompt   = os.environ["AIGW_PROMPT"]',
+    'gateway_url = os.environ["AIGW_GATEWAY_URL"].rstrip("/")',
+    'api_path    = os.environ["AIGW_API_PATH"].strip("/")',
+    'model       = os.environ["AIGW_MODEL"]',
+    'api_version = os.environ["AIGW_API_VERSION"]',
+    'api_key     = os.environ["AIGW_KEY"]',
+    'prompt      = os.environ["AIGW_PROMPT"]',
     '',
-    'with (',
-    '    DefaultAzureCredential() as credential,',
-    '    AIProjectClient(endpoint=endpoint, credential=credential) as project,',
-    '):',
-    '    with project.get_openai_client() as openai_client:',
-    '        completion = openai_client.chat.completions.create(',
-    '            model=model,',
-    '            messages=[',
-    '                {"role": "system", "content": "You are a helpful assistant routed through the APIM AI Gateway."},',
-    '                {"role": "user", "content": prompt},',
-    '            ],',
-    '        )',
-    '        choice = completion.choices[0]',
-    '        print(f"assistant: {choice.message.content}")',
-    '        print(f"Finish reason: {choice.finish_reason}")'
+    'client = AzureOpenAI(',
+    '    api_key=api_key,',
+    '    api_version=api_version,',
+    '    base_url=f"{gateway_url}/{api_path}",',
+    ')',
+    '',
+    'completion = client.chat.completions.create(',
+    '    model=model,',
+    '    messages=[',
+    '        {"role": "system", "content": "You are a helpful assistant routed through the APIM AI Gateway."},',
+    '        {"role": "user", "content": prompt},',
+    '    ],',
+    ')',
+    'choice = completion.choices[0]',
+    'print(f"assistant: {choice.message.content}")',
+    'print(f"Finish reason: {choice.finish_reason}")'
 ) -join [Environment]::NewLine
 
-$env:AIGW_ENDPOINT = $projectEndpoint
-$env:AIGW_MODEL    = $agentModel
-$env:AIGW_PROMPT   = $Prompt
+$env:AIGW_GATEWAY_URL = $gatewayUrl
+$env:AIGW_API_PATH    = $apiPath
+$env:AIGW_MODEL       = $modelDeployment
+$env:AIGW_API_VERSION = $apiVersion
+$env:AIGW_KEY         = $subscriptionKey
+$env:AIGW_PROMPT      = $Prompt
 
-& python -c $py
-$exit = $LASTEXITCODE
+try {
+  & python -c $py
+  $exit = $LASTEXITCODE
+} finally {
+  # Scrub the key from the environment as soon as the call returns.
+  Remove-Item Env:AIGW_KEY -ErrorAction SilentlyContinue
+}
 
-Write-Host ""
+Write-Host ''
 if ($exit -eq 0) {
-  Write-Host "==== Test completed successfully ====" -ForegroundColor Green
+  Write-Host '==== Test completed successfully ====' -ForegroundColor Green
 } else {
   Write-Host "==== Test failed with exit code $exit ====" -ForegroundColor Red
 }
@@ -300,22 +301,66 @@ exit $exit
 '@
 
     function Write-DesktopTest {
-      param([string]$FileName, [string]$Model, [string]$Label)
-      $content = $template.Replace('__PROJECT_ENDPOINT__', $ProjectEndpoint).Replace('__AGENT_MODEL__', $Model).Replace('__CONNECTION_LABEL__', $Label)
+      param(
+        [string]$FileName,
+        [string]$ApiPath,
+        [string]$ModelDeployment,
+        [string]$SubscriptionKey,
+        [string]$Label
+      )
+      $content = $template.
+        Replace('__GATEWAY_URL__',       $ApimGatewayUrl).
+        Replace('__API_PATH__',          $ApiPath).
+        Replace('__MODEL_DEPLOYMENT__',  $ModelDeployment).
+        Replace('__API_VERSION__',       $InferenceApiVersion).
+        Replace('__SUBSCRIPTION_KEY__',  $SubscriptionKey).
+        Replace('__CONNECTION_LABEL__',  $Label)
       $path = Join-Path $publicDesktop $FileName
       Set-Content -Path $path -Value $content -Encoding UTF8 -Force
-      Write-Host "---- Wrote $FileName to public desktop ($Label -> $Model)"
+      # Restrict the script to Administrators + SYSTEM only because it embeds
+      # the APIM subscription key in cleartext.
+      try {
+        $acl = Get-Acl $path
+        $acl.SetAccessRuleProtection($true, $false)
+        $acl.Access | ForEach-Object { [void]$acl.RemoveAccessRule($_) }
+        $admins = New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544'
+        $system = New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-18'
+        $rights = [System.Security.AccessControl.FileSystemRights]'FullControl'
+        $allow  = [System.Security.AccessControl.AccessControlType]'Allow'
+        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($admins, $rights, $allow)))
+        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($system, $rights, $allow)))
+        Set-Acl -Path $path -AclObject $acl
+      } catch {
+        Write-Warning "Failed to lock down ACL on $path : $_"
+      }
+      Write-Host "---- Wrote $FileName to public desktop ($Label -> $ApiPath/$ModelDeployment)"
     }
 
-    Write-DesktopTest -FileName 'Test-AI-Gateway-Primary.ps1'     -Model $PrimaryAgentModel     -Label 'primary'
-
-    if (-not [string]::IsNullOrWhiteSpace($CrossRegionAgentModel)) {
-      Write-DesktopTest -FileName 'Test-AI-Gateway-CrossRegion.ps1' -Model $CrossRegionAgentModel -Label 'cross-region'
+    if (-not [string]::IsNullOrWhiteSpace($PrimaryApiPath) -and `
+        -not [string]::IsNullOrWhiteSpace($PrimaryModelDeployment) -and `
+        -not [string]::IsNullOrWhiteSpace($PrimarySubscriptionKey)) {
+      Write-DesktopTest -FileName 'Test-AI-Gateway-Primary.ps1' `
+                        -ApiPath $PrimaryApiPath `
+                        -ModelDeployment $PrimaryModelDeployment `
+                        -SubscriptionKey $PrimarySubscriptionKey `
+                        -Label 'primary'
     } else {
-      Write-Host "---- Skipping Test-AI-Gateway-CrossRegion.ps1 (CrossRegionAgentModel not set)"
+      Write-Host '---- Skipping Test-AI-Gateway-Primary.ps1 (primary path/model/key not provided)'
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($CrossRegionApiPath) -and `
+        -not [string]::IsNullOrWhiteSpace($CrossRegionModelDeployment) -and `
+        -not [string]::IsNullOrWhiteSpace($CrossRegionSubscriptionKey)) {
+      Write-DesktopTest -FileName 'Test-AI-Gateway-CrossRegion.ps1' `
+                        -ApiPath $CrossRegionApiPath `
+                        -ModelDeployment $CrossRegionModelDeployment `
+                        -SubscriptionKey $CrossRegionSubscriptionKey `
+                        -Label 'cross-region'
+    } else {
+      Write-Host '---- Skipping Test-AI-Gateway-CrossRegion.ps1 (cross-region path/model/key not provided)'
     }
   } else {
-    Write-Host "---- Skipping desktop test scripts (ProjectEndpoint or PrimaryAgentModel not provided)"
+    Write-Host '---- Skipping desktop test scripts (ApimGatewayUrl not provided)'
   }
 } catch {
   Write-Warning "Failed to write desktop test scripts: $_"

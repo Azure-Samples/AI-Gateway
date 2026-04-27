@@ -44,14 +44,31 @@ param adminPassword string
 @description('When true, run a first-boot bootstrap script that installs Python 3.12, Azure CLI, Git, VS Code, PowerShell 7 and Windows Terminal via winget, then clones the AI-Gateway repo and installs Python + VS Code dependencies. Logs to C:\\bootstrap.log on the VM.')
 param installDevTools bool = true
 
-@description('Foundry project endpoint baked into the desktop test scripts (e.g. https://<account>.services.ai.azure.com/api/projects/<project>).')
-param aiProjectEndpoint string = ''
+@description('APIM gateway base URL baked into the desktop test scripts (e.g. https://<apim>.azure-api.net). Used by callers that talk to APIM directly with a subscription key.')
+param apimGatewayUrl string = ''
 
-@description('Primary agent model identifier baked into Test-AI-Gateway-Primary.ps1 (e.g. apim-gateway/gpt-4o-mini).')
-param primaryAgentModel string = ''
+@description('API version sent to APIM by the desktop test scripts (matches the imported Azure OpenAI inference spec).')
+param inferenceApiVersion string = '2024-10-21'
 
-@description('Cross-region agent model identifier baked into Test-AI-Gateway-CrossRegion.ps1 (e.g. apim-gateway-crossregion/gpt-4o). Empty disables the cross-region desktop script.')
-param crossRegionAgentModel string = ''
+@description('APIM API path for the primary Azure OpenAI API (e.g. openai). Combined with apimGatewayUrl to form the test base URL.')
+param primaryApiPath string = ''
+
+@description('Model deployment name on the primary Foundry account (e.g. gpt-4o-mini). Used as the OpenAI "model" parameter in the primary test script.')
+param primaryModelDeployment string = ''
+
+@description('APIM subscription key (primary) scoped to the primary Azure OpenAI API. Baked into the primary desktop test script as a protected run-command parameter.')
+@secure()
+param primarySubscriptionKey string = ''
+
+@description('APIM API path for the cross-region Azure OpenAI API (e.g. openai-eastus2). Empty disables the cross-region desktop script.')
+param crossRegionApiPath string = ''
+
+@description('Model deployment name on the cross-region OpenAI account (e.g. gpt-4o). Used as the OpenAI "model" parameter in the cross-region test script.')
+param crossRegionModelDeployment string = ''
+
+@description('APIM subscription key (primary) scoped to the cross-region Azure OpenAI API.')
+@secure()
+param crossRegionSubscriptionKey string = ''
 
 // ---- NAT Gateway for outbound internet ----
 resource natGatewayPip 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
@@ -223,16 +240,38 @@ resource jumpboxBootstrap 'Microsoft.Compute/virtualMachines/runCommands@2024-07
     }
     parameters: [
       {
-        name: 'ProjectEndpoint'
-        value: aiProjectEndpoint
+        name: 'ApimGatewayUrl'
+        value: apimGatewayUrl
       }
       {
-        name: 'PrimaryAgentModel'
-        value: primaryAgentModel
+        name: 'InferenceApiVersion'
+        value: inferenceApiVersion
       }
       {
-        name: 'CrossRegionAgentModel'
-        value: crossRegionAgentModel
+        name: 'PrimaryApiPath'
+        value: primaryApiPath
+      }
+      {
+        name: 'PrimaryModelDeployment'
+        value: primaryModelDeployment
+      }
+      {
+        name: 'CrossRegionApiPath'
+        value: crossRegionApiPath
+      }
+      {
+        name: 'CrossRegionModelDeployment'
+        value: crossRegionModelDeployment
+      }
+    ]
+    protectedParameters: [
+      {
+        name: 'PrimarySubscriptionKey'
+        value: primarySubscriptionKey
+      }
+      {
+        name: 'CrossRegionSubscriptionKey'
+        value: crossRegionSubscriptionKey
       }
     ]
     timeoutInSeconds: 1800
