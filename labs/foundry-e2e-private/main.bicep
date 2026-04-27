@@ -491,7 +491,6 @@ module addProjectCapabilityHost 'modules/add-project-capability-host.bicep' = {
     azureStorageConnection: aiProject.outputs.azureStorageConnection
     aiSearchConnection: aiProject.outputs.aiSearchConnection
     projectCapHost: projectCapHost
-    agentSubnetId: vnet.outputs.agentSubnetId
   }
   dependsOn: [
     aiSearch
