@@ -57,7 +57,9 @@ Components:
 - [VS Code](https://code.visualstudio.com/) with the [Jupyter extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and signed in
 - An Azure subscription with `Contributor` permissions
-- Quota for the chosen models in **both** the primary location (default `eastus2`, `gpt-4o-mini`) and the cross-region location (default `swedencentral`, `gpt-4o`)
+- Quota for the chosen models in **both** the primary location (default `westus3`, `gpt-4o-mini`) and the cross-region location (default `eastus2`, `gpt-4o`)
+
+> **Region note**: West US 3 is used as the primary region because (a) Foundry private-agent (network-injected) capability hosts are supported there, and (b) Azure AI Search currently has capacity in this region. Sweden Central can fail with `tags.internal.containerapps.resource-owner=AIAgents not allowed`, and East US 2 may return `InsufficientResourcesAvailable` for AI Search. Override `resource_group_location` / `cross_region_location` in the notebook if you need a different combination.
 
 ## 🚀 Get started
 
