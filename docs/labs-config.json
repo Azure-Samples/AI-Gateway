@@ -303,6 +303,31 @@
     "lastCommitDate": "2026-02-04T13:09:52.730Z"
   },
   {
+    "id": "foundry-e2e-private",
+    "name": "Microsoft Foundry End-to-End Private with APIM AI Gateway",
+    "architectureDiagram": "images/foundry-e2e-private.gif",
+    "categories": [
+      "Security & Access Control",
+      "AI Agents"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure API Management",
+      "Azure OpenAI",
+      "Private Link",
+      "Azure Bastion",
+      "Application Insights"
+    ],
+    "shortDescription": "End-to-end private Microsoft Foundry deployment fronted by APIM as the AI Gateway, with cross-region OpenAI.",
+    "detailedDescription": "Deploy Microsoft Foundry, its standard backend resources (Azure AI Search, Cosmos DB, Storage), Azure API Management (StandardV2) and a cross-region Azure OpenAI account into a single private VNet. APIM acts as the AI Gateway: it terminates a private endpoint, integrates outbound into the VNet, imports the Azure OpenAI inference API, and authenticates to Foundry / OpenAI using its system-assigned managed identity. The Foundry project receives APIM gateway connections so agents can call models as `apim-gateway/<model>` (primary) or `apim-gateway-crossregion/<model>` (secondary region). Application Insights is wired into the project for agent tracing and an Azure Bastion + Windows jump-box VM are included for testing the private setup from inside the VNet.",
+    "authors": [
+      "duongthaiha"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-e2e-private",
+    "lastCommitDate": "2026-05-18T09:36:10.686Z"
+  },
+  {
     "id": "foundry-iq-agent-svc",
     "name": "Foundry IQ Agent Service Integration",
     "architectureDiagram": "images/foundry-iq-agent-svc.gif",
