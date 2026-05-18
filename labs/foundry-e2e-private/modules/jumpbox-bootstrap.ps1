@@ -241,10 +241,9 @@ if ($LASTEXITCODE -ne 0) {
   Write-Warning "pip install reported a non-zero exit code; continuing anyway."
 }
 
-# 3) Run the test inline via python -c. Values flow through environment
-#    variables to avoid PS-vs-Python quoting headaches. The Python source is
-#    a string array (instead of a here-string) so this template can sit inside
-#    another PowerShell here-string without conflicting line-0 terminators.
+# 3) Run the test inline via python stdin. Values flow through environment
+#    variables, and stdin avoids Windows PowerShell native-command quote
+#    rewriting that can strip Python string quotes from `python -c` arguments.
 $py = @(
     'import os',
     'from openai import AzureOpenAI',
@@ -282,7 +281,7 @@ $env:AIGW_KEY         = $subscriptionKey
 $env:AIGW_PROMPT      = $Prompt
 
 try {
-  & python -c $py
+  $py | & python -
   $exit = $LASTEXITCODE
 } finally {
   # Scrub the key from the environment as soon as the call returns.
