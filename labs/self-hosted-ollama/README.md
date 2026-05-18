@@ -1,5 +1,6 @@
 ---
 name: "Self-Hosted Ollama behind APIM"
+architectureDiagram: images/self-hosted-ollama.gif
 categories: ["Platform Capabilities"]
 services: ["Azure API Management", "Azure Container Instances", "Azure Container Registry"]
 shortDescription: "Deploy a self-hosted Ollama embedding model on ACI, exposed through APIM"
@@ -10,6 +11,9 @@ authors: ["loreaa"]
 # APIM ❤️ Self-Hosted Ollama
 
 ## [Self-Hosted Ollama behind APIM lab](self-hosted-ollama.ipynb)
+
+
+![Demo](../../images/self-hosted-ollama.gif)
 
 This lab deploys a **CPU-only Ollama** container on **Azure Container Instances** with the `mxbai-embed-large` embedding model, fronted by **Azure API Management**.
 

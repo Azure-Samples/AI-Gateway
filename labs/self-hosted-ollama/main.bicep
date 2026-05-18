@@ -110,6 +110,11 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2023-05-01'
 // 5. APIM Backend pointing to ACI public IP
 resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apiManagementName
+  dependsOn: [
+    apimModule
+    containerGroup
+  ]
+
 }
 
 resource ollamaBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {

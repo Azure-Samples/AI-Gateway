@@ -40,7 +40,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-agent-service",
     "tags": [],
-    "lastCommitDate": "2026-02-23T15:05:59.376Z"
+    "lastCommitDate": "2026-04-22T21:03:32.955Z"
   },
   {
     "id": "ai-foundry-deepseek",
@@ -91,7 +91,8 @@
     "architectureDiagram": "images/foundry-model-gateway.gif",
     "categories": [
       "Platform Capabilities",
-      "Models Usage"
+      "Models Usage",
+      "Gateway Pattern"
     ],
     "services": [
       "Azure AI Foundry",
@@ -109,7 +110,7 @@
       "Enterprise AI"
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-model-gateway",
-    "lastCommitDate": "2026-02-23T14:51:40.110Z"
+    "lastCommitDate": "2026-04-22T21:03:32.956Z"
   },
   {
     "id": "ai-foundry-private-mcp",
@@ -277,7 +278,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/content-safety",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.730Z"
+    "lastCommitDate": "2026-04-22T21:03:32.956Z"
   },
   {
     "id": "finops-framework",
@@ -636,7 +637,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-context-protocol",
     "tags": [],
-    "lastCommitDate": "2026-02-20T22:13:30.448Z"
+    "lastCommitDate": "2026-04-22T21:07:32.688Z"
   },
   {
     "id": "model-routing",
@@ -770,7 +771,7 @@
   {
     "id": "self-hosted-ollama",
     "name": "Self-Hosted Ollama behind APIM",
-    "architectureDiagram": "",
+    "architectureDiagram": "images/self-hosted-ollama.gif",
     "categories": [
       "Platform Capabilities"
     ],
@@ -786,7 +787,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/self-hosted-ollama",
-    "lastCommitDate": "2026-04-17T07:57:18.624Z"
+    "lastCommitDate": "2026-04-21T13:28:48.484Z"
   },
   {
     "id": "semantic-caching",
