@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.42.1.51946",
+      "templateHash": "10627022964818938294"
+    }
+  },
+  "parameters": {
+    "cosmosDBConnection": {
+      "type": "string"
+    },
+    "azureStorageConnection": {
+      "type": "string"
+    },
+    "aiSearchConnection": {
+      "type": "string"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "accountName": {
+      "type": "string"
+    },
+    "projectCapHost": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "threadConnections": [
+      "[format('{0}', parameters('cosmosDBConnection'))]"
+    ],
+    "storageConnections": [
+      "[format('{0}', parameters('azureStorageConnection'))]"
+    ],
+    "vectorStoreConnections": [
+      "[format('{0}', parameters('aiSearchConnection'))]"
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.CognitiveServices/accounts/projects/capabilityHosts",
+      "apiVersion": "2025-04-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('accountName'), parameters('projectName'), parameters('projectCapHost'))]",
+      "properties": {
+        "capabilityHostKind": "Agents",
+        "vectorStoreConnections": "[variables('vectorStoreConnections')]",
+        "storageConnections": "[variables('storageConnections')]",
+        "threadStorageConnections": "[variables('threadConnections')]"
+      }
+    }
+  ],
+  "outputs": {
+    "projectCapHost": {
+      "type": "string",
+      "value": "[parameters('projectCapHost')]"
+    }
+  }
+}
