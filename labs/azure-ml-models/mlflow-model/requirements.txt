@@ -90,7 +90,7 @@ google-auth==2.38.0
 googleapis-common-protos==1.70.0
 gunicorn==23.0.0
 humanfriendly==10.0
-idna==3.10
+idna==3.15
 importlib-metadata==7.2.1
 importlib-resources==6.4.0
 inference-schema==1.8
