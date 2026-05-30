@@ -69,7 +69,7 @@ Build and control agentic applications with orchestration frameworks.
 
 | Lab | Description |
 |-----|-------------|
-| [**AI Agent Service**](labs/ai-agent-service/ai-agent-service-v2.ipynb) | Explore Foundry Agent Service with multi-service control |
+| [**AI Agent Service**](labs/ai-agent-service/ai-agent-service-foundry-v2.ipynb) | Explore Foundry Agent Service with multi-service control |
 | [**OpenAI Agents SDK**](labs/openai-agents/openai-agents.ipynb) | Use OpenAI Agents with Azure OpenAI and APIM-managed tools |
 | [**Gemini MCP Agents**](labs/gemini-mcp-agents/gemini-mcp-agents.ipynb) | Integrate Google Gemini models with MCP tools |
 | [**A2A Enabled Agents**](labs/mcp-a2a-agents/mcp-agent-as-a2a-server.ipynb) | A2A-enabled Agents with models and MCP plug & play tools |
@@ -191,11 +191,11 @@ Learn from experts through these videos covering AI Gateway concepts and impleme
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.MD) for guidelines.
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE.md)
 
 <div align="center">
 
