@@ -159,7 +159,7 @@ resource mlEndpoint 'Microsoft.MachineLearningServices/workspaces/onlineEndpoint
 
 // 11. Role Assignment - APIM managed identity gets AzureML Data Scientist role on ML workspace
 resource apimMlRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: '11-${guid(amlWorkspaceName, resourceSuffix, 'f6c7c914-8db3-469d-8ca1-694a8f32e121')}'
+  name: '${guid(amlWorkspaceName, resourceSuffix, 'f6c7c914-8db3-469d-8ca1-694a8f32e121')}'
   scope: mlWorkspace
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f6c7c914-8db3-469d-8ca1-694a8f32e121')

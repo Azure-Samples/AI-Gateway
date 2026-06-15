@@ -54,7 +54,7 @@ Core Components:
 ```bash
 git clone <repository-url>
 cd AI-Gateway
-pip install -r requirements.txt
+uv pip install -r pyproject.toml
 ```
 
 ### 2. Deploy Infrastructure
