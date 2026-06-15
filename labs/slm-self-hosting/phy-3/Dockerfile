@@ -1,10 +1,14 @@
-FROM python:3.8-slim-buster
+FROM python:3.12-slim
+
+# Install uv (https://docs.astral.sh/uv/)
+COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /usr/local/bin/
 
 WORKDIR /usr/src/app
 
-COPY requirements.txt ./
+# Copy pyproject.toml first for better build caching
+COPY pyproject.toml ./
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 COPY . .
 

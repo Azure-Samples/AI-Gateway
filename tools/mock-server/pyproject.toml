@@ -1,0 +1,14 @@
+[project]
+name = "mock-server"
+version = "0.1.0"
+description = "Mock OpenAI API server for development and testing."
+requires-python = ">=3.12"
+dependencies = [
+    "Flask",
+    "gunicorn",
+    "Werkzeug",
+    "openai",
+]
+
+[tool.uv]
+package = false

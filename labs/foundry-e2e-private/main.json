@@ -5,8 +5,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.42.1.51946",
-      "templateHash": "9237819094389495989"
+      "version": "0.39.26.7824",
+      "templateHash": "7275264942602077149"
     }
   },
   "parameters": {
@@ -299,7 +299,7 @@
       "privatelink.analysis.windows.net",
       "privatelink.azure-api.net"
     ],
-    "apimPolicyXml": "<!--\r\n    APIM inbound policy for the Azure OpenAI inference API.\r\n    Uses the APIM service's system-assigned managed identity to obtain a\r\n    bearer token for the Microsoft Foundry / Azure OpenAI backend.\r\n    The APIM identity must be granted the `Cognitive Services OpenAI User`\r\n    role (or equivalent) on the target Foundry account.\r\n-->\r\n<policies>\r\n    <inbound>\r\n        <base />\r\n        <authentication-managed-identity resource=\"https://cognitiveservices.azure.com/\" output-token-variable-name=\"managed-id-access-token\" ignore-error=\"false\" />\r\n        <set-header name=\"Authorization\" exists-action=\"override\">\r\n            <value>@(\"Bearer \" + (string)context.Variables[\"managed-id-access-token\"])</value>\r\n        </set-header>\r\n    </inbound>\r\n    <backend>\r\n        <base />\r\n    </backend>\r\n    <outbound>\r\n        <base />\r\n    </outbound>\r\n    <on-error>\r\n        <base />\r\n    </on-error>\r\n</policies>\r\n",
+    "apimPolicyXml": "<!--\n    APIM inbound policy for the Azure OpenAI inference API.\n    Uses the APIM service's system-assigned managed identity to obtain a\n    bearer token for the Microsoft Foundry / Azure OpenAI backend.\n    The APIM identity must be granted the `Cognitive Services OpenAI User`\n    role (or equivalent) on the target Foundry account.\n-->\n<policies>\n    <inbound>\n        <base />\n        <authentication-managed-identity resource=\"https://cognitiveservices.azure.com/\" output-token-variable-name=\"managed-id-access-token\" ignore-error=\"false\" />\n        <set-header name=\"Authorization\" exists-action=\"override\">\n            <value>@(\"Bearer \" + (string)context.Variables[\"managed-id-access-token\"])</value>\n        </set-header>\n    </inbound>\n    <backend>\n        <base />\n    </backend>\n    <outbound>\n        <base />\n    </outbound>\n    <on-error>\n        <base />\n    </on-error>\n</policies>\n",
     "defaultModelDeployments": [
       {
         "name": "[parameters('modelName')]",
@@ -367,8 +367,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "963917177209517778"
+              "version": "0.39.26.7824",
+              "templateHash": "5473481736482031054"
             }
           },
           "parameters": {
@@ -501,8 +501,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.42.1.51946",
-                      "templateHash": "16099552705599806551"
+                      "version": "0.39.26.7824",
+                      "templateHash": "11393467636469018901"
                     }
                   },
                   "parameters": {
@@ -732,8 +732,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.42.1.51946",
-                      "templateHash": "16831488021130823101"
+                      "version": "0.39.26.7824",
+                      "templateHash": "9198305123291298111"
                     }
                   },
                   "parameters": {
@@ -836,8 +836,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.42.1.51946",
-                              "templateHash": "11628010471372017184"
+                              "version": "0.39.26.7824",
+                              "templateHash": "18227678212117547049"
                             }
                           },
                           "parameters": {
@@ -927,8 +927,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.42.1.51946",
-                              "templateHash": "11628010471372017184"
+                              "version": "0.39.26.7824",
+                              "templateHash": "18227678212117547049"
                             }
                           },
                           "parameters": {
@@ -1025,8 +1025,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.42.1.51946",
-                              "templateHash": "11628010471372017184"
+                              "version": "0.39.26.7824",
+                              "templateHash": "18227678212117547049"
                             }
                           },
                           "parameters": {
@@ -1219,8 +1219,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "11628010471372017184"
+              "version": "0.39.26.7824",
+              "templateHash": "18227678212117547049"
             }
           },
           "parameters": {
@@ -1327,8 +1327,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "14091767122838444766"
+              "version": "0.39.26.7824",
+              "templateHash": "15270170828489717197"
             }
           },
           "parameters": {
@@ -1459,8 +1459,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "4490932658057876441"
+              "version": "0.39.26.7824",
+              "templateHash": "1866495600998667262"
             }
           },
           "parameters": {
@@ -1594,8 +1594,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "16244580858760270013"
+              "version": "0.39.26.7824",
+              "templateHash": "8185780571164985227"
             }
           },
           "parameters": {
@@ -1770,8 +1770,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "12121665506399953556"
+              "version": "0.39.26.7824",
+              "templateHash": "3248342005912047844"
             }
           },
           "parameters": {
@@ -2033,8 +2033,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "12123319996580297931"
+              "version": "0.39.26.7824",
+              "templateHash": "12472047971424171284"
             }
           },
           "parameters": {
@@ -2199,8 +2199,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "9810345865502832545"
+              "version": "0.39.26.7824",
+              "templateHash": "2432621207397557685"
             }
           },
           "parameters": {
@@ -2902,8 +2902,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "16174014084968663194"
+              "version": "0.39.26.7824",
+              "templateHash": "5095087340309076800"
             }
           },
           "parameters": {
@@ -3077,8 +3077,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "5729541472937730744"
+              "version": "0.39.26.7824",
+              "templateHash": "6910483561575524105"
             }
           },
           "parameters": {
@@ -3130,8 +3130,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "6805612394357697185"
+              "version": "0.39.26.7824",
+              "templateHash": "14683840003859985069"
             }
           },
           "parameters": {
@@ -3146,7 +3146,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('azureStorageName'))]",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('azureStorageName'))]",
               "name": "[guid(parameters('projectPrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'), resourceId('Microsoft.Storage/storageAccounts', parameters('azureStorageName')))]",
               "properties": {
                 "principalId": "[parameters('projectPrincipalId')]",
@@ -3186,8 +3186,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "7156475803097930959"
+              "version": "0.39.26.7824",
+              "templateHash": "25128059954858801"
             }
           },
           "parameters": {
@@ -3208,7 +3208,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDBName'))]",
+              "scope": "[format('Microsoft.DocumentDB/databaseAccounts/{0}', parameters('cosmosDBName'))]",
               "name": "[guid(parameters('projectPrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', '230815da-be43-4aae-9cb4-875f7bd000aa'), resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDBName')))]",
               "properties": {
                 "principalId": "[parameters('projectPrincipalId')]",
@@ -3248,8 +3248,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "167668741936896543"
+              "version": "0.39.26.7824",
+              "templateHash": "7968115481508840"
             }
           },
           "parameters": {
@@ -3270,7 +3270,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Search/searchServices', parameters('aiSearchName'))]",
+              "scope": "[format('Microsoft.Search/searchServices/{0}', parameters('aiSearchName'))]",
               "name": "[guid(parameters('projectPrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7'), resourceId('Microsoft.Search/searchServices', parameters('aiSearchName')))]",
               "properties": {
                 "principalId": "[parameters('projectPrincipalId')]",
@@ -3281,7 +3281,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Search/searchServices', parameters('aiSearchName'))]",
+              "scope": "[format('Microsoft.Search/searchServices/{0}', parameters('aiSearchName'))]",
               "name": "[guid(parameters('projectPrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', '7ca78c08-252a-4471-8644-bb5ff32d4ba0'), resourceId('Microsoft.Search/searchServices', parameters('aiSearchName')))]",
               "properties": {
                 "principalId": "[parameters('projectPrincipalId')]",
@@ -3321,8 +3321,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "16931641142502905159"
+              "version": "0.39.26.7824",
+              "templateHash": "5639673804422032508"
             }
           },
           "parameters": {
@@ -3343,7 +3343,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('azureStorageName'))]",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('azureStorageName'))]",
               "name": "[guid(parameters('searchServicePrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7'), resourceId('Microsoft.Storage/storageAccounts', parameters('azureStorageName')))]",
               "properties": {
                 "principalId": "[parameters('searchServicePrincipalId')]",
@@ -3382,8 +3382,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "7494515879711492754"
+              "version": "0.39.26.7824",
+              "templateHash": "1238381602534271366"
             }
           },
           "parameters": {
@@ -3404,7 +3404,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName'))]",
+              "scope": "[format('Microsoft.CognitiveServices/accounts/{0}', parameters('accountName'))]",
               "name": "[guid(parameters('searchServicePrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'), resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')))]",
               "properties": {
                 "principalId": "[parameters('searchServicePrincipalId')]",
@@ -3444,8 +3444,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "1973708332133870716"
+              "version": "0.39.26.7824",
+              "templateHash": "11000036280433305417"
             }
           },
           "parameters": {
@@ -3542,8 +3542,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "10207065121607529226"
+              "version": "0.39.26.7824",
+              "templateHash": "2530685020442424722"
             }
           },
           "parameters": {
@@ -3624,7 +3624,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Storage/storageAccounts', take(toLower(variables('storageAccountName')), 24))]",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', take(toLower(variables('storageAccountName')), 24))]",
               "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', take(toLower(variables('storageAccountName')), 24)), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('spl-approver-{0}', parameters('nameSuffix'))), variables('roleStorageBlobDataOwner'))]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('spl-approver-{0}', parameters('nameSuffix'))), '2023-01-31').principalId]",
@@ -3639,7 +3639,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Storage/storageAccounts', take(toLower(variables('storageAccountName')), 24))]",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', take(toLower(variables('storageAccountName')), 24))]",
               "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', take(toLower(variables('storageAccountName')), 24)), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('spl-approver-{0}', parameters('nameSuffix'))), variables('roleStorageFileDataPrivilegedContributor'))]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('spl-approver-{0}', parameters('nameSuffix'))), '2023-01-31').principalId]",
@@ -3654,7 +3654,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiServicesAccountName'))]",
+              "scope": "[format('Microsoft.CognitiveServices/accounts/{0}', parameters('aiServicesAccountName'))]",
               "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiServicesAccountName')), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('spl-approver-{0}', parameters('nameSuffix'))), variables('roleCognitiveServicesContributor'))]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('spl-approver-{0}', parameters('nameSuffix'))), '2023-01-31').principalId]",
@@ -3696,7 +3696,7 @@
                     "value": "[parameters('sharedPrivateLinkName')]"
                   }
                 ],
-                "scriptContent": "set -e\r\necho \"Looking for pending PE connection on $AI_ACCOUNT_ID matching $SPL_NAME.*\"\r\nfor i in $(seq 1 30); do\r\n  PEC_NAME=$(az network private-endpoint-connection list --id \"$AI_ACCOUNT_ID\" --query \"[?starts_with(name, '${SPL_NAME}.')].name | [0]\" -o tsv || true)\r\n  if [ -n \"$PEC_NAME\" ] && [ \"$PEC_NAME\" != \"None\" ]; then\r\n    echo \"Found PE connection: $PEC_NAME\"\r\n    STATUS=$(az network private-endpoint-connection show --id \"$AI_ACCOUNT_ID/privateEndpointConnections/$PEC_NAME\" --query \"properties.privateLinkServiceConnectionState.status\" -o tsv)\r\n    echo \"Current status: $STATUS\"\r\n    if [ \"$STATUS\" = \"Approved\" ]; then\r\n      echo \"Already Approved.\"\r\n      break\r\n    fi\r\n    az network private-endpoint-connection approve --id \"$AI_ACCOUNT_ID/privateEndpointConnections/$PEC_NAME\" --description \"Auto-approved by spl-auto-approve module\" -o none\r\n    echo \"Approved.\"\r\n    break\r\n  fi\r\n  echo \"Not visible yet, sleeping 20s...\"\r\n  sleep 20\r\ndone\r\nif [ -z \"$PEC_NAME\" ] || [ \"$PEC_NAME\" = \"None\" ]; then\r\n  echo \"ERROR: did not find pending PE connection within timeout\"\r\n  exit 1\r\nfi\r\n"
+                "scriptContent": "set -e\necho \"Looking for pending PE connection on $AI_ACCOUNT_ID matching $SPL_NAME.*\"\nfor i in $(seq 1 30); do\n  PEC_NAME=$(az network private-endpoint-connection list --id \"$AI_ACCOUNT_ID\" --query \"[?starts_with(name, '${SPL_NAME}.')].name | [0]\" -o tsv || true)\n  if [ -n \"$PEC_NAME\" ] && [ \"$PEC_NAME\" != \"None\" ]; then\n    echo \"Found PE connection: $PEC_NAME\"\n    STATUS=$(az network private-endpoint-connection show --id \"$AI_ACCOUNT_ID/privateEndpointConnections/$PEC_NAME\" --query \"properties.privateLinkServiceConnectionState.status\" -o tsv)\n    echo \"Current status: $STATUS\"\n    if [ \"$STATUS\" = \"Approved\" ]; then\n      echo \"Already Approved.\"\n      break\n    fi\n    az network private-endpoint-connection approve --id \"$AI_ACCOUNT_ID/privateEndpointConnections/$PEC_NAME\" --description \"Auto-approved by spl-auto-approve module\" -o none\n    echo \"Approved.\"\n    break\n  fi\n  echo \"Not visible yet, sleeping 20s...\"\n  sleep 20\ndone\nif [ -z \"$PEC_NAME\" ] || [ \"$PEC_NAME\" = \"None\" ]; then\n  echo \"ERROR: did not find pending PE connection within timeout\"\n  exit 1\nfi\n"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', take(toLower(variables('storageAccountName')), 24), 'default')]",
@@ -3744,8 +3744,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "5025194208434644799"
+              "version": "0.39.26.7824",
+              "templateHash": "7973036105143733792"
             }
           },
           "parameters": {
@@ -3766,7 +3766,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Search/searchServices', parameters('aiSearchName'))]",
+              "scope": "[format('Microsoft.Search/searchServices/{0}', parameters('aiSearchName'))]",
               "name": "[guid(parameters('accountPrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7'), resourceId('Microsoft.Search/searchServices', parameters('aiSearchName')))]",
               "properties": {
                 "principalId": "[parameters('accountPrincipalId')]",
@@ -3777,7 +3777,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Search/searchServices', parameters('aiSearchName'))]",
+              "scope": "[format('Microsoft.Search/searchServices/{0}', parameters('aiSearchName'))]",
               "name": "[guid(parameters('accountPrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', '7ca78c08-252a-4471-8644-bb5ff32d4ba0'), resourceId('Microsoft.Search/searchServices', parameters('aiSearchName')))]",
               "properties": {
                 "principalId": "[parameters('accountPrincipalId')]",
@@ -3817,8 +3817,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "14510022294704830832"
+              "version": "0.39.26.7824",
+              "templateHash": "9112404162869430073"
             }
           },
           "parameters": {
@@ -3839,7 +3839,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('azureStorageName'))]",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('azureStorageName'))]",
               "name": "[guid(parameters('accountPrincipalId'), resourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'), resourceId('Microsoft.Storage/storageAccounts', parameters('azureStorageName')))]",
               "properties": {
                 "principalId": "[parameters('accountPrincipalId')]",
@@ -3891,8 +3891,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "10627022964818938294"
+              "version": "0.39.26.7824",
+              "templateHash": "17458377866351620215"
             }
           },
           "parameters": {
@@ -3982,8 +3982,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "14861833638743424490"
+              "version": "0.39.26.7824",
+              "templateHash": "13874725855824693255"
             }
           },
           "parameters": {
@@ -4013,7 +4013,7 @@
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageName'))]",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('storageName'))]",
               "name": "[guid(resourceId('Microsoft.Authorization/roleDefinitions', 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b'), resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')))]",
               "properties": {
                 "principalId": "[parameters('aiProjectPrincipalId')]",
@@ -4059,8 +4059,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "9661397591572983652"
+              "version": "0.39.26.7824",
+              "templateHash": "16291470712974205281"
             }
           },
           "parameters": {
@@ -4148,8 +4148,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "9426815145966780637"
+              "version": "0.39.26.7824",
+              "templateHash": "5259417978081566381"
             }
           },
           "parameters": {
@@ -4318,7 +4318,7 @@
             "apimOpenAIUserRole": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName'))]",
+              "scope": "[format('Microsoft.CognitiveServices/accounts/{0}', parameters('accountName'))]",
               "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')), resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
               "properties": {
                 "principalId": "[reference('apimService', '2024-05-01', 'full').identity.principalId]",
@@ -4436,8 +4436,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "2041338203025646573"
+              "version": "0.39.26.7824",
+              "templateHash": "571580719339024685"
             }
           },
           "parameters": {
@@ -4629,7 +4629,7 @@
             "apimRoleAssignment": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]",
+              "scope": "[format('Microsoft.CognitiveServices/accounts/{0}', parameters('openAIName'))]",
               "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), resourceId('Microsoft.ApiManagement/service', parameters('apimName')), '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
               "properties": {
                 "principalId": "[reference('apimService', '2024-05-01', 'full').identity.principalId]",
@@ -4897,8 +4897,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.42.1.51946",
-              "templateHash": "12425492447680877805"
+              "version": "0.39.26.7824",
+              "templateHash": "5474334966258701407"
             }
           },
           "parameters": {
@@ -5034,7 +5034,7 @@
             }
           },
           "variables": {
-            "$fxv#0": "<#\r\n.SYNOPSIS\r\n  First-boot bootstrap for the AI-Gateway foundry-e2e-private lab jump-box.\r\n\r\n.DESCRIPTION\r\n  Installs the dev tooling needed to run the lab notebooks from inside the\r\n  private VNet (Python 3.12, Azure CLI, Git, VS Code, PowerShell 7,\r\n  Windows Terminal), clones the AI-Gateway repo, installs Python and VS Code\r\n  dependencies, and writes a transcript to C:\\bootstrap.log.\r\n\r\n  Designed to run via the VM Run Command (Managed) under the SYSTEM account.\r\n  Uses Chocolatey for installs because winget is per-user/AppX based and is not\r\n  available in the SYSTEM context. Re-running is safe (every step is idempotent).\r\n#>\r\n\r\nparam(\r\n  [string]$ApimGatewayUrl = '',\r\n  [string]$InferenceApiVersion = '2024-10-21',\r\n  [string]$PrimaryApiPath = '',\r\n  [string]$PrimaryModelDeployment = '',\r\n  [string]$PrimarySubscriptionKey = '',\r\n  [string]$CrossRegionApiPath = '',\r\n  [string]$CrossRegionModelDeployment = '',\r\n  [string]$CrossRegionSubscriptionKey = ''\r\n)\r\n\r\n$ErrorActionPreference = 'Continue'\r\n$ProgressPreference    = 'SilentlyContinue'\r\n\r\n$logPath = 'C:\\bootstrap.log'\r\nStart-Transcript -Path $logPath -Append -Force | Out-Null\r\nWrite-Host \"==== Bootstrap started $(Get-Date -Format o) ====\"\r\n\r\nfunction Refresh-Path {\r\n  $machine = [Environment]::GetEnvironmentVariable('PATH', 'Machine')\r\n  $user    = [Environment]::GetEnvironmentVariable('PATH', 'User')\r\n  $env:PATH = ($machine, $user | Where-Object { $_ }) -join ';'\r\n}\r\n\r\n# ---- 1. Bootstrap Chocolatey ----\r\n[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12\r\n\r\nif (-not (Get-Command choco -ErrorAction SilentlyContinue)) {\r\n  Write-Host \"---- Installing Chocolatey\"\r\n  Set-ExecutionPolicy Bypass -Scope Process -Force\r\n  Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))\r\n  Refresh-Path\r\n} else {\r\n  Write-Host \"---- Chocolatey already installed: $(choco --version)\"\r\n}\r\n\r\nif (-not (Get-Command choco -ErrorAction SilentlyContinue)) {\r\n  Write-Error \"Chocolatey installation failed; aborting.\"\r\n  Stop-Transcript | Out-Null\r\n  exit 1\r\n}\r\n\r\n# Make Chocolatey unattended for the rest of the script\r\nchoco feature enable -n=allowGlobalConfirmation | Out-Null\r\n\r\n# ---- 2. Install dev tooling via Chocolatey ----\r\n$packages = @(\r\n  'python312',         # Python 3.12 (also adds python.exe + pip to PATH machine-wide)\r\n  'azure-cli',         # Azure CLI\r\n  'git',               # Git for Windows\r\n  'vscode',            # Visual Studio Code (system install)\r\n  'powershell-core',   # PowerShell 7\r\n  'microsoft-windows-terminal'\r\n)\r\n\r\nforeach ($p in $packages) {\r\n  Write-Host \"---- choco install $p\"\r\n  choco install $p -y --no-progress --limit-output\r\n  if ($LASTEXITCODE -notin 0, 1641, 3010) {\r\n    Write-Warning \"choco install $p exited with $LASTEXITCODE\"\r\n  }\r\n}\r\n\r\nRefresh-Path\r\n\r\n# ---- 3. Clone the AI-Gateway repo ----\r\n$repoRoot = 'C:\\Git'\r\n$repoPath = Join-Path $repoRoot 'AI-Gateway'\r\nif (-not (Test-Path $repoRoot)) { New-Item -ItemType Directory -Path $repoRoot -Force | Out-Null }\r\n\r\n$gitCmd = Get-Command git -ErrorAction SilentlyContinue\r\nif (-not $gitCmd) {\r\n  # choco may install to a path that needs explicit lookup\r\n  $gitExe = 'C:\\Program Files\\Git\\cmd\\git.exe'\r\n  if (Test-Path $gitExe) {\r\n    $env:PATH = \"C:\\Program Files\\Git\\cmd;\" + $env:PATH\r\n    $gitCmd = Get-Command git -ErrorAction SilentlyContinue\r\n  }\r\n}\r\n\r\nif ($gitCmd) {\r\n  if (Test-Path (Join-Path $repoPath '.git')) {\r\n    Write-Host \"---- AI-Gateway already cloned at $repoPath, pulling latest\"\r\n    Push-Location $repoPath\r\n    & git pull --ff-only\r\n    Pop-Location\r\n  } else {\r\n    Write-Host \"---- Cloning AI-Gateway to $repoPath\"\r\n    & git clone https://github.com/Azure-Samples/AI-Gateway.git $repoPath\r\n  }\r\n} else {\r\n  Write-Warning \"git not found on PATH after install; skipping clone\"\r\n}\r\n\r\n# ---- 4. pip install lab requirements ----\r\n# We install from a filtered copy of requirements.txt that drops the `azure-cli`\r\n# Python package because it pins old versions of azure-* libraries that conflict\r\n# with the newer azure-ai-projects / azure-ai-agents pinned later in the file\r\n# and sends pip's resolver into hours of backtracking. Azure CLI is already\r\n# installed system-wide as a native binary by Chocolatey above.\r\n$reqFile = Join-Path $repoPath 'requirements.txt'\r\n$pythonCmd = Get-Command python -ErrorAction SilentlyContinue\r\nif (-not $pythonCmd) {\r\n  $pythonExe = 'C:\\Python312\\python.exe'\r\n  if (Test-Path $pythonExe) {\r\n    $env:PATH = \"C:\\Python312;C:\\Python312\\Scripts;\" + $env:PATH\r\n    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue\r\n  }\r\n}\r\n\r\nif ($pythonCmd -and (Test-Path $reqFile)) {\r\n  Write-Host \"---- Installing Python requirements from $reqFile (azure-cli filtered out)\"\r\n  $filtered = Join-Path $env:TEMP 'requirements-bootstrap.txt'\r\n  Get-Content $reqFile | Where-Object { $_ -notmatch '^\\s*azure-cli\\s*$' } | Set-Content $filtered\r\n  & python -m pip install --upgrade pip\r\n  & python -m pip install --use-deprecated=legacy-resolver -r $filtered\r\n  if ($LASTEXITCODE -ne 0) { Write-Warning \"pip install -r exited with $LASTEXITCODE\" }\r\n} else {\r\n  if (-not $pythonCmd) { Write-Warning \"python not found on PATH; skipping pip install\" }\r\n  if (-not (Test-Path $reqFile)) { Write-Warning \"requirements.txt not found at $reqFile; skipping pip install\" }\r\n}\r\n\r\n# ---- 5. VS Code extensions ----\r\nWrite-Host \"---- Installing VS Code extensions\"\r\n$codeCmd = Get-Command code -ErrorAction SilentlyContinue\r\nif (-not $codeCmd) {\r\n  $codeBin = 'C:\\Program Files\\Microsoft VS Code\\bin\\code.cmd'\r\n  if (Test-Path $codeBin) {\r\n    $env:PATH = \"C:\\Program Files\\Microsoft VS Code\\bin;\" + $env:PATH\r\n    $codeCmd = Get-Command code -ErrorAction SilentlyContinue\r\n  }\r\n}\r\nif ($codeCmd) {\r\n  & code --install-extension ms-python.python      --force\r\n  & code --install-extension ms-toolsai.jupyter    --force\r\n  & code --install-extension ms-azuretools.vscode-bicep --force\r\n} else {\r\n  Write-Warning \"VS Code 'code' CLI not on PATH; skipping extension install\"\r\n}\r\n\r\n# ---- 6. Public-Desktop shortcut to the AI-Gateway repo root ----\r\n# Falls back to the labs/ folder, then the repo root, depending on what exists.\r\ntry {\r\n  $candidates = @(\r\n    (Join-Path $repoPath 'labs\\foundry-e2e-private'),\r\n    (Join-Path $repoPath 'labs'),\r\n    $repoPath\r\n  )\r\n  $labFolder = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1\r\n\r\n  $shortcut  = 'C:\\Users\\Public\\Desktop\\AI-Gateway Lab.lnk'\r\n  $codeBin = (Get-Command code -ErrorAction SilentlyContinue).Source\r\n  if (-not $codeBin) { $codeBin = 'C:\\Program Files\\Microsoft VS Code\\bin\\code.cmd' }\r\n  if ($labFolder -and (Test-Path $codeBin)) {\r\n    $ws = New-Object -ComObject WScript.Shell\r\n    $sc = $ws.CreateShortcut($shortcut)\r\n    $sc.TargetPath = $codeBin\r\n    $sc.Arguments  = \"`\"$labFolder`\"\"\r\n    $sc.WorkingDirectory = $labFolder\r\n    $sc.Save()\r\n    Write-Host \"---- Desktop shortcut created at $shortcut -> $labFolder\"\r\n  } else {\r\n    Write-Warning \"Skipped desktop shortcut (labFolder=$labFolder, code=$codeBin)\"\r\n  }\r\n} catch {\r\n  Write-Warning \"Failed to create desktop shortcut: $_\"\r\n}\r\n\r\n# ---- 7. Public-Desktop test scripts (Test-AI-Gateway-*.ps1) ----\r\n# Drop ready-to-run PowerShell scripts on the Public Desktop so users can\r\n# right-click → Run with PowerShell to exercise the APIM AI Gateway directly\r\n# with a scoped APIM subscription key (no Azure AD / managed identity needed\r\n# from the caller). APIM still uses its own managed identity to authenticate\r\n# to the Azure OpenAI backend behind the gateway.\r\ntry {\r\n  if (-not [string]::IsNullOrWhiteSpace($ApimGatewayUrl)) {\r\n    $publicDesktop = 'C:\\Users\\Public\\Desktop'\r\n    if (-not (Test-Path $publicDesktop)) { New-Item -ItemType Directory -Path $publicDesktop -Force | Out-Null }\r\n\r\n    # Single-quoted here-string: contents are literal, no PS variable expansion.\r\n    # Placeholders are substituted via String.Replace below before writing.\r\n    $template = @'\r\n<#\r\n.SYNOPSIS\r\n  Sends a test prompt through the APIM AI Gateway to an Azure OpenAI deployment\r\n  using an APIM subscription key (no Azure AD sign-in required).\r\n.DESCRIPTION\r\n  Calls APIM at <gateway>/<api-path>/deployments/<model>/chat/completions using\r\n  the openai Python SDK (AzureOpenAI) configured with `api_key` set to the\r\n  scoped APIM subscription key. APIM in turn uses its system-assigned managed\r\n  identity to authenticate to the Azure OpenAI backend.\r\n  Note: this lab's APIM imports the stable Azure OpenAI inference OpenAPI\r\n  spec (2024-10-21), which exposes chat.completions but not /responses.\r\n#>\r\nparam(\r\n  [string]$Prompt = 'Tell me one fun fact about Azure API Management.'\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n\r\n$gatewayUrl       = '__GATEWAY_URL__'\r\n$apiPath          = '__API_PATH__'\r\n$modelDeployment  = '__MODEL_DEPLOYMENT__'\r\n$apiVersion       = '__API_VERSION__'\r\n$subscriptionKey  = '__SUBSCRIPTION_KEY__'\r\n$connectionLabel  = '__CONNECTION_LABEL__'\r\n\r\nWrite-Host \"==== Test-AI-Gateway ($connectionLabel) ====\" -ForegroundColor Cyan\r\nWrite-Host \"Gateway URL : $gatewayUrl\"\r\nWrite-Host \"API path    : $apiPath\"\r\nWrite-Host \"Deployment  : $modelDeployment\"\r\nWrite-Host \"API version : $apiVersion\"\r\nWrite-Host \"\"\r\n\r\n# 1) Make sure python is on PATH\r\nif (-not (Get-Command python -ErrorAction SilentlyContinue)) {\r\n  Write-Error 'python is not on PATH. Check C:\\bootstrap.log and re-run the bootstrap.'\r\n  Read-Host 'Press Enter to close'\r\n  exit 1\r\n}\r\n\r\n# 2) Idempotently install the openai SDK.\r\nWrite-Host 'Ensuring openai is installed...'\r\n& python -m pip install --quiet --upgrade openai\r\nif ($LASTEXITCODE -ne 0) {\r\n  Write-Warning \"pip install reported a non-zero exit code; continuing anyway.\"\r\n}\r\n\r\n# 3) Run the test inline via python -c. Values flow through environment\r\n#    variables to avoid PS-vs-Python quoting headaches. The Python source is\r\n#    a string array (instead of a here-string) so this template can sit inside\r\n#    another PowerShell here-string without conflicting line-0 terminators.\r\n$py = @(\r\n    'import os',\r\n    'from openai import AzureOpenAI',\r\n    '',\r\n    'gateway_url = os.environ[\"AIGW_GATEWAY_URL\"].rstrip(\"/\")',\r\n    'api_path    = os.environ[\"AIGW_API_PATH\"].strip(\"/\")',\r\n    'model       = os.environ[\"AIGW_MODEL\"]',\r\n    'api_version = os.environ[\"AIGW_API_VERSION\"]',\r\n    'api_key     = os.environ[\"AIGW_KEY\"]',\r\n    'prompt      = os.environ[\"AIGW_PROMPT\"]',\r\n    '',\r\n    'client = AzureOpenAI(',\r\n    '    api_key=api_key,',\r\n    '    api_version=api_version,',\r\n    '    base_url=f\"{gateway_url}/{api_path}\",',\r\n    ')',\r\n    '',\r\n    'completion = client.chat.completions.create(',\r\n    '    model=model,',\r\n    '    messages=[',\r\n    '        {\"role\": \"system\", \"content\": \"You are a helpful assistant routed through the APIM AI Gateway.\"},',\r\n    '        {\"role\": \"user\", \"content\": prompt},',\r\n    '    ],',\r\n    ')',\r\n    'choice = completion.choices[0]',\r\n    'print(f\"assistant: {choice.message.content}\")',\r\n    'print(f\"Finish reason: {choice.finish_reason}\")'\r\n) -join [Environment]::NewLine\r\n\r\n$env:AIGW_GATEWAY_URL = $gatewayUrl\r\n$env:AIGW_API_PATH    = $apiPath\r\n$env:AIGW_MODEL       = $modelDeployment\r\n$env:AIGW_API_VERSION = $apiVersion\r\n$env:AIGW_KEY         = $subscriptionKey\r\n$env:AIGW_PROMPT      = $Prompt\r\n\r\ntry {\r\n  & python -c $py\r\n  $exit = $LASTEXITCODE\r\n} finally {\r\n  # Scrub the key from the environment as soon as the call returns.\r\n  Remove-Item Env:AIGW_KEY -ErrorAction SilentlyContinue\r\n}\r\n\r\nWrite-Host ''\r\nif ($exit -eq 0) {\r\n  Write-Host '==== Test completed successfully ====' -ForegroundColor Green\r\n} else {\r\n  Write-Host \"==== Test failed with exit code $exit ====\" -ForegroundColor Red\r\n}\r\n\r\nRead-Host 'Press Enter to close'\r\nexit $exit\r\n'@\r\n\r\n    function Write-DesktopTest {\r\n      param(\r\n        [string]$FileName,\r\n        [string]$ApiPath,\r\n        [string]$ModelDeployment,\r\n        [string]$SubscriptionKey,\r\n        [string]$Label\r\n      )\r\n      $content = $template.\r\n        Replace('__GATEWAY_URL__',       $ApimGatewayUrl).\r\n        Replace('__API_PATH__',          $ApiPath).\r\n        Replace('__MODEL_DEPLOYMENT__',  $ModelDeployment).\r\n        Replace('__API_VERSION__',       $InferenceApiVersion).\r\n        Replace('__SUBSCRIPTION_KEY__',  $SubscriptionKey).\r\n        Replace('__CONNECTION_LABEL__',  $Label)\r\n      $path = Join-Path $publicDesktop $FileName\r\n      Set-Content -Path $path -Value $content -Encoding UTF8 -Force\r\n      # Restrict the script to Administrators + SYSTEM only because it embeds\r\n      # the APIM subscription key in cleartext.\r\n      try {\r\n        $acl = Get-Acl $path\r\n        $acl.SetAccessRuleProtection($true, $false)\r\n        $acl.Access | ForEach-Object { [void]$acl.RemoveAccessRule($_) }\r\n        $admins = New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544'\r\n        $system = New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-18'\r\n        $rights = [System.Security.AccessControl.FileSystemRights]'FullControl'\r\n        $allow  = [System.Security.AccessControl.AccessControlType]'Allow'\r\n        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($admins, $rights, $allow)))\r\n        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($system, $rights, $allow)))\r\n        Set-Acl -Path $path -AclObject $acl\r\n      } catch {\r\n        Write-Warning \"Failed to lock down ACL on $path : $_\"\r\n      }\r\n      Write-Host \"---- Wrote $FileName to public desktop ($Label -> $ApiPath/$ModelDeployment)\"\r\n    }\r\n\r\n    if (-not [string]::IsNullOrWhiteSpace($PrimaryApiPath) -and `\r\n        -not [string]::IsNullOrWhiteSpace($PrimaryModelDeployment) -and `\r\n        -not [string]::IsNullOrWhiteSpace($PrimarySubscriptionKey)) {\r\n      Write-DesktopTest -FileName 'Test-AI-Gateway-Primary.ps1' `\r\n                        -ApiPath $PrimaryApiPath `\r\n                        -ModelDeployment $PrimaryModelDeployment `\r\n                        -SubscriptionKey $PrimarySubscriptionKey `\r\n                        -Label 'primary'\r\n    } else {\r\n      Write-Host '---- Skipping Test-AI-Gateway-Primary.ps1 (primary path/model/key not provided)'\r\n    }\r\n\r\n    if (-not [string]::IsNullOrWhiteSpace($CrossRegionApiPath) -and `\r\n        -not [string]::IsNullOrWhiteSpace($CrossRegionModelDeployment) -and `\r\n        -not [string]::IsNullOrWhiteSpace($CrossRegionSubscriptionKey)) {\r\n      Write-DesktopTest -FileName 'Test-AI-Gateway-CrossRegion.ps1' `\r\n                        -ApiPath $CrossRegionApiPath `\r\n                        -ModelDeployment $CrossRegionModelDeployment `\r\n                        -SubscriptionKey $CrossRegionSubscriptionKey `\r\n                        -Label 'cross-region'\r\n    } else {\r\n      Write-Host '---- Skipping Test-AI-Gateway-CrossRegion.ps1 (cross-region path/model/key not provided)'\r\n    }\r\n  } else {\r\n    Write-Host '---- Skipping desktop test scripts (ApimGatewayUrl not provided)'\r\n  }\r\n} catch {\r\n  Write-Warning \"Failed to write desktop test scripts: $_\"\r\n}\r\n\r\nWrite-Host \"==== Bootstrap finished $(Get-Date -Format o) ====\"\r\nStop-Transcript | Out-Null\r\n"
+            "$fxv#0": "<#\n.SYNOPSIS\n  First-boot bootstrap for the AI-Gateway foundry-e2e-private lab jump-box.\n\n.DESCRIPTION\n  Installs the dev tooling needed to run the lab notebooks from inside the\n  private VNet (Python 3.12, Azure CLI, Git, VS Code, PowerShell 7,\n  Windows Terminal), clones the AI-Gateway repo, installs Python and VS Code\n  dependencies, and writes a transcript to C:\\bootstrap.log.\n\n  Designed to run via the VM Run Command (Managed) under the SYSTEM account.\n  Uses Chocolatey for installs because winget is per-user/AppX based and is not\n  available in the SYSTEM context. Re-running is safe (every step is idempotent).\n#>\n\nparam(\n  [string]$ApimGatewayUrl = '',\n  [string]$InferenceApiVersion = '2024-10-21',\n  [string]$PrimaryApiPath = '',\n  [string]$PrimaryModelDeployment = '',\n  [string]$PrimarySubscriptionKey = '',\n  [string]$CrossRegionApiPath = '',\n  [string]$CrossRegionModelDeployment = '',\n  [string]$CrossRegionSubscriptionKey = ''\n)\n\n$ErrorActionPreference = 'Continue'\n$ProgressPreference    = 'SilentlyContinue'\n\n$logPath = 'C:\\bootstrap.log'\nStart-Transcript -Path $logPath -Append -Force | Out-Null\nWrite-Host \"==== Bootstrap started $(Get-Date -Format o) ====\"\n\nfunction Refresh-Path {\n  $machine = [Environment]::GetEnvironmentVariable('PATH', 'Machine')\n  $user    = [Environment]::GetEnvironmentVariable('PATH', 'User')\n  $env:PATH = ($machine, $user | Where-Object { $_ }) -join ';'\n}\n\n# ---- 1. Bootstrap Chocolatey ----\n[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12\n\nif (-not (Get-Command choco -ErrorAction SilentlyContinue)) {\n  Write-Host \"---- Installing Chocolatey\"\n  Set-ExecutionPolicy Bypass -Scope Process -Force\n  Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))\n  Refresh-Path\n} else {\n  Write-Host \"---- Chocolatey already installed: $(choco --version)\"\n}\n\nif (-not (Get-Command choco -ErrorAction SilentlyContinue)) {\n  Write-Error \"Chocolatey installation failed; aborting.\"\n  Stop-Transcript | Out-Null\n  exit 1\n}\n\n# Make Chocolatey unattended for the rest of the script\nchoco feature enable -n=allowGlobalConfirmation | Out-Null\n\n# ---- 2. Install dev tooling via Chocolatey ----\n$packages = @(\n  'python312',         # Python 3.12 (also adds python.exe + pip to PATH machine-wide)\n  'azure-cli',         # Azure CLI\n  'git',               # Git for Windows\n  'vscode',            # Visual Studio Code (system install)\n  'powershell-core',   # PowerShell 7\n  'microsoft-windows-terminal'\n)\n\nforeach ($p in $packages) {\n  Write-Host \"---- choco install $p\"\n  choco install $p -y --no-progress --limit-output\n  if ($LASTEXITCODE -notin 0, 1641, 3010) {\n    Write-Warning \"choco install $p exited with $LASTEXITCODE\"\n  }\n}\n\nRefresh-Path\n\n# ---- 3. Clone the AI-Gateway repo ----\n$repoRoot = 'C:\\Git'\n$repoPath = Join-Path $repoRoot 'AI-Gateway'\nif (-not (Test-Path $repoRoot)) { New-Item -ItemType Directory -Path $repoRoot -Force | Out-Null }\n\n$gitCmd = Get-Command git -ErrorAction SilentlyContinue\nif (-not $gitCmd) {\n  # choco may install to a path that needs explicit lookup\n  $gitExe = 'C:\\Program Files\\Git\\cmd\\git.exe'\n  if (Test-Path $gitExe) {\n    $env:PATH = \"C:\\Program Files\\Git\\cmd;\" + $env:PATH\n    $gitCmd = Get-Command git -ErrorAction SilentlyContinue\n  }\n}\n\nif ($gitCmd) {\n  if (Test-Path (Join-Path $repoPath '.git')) {\n    Write-Host \"---- AI-Gateway already cloned at $repoPath, pulling latest\"\n    Push-Location $repoPath\n    & git pull --ff-only\n    Pop-Location\n  } else {\n    Write-Host \"---- Cloning AI-Gateway to $repoPath\"\n    & git clone https://github.com/Azure-Samples/AI-Gateway.git $repoPath\n  }\n} else {\n  Write-Warning \"git not found on PATH after install; skipping clone\"\n}\n\n# ---- 4. Install lab dependencies via uv ----\n# The repo is managed with `uv` (https://docs.astral.sh/uv/). We install uv first,\n# then run `uv sync` from the repo root to provision the .venv with everything\n# pinned in pyproject.toml / uv.lock. Azure CLI is already installed system-wide\n# as a native binary by Chocolatey above.\n$pyprojectFile = Join-Path $repoPath 'pyproject.toml'\n$pythonCmd = Get-Command python -ErrorAction SilentlyContinue\nif (-not $pythonCmd) {\n  $pythonExe = 'C:\\Python312\\python.exe'\n  if (Test-Path $pythonExe) {\n    $env:PATH = \"C:\\Python312;C:\\Python312\\Scripts;\" + $env:PATH\n    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue\n  }\n}\n\n# Install uv (idempotent — script no-ops if uv is already available)\n$uvCmd = Get-Command uv -ErrorAction SilentlyContinue\nif (-not $uvCmd) {\n  Write-Host \"---- Installing uv\"\n  try {\n    Invoke-RestMethod https://astral.sh/uv/install.ps1 | Invoke-Expression\n  } catch {\n    Write-Warning \"uv install via official script failed: $($_.Exception.Message)\"\n  }\n  # uv installs to %USERPROFILE%\\.local\\bin by default\n  $uvBin = Join-Path $env:USERPROFILE '.local\\bin'\n  if (Test-Path (Join-Path $uvBin 'uv.exe')) {\n    $env:PATH = \"$uvBin;\" + $env:PATH\n    $uvCmd = Get-Command uv -ErrorAction SilentlyContinue\n  }\n}\n\nif ($uvCmd -and (Test-Path $pyprojectFile)) {\n  Write-Host \"---- Running 'uv sync' in $repoPath\"\n  Push-Location $repoPath\n  & uv sync\n  if ($LASTEXITCODE -ne 0) { Write-Warning \"uv sync exited with $LASTEXITCODE\" }\n  Pop-Location\n} else {\n  if (-not $uvCmd) { Write-Warning \"uv not found on PATH; skipping dependency install\" }\n  if (-not (Test-Path $pyprojectFile)) { Write-Warning \"pyproject.toml not found at $pyprojectFile; skipping dependency install\" }\n}\n\n# ---- 5. VS Code extensions ----\nWrite-Host \"---- Installing VS Code extensions\"\n$codeCmd = Get-Command code -ErrorAction SilentlyContinue\nif (-not $codeCmd) {\n  $codeBin = 'C:\\Program Files\\Microsoft VS Code\\bin\\code.cmd'\n  if (Test-Path $codeBin) {\n    $env:PATH = \"C:\\Program Files\\Microsoft VS Code\\bin;\" + $env:PATH\n    $codeCmd = Get-Command code -ErrorAction SilentlyContinue\n  }\n}\nif ($codeCmd) {\n  & code --install-extension ms-python.python      --force\n  & code --install-extension ms-toolsai.jupyter    --force\n  & code --install-extension ms-azuretools.vscode-bicep --force\n} else {\n  Write-Warning \"VS Code 'code' CLI not on PATH; skipping extension install\"\n}\n\n# ---- 6. Public-Desktop shortcut to the AI-Gateway repo root ----\n# Falls back to the labs/ folder, then the repo root, depending on what exists.\ntry {\n  $candidates = @(\n    (Join-Path $repoPath 'labs\\foundry-e2e-private'),\n    (Join-Path $repoPath 'labs'),\n    $repoPath\n  )\n  $labFolder = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1\n\n  $shortcut  = 'C:\\Users\\Public\\Desktop\\AI-Gateway Lab.lnk'\n  $codeBin = (Get-Command code -ErrorAction SilentlyContinue).Source\n  if (-not $codeBin) { $codeBin = 'C:\\Program Files\\Microsoft VS Code\\bin\\code.cmd' }\n  if ($labFolder -and (Test-Path $codeBin)) {\n    $ws = New-Object -ComObject WScript.Shell\n    $sc = $ws.CreateShortcut($shortcut)\n    $sc.TargetPath = $codeBin\n    $sc.Arguments  = \"`\"$labFolder`\"\"\n    $sc.WorkingDirectory = $labFolder\n    $sc.Save()\n    Write-Host \"---- Desktop shortcut created at $shortcut -> $labFolder\"\n  } else {\n    Write-Warning \"Skipped desktop shortcut (labFolder=$labFolder, code=$codeBin)\"\n  }\n} catch {\n  Write-Warning \"Failed to create desktop shortcut: $_\"\n}\n\n# ---- 7. Public-Desktop test scripts (Test-AI-Gateway-*.ps1) ----\n# Drop ready-to-run PowerShell scripts on the Public Desktop so users can\n# right-click → Run with PowerShell to exercise the APIM AI Gateway directly\n# with a scoped APIM subscription key (no Azure AD / managed identity needed\n# from the caller). APIM still uses its own managed identity to authenticate\n# to the Azure OpenAI backend behind the gateway.\ntry {\n  if (-not [string]::IsNullOrWhiteSpace($ApimGatewayUrl)) {\n    $publicDesktop = 'C:\\Users\\Public\\Desktop'\n    if (-not (Test-Path $publicDesktop)) { New-Item -ItemType Directory -Path $publicDesktop -Force | Out-Null }\n\n    # Single-quoted here-string: contents are literal, no PS variable expansion.\n    # Placeholders are substituted via String.Replace below before writing.\n    $template = @'\n<#\n.SYNOPSIS\n  Sends a test prompt through the APIM AI Gateway to an Azure OpenAI deployment\n  using an APIM subscription key (no Azure AD sign-in required).\n.DESCRIPTION\n  Calls APIM at <gateway>/<api-path>/deployments/<model>/chat/completions using\n  the openai Python SDK (AzureOpenAI) configured with `api_key` set to the\n  scoped APIM subscription key. APIM in turn uses its system-assigned managed\n  identity to authenticate to the Azure OpenAI backend.\n  Note: this lab's APIM imports the stable Azure OpenAI inference OpenAPI\n  spec (2024-10-21), which exposes chat.completions but not /responses.\n#>\nparam(\n  [string]$Prompt = 'Tell me one fun fact about Azure API Management.'\n)\n\n$ErrorActionPreference = 'Stop'\n\n$gatewayUrl       = '__GATEWAY_URL__'\n$apiPath          = '__API_PATH__'\n$modelDeployment  = '__MODEL_DEPLOYMENT__'\n$apiVersion       = '__API_VERSION__'\n$subscriptionKey  = '__SUBSCRIPTION_KEY__'\n$connectionLabel  = '__CONNECTION_LABEL__'\n\nWrite-Host \"==== Test-AI-Gateway ($connectionLabel) ====\" -ForegroundColor Cyan\nWrite-Host \"Gateway URL : $gatewayUrl\"\nWrite-Host \"API path    : $apiPath\"\nWrite-Host \"Deployment  : $modelDeployment\"\nWrite-Host \"API version : $apiVersion\"\nWrite-Host \"\"\n\n# 1) Make sure python is on PATH\nif (-not (Get-Command python -ErrorAction SilentlyContinue)) {\n  Write-Error 'python is not on PATH. Check C:\\bootstrap.log and re-run the bootstrap.'\n  Read-Host 'Press Enter to close'\n  exit 1\n}\n\n# 2) Idempotently ensure the openai SDK is available.\n#    Prefer `uv pip install` if uv is on PATH (the lab uses uv); otherwise\n#    fall back to `python -m pip install`.\nWrite-Host 'Ensuring openai is installed...'\n$uvCmd = Get-Command uv -ErrorAction SilentlyContinue\nif ($uvCmd) {\n  & uv pip install --system --quiet --upgrade openai\n} else {\n  & python -m pip install --quiet --upgrade openai\n}\nif ($LASTEXITCODE -ne 0) {\n  Write-Warning \"openai install reported a non-zero exit code; continuing anyway.\"\n}\n\n# 3) Run the test inline via python stdin. Values flow through environment\n#    variables, and stdin avoids Windows PowerShell native-command quote\n#    rewriting that can strip Python string quotes from `python -c` arguments.\n$py = @(\n    'import os',\n    'from openai import AzureOpenAI',\n    '',\n    'gateway_url = os.environ[\"AIGW_GATEWAY_URL\"].rstrip(\"/\")',\n    'api_path    = os.environ[\"AIGW_API_PATH\"].strip(\"/\")',\n    'model       = os.environ[\"AIGW_MODEL\"]',\n    'api_version = os.environ[\"AIGW_API_VERSION\"]',\n    'api_key     = os.environ[\"AIGW_KEY\"]',\n    'prompt      = os.environ[\"AIGW_PROMPT\"]',\n    '',\n    'client = AzureOpenAI(',\n    '    api_key=api_key,',\n    '    api_version=api_version,',\n    '    base_url=f\"{gateway_url}/{api_path}\",',\n    ')',\n    '',\n    'completion = client.chat.completions.create(',\n    '    model=model,',\n    '    messages=[',\n    '        {\"role\": \"system\", \"content\": \"You are a helpful assistant routed through the APIM AI Gateway.\"},',\n    '        {\"role\": \"user\", \"content\": prompt},',\n    '    ],',\n    ')',\n    'choice = completion.choices[0]',\n    'print(f\"assistant: {choice.message.content}\")',\n    'print(f\"Finish reason: {choice.finish_reason}\")'\n) -join [Environment]::NewLine\n\n$env:AIGW_GATEWAY_URL = $gatewayUrl\n$env:AIGW_API_PATH    = $apiPath\n$env:AIGW_MODEL       = $modelDeployment\n$env:AIGW_API_VERSION = $apiVersion\n$env:AIGW_KEY         = $subscriptionKey\n$env:AIGW_PROMPT      = $Prompt\n\ntry {\n  $py | & python -\n  $exit = $LASTEXITCODE\n} finally {\n  # Scrub the key from the environment as soon as the call returns.\n  Remove-Item Env:AIGW_KEY -ErrorAction SilentlyContinue\n}\n\nWrite-Host ''\nif ($exit -eq 0) {\n  Write-Host '==== Test completed successfully ====' -ForegroundColor Green\n} else {\n  Write-Host \"==== Test failed with exit code $exit ====\" -ForegroundColor Red\n}\n\nRead-Host 'Press Enter to close'\nexit $exit\n'@\n\n    function Write-DesktopTest {\n      param(\n        [string]$FileName,\n        [string]$ApiPath,\n        [string]$ModelDeployment,\n        [string]$SubscriptionKey,\n        [string]$Label\n      )\n      $content = $template.\n        Replace('__GATEWAY_URL__',       $ApimGatewayUrl).\n        Replace('__API_PATH__',          $ApiPath).\n        Replace('__MODEL_DEPLOYMENT__',  $ModelDeployment).\n        Replace('__API_VERSION__',       $InferenceApiVersion).\n        Replace('__SUBSCRIPTION_KEY__',  $SubscriptionKey).\n        Replace('__CONNECTION_LABEL__',  $Label)\n      $path = Join-Path $publicDesktop $FileName\n      Set-Content -Path $path -Value $content -Encoding UTF8 -Force\n      # Restrict the script to Administrators + SYSTEM only because it embeds\n      # the APIM subscription key in cleartext.\n      try {\n        $acl = Get-Acl $path\n        $acl.SetAccessRuleProtection($true, $false)\n        $acl.Access | ForEach-Object { [void]$acl.RemoveAccessRule($_) }\n        $admins = New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-32-544'\n        $system = New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-18'\n        $rights = [System.Security.AccessControl.FileSystemRights]'FullControl'\n        $allow  = [System.Security.AccessControl.AccessControlType]'Allow'\n        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($admins, $rights, $allow)))\n        $acl.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($system, $rights, $allow)))\n        Set-Acl -Path $path -AclObject $acl\n      } catch {\n        Write-Warning \"Failed to lock down ACL on $path : $_\"\n      }\n      Write-Host \"---- Wrote $FileName to public desktop ($Label -> $ApiPath/$ModelDeployment)\"\n    }\n\n    if (-not [string]::IsNullOrWhiteSpace($PrimaryApiPath) -and `\n        -not [string]::IsNullOrWhiteSpace($PrimaryModelDeployment) -and `\n        -not [string]::IsNullOrWhiteSpace($PrimarySubscriptionKey)) {\n      Write-DesktopTest -FileName 'Test-AI-Gateway-Primary.ps1' `\n                        -ApiPath $PrimaryApiPath `\n                        -ModelDeployment $PrimaryModelDeployment `\n                        -SubscriptionKey $PrimarySubscriptionKey `\n                        -Label 'primary'\n    } else {\n      Write-Host '---- Skipping Test-AI-Gateway-Primary.ps1 (primary path/model/key not provided)'\n    }\n\n    if (-not [string]::IsNullOrWhiteSpace($CrossRegionApiPath) -and `\n        -not [string]::IsNullOrWhiteSpace($CrossRegionModelDeployment) -and `\n        -not [string]::IsNullOrWhiteSpace($CrossRegionSubscriptionKey)) {\n      Write-DesktopTest -FileName 'Test-AI-Gateway-CrossRegion.ps1' `\n                        -ApiPath $CrossRegionApiPath `\n                        -ModelDeployment $CrossRegionModelDeployment `\n                        -SubscriptionKey $CrossRegionSubscriptionKey `\n                        -Label 'cross-region'\n    } else {\n      Write-Host '---- Skipping Test-AI-Gateway-CrossRegion.ps1 (cross-region path/model/key not provided)'\n    }\n  } else {\n    Write-Host '---- Skipping desktop test scripts (ApimGatewayUrl not provided)'\n  }\n} catch {\n  Write-Warning \"Failed to write desktop test scripts: $_\"\n}\n\nWrite-Host \"==== Bootstrap finished $(Get-Date -Format o) ====\"\nStop-Transcript | Out-Null\n"
           },
           "resources": [
             {

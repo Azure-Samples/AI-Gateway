@@ -40,7 +40,7 @@ Components:
 - **APIM gateway connection** on the Foundry project (default name `apim-gateway`). Agents call models as `apim-gateway/<model-name>`.
 - **Cross-region Azure OpenAI account** in a secondary region with a private endpoint into the primary VNet, exposed through APIM as `apim-gateway-crossregion/<model-name>`.
 - **Application Insights + Log Analytics**, connected to the Foundry project for agent tracing.
-- **Azure Bastion + Windows jump-box VM** for testing the private deployment from inside the VNet. The jump-box is **pre-loaded with Python 3.12, Azure CLI, Git, VS Code, PowerShell 7, Windows Terminal** (installed via Chocolatey), and the `Azure-Samples/AI-Gateway` repo cloned to `C:\Git\AI-Gateway` with `requirements.txt` already installed.
+- **Azure Bastion + Windows jump-box VM** for testing the private deployment from inside the VNet. The jump-box is **pre-loaded with Python 3.12, Azure CLI, Git, VS Code, PowerShell 7, Windows Terminal** (installed via Chocolatey), and the `Azure-Samples/AI-Gateway` repo cloned to `C:\Git\AI-Gateway` with dependencies provisioned via `uv sync` (creates a `.venv` from the repo's `pyproject.toml` / `uv.lock`).
 
 ## ✨ Key features
 
@@ -79,7 +79,7 @@ Because the Foundry project is **private**, the test snippets need to run from i
 - `Test-AI-Gateway-Primary.ps1` — calls the primary connection (default `apim-gateway/<model>`)
 - `Test-AI-Gateway-CrossRegion.ps1` — calls the cross-region connection (default `apim-gateway-crossregion/<model>`); only created when `deployCrossRegionOpenAI=true`
 
-After connecting via Bastion, sign in once with `az login`, then right-click either script → **Run with PowerShell**. The script idempotently `pip install`s `azure-ai-projects` (>=2.0) + `azure-identity`, then calls `project.get_openai_client().chat.completions.create(model=..., messages=...)` so the request flows through the APIM gateway connection on the Foundry project. It prints the assistant reply and the finish reason. Pass `-Prompt "..."` to override the default prompt.
+After connecting via Bastion, sign in once with `az login`, then right-click either script → **Run with PowerShell**. The script idempotently installs the `openai` SDK (preferring `uv pip install --system` if `uv` is on PATH, falling back to `python -m pip install`), then calls `client.chat.completions.create(model=..., messages=...)` against `<gateway>/<api-path>` with the APIM subscription key, so the request flows through the APIM gateway. It prints the assistant reply and the finish reason. Pass `-Prompt "..."` to override the default prompt.
 
 > **Why chat.completions and not Responses?** This lab imports the stable Azure OpenAI inference OpenAPI spec (`2024-10-21`) into APIM, which exposes `chat.completions`, `completions`, `embeddings`, audio and images — but not `/responses`. To use `openai_client.responses.create(...)` end-to-end, edit [modules/apim-gateway-connection.bicep](modules/apim-gateway-connection.bicep) and switch the OpenAPI link to a preview spec that includes `/responses`, e.g. `preview/2025-03-01-preview/inference.json` or later, and bump `inference_api_version` in the notebook to match.
 

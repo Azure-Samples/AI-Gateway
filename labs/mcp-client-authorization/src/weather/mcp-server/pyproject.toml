@@ -1,0 +1,11 @@
+[project]
+name = "mcp-client-authorization-weather"
+version = "0.1.0"
+description = "Weather MCP server (mcp-client-authorization lab)."
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp",
+]
+
+[tool.uv]
+package = false
