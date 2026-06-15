@@ -1,0 +1,78 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Weather API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Your Name",
+      "email": "yourname@example.com"
+    },
+    "description": "API for retrieving weather information"
+  },
+  "servers": [
+    {
+      "url": "https://api-staging.example.com/v1",
+      "description": "Staging server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Weather",
+      "description": "Operations related to weather"
+    }
+  ],
+  "paths": {
+    "/": {
+      "post": {
+        "tags": ["Weather"],
+        "summary": "Retrieve weather information",
+        "description": "Retrieve weather information",
+        "operationId": "getWeather",
+        "requestBody": {
+          "description": "Location and unit to get weather information for",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "description": "Location to get weather information for"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "description": "Unit of measurement for temperature"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Weather information response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "temperature": {
+                      "type": "number"
+                    },
+                    "unit": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

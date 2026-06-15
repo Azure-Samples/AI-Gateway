@@ -79,8 +79,7 @@ Build and control agentic applications with orchestration frameworks.
 ### Prerequisites
 
 - [Python 3.12+](https://www.python.org/)
-Python environment with the requirements.txt or run pip install -r requirements.txt in your terminal
-- [Python environment](https://code.visualstudio.com/docs/python/environments#_creating-environments) with the [requirements.txt](requirements.txt) or run `pip install -r requirements.txt` in your terminal
+- [uv](https://docs.astral.sh/uv/) (fast Python package manager) — install via `curl -LsSf https://astral.sh/uv/install.sh | sh` (Linux/macOS) or `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"` (Windows)
 - [VS Code](https://code.visualstudio.com/) with [Jupyter extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
 - [Azure Subscription](https://azure.microsoft.com/free/) with Contributor + RBAC Administrator roles
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) authenticated to your subscription
@@ -92,9 +91,15 @@ Python environment with the requirements.txt or run pip install -r requirements.
 git clone https://github.com/Azure-Samples/AI-Gateway.git
 cd AI-Gateway
 
+# Create the virtual environment and install dependencies
+uv sync
+uv pip install -r pyproject.toml
+
 # Open VS Code and start with a lab
 code .
 ```
+
+When opening a notebook, select the `.venv` interpreter created by `uv sync` as the Jupyter kernel.
 
 Or launch instantly with **[GitHub Codespaces](https://codespaces.new/Azure-Samples/AI-Gateway/tree/main)** ☁️
 

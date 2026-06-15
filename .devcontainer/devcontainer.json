@@ -11,7 +11,7 @@
 		}
 	},
 	"waitFor": "onCreateCommand",
-    "updateContentCommand": "python3 -m pip install -r requirements.txt",
+    "updateContentCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && $HOME/.local/bin/uv sync",
     "postCreateCommand": "",
 	"customizations": {
 	  "codespaces": {
