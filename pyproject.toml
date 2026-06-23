@@ -29,7 +29,7 @@ dependencies = [
     "azure-functions",
     "azure-mgmt-apimanagement",
     # MCP labs (root environment)
-    "mcp==1.21.2",
+    "mcp==1.23.0",
     "autogen-core",
     "autogen-ext[openai,azure,mcp]",
     "autogen-agentchat",
