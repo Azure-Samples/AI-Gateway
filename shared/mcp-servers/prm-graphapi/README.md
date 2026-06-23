@@ -43,7 +43,7 @@ The application consists of several components:
 
 3. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   uv pip install -r pyproject.toml
    ```
 
 4. Copy `.env.example` to `.env` and configure your Azure AD settings:
@@ -139,7 +139,7 @@ python-mcp-prm-sonnet/
 │   ├── __init__.py
 │   └── graph_client_helper.py    # Graph client with OBO flow
 ├── main.py                       # Application entry point
-├── requirements.txt              # Python dependencies
+├── pyproject.toml                # Python dependencies (managed with uv)
 ├── .env.example                  # Environment variables template
 ├── .gitignore                    # Git ignore file
 └── README.md                     # This file
@@ -163,7 +163,7 @@ Expected response:
 
 If you see import errors like `cannot import name 'AuthenticationError'`, ensure all dependencies are installed:
 ```bash
-pip install -r requirements.txt
+uv pip install -r pyproject.toml
 ```
 
 ### Environment Variables Not Found

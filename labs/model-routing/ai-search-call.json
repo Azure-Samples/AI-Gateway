@@ -1,0 +1,14 @@
+{
+   "search":"beach vacation kit with sun protection and hydration for warm weather and saltwater exposure; include essentials for face, body, hair, and after-sun care",
+   "queryType":"semantic",
+   "semanticQuery":"beach vacation kit with sun protection and hydration for warm weather and saltwater exposure; include essentials for face, body, hair, and after-sun care",
+   "semanticConfiguration":"product_recommendation_semantic_config",
+   "select": "brand, title, name, category, subcategory, routine_step",
+   "facets":[
+      "category,count:5",
+      "subcategory,count:5",
+      "routine_step,count:5"
+   ],
+   "count":true,
+   "top":30
+}

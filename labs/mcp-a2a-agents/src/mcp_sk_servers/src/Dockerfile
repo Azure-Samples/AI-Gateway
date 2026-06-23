@@ -1,25 +1,19 @@
 # ────────────────────────────────────────────────────────────────
-# Stage 1 – build wheels in a clean layer
-# ────────────────────────────────────────────────────────────────
-FROM python:3.13-slim AS builder
-
-ARG PIP_NO_CACHE_DIR=off          # build-time arg, overrides if you need
-WORKDIR /build
-
-COPY requirements.txt .
-RUN pip wheel --wheel-dir /wheels -r requirements.txt
-
-# ────────────────────────────────────────────────────────────────
-# Stage 2 – runtime image
+# uv-based single-stage build (uv is fast enough that wheel-prebuild
+# multi-stage is no longer required).
 # ────────────────────────────────────────────────────────────────
 FROM python:3.13-slim
 
-# Copy wheels from the builder and install them
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/*.whl
+# Install uv (https://docs.astral.sh/uv/)
+COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /usr/local/bin/
+
+WORKDIR /app
+
+# Copy pyproject.toml first for better build caching
+COPY pyproject.toml ./
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 # Copy the rest of the application code
-WORKDIR /app
 COPY . /app
 
 # ── Runtime configuration placeholders ─────────────────────────

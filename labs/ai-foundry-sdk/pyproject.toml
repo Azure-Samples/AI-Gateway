@@ -1,0 +1,17 @@
+[project]
+name = "ai-foundry-sdk-lab"
+version = "0.1.0"
+description = "Dependencies for the ai-foundry-sdk lab notebook."
+requires-python = ">=3.12"
+dependencies = [
+    "azure-ai-projects",
+    "azure-ai-inference[prompts]",
+    "azure-identity",
+    "azure-search-documents",
+    "pandas",
+    "python-dotenv",
+    "opentelemetry-api",
+]
+
+[tool.uv]
+package = false

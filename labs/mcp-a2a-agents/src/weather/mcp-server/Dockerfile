@@ -1,11 +1,15 @@
 FROM python:3.13.2-slim
 
+# Install uv (https://docs.astral.sh/uv/)
+COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /usr/local/bin/
+
 WORKDIR /app
 
-# Copy the requirements.txt file into the container
-COPY requirements.txt .
+# Copy pyproject.toml first for better build caching
+COPY pyproject.toml ./
 
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+# Install Python dependencies into the system interpreter
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 COPY . .
 

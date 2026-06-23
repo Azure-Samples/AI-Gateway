@@ -736,22 +736,26 @@ resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' =
         apt-get update
         
         # Install Python and venv
-        apt-get install -y python3 python3-pip python3-venv python3-full vim wget
+        apt-get install -y python3 python3-pip python3-venv python3-full vim wget curl ca-certificates git
         
-        # Create a virtual environment for the azureuser
+        # Install uv (system-wide) — the AI Gateway repo is managed with uv.
+        # Reference: https://docs.astral.sh/uv/
+        curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin sh
+
+        # Clone the AI Gateway repo and sync the .venv via uv.
         mkdir -p /home/azureuser/scripts
-        python3 -m venv /home/azureuser/venv
+        if [ ! -d /home/azureuser/AI-Gateway/.git ]; then
+          git clone https://github.com/Azure-Samples/AI-Gateway.git /home/azureuser/AI-Gateway
+        fi
+        cd /home/azureuser/AI-Gateway
+        # uv sync creates /home/azureuser/AI-Gateway/.venv with all pinned deps.
+        uv sync
 
-        wget -O /home/azureuser/requirements.txt https://raw.githubusercontent.com/Azure-Samples/AI-Gateway/refs/heads/main/requirements.txt
-        
-        # Install packages in the virtual environment
-        /home/azureuser/venv/bin/pip install --upgrade pip
-        /home/azureuser/venv/bin/pip install -r /home/azureuser/requirements.txt
-
-        echo "source /home/azureuser/venv/bin/activate" >> /home/azureuser/.bashrc
+        # Auto-activate the uv-managed venv on shell login for convenience.
+        echo "source /home/azureuser/AI-Gateway/.venv/bin/activate" >> /home/azureuser/.bashrc
 
         # Set ownership
-        chown -R azureuser:azureuser /home/azureuser/venv
+        chown -R azureuser:azureuser /home/azureuser/AI-Gateway
         chown -R azureuser:azureuser /home/azureuser/scripts
         
         echo "Setup completed successfully"

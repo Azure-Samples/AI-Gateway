@@ -1,12 +1,15 @@
 FROM python:3.13-slim
 
+# Install uv (https://docs.astral.sh/uv/)
+COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /usr/local/bin/
+
 WORKDIR /app
 
-# Copy the requirements.txt file into the container
-COPY requirements.txt .
+# Copy pyproject.toml first for better build caching
+COPY pyproject.toml ./
 
 # Install the latest FastMCP and dependencies
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 # Copy the MCP server code
 COPY . .

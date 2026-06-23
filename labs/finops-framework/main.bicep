@@ -59,10 +59,12 @@ module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
   }
 
 // 5. APIM Inference API
+var productTokenLimitsXml = join(map(apimProductsConfig, p => '<when condition=\'@((string)context.Product?.Id == "${p.name}")\'><llm-token-limit counter-key="@(context.Subscription.Id)" tokens-per-minute="${p.tpm}" token-quota="${p.tokenQuota}" token-quota-period="${p.tokenQuotaPeriod}" estimate-prompt-tokens="false" remaining-tokens-variable-name="remainingTokens" remaining-quota-tokens-variable-name="remainingQuotaTokens" tokens-consumed-variable-name="consumedTokens" /></when>'), '')
+
 module inferenceAPIModule '../../modules/apim/v2/inference-api.bicep' = {
   name: 'inferenceAPIModule'
   params: {
-    policyXml: loadTextContent('policy.xml')
+    policyXml: replace(loadTextContent('policy.xml'), '{product-token-limits}', productTokenLimitsXml)
     apimLoggerId: apimModule.outputs.loggerId
     aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
     inferenceAPIType: inferenceAPIType
@@ -336,7 +338,7 @@ resource productPolicy 'Microsoft.ApiManagement/service/products/policies@2024-0
   parent: apimProduct[i]
   properties: {
     format: 'rawxml'
-    value: replace(loadTextContent('products-policy.xml'), '{tokens-per-minute}', '${product.tpm}')
+    value: replace(replace(replace(loadTextContent('products-policy.xml'), '{tokens-per-minute}', '${product.tpm}'), '{token-quota}', '${product.tokenQuota}'), '{token-quota-period}', '${product.tokenQuotaPeriod}')
   }
 }]
 

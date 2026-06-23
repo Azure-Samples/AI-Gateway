@@ -384,12 +384,12 @@ After creating your evaluation file, you can use the provided evaluation harness
 1. **Install Dependencies**
 
    ```bash
-   pip install -r scripts/requirements.txt
+   uv pip install -r scripts/pyproject.toml
    ```
 
    Or install manually:
    ```bash
-   pip install anthropic mcp
+   uv pip install anthropic mcp
    ```
 
 2. **Set API Key**
@@ -553,7 +553,7 @@ Here's a complete example of creating and running an evaluation:
 2. **Install dependencies**:
 
 ```bash
-pip install -r scripts/requirements.txt
+uv pip install -r scripts/pyproject.toml
 export ANTHROPIC_API_KEY=your_api_key
 ```
 

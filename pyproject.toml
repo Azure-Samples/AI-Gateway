@@ -1,0 +1,56 @@
+[project]
+name = "ai-gateway"
+version = "0.1.0"
+description = "Comprehensive environment for the AI Gateway labs (Jupyter notebooks, Bicep, APIM policies)."
+readme = "README.md"
+requires-python = ">=3.12"
+# Notes:
+# - azure-functions-worker is intentionally omitted (managed by the Azure Functions platform).
+# - Per-lab pyproject.toml files exist alongside lab notebooks for labs with extra/pinned deps.
+dependencies = [
+    "requests",
+    "jsonref",
+    "python-dotenv",
+    "pandas",
+    "matplotlib",
+    "redis",
+    "msal",
+    "openai[realtime]",
+    "azure-cli>=2.66",
+    "azure-identity",
+    "opentelemetry-api",
+    "opentelemetry-sdk",
+    "azure-monitor-opentelemetry",
+    "azure-monitor-ingestion",
+    "azure-ai-projects",
+    "azure-ai-agents",
+    "azure-ai-inference[prompts]",
+    "azure-search-documents",
+    "azure-functions",
+    "azure-mgmt-apimanagement",
+    # MCP labs (root environment)
+    "mcp==1.21.2",
+    "autogen-core",
+    "autogen-ext[openai,azure,mcp]",
+    "autogen-agentchat",
+    "semantic-kernel[mcp]==1.33.0",
+]
+
+[tool.uv]
+package = false
+# Azure CLI's transitive dependencies (azure-batch, azure-keyvault-administration)
+# are pre-release; allow them globally so the root environment resolves cleanly.
+prerelease = "allow"
+
+[tool.uv.workspace]
+# Each lab is an independent project with its own pin set, so labs are NOT
+# workspace members (their versions conflict). They are installed from their
+# own pyproject.toml via `uv sync` inside the lab directory.
+members = []
+exclude = [
+    "labs/_deprecated/**",
+    "labs/**",
+    "shared/mcp-servers/**",
+    "tools/mock-server",
+    ".github/skills/**",
+]

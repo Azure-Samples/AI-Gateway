@@ -30,7 +30,7 @@ resource mcp 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
       'https'
     ]
     backendId: backend.name
-    mcpPropperties: {
+    mcpProperties: {
       transportType: 'streamable'
     }
   }

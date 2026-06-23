@@ -107,13 +107,12 @@ if ($gitCmd) {
   Write-Warning "git not found on PATH after install; skipping clone"
 }
 
-# ---- 4. pip install lab requirements ----
-# We install from a filtered copy of requirements.txt that drops the `azure-cli`
-# Python package because it pins old versions of azure-* libraries that conflict
-# with the newer azure-ai-projects / azure-ai-agents pinned later in the file
-# and sends pip's resolver into hours of backtracking. Azure CLI is already
-# installed system-wide as a native binary by Chocolatey above.
-$reqFile = Join-Path $repoPath 'requirements.txt'
+# ---- 4. Install lab dependencies via uv ----
+# The repo is managed with `uv` (https://docs.astral.sh/uv/). We install uv first,
+# then run `uv sync` from the repo root to provision the .venv with everything
+# pinned in pyproject.toml / uv.lock. Azure CLI is already installed system-wide
+# as a native binary by Chocolatey above.
+$pyprojectFile = Join-Path $repoPath 'pyproject.toml'
 $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
 if (-not $pythonCmd) {
   $pythonExe = 'C:\Python312\python.exe'
@@ -123,16 +122,32 @@ if (-not $pythonCmd) {
   }
 }
 
-if ($pythonCmd -and (Test-Path $reqFile)) {
-  Write-Host "---- Installing Python requirements from $reqFile (azure-cli filtered out)"
-  $filtered = Join-Path $env:TEMP 'requirements-bootstrap.txt'
-  Get-Content $reqFile | Where-Object { $_ -notmatch '^\s*azure-cli\s*$' } | Set-Content $filtered
-  & python -m pip install --upgrade pip
-  & python -m pip install --use-deprecated=legacy-resolver -r $filtered
-  if ($LASTEXITCODE -ne 0) { Write-Warning "pip install -r exited with $LASTEXITCODE" }
+# Install uv (idempotent — script no-ops if uv is already available)
+$uvCmd = Get-Command uv -ErrorAction SilentlyContinue
+if (-not $uvCmd) {
+  Write-Host "---- Installing uv"
+  try {
+    Invoke-RestMethod https://astral.sh/uv/install.ps1 | Invoke-Expression
+  } catch {
+    Write-Warning "uv install via official script failed: $($_.Exception.Message)"
+  }
+  # uv installs to %USERPROFILE%\.local\bin by default
+  $uvBin = Join-Path $env:USERPROFILE '.local\bin'
+  if (Test-Path (Join-Path $uvBin 'uv.exe')) {
+    $env:PATH = "$uvBin;" + $env:PATH
+    $uvCmd = Get-Command uv -ErrorAction SilentlyContinue
+  }
+}
+
+if ($uvCmd -and (Test-Path $pyprojectFile)) {
+  Write-Host "---- Running 'uv sync' in $repoPath"
+  Push-Location $repoPath
+  & uv sync
+  if ($LASTEXITCODE -ne 0) { Write-Warning "uv sync exited with $LASTEXITCODE" }
+  Pop-Location
 } else {
-  if (-not $pythonCmd) { Write-Warning "python not found on PATH; skipping pip install" }
-  if (-not (Test-Path $reqFile)) { Write-Warning "requirements.txt not found at $reqFile; skipping pip install" }
+  if (-not $uvCmd) { Write-Warning "uv not found on PATH; skipping dependency install" }
+  if (-not (Test-Path $pyprojectFile)) { Write-Warning "pyproject.toml not found at $pyprojectFile; skipping dependency install" }
 }
 
 # ---- 5. VS Code extensions ----
@@ -234,11 +249,18 @@ if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
   exit 1
 }
 
-# 2) Idempotently install the openai SDK.
+# 2) Idempotently ensure the openai SDK is available.
+#    Prefer `uv pip install` if uv is on PATH (the lab uses uv); otherwise
+#    fall back to `python -m pip install`.
 Write-Host 'Ensuring openai is installed...'
-& python -m pip install --quiet --upgrade openai
+$uvCmd = Get-Command uv -ErrorAction SilentlyContinue
+if ($uvCmd) {
+  & uv pip install --system --quiet --upgrade openai
+} else {
+  & python -m pip install --quiet --upgrade openai
+}
 if ($LASTEXITCODE -ne 0) {
-  Write-Warning "pip install reported a non-zero exit code; continuing anyway."
+  Write-Warning "openai install reported a non-zero exit code; continuing anyway."
 }
 
 # 3) Run the test inline via python stdin. Values flow through environment

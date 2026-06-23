@@ -1,0 +1,15 @@
+[project]
+name = "mcp-a2a-agents-lab"
+version = "0.1.0"
+description = "Dependencies for the mcp-a2a-agents lab notebook (A2A client side)."
+requires-python = ">=3.13"  # a2a-sdk 0.2.3 requires Python 3.13+
+dependencies = [
+    # A2A Labs
+    "jwcrypto",
+    "a2a-sdk==0.2.3",
+    "httpx",
+    "uvicorn",
+]
+
+[tool.uv]
+package = false

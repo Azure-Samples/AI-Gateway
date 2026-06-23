@@ -1,0 +1,18 @@
+[project]
+name = "phy-3"
+version = "0.1.0"
+description = "Phi-3 self-hosted SLM Flask service."
+requires-python = ">=3.12"
+dependencies = [
+    "Flask",
+    "gunicorn",
+    "Werkzeug",
+    "openai",
+    "transformers",
+    "torch",
+    "torchvision",
+    "torchaudio",
+]
+
+[tool.uv]
+package = false

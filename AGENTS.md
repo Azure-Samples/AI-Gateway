@@ -25,7 +25,7 @@ Contains hands-on experimental labs, each in its own subdirectory. Labs are stru
 - **Specialized Features**: `realtime-audio/`, `image-generation/`, `function-calling/`, `vector-searching/`, `message-storing/`, `session-awareness/`
 - **Operations**: `finops-framework/`, `zero-to-production/`
 
-**Lab structure pattern:**
+- **Lab structure pattern:**
 
 - `README.md` - README file to describe lab following the standard lab structure.
 - `<lab-name>.ipynb` - Main Jupyter notebook with step-by-step instructions
@@ -33,6 +33,7 @@ Contains hands-on experimental labs, each in its own subdirectory. Labs are stru
 - `main.bicep` - Azure infrastructure deployment template
 - `params.json` - Temporary file generated automatically for the bicep deployment. This file will not be commited to the repo.
 - `*policy.xml` - Azure API Management policy files
+- `pyproject.toml` - Lab-specific Python dependencies (only present when the lab needs deps beyond the root environment).
 - `src/` - Supporting source code (when applicable)
 
 Disregard the `labs/_deprecated` folder, as it contains archived labs.
@@ -110,7 +111,7 @@ Contains standalone utility notebooks and testing tools for use with deployed la
 
 ## Prerequisites
 
-- Python 3.12+ with dependencies from `requirements.txt`
+- Python 3.12+ — dependencies are managed with [uv](https://docs.astral.sh/uv/). Run `uv sync` at the repo root to create the `.venv` and install everything.
 - Azure CLI authenticated to an Azure subscription
 - VS Code with Jupyter extension
 - Azure subscription with appropriate RBAC permissions

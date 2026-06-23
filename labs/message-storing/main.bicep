@@ -52,11 +52,6 @@ param manualProvisionedThroughput int = 400
 @maxValue(1000000)
 param autoscaleMaxThroughput int = 1000
 
-@description('Time to Live for data in analytical store. (-1 no expiry)')
-@minValue(-1)
-@maxValue(2147483647)
-param analyticalStoreTTL int = -1
-
 // ------------------
 //    VARIABLES
 // ------------------
@@ -313,7 +308,6 @@ resource cosmosDBAccountResource 'Microsoft.DocumentDB/databaseAccounts@2022-05-
     }
     databaseAccountOfferType: 'Standard'
     locations: cosmosDBLocations
-    enableAnalyticalStorage: true
     disableLocalAuth: false
   }
   tags: {
@@ -354,7 +348,6 @@ resource cosmosDBContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
         ]
         kind: 'Hash'
       }
-      analyticalStorageTtl: analyticalStoreTTL
     }
     options: throughput_Policy[throughputPolicy]
   }
