@@ -19,7 +19,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/access-controlling",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.726Z"
+    "lastCommitDate": "2026-06-23T13:28:02.170Z"
   },
   {
     "id": "ai-agent-service",
@@ -40,7 +40,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-agent-service",
     "tags": [],
-    "lastCommitDate": "2026-04-22T21:03:32.955Z"
+    "lastCommitDate": "2026-06-23T13:28:02.171Z"
   },
   {
     "id": "ai-foundry-deepseek",
@@ -61,7 +61,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-deepseek",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.727Z"
+    "lastCommitDate": "2026-06-23T13:28:02.172Z"
   },
   {
     "id": "ai-foundry-hosted-agents",
@@ -110,7 +110,7 @@
       "Enterprise AI"
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-model-gateway",
-    "lastCommitDate": "2026-04-22T21:03:32.956Z"
+    "lastCommitDate": "2026-06-23T13:28:02.172Z"
   },
   {
     "id": "ai-foundry-private-mcp",
@@ -136,7 +136,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-private-mcp",
-    "lastCommitDate": "2026-02-19T12:42:08.760Z"
+    "lastCommitDate": "2026-06-23T13:28:02.173Z"
   },
   {
     "id": "ai-foundry-sdk",
@@ -156,7 +156,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-sdk",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.728Z"
+    "lastCommitDate": "2026-06-23T13:28:02.174Z"
   },
   {
     "id": "aws-bedrock",
@@ -176,15 +176,15 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/aws-bedrock",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.728Z"
+    "lastCommitDate": "2026-06-23T13:28:02.175Z"
   },
   {
     "id": "azure-ml-models",
     "name": "Azure ML Model as MCP Server",
     "architectureDiagram": "",
     "categories": [
-      "AI Agents",
-      "Knowledge & Tools"
+      "AI Agents & MCP",
+      "Model Integration"
     ],
     "services": [
       "Azure API Management",
@@ -199,7 +199,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/azure-ml-models",
-    "lastCommitDate": "2026-03-05T12:49:19.498Z"
+    "lastCommitDate": "2026-06-23T13:28:02.175Z"
   },
   {
     "id": "backend-pool-load-balancing",
@@ -219,7 +219,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/backend-pool-load-balancing",
     "tags": [],
-    "lastCommitDate": "2026-02-19T12:42:08.760Z"
+    "lastCommitDate": "2026-06-23T13:28:02.176Z"
   },
   {
     "id": "backend-pool-load-balancing-tf",
@@ -258,7 +258,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/built-in-logging",
     "tags": [],
-    "lastCommitDate": "2026-02-04T18:19:33.465Z"
+    "lastCommitDate": "2026-06-23T13:28:02.176Z"
   },
   {
     "id": "content-safety",
@@ -278,7 +278,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/content-safety",
     "tags": [],
-    "lastCommitDate": "2026-04-22T21:03:32.956Z"
+    "lastCommitDate": "2026-06-23T13:28:02.177Z"
   },
   {
     "id": "finops-framework",
@@ -300,7 +300,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/finops-framework",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.730Z"
+    "lastCommitDate": "2026-06-23T13:28:02.177Z"
   },
   {
     "id": "foundry-e2e-private",
@@ -325,7 +325,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-e2e-private",
-    "lastCommitDate": "2026-05-18T09:36:10.686Z"
+    "lastCommitDate": "2026-06-23T13:28:02.177Z"
   },
   {
     "id": "foundry-iq-agent-svc",
@@ -347,7 +347,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agent-svc",
-    "lastCommitDate": "2026-03-23T17:18:59.805Z"
+    "lastCommitDate": "2026-06-23T13:28:02.178Z"
   },
   {
     "id": "foundry-iq-agentfw",
@@ -369,7 +369,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-iq-agentfw",
-    "lastCommitDate": "2026-03-23T17:18:59.806Z"
+    "lastCommitDate": "2026-06-23T13:28:02.178Z"
   },
   {
     "id": "foundry-models-evals",
@@ -390,7 +390,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/foundry-models-evals",
-    "lastCommitDate": "2026-02-04T18:13:32.653Z"
+    "lastCommitDate": "2026-06-23T13:28:02.178Z"
   },
   {
     "id": "function-calling",
@@ -432,7 +432,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/gemini-mcp-agents",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.732Z"
+    "lastCommitDate": "2026-06-23T13:28:02.179Z"
   },
   {
     "id": "gemini-models",
@@ -453,7 +453,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/gemini-models",
-    "lastCommitDate": "2026-02-04T13:09:52.732Z"
+    "lastCommitDate": "2026-06-23T13:28:02.179Z"
   },
   {
     "id": "google-gemini-api",
@@ -474,7 +474,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/google-gemini-api",
-    "lastCommitDate": "2026-02-04T13:09:52.732Z"
+    "lastCommitDate": "2026-06-23T13:28:02.179Z"
   },
   {
     "id": "image-generation",
@@ -494,7 +494,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/image-generation",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.733Z"
+    "lastCommitDate": "2026-06-23T13:28:02.180Z"
   },
   {
     "id": "mcp-a2a-agents",
@@ -518,7 +518,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-a2a-agents",
     "tags": [],
-    "lastCommitDate": "2026-03-27T12:16:20.459Z"
+    "lastCommitDate": "2026-06-23T13:28:02.182Z"
   },
   {
     "id": "mcp-client-authorization",
@@ -556,7 +556,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-from-api",
     "tags": [],
-    "lastCommitDate": "2026-02-18T22:32:42.100Z"
+    "lastCommitDate": "2026-06-23T13:28:02.184Z"
   },
   {
     "id": "mcp-prm-oauth",
@@ -577,7 +577,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-prm-oauth",
     "tags": [],
-    "lastCommitDate": "2026-02-23T15:05:59.377Z"
+    "lastCommitDate": "2026-06-23T13:28:02.184Z"
   },
   {
     "id": "mcp-registry-apic",
@@ -598,7 +598,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/mcp-registry-apic",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.735Z"
+    "lastCommitDate": "2026-06-23T13:28:02.184Z"
   },
   {
     "id": "mcp-registry-apic-github-workflow",
@@ -640,7 +640,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/message-storing",
     "tags": [],
-    "lastCommitDate": "2026-03-27T11:08:14.714Z"
+    "lastCommitDate": "2026-06-23T13:28:02.184Z"
   },
   {
     "id": "model-context-protocol",
@@ -662,7 +662,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-context-protocol",
     "tags": [],
-    "lastCommitDate": "2026-04-22T21:07:32.688Z"
+    "lastCommitDate": "2026-06-23T13:28:02.185Z"
   },
   {
     "id": "model-routing",
@@ -684,7 +684,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-routing",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.736Z"
+    "lastCommitDate": "2026-06-23T13:28:02.185Z"
   },
   {
     "id": "openai-agents",
@@ -704,7 +704,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/openai-agents",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.737Z"
+    "lastCommitDate": "2026-06-23T13:28:02.185Z"
   },
   {
     "id": "private-connectivity",
@@ -746,7 +746,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/realtime-audio",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.738Z"
+    "lastCommitDate": "2026-06-23T13:28:02.185Z"
   },
   {
     "id": "realtime-mcp-agents",
@@ -771,7 +771,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/realtime-mcp-agents",
     "tags": [],
-    "lastCommitDate": "2026-02-20T22:13:30.448Z"
+    "lastCommitDate": "2026-06-23T13:28:02.186Z"
   },
   {
     "id": "secure-responses-api",
@@ -791,7 +791,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/secure-responses-api",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.738Z"
+    "lastCommitDate": "2026-06-23T13:28:02.186Z"
   },
   {
     "id": "self-hosted-ollama",
@@ -812,7 +812,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/self-hosted-ollama",
-    "lastCommitDate": "2026-04-21T13:28:48.484Z"
+    "lastCommitDate": "2026-06-23T13:28:02.186Z"
   },
   {
     "id": "semantic-caching",
@@ -833,7 +833,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/semantic-caching",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.739Z"
+    "lastCommitDate": "2026-06-23T13:28:02.186Z"
   },
   {
     "id": "serverless-gpu",
@@ -854,7 +854,7 @@
     ],
     "tags": [],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/serverless-gpu",
-    "lastCommitDate": "2026-03-20T23:53:05.181Z"
+    "lastCommitDate": "2026-06-23T13:28:02.187Z"
   },
   {
     "id": "session-awareness",
@@ -875,7 +875,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/session-awareness",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.739Z"
+    "lastCommitDate": "2026-06-23T13:28:02.187Z"
   },
   {
     "id": "slm-self-hosting",
@@ -896,7 +896,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/slm-self-hosting",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.739Z"
+    "lastCommitDate": "2026-06-23T13:28:02.187Z"
   },
   {
     "id": "token-metrics-emitting",
@@ -917,7 +917,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/token-metrics-emitting",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.740Z"
+    "lastCommitDate": "2026-06-23T13:28:02.187Z"
   },
   {
     "id": "token-rate-limiting",
@@ -937,7 +937,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/token-rate-limiting",
     "tags": [],
-    "lastCommitDate": "2026-02-04T13:09:52.740Z"
+    "lastCommitDate": "2026-06-23T13:28:02.188Z"
   },
   {
     "id": "vector-searching",
