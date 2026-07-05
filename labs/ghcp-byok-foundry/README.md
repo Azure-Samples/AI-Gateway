@@ -32,7 +32,7 @@ Let developers use **your own Azure AI Foundry model inside GitHub Copilot** (ke
 3. **Central governance** - per-developer token limits + usage metering for cost/audit.
 4. **No bypass** - the model can only be reached through the gateway.
 
-This lab builds on the work by @angangwa **Option A** from [copilot-byok-foundry-apim](https://github.com/angangwa/copilot-byok-foundry-apim). At the gateway, APIM authenticates the developer, asks **Microsoft Graph** whether they belong to the approved `*-users` group, applies a per-developer token limit and usage metric, then **discards the developer's token and substitutes its own managed-identity token** to call Foundry. Because the developer has no RBAC role on Foundry, a direct call bypassing the gateway is rejected (`401`) - **identity**, not the network, makes the gateway non-bypassable. No private networking is required, so the cheaper **Basic v2** APIM tier suffices.
+This lab builds on the great work by [@angangwa](https://github.com/angangwa) **Option A** from [copilot-byok-foundry-apim](https://github.com/angangwa/copilot-byok-foundry-apim). At the gateway, APIM authenticates the developer, asks **Microsoft Graph** whether they belong to the approved `*-users` group, applies a per-developer token limit and usage metric, then **discards the developer's token and substitutes its own managed-identity token** to call Foundry. Because the developer has no RBAC role on Foundry, a direct call bypassing the gateway is rejected (`401`) - **identity**, not the network, makes the gateway non-bypassable. No private networking is required, so the cheaper **Basic v2** APIM tier suffices.
 
 ### How it works
 
