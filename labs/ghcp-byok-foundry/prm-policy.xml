@@ -1,0 +1,54 @@
+<!--
+    Protected Resource Metadata (RFC 9728) — OAuth discovery document.
+
+    Served anonymously at:  https://<gateway>/.well-known/oauth-protected-resource
+
+    A client (GitHub Copilot BYOK, OpenCode, etc.) that calls the inference API
+    without a token receives a 401 whose WWW-Authenticate header points here. The
+    client then GETs this document, learns which resource + authorization server to
+    use, and runs the interactive OAuth + PKCE flow against Entra.
+
+    OpenCode compatibility notes:
+      * "resource" is the audience the client must request a token for. OpenCode does
+        STRICT string matching against the IdP identifierUri, so this value carries NO
+        trailing slash and must match https://cognitiveservices.azure.com exactly.
+      * "authorization_servers" is the Entra v2.0 endpoint; its OpenID configuration is
+        exposed at <authorization_server>/.well-known/openid-configuration.
+-->
+<policies>
+    <inbound>
+        <base />
+        <return-response>
+            <set-status code="200" reason="OK" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-header name="Cache-Control" exists-action="override">
+                <value>public, max-age=3600</value>
+            </set-header>
+            <set-body>@{
+                return JsonConvert.SerializeObject(new {
+                    resource = "https://cognitiveservices.azure.com",
+                    authorization_servers = new[] {
+                        "https://login.microsoftonline.com/{tenant-id}/v2.0"
+                    },
+                    bearer_methods_supported = new[] {
+                        "header"
+                    },
+                    scopes_supported = new[] {
+                        "https://cognitiveservices.azure.com/.default"
+                    }
+                });
+            }</set-body>
+        </return-response>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

@@ -1,0 +1,123 @@
+<policies>
+    <inbound>
+        <base />
+        <!-- ┌──────────────────────────────────────────────────────────────────────┐
+             │ 1) AUTHENTICATE the developer.                                       │
+             │ The GitHub Copilot BYOK client sends the developer's own Entra token │
+             │ (audience = https://cognitiveservices.azure.com). We validate it     │
+             │ against our tenant; anything else is rejected with 401.              │
+             └──────────────────────────────────────────────────────────────────────┘ -->
+        <validate-azure-ad-token tenant-id="{tenant-id}" output-token-variable-name="jwt"
+            failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. A valid Entra token is required.">
+            <audiences>
+                <audience>https://cognitiveservices.azure.com</audience>
+            </audiences>
+        </validate-azure-ad-token>
+        <!-- Extract the developer's object id (oid). It drives authorization, the
+             per-user rate limit and the per-developer usage metric. -->
+        <set-variable name="oid" value="@(((Jwt)context.Variables[&quot;jwt&quot;]).Claims.GetValueOrDefault(&quot;oid&quot;, new string[]{&quot;&quot;})[0])" />
+        <!-- Capture the requested model for per-model metering. preserveContent keeps
+             the body intact for the backend. -->
+        <set-variable name="model" value="@{ var b = context.Request.Body?.As&lt;JObject&gt;(true); return (b != null &amp;&amp; b[&quot;model&quot;] != null) ? b[&quot;model&quot;].ToString() : &quot;unknown&quot;; }" />
+        <!-- Capture a friendly developer name (for FinOps chargeback reports). Falls back
+             to the sign-in name (preferred_username) when the display name is absent. -->
+        <set-variable name="developerName" value="@{ var j = (Jwt)context.Variables[&quot;jwt&quot;]; var n = j.Claims.GetValueOrDefault(&quot;name&quot;, new string[]{&quot;&quot;})[0]; return string.IsNullOrEmpty(n) ? j.Claims.GetValueOrDefault(&quot;preferred_username&quot;, new string[]{&quot;&quot;})[0] : n; }" />
+
+        <!-- ┌─────────────────────────────────────────────────────────────────────┐
+             │ 2) AUTHORIZE: is the developer a member of the approved group?      │
+             │ We ask Microsoft Graph, using APIM's OWN managed identity, whether  │
+             │ the oid is a (transitive) member of the allowed security group.     │
+             │ The answer is cached per-oid for 1 hour to avoid a Graph call per   │
+             │ request. Not a member => 403.                                       │
+             └─────────────────────────────────────────────────────────────────────┘ -->
+        <cache-lookup-value key="@(&quot;grp-&quot; + (string)context.Variables[&quot;oid&quot;])" variable-name="inGroup" />
+        <choose>
+            <when condition="@(!context.Variables.ContainsKey(&quot;inGroup&quot;))">
+                <authentication-managed-identity resource="https://graph.microsoft.com" output-token-variable-name="graphToken" />
+                <send-request mode="new" response-variable-name="grp" timeout="10" ignore-error="false">
+                    <set-url>@($"https://graph.microsoft.com/v1.0/groups/{group-id}/transitiveMembers/microsoft.graph.user?$count=true&amp;$filter=id%20eq%20'{(string)context.Variables["oid"]}'&amp;$select=id")</set-url>
+                    <set-method>GET</set-method>
+                    <set-header name="Authorization" exists-action="override">
+                        <value>@("Bearer " + (string)context.Variables["graphToken"])</value>
+                    </set-header>
+                    <set-header name="ConsistencyLevel" exists-action="override">
+                        <value>eventual</value>
+                    </set-header>
+                </send-request>
+                <set-variable name="inGroup" value="@(((IResponse)context.Variables[&quot;grp&quot;]).Body.As&lt;JObject&gt;()[&quot;value&quot;].HasValues)" />
+                <cache-store-value key="@(&quot;grp-&quot; + (string)context.Variables[&quot;oid&quot;])" value="@((bool)context.Variables[&quot;inGroup&quot;])" duration="3600" />
+            </when>
+        </choose>
+        <choose>
+            <when condition="@(!(bool)context.Variables[&quot;inGroup&quot;])">
+                <return-response>
+                    <set-status code="403" reason="Forbidden" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>{"error":"Forbidden. You are not a member of an authorized group."}</set-body>
+                </return-response>
+            </when>
+        </choose>
+
+        <!-- ┌────────────────────────────────────────────────────────────────────────┐
+             │ 3) GOVERN: per-developer token/min limit + per-developer usage metric, │
+             │ both keyed on the Entra oid so quota and cost attribution follow the   │
+             │ individual developer (not a shared subscription key). Over the limit   │
+             │ => 429.                                                                │
+             └────────────────────────────────────────────────────────────────────────┘ -->
+        <llm-token-limit counter-key="@(&quot;tpm-&quot; + (string)context.Variables[&quot;oid&quot;])"
+            tokens-per-minute="100000" estimate-prompt-tokens="false" remaining-tokens-variable-name="remainingTokens" />
+        <llm-emit-token-metric namespace="copilot">
+            <dimension name="oid" value="@((string)context.Variables[&quot;oid&quot;])" />
+            <dimension name="developerName" value="@((string)context.Variables[&quot;developerName&quot;])" />
+            <dimension name="model" value="@((string)context.Variables[&quot;model&quot;])" />
+        </llm-emit-token-metric>
+        <!-- FinOps live-routing attribution: emit the developer identity on the same
+             CorrelationId as the gateway's LLM log. The router's *served* model lives in
+             ApiManagementGatewayLlmLog (response side); joining it to this trace on
+             CorrelationId yields per-developer served-model reporting without buffering
+             the streamed response. Lands in ApiManagementGatewayLogs.TraceRecords. -->
+        <trace source="copilot-finops" severity="information">
+            <message>copilot-finops per-developer usage</message>
+            <metadata name="oid" value="@((string)context.Variables[&quot;oid&quot;])" />
+            <metadata name="developerName" value="@((string)context.Variables[&quot;developerName&quot;])" />
+            <metadata name="model" value="@((string)context.Variables[&quot;model&quot;])" />
+        </trace>
+
+        <!-- ┌─────────────────────────────────────────────────────────────────────────┐
+             │ 4) MANAGED-IDENTITY SWAP.                                               │
+             │ The backend is configured (in Bicep) with APIM's managed-identity       │
+             │ credentials for audience https://cognitiveservices.azure.com. Selecting │
+             │ it here makes APIM DROP the developer's token and attach its OWN MI     │
+             │ token to call Foundry. The developer holds no role on Foundry, so a     │
+             │ direct call bypassing the gateway is rejected with 401 — identity, not  │
+             │ the network, makes the gateway non-bypassable.                          │
+             └─────────────────────────────────────────────────────────────────────────┘ -->
+        <set-backend-service backend-id="{backend-id}" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+        <!-- ┌─────────────────────────────────────────────────────────────────────────┐
+             │ PRM DISCOVERY (RFC 9728).                                               │
+             │ When the caller presents no / an invalid token, validate-azure-ad-token │
+             │ produces a 401. We attach a WWW-Authenticate header pointing at our     │
+             │ Protected Resource Metadata document so discovery-capable clients       │
+             │ (GitHub Copilot BYOK, OpenCode, ...) can learn the resource +           │
+             │ authorization server and start the interactive OAuth + PKCE flow.       │
+             └─────────────────────────────────────────────────────────────────────────┘ -->
+        <choose>
+            <when condition="@(context.Response != null &amp;&amp; context.Response.StatusCode == 401)">
+                <set-header name="WWW-Authenticate" exists-action="override">
+                    <value>@($"Bearer error=\"invalid_token\", error_description=\"A valid Entra token is required\", resource_metadata=\"{context.Request.OriginalUrl.Scheme}://{context.Request.OriginalUrl.Host}/.well-known/oauth-protected-resource\"")</value>
+                </set-header>
+            </when>
+        </choose>
+    </on-error>
+</policies>
