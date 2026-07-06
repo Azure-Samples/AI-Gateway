@@ -9,7 +9,7 @@ dependencies = [
     "openai[realtime]",
     "fastrtc==0.0.19",
     "fastrtc[vad]==0.0.19",
-    "gradio==5.23.3",
+    "gradio==6.15.0",
     "uvicorn==0.32.0",
     "azure-identity",
     "mcp==1.19.0",
