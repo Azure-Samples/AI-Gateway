@@ -1,0 +1,190 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "## Copilot FinOps — per-developer usage & cost\n\nAttributes GitHub Copilot → private Foundry spend to the **individual developer** using the per-user token metrics the APIM gateway already emits (`oid`, `developerName`, `model`). No data seeding — every widget is driven by real gateway traffic.\n\nCost is a token × price **estimate** that discounts cached input tokens. Prices below are editable placeholders in USD per **1M** tokens — change them to your negotiated rates."
+      },
+      "name": "title"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "b1f0c0a0-0001-4a00-9a00-000000000001",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Time range",
+            "type": 4,
+            "isRequired": true,
+            "value": { "durationMs": 86400000 },
+            "typeSettings": {
+              "selectableValues": [
+                { "durationMs": 3600000 },
+                { "durationMs": 14400000 },
+                { "durationMs": 86400000 },
+                { "durationMs": 604800000 },
+                { "durationMs": 2592000000 }
+              ]
+            }
+          },
+          {
+            "id": "b1f0c0a0-0002-4a00-9a00-000000000002",
+            "version": "KqlParameterItem/1.0",
+            "name": "inP",
+            "label": "Input $ / 1M",
+            "type": 1,
+            "isRequired": true,
+            "value": "3"
+          },
+          {
+            "id": "b1f0c0a0-0003-4a00-9a00-000000000003",
+            "version": "KqlParameterItem/1.0",
+            "name": "cachedP",
+            "label": "Cached input $ / 1M",
+            "type": 1,
+            "isRequired": true,
+            "value": "0.3"
+          },
+          {
+            "id": "b1f0c0a0-0004-4a00-9a00-000000000004",
+            "version": "KqlParameterItem/1.0",
+            "name": "outP",
+            "label": "Output $ / 1M",
+            "type": 1,
+            "isRequired": true,
+            "value": "12"
+          },
+          {
+            "id": "b1f0c0a0-0005-4a00-9a00-000000000005",
+            "version": "KqlParameterItem/1.0",
+            "name": "budget",
+            "label": "Monthly budget $",
+            "type": 1,
+            "isRequired": true,
+            "value": "500"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0
+      },
+      "name": "parameters"
+    },
+    {
+      "type": 1,
+      "content": { "json": "### Executive summary" },
+      "name": "text-exec"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name in ('Total Tokens', 'Prompt Tokens', 'Completion Tokens', 'Prompt Cached Tokens')\n| extend oid = tostring(customDimensions['oid'])\n| summarize\n    Prompt = sumif(valueSum, name == 'Prompt Tokens'),\n    Cached = sumif(valueSum, name == 'Prompt Cached Tokens'),\n    Completion = sumif(valueSum, name == 'Completion Tokens'),\n    Requests = sumif(valueCount, name == 'Total Tokens'),\n    Developers = dcountif(oid, name == 'Total Tokens')\n| extend Cost = round(((Prompt - Cached) * {inP} + Cached * {cachedP} + Completion * {outP}) / 1000000.0, 2)\n| project\n    ['Est. spend (USD)'] = Cost,\n    ['Total tokens'] = Prompt + Completion,\n    ['Requests'] = Requests,\n    ['Active developers'] = Developers,\n    ['Avg $ / 1k tokens'] = round(Cost / ((Prompt + Completion) / 1000.0), 4)",
+        "size": 4,
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "exec-summary"
+    },
+    {
+      "type": 1,
+      "content": { "json": "### Usage concentration — who drives the spend\nA small share of developers typically accounts for most of the cost. Top-15 by estimated spend." },
+      "name": "text-concentration"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name in ('Prompt Tokens', 'Completion Tokens', 'Prompt Cached Tokens', 'Total Tokens')\n| extend oid = tostring(customDimensions['oid']), developerName = tostring(customDimensions['developerName'])\n| summarize\n    Prompt = sumif(valueSum, name == 'Prompt Tokens'),\n    Cached = sumif(valueSum, name == 'Prompt Cached Tokens'),\n    Completion = sumif(valueSum, name == 'Completion Tokens'),\n    Requests = sumif(valueCount, name == 'Total Tokens')\n    by Developer = iff(developerName != '', developerName, oid)\n| extend Cost = round(((Prompt - Cached) * {inP} + Cached * {cachedP} + Completion * {outP}) / 1000000.0, 2)\n| top 15 by Cost desc\n| project Developer, Cost",
+        "size": 0,
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "barchart"
+      },
+      "name": "leaderboard"
+    },
+    {
+      "type": 1,
+      "content": { "json": "### Model mix & efficiency\nSpend, tokens and $/1k by requested model." },
+      "name": "text-modelmix"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name in ('Prompt Tokens', 'Completion Tokens', 'Prompt Cached Tokens', 'Total Tokens')\n| extend model = tostring(customDimensions['model'])\n| summarize\n    Prompt = sumif(valueSum, name == 'Prompt Tokens'),\n    Cached = sumif(valueSum, name == 'Prompt Cached Tokens'),\n    Completion = sumif(valueSum, name == 'Completion Tokens'),\n    Requests = sumif(valueCount, name == 'Total Tokens')\n    by model\n| extend Tokens = Prompt + Completion\n| extend Cost = round(((Prompt - Cached) * {inP} + Cached * {cachedP} + Completion * {outP}) / 1000000.0, 2)\n| extend ['$ / 1k tokens'] = round(Cost / (Tokens / 1000.0), 4)\n| project model, Cost, Tokens, Requests, ['$ / 1k tokens']\n| order by Cost desc",
+        "size": 0,
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "model-mix"
+    },
+    {
+      "type": 1,
+      "content": { "json": "### Live routing — served model vs requested deployment\nReal gateway traffic only. Joins the served model from `ApiManagementGatewayLlmLog` (response side) to the `copilot-finops` trace (developer identity) on `CorrelationId` — streaming-safe, no request/response bodies captured." },
+      "name": "text-routing"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let served = ApiManagementGatewayLlmLog\n| where isnotempty(ModelName) or isnotempty(DeploymentName)\n| project CorrelationId, ServedModel = ModelName, RequestedModel = DeploymentName, TotalTokens;\nlet devs = ApiManagementGatewayLogs\n| mv-expand tr = todynamic(TraceRecords)\n| where tostring(tr['source']) == 'copilot-finops'\n| project CorrelationId, developerName = tostring(tr['metadata']['developerName']), oid = tostring(tr['metadata']['oid']);\nserved\n| join kind=leftouter devs on CorrelationId\n| summarize Requests = count(), Tokens = sum(TotalTokens) by Developer = coalesce(developerName, oid, 'unattributed'), ServedModel, RequestedModel\n| order by Requests desc",
+        "size": 0,
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{workspaceResourceId}"
+        ],
+        "visualization": "table"
+      },
+      "name": "live-routing"
+    },
+    {
+      "type": 1,
+      "content": { "json": "### Per-developer chargeback\nToken breakdown and estimated cost per developer × model. Cached input tokens are billed at the cheaper cached rate." },
+      "name": "text-chargeback"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name in ('Prompt Tokens', 'Completion Tokens', 'Prompt Cached Tokens', 'Total Tokens')\n| extend oid = tostring(customDimensions['oid']), developerName = tostring(customDimensions['developerName']), model = tostring(customDimensions['model'])\n| summarize\n    Prompt = sumif(valueSum, name == 'Prompt Tokens'),\n    Cached = sumif(valueSum, name == 'Prompt Cached Tokens'),\n    Completion = sumif(valueSum, name == 'Completion Tokens'),\n    Requests = sumif(valueCount, name == 'Total Tokens')\n    by Developer = iff(developerName != '', developerName, oid), model\n| extend Cost = round(((Prompt - Cached) * {inP} + Cached * {cachedP} + Completion * {outP}) / 1000000.0, 4)\n| project Developer, model, Prompt, Cached, Completion, Requests, Cost\n| order by Cost desc",
+        "size": 0,
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "chargeback"
+    },
+    {
+      "type": 1,
+      "content": { "json": "### Governance — rate-limit pressure\nPer-user rate-limit attribution isn't in standard telemetry, so this infers pressure from each developer's peak per-minute token burst against the **100k TPM** per-user ceiling enforced by `llm-token-limit`." },
+      "name": "text-governance"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name == 'Total Tokens'\n| extend oid = tostring(customDimensions['oid']), developerName = tostring(customDimensions['developerName'])\n| summarize TPM = sum(valueSum) by bin(timestamp, 1m), Developer = iff(developerName != '', developerName, oid)\n| summarize ['Peak TPM'] = max(TPM) by Developer\n| extend ['% of 100k TPM limit'] = round(100.0 * ['Peak TPM'] / 100000, 1)\n| order by ['Peak TPM'] desc",
+        "size": 0,
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "governance"
+    }
+  ],
+  "styleSettings": {},
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

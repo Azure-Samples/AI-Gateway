@@ -1,0 +1,67 @@
+<policies>
+    <inbound>
+        <base />
+        <!-- ┌────────────────────────────────────────────────────────────────────────┐
+             │ AUTHENTICATE with an APIM subscription key.                            │
+             │ The API has subscriptionRequired=true, so APIM validates the key       │
+             │ (api-key header or query) BEFORE this policy runs — a missing/invalid  │
+             │ key is rejected with 401 automatically. The subscription therefore IS  │
+             │ the caller's identity for governance and cost attribution.             │
+             └────────────────────────────────────────────────────────────────────────┘ -->
+
+        <!-- Map the subscription onto the SAME dimension names the FinOps workbook
+             expects (oid / developerName / model), so a single set of reports works
+             for both the Entra and API-key gateways:
+               - oid           -> subscription id   (stable per-key identifier)
+               - developerName -> subscription name (friendly chargeback label)
+               - model         -> requested model from the body -->
+        <set-variable name="oid" value="@(context.Subscription.Id)" />
+        <set-variable name="developerName" value="@(string.IsNullOrEmpty(context.Subscription.Name) ? context.Subscription.Id : context.Subscription.Name)" />
+        <!-- Capture the requested model for per-model metering. preserveContent keeps
+             the body intact for the backend. -->
+        <set-variable name="model" value="@{ var b = context.Request.Body?.As&lt;JObject&gt;(true); return (b != null &amp;&amp; b[&quot;model&quot;] != null) ? b[&quot;model&quot;].ToString() : &quot;unknown&quot;; }" />
+
+        <!-- ┌────────────────────────────────────────────────────────────────────┐
+             │ GOVERN: per-subscription token/min limit + per-subscription usage  │
+             │ metric, keyed on the subscription id so quota and cost attribution │
+             │ follow the individual key. Over the limit => 429.                  │
+             └────────────────────────────────────────────────────────────────────┘ -->
+        <llm-token-limit counter-key="@(&quot;tpm-&quot; + (string)context.Variables[&quot;oid&quot;])"
+            tokens-per-minute="100000" estimate-prompt-tokens="false" remaining-tokens-variable-name="remainingTokens" />
+        <llm-emit-token-metric namespace="copilot">
+            <dimension name="oid" value="@((string)context.Variables[&quot;oid&quot;])" />
+            <dimension name="developerName" value="@((string)context.Variables[&quot;developerName&quot;])" />
+            <dimension name="model" value="@((string)context.Variables[&quot;model&quot;])" />
+        </llm-emit-token-metric>
+        <!-- FinOps live-routing attribution: emit the caller identity on the same
+             CorrelationId as the gateway's LLM log. The router's *served* model lives in
+             ApiManagementGatewayLlmLog (response side); joining it to this trace on
+             CorrelationId yields per-subscription served-model reporting without
+             buffering the streamed response. Lands in ApiManagementGatewayLogs.TraceRecords. -->
+        <trace source="copilot-finops" severity="information">
+            <message>copilot-finops per-subscription usage</message>
+            <metadata name="oid" value="@((string)context.Variables[&quot;oid&quot;])" />
+            <metadata name="developerName" value="@((string)context.Variables[&quot;developerName&quot;])" />
+            <metadata name="model" value="@((string)context.Variables[&quot;model&quot;])" />
+        </trace>
+
+        <!-- ┌─────────────────────────────────────────────────────────────────────────┐
+             │ MANAGED-IDENTITY SWAP.                                                  │
+             │ The backend is configured (in Bicep) with APIM's managed-identity       │
+             │ credentials for audience https://cognitiveservices.azure.com. Selecting │
+             │ it here makes APIM attach its OWN MI token to call Foundry, so the      │
+             │ caller never needs a Foundry key or role — the gateway is the only way  │
+             │ in.                                                                     │
+             └─────────────────────────────────────────────────────────────────────────┘ -->
+        <set-backend-service backend-id="{backend-id}" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
