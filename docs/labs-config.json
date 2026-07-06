@@ -456,6 +456,32 @@
     "lastCommitDate": "2026-06-23T13:28:02.179Z"
   },
   {
+    "id": "ghcp-byok-foundry",
+    "name": "GitHub Copilot BYOK → Foundry (MI swap)",
+    "architectureDiagram": "images/ghcp-byok-foundry.gif",
+    "categories": [
+      "Governance & Responsible AI",
+      "Platform Capabilities"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Entra ID",
+      "Managed Identity",
+      "Microsoft Graph",
+      "Azure Monitor",
+      "Application Insights"
+    ],
+    "shortDescription": "Govern GitHub Copilot's BYOK access to a private Foundry model through APIM using an identity swap.",
+    "detailedDescription": "Let developers use your own Azure AI Foundry model inside GitHub Copilot - using APIKeys or keyless with Entra-only - while a central Azure API Management gateway enforces per-user authorization, token limits, usage metering and no-bypass. Identity, not the network, makes the gateway non-bypassable.",
+    "authors": [
+      "angangwa",
+      "nourshaker-msft"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ghcp-byok-foundry",
+    "lastCommitDate": "2026-07-06T10:25:14.677Z"
+  },
+  {
     "id": "google-gemini-api",
     "name": "Google Gemini API",
     "architectureDiagram": "images/gemini-models.gif",
@@ -684,7 +710,7 @@
     ],
     "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/model-routing",
     "tags": [],
-    "lastCommitDate": "2026-06-23T13:28:02.185Z"
+    "lastCommitDate": "2026-07-06T10:25:14.678Z"
   },
   {
     "id": "openai-agents",
