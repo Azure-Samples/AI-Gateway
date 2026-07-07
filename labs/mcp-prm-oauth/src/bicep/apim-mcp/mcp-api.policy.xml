@@ -9,7 +9,9 @@
         <!-- Validate Azure AD JWT Token -->
         <validate-azure-ad-token tenant-id="{{McpTenantId}}" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized">
             <audiences>
+                <!-- v2 tokens carry the appId (GUID) as aud; the Application ID URI is accepted too. -->
                 <audience>{{McpClientId}}</audience>
+                <audience>{{APIMGatewayURL}}/{{McpApiPath}}</audience>
             </audiences>
         </validate-azure-ad-token>
     </inbound>

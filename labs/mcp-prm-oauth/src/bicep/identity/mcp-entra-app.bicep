@@ -15,6 +15,9 @@ param userAssignedIdentityPrincipleId string
 @description('The container app name for callback URL configuration')
 param webAppName string
 
+@description('The Application ID URI to expose (must match the PRM resource and the JWT audience). Example: https://<apim>.azure-api.net/mcp')
+param applicationIdUri string
+
 var loginEndpoint = environment().authentication.loginEndpoint
 var issuer = '${loginEndpoint}${tenantId}/v2.0'
 
@@ -26,6 +29,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-11-02-preview' existing 
 resource mcpEntraApp 'Microsoft.Graph/applications@v1.0' = {
   displayName: mcpAppDisplayName
   uniqueName: mcpAppUniqueName
+  // Application ID URI. Aligns with the PRM 'resource' and the validate-jwt audience.
+  identifierUris: [
+    applicationIdUri
+  ]
   api: {
     oauth2PermissionScopes: [
       {
@@ -63,6 +70,14 @@ resource mcpEntraApp 'Microsoft.Graph/applications@v1.0' = {
   spa: {
     redirectUris: [
       'https://${containerApp.properties.configuration.ingress.fqdn}/auth/callback'
+    ]
+  }
+  // Public client (Authorization Code + PKCE, no client secret) for MCP Inspector.
+  // Registering these as public-client (not SPA) redirect URIs avoids AADSTS9002327.
+  publicClient: {
+    redirectUris: [
+      'http://localhost:6274/oauth/callback'
+      'http://localhost:6274/oauth/callback/debug'
     ]
   }
 

@@ -234,6 +234,8 @@ module mcpEntraAppModule 'src/bicep/identity/mcp-entra-app.bicep' = if (empty(mc
     tenantId: subscription().tenantId
     userAssignedIdentityPrincipleId: managedIdentityModule.outputs.identityPrincipalId
     webAppName: mcpServerContainerApp.name
+    // Application ID URI == PRM resource == JWT audience (all resolve to https://<apim>.azure-api.net/<mcpPrmPath>)
+    applicationIdUri: '${apimModule.outputs.gatewayUrl}/${mcpPrmPath}'
   }
 }
 

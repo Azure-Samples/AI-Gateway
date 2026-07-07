@@ -25,7 +25,7 @@
                         "header"
                     },
                     scopes_supported = new[] {
-                        "{{McpClientId}}/user_impersonate"
+                        "{{APIMGatewayURL}}/{{McpApiPath}}/user_impersonate"
                     }
                 });
             }</set-body>
