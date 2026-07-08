@@ -2,17 +2,16 @@
 name: "AI Foundry Hosted Agents (Custom Frameworks)"
 architectureDiagram: images/ai-foundry-hosted-agents.gif
 categories:
-	- AI Agents
+  - AI Agents
 services:
-	- Microsoft Foundry
-	- Hosted Agents
-	- Azure API Management
-	- Container Registry
+  - Microsoft Foundry
+  - Hosted Agents
+  - Azure API Management
+  - Container Registry
 shortDescription: Deploy AI Foundry Hosted Agents built with custom frameworks, including Pydantic AI and Strands.
 detailedDescription: This lab provides custom framework examples for AI Foundry Hosted Agents, showing how to package and deploy hosted agents built with Pydantic AI and Strands to Azure Container Apps. It includes a Bicep deployment for Azure API Management, Azure AI Foundry, and a GPT-5-Mini model deployment, plus end-to-end setup notebooks and Dockerfiles.
 authors:
-	- nourshaker-msft
-	- georgeollis
+  - georgeollis
 tags: []
 ---
 
