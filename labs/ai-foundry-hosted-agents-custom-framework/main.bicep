@@ -135,7 +135,6 @@ resource modelFoundryUserRoleAssignments 'Microsoft.Authorization/roleAssignment
     principalId: principalId
     principalType: 'User'
   }
-  skipDuplicateKeyErrors: true
 }]
 
 // Assign Foundry User role for all provided users on the hosted-agent Foundry resource.
@@ -147,7 +146,6 @@ resource agentFoundryUserRoleAssignments 'Microsoft.Authorization/roleAssignment
     principalId: principalId
     principalType: 'User'
   }
-  skipDuplicateKeyErrors: true
 }]
 
 // Repository-level ACR roles (ABAC-enabled roles)
@@ -165,31 +163,17 @@ resource foundryAgentAcrRepositoryReaderRoleAssignment 'Microsoft.Authorization/
     principalId: foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].principalId
     principalType: 'ServicePrincipal'
   }
-  skipDuplicateKeyErrors: true
 }
 
-// Assign ACR Repository Reader to the Foundry project identity for the hosted-agent resource.
-resource foundryAgentProjectAcrRepositoryReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, foundryAgentAccountName, 'project', acrRepositoryReaderRoleId)
-  scope: containerRegistry
-  properties: {
-    roleDefinitionId: acrRepositoryReaderRoleId
-    principalId: foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].projectPrincipalId
-    principalType: 'ServicePrincipal'
-  }
-  skipDuplicateKeyErrors: true
-}
-
-// Assign AcrPull to the Foundry project identity for the hosted-agent resource.
-resource foundryAgentProjectAcrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, foundryAgentAccountName, 'project', acrPullRoleId)
+// Assign AcrPull to Foundry project for container image pulls
+resource foundryAgentAcrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, foundryAgentAccountName, acrPullRoleId)
   scope: containerRegistry
   properties: {
     roleDefinitionId: acrPullRoleId
-    principalId: foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].projectPrincipalId
+    principalId: foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].principalId
     principalType: 'ServicePrincipal'
   }
-  skipDuplicateKeyErrors: true
 }
 
 resource deployerAcrRepositoryWriterRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -199,7 +183,6 @@ resource deployerAcrRepositoryWriterRoleAssignment 'Microsoft.Authorization/role
     roleDefinitionId: acrRepositoryWriterRoleId
     principalId: deployer().objectId
   }
-  skipDuplicateKeyErrors: true
 }
 
 resource deployerAcrRepositoryCatalogListerRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -209,7 +192,6 @@ resource deployerAcrRepositoryCatalogListerRoleAssignment 'Microsoft.Authorizati
     roleDefinitionId: acrRepositoryCatalogListerRoleId
     principalId: deployer().objectId
   }
-  skipDuplicateKeyErrors: true
 }
 
 // Existing APIM service reference for custom API resources.
@@ -232,7 +214,7 @@ resource hostedAgentResponsesApi 'Microsoft.ApiManagement/service/apis@2024-06-0
     protocols: [
       'https'
     ]
-    serviceUrl: '${foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].foundryProjectEndpoint}/agents/${hostedAgentId}'
+    serviceUrl: '${foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].foundryProjectEndpoint}/agents/${split(hostedAgentId, ':')[0]}'
     subscriptionKeyParameterNames: {
       header: 'api-key'
       query: 'api-key'
@@ -264,7 +246,7 @@ resource hostedAgentResponsesApiPolicy 'Microsoft.ApiManagement/service/apis/pol
   parent: hostedAgentResponsesApi
   properties: {
     format: 'rawxml'
-    value: '<policies><inbound><base /><authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" /><set-header name="Authorization" exists-action="override"><value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value></set-header><set-query-parameter name="api-version" exists-action="override"><value>${hostedAgentResponsesApiVersion}</value></set-query-parameter></inbound><backend><base /></backend><outbound><base /></outbound><on-error><base /></on-error></policies>'
+    value: loadTextContent('hosted-agent-policy.xml')
   }
 }
 

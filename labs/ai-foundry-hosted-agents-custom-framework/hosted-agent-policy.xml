@@ -1,0 +1,36 @@
+<policies>
+  <inbound>
+    <base />
+    <!-- Get managed identity token for Foundry Responses API -->
+    <authentication-managed-identity resource="https://ai.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" />
+    
+    <!-- Set bearer token in Authorization header -->
+    <set-header name="Authorization" exists-action="override">
+      <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>
+    </set-header>
+    
+    <!-- Force Content-Type header -->
+    <set-header name="Content-Type" exists-action="override">
+      <value>application/json</value>
+    </set-header>
+    
+    <!-- Force Foundry-Features header for preview access -->
+    <set-header name="Foundry-Features" exists-action="override">
+      <value>HostedAgents=V1Preview</value>
+    </set-header>
+    
+    <!-- Force API version query parameter -->
+    <set-query-parameter name="api-version" exists-action="override">
+      <value>2025-05-15-preview</value>
+    </set-query-parameter>
+  </inbound>
+  <backend>
+    <base />
+  </backend>
+  <outbound>
+    <base />
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
