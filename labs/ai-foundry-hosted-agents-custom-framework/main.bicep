@@ -148,12 +148,46 @@ resource agentFoundryUserRoleAssignments 'Microsoft.Authorization/roleAssignment
   }
 }]
 
+// Reference the Foundry projects created by the module to assign ACR roles to their managed identities.
+resource modelFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2024-10-01' existing = {
+  parent: aiFoundryAccounts[0]
+  name: '${foundryProjectName}-foundry-models'
+}
+
+resource agentFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2024-10-01' existing = {
+  parent: aiFoundryAccounts[foundryAgentAiServiceIndex]
+  name: '${foundryProjectName}-foundry-agents'
+}
+
 // Repository-level ACR roles (ABAC-enabled roles)
 var acrRepositoryReaderRoleId = resourceId('Microsoft.Authorization/roleDefinitions', 'b93aa761-3e63-49ed-ac28-beffa264f7ac')
 var acrRepositoryWriterRoleId = resourceId('Microsoft.Authorization/roleDefinitions', '2a1e307c-b015-4ebd-883e-5b7698a07328')
 var acrRepositoryCatalogListerRoleId = resourceId('Microsoft.Authorization/roleDefinitions', 'bfdb9389-c9a5-478a-bb2f-ba9ca092c3c7')
 var acrPullRoleId = resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+var foundryModelAccountName = '${aiServicesConfig[0].name}-${resourceSuffix}'
 var foundryAgentAccountName = '${aiServicesConfig[foundryAgentAiServiceIndex].name}-${resourceSuffix}'
+
+// Assign AcrPull to Foundry models account for any container image pulls
+resource foundryModelAcrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, foundryModelAccountName, acrPullRoleId)
+  scope: containerRegistry
+  properties: {
+    roleDefinitionId: acrPullRoleId
+    principalId: foundryModule.outputs.extendedAIServicesConfig[0].principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Assign AcrPull to Foundry models project for container image pulls
+resource foundryModelProjectAcrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, modelFoundryProject.id, acrPullRoleId)
+  scope: containerRegistry
+  properties: {
+    roleDefinitionId: acrPullRoleId
+    principalId: modelFoundryProject.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
 
 resource foundryAgentAcrRepositoryReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(resourceGroup().id, foundryAgentAccountName, acrRepositoryReaderRoleId)
@@ -165,13 +199,24 @@ resource foundryAgentAcrRepositoryReaderRoleAssignment 'Microsoft.Authorization/
   }
 }
 
-// Assign AcrPull to Foundry project for container image pulls
+// Assign AcrPull to Foundry hosted-agent account for container image pulls
 resource foundryAgentAcrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(resourceGroup().id, foundryAgentAccountName, acrPullRoleId)
   scope: containerRegistry
   properties: {
     roleDefinitionId: acrPullRoleId
     principalId: foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Assign AcrPull to Foundry hosted-agent project for container image pulls
+resource foundryAgentProjectAcrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, agentFoundryProject.id, acrPullRoleId)
+  scope: containerRegistry
+  properties: {
+    roleDefinitionId: acrPullRoleId
+    principalId: agentFoundryProject.identity.principalId
     principalType: 'ServicePrincipal'
   }
 }
