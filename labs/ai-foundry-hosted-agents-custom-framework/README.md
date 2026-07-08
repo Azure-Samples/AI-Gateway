@@ -4,14 +4,15 @@ architectureDiagram: images/ai-foundry-hosted-agents.gif
 categories:
 	- AI Agents
 services:
-	- Azure AI Foundry
+	- Microsoft Foundry
+	- Hosted Agents
 	- Azure API Management
-	- Azure Container Apps
-	- MCP
+	- Container Registry
 shortDescription: Deploy AI Foundry Hosted Agents built with custom frameworks, including Pydantic AI and Strands.
 detailedDescription: This lab provides custom framework examples for AI Foundry Hosted Agents, showing how to package and deploy hosted agents built with Pydantic AI and Strands to Azure Container Apps. It includes a Bicep deployment for Azure API Management, Azure AI Foundry, and a GPT-5-Mini model deployment, plus end-to-end setup notebooks and Dockerfiles.
 authors:
 	- nourshaker-msft
+	- georgeollis
 tags: []
 ---
 
@@ -58,9 +59,9 @@ Use this notebook first to deploy core infrastructure with Bicep:
 
 The deployment also configures:
 
-- ACR repository permissions for the hosted-agent Foundry resource (`Container Registry Repository Reader`)
+- ACR repository permissions for the hosted-agent Foundry resource and its project identity (`Container Registry Repository Reader`)
 - ACR repository permissions for the deploying user (`Container Registry Repository Writer` + `Container Registry Repository Catalog Lister`)
-- Foundry User role assignments (`Azure AI User`) for configured user object IDs across all Foundry resources deployed by this lab
+- Foundry User role assignments (`Foundry User`) for configured user object IDs across all Foundry resources deployed by this lab
 - Optional APIM proxy API for the Hosted Agent Responses endpoint, added after the hosted agent has been deployed and is running
 
 The deployment template is in [main.bicep](main.bicep).
@@ -87,10 +88,6 @@ The deployment template is in [main.bicep](main.bicep).
 4. Build and push the container image to your Azure Container Registry.
 5. Deploy the hosted agent version in your Foundry project.
 6. Set the hosted agent ID in the infra notebook config and re-run deployment to provision APIM fronting for the Responses API.
-
-### Related lab
-
-For the full end-to-end APIM + Foundry hosted agent architecture, see [AI Foundry Hosted Agents](../ai-foundry-hosted-agents/README.md).
 
 ### Clean up resources
 

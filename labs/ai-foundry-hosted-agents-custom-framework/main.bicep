@@ -95,6 +95,7 @@ module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
 // Foundry accounts created by the module, referenced here for RBAC assignments.
 resource aiFoundryAccounts 'Microsoft.CognitiveServices/accounts@2025-06-01' existing = [for config in aiServicesConfig: {
   name: '${config.name}-${resourceSuffix}'
+  dependsOn: [foundryModule]
 }]
 
 // 5. APIM Inference API pointing to Foundry/AI Services
@@ -105,7 +106,7 @@ module inferenceAPIModule '../../modules/apim/v3/inference-api.bicep' = {
     apimLoggerId: apimModule.outputs.loggerId
     appInsightsId: appInsightsModule.outputs.id
     appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
-    aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
+    aiServicesConfig: [foundryModule.outputs.extendedAIServicesConfig[0]]
     inferenceAPIType: inferenceAPIType
     inferenceAPIPath: inferenceAPIPath
   }
@@ -127,30 +128,33 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-pr
 
 // Assign Foundry User role for all provided users on the model-hosting Foundry resource.
 resource modelFoundryUserRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for principalId in foundryUserObjectIds: {
-  name: guid(resourceGroup().id, aiFoundryAccounts[0].id, principalId, azureAIUserRoleDefinitionId)
+  name: guid(resourceGroup().id, aiFoundryAccounts[0].name, principalId, azureAIUserRoleDefinitionId)
   scope: aiFoundryAccounts[0]
   properties: {
     roleDefinitionId: azureAIUserRoleDefinitionId
     principalId: principalId
     principalType: 'User'
   }
+  skipDuplicateKeyErrors: true
 }]
 
 // Assign Foundry User role for all provided users on the hosted-agent Foundry resource.
 resource agentFoundryUserRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for principalId in foundryUserObjectIds: {
-  name: guid(resourceGroup().id, aiFoundryAccounts[foundryAgentAiServiceIndex].id, principalId, azureAIUserRoleDefinitionId)
+  name: guid(resourceGroup().id, aiFoundryAccounts[foundryAgentAiServiceIndex].name, principalId, azureAIUserRoleDefinitionId)
   scope: aiFoundryAccounts[foundryAgentAiServiceIndex]
   properties: {
     roleDefinitionId: azureAIUserRoleDefinitionId
     principalId: principalId
     principalType: 'User'
   }
+  skipDuplicateKeyErrors: true
 }]
 
 // Repository-level ACR roles (ABAC-enabled roles)
 var acrRepositoryReaderRoleId = resourceId('Microsoft.Authorization/roleDefinitions', 'b93aa761-3e63-49ed-ac28-beffa264f7ac')
 var acrRepositoryWriterRoleId = resourceId('Microsoft.Authorization/roleDefinitions', '2a1e307c-b015-4ebd-883e-5b7698a07328')
 var acrRepositoryCatalogListerRoleId = resourceId('Microsoft.Authorization/roleDefinitions', 'bfdb9389-c9a5-478a-bb2f-ba9ca092c3c7')
+var acrPullRoleId = resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
 var foundryAgentAccountName = '${aiServicesConfig[foundryAgentAiServiceIndex].name}-${resourceSuffix}'
 
 resource foundryAgentAcrRepositoryReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -161,6 +165,31 @@ resource foundryAgentAcrRepositoryReaderRoleAssignment 'Microsoft.Authorization/
     principalId: foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].principalId
     principalType: 'ServicePrincipal'
   }
+  skipDuplicateKeyErrors: true
+}
+
+// Assign ACR Repository Reader to the Foundry project identity for the hosted-agent resource.
+resource foundryAgentProjectAcrRepositoryReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, foundryAgentAccountName, 'project', acrRepositoryReaderRoleId)
+  scope: containerRegistry
+  properties: {
+    roleDefinitionId: acrRepositoryReaderRoleId
+    principalId: foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].projectPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+  skipDuplicateKeyErrors: true
+}
+
+// Assign AcrPull to the Foundry project identity for the hosted-agent resource.
+resource foundryAgentProjectAcrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, foundryAgentAccountName, 'project', acrPullRoleId)
+  scope: containerRegistry
+  properties: {
+    roleDefinitionId: acrPullRoleId
+    principalId: foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].projectPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+  skipDuplicateKeyErrors: true
 }
 
 resource deployerAcrRepositoryWriterRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -170,6 +199,7 @@ resource deployerAcrRepositoryWriterRoleAssignment 'Microsoft.Authorization/role
     roleDefinitionId: acrRepositoryWriterRoleId
     principalId: deployer().objectId
   }
+  skipDuplicateKeyErrors: true
 }
 
 resource deployerAcrRepositoryCatalogListerRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -179,6 +209,7 @@ resource deployerAcrRepositoryCatalogListerRoleAssignment 'Microsoft.Authorizati
     roleDefinitionId: acrRepositoryCatalogListerRoleId
     principalId: deployer().objectId
   }
+  skipDuplicateKeyErrors: true
 }
 
 // Existing APIM service reference for custom API resources.
@@ -217,7 +248,7 @@ resource hostedAgentResponsesOperation 'Microsoft.ApiManagement/service/apis/ope
   properties: {
     displayName: 'Create Hosted Agent Response'
     method: 'POST'
-    urlTemplate: '/responses'
+    urlTemplate: '/endpoint/protocols/openai/responses'
     templateParameters: []
     responses: [
       {
