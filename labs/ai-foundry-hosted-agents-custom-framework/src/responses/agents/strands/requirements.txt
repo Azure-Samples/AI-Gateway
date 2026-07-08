@@ -1,0 +1,4 @@
+azure-ai-agentserver-responses==1.0.0b8
+strands-agents[openai]==1.45.0
+python-dotenv
+azure-ai-projects==2.3.0
