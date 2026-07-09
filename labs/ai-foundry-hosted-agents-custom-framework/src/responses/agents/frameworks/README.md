@@ -20,36 +20,11 @@ This directory contains multiple framework implementations for deploying custom 
 
 ### Strands Agents
 
-From the official Strands site, Strands is positioned as an open-source toolkit for building production agents with:
-- model/provider flexibility ("any model, any cloud")
-- built-in context management and execution limits
-- built-in observability and hook-based control points
-
-In practice for this lab, Strands is a strong fit when you want explicit control over the agent loop and operational behaviors.
+https://strandsagents.com/
 
 ### Pydantic AI
 
-From the official Pydantic AI docs, an Agent is the core abstraction and acts as a container for:
-- instructions
-- tools/toolsets
-- optional structured output typing
-- dependency typing
-- model defaults/settings and composable capabilities
-
-In practice for this lab, Pydantic AI is a strong fit when typed dependencies and typed/validated outputs are central requirements.
-
-### At-a-Glance Comparison
-
-| Dimension | Strands | Pydantic AI |
-|---|---|---|
-| Primary emphasis | Production agent runtime control | Typed agent design and validation |
-| Extensibility model | Hooks + tools + conversation managers | Tools + instructions + capabilities |
-| Typing story | Flexible runtime-oriented API | Strong dependency/output typing |
-| Good default use case | Tool-heavy workflow automation | Schema/contract-driven agent systems |
-
-Official references:
-- Strands: https://strandsagents.com/
-- Pydantic AI Agents: https://pydantic.dev/docs/ai/core-concepts/agent/
+https://pydantic.dev/docs/ai/core-concepts/agent/
 
 ## Folder Structure
 
