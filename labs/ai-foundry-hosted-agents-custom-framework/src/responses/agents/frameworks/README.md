@@ -59,7 +59,6 @@ frameworks/
 ├── 02_hosted_agent_pydantic_setup.ipynb     # Deploy Pydantic AI agent
 ├── strands/                                  # Strands framework implementation
 │   ├── main.py                               # Agent entry point
-│   ├── agent_creation.py                     # Agent setup code
 │   ├── Dockerfile                            # Container image definition
 │   ├── requirements-strands.txt              # Strands framework dependencies
 │   ├── README.md                             # Strands-specific documentation
@@ -69,7 +68,6 @@ frameworks/
 │
 └── pydantic/                                 # Pydantic AI framework implementation
     ├── main.py                               # Agent entry point
-    ├── agent_creation.py                     # Agent setup code
     ├── Dockerfile                            # Container image definition
     ├── requirements-pydantic.txt             # Pydantic dependencies
     ├── README.md                             # Pydantic-specific documentation
@@ -95,7 +93,6 @@ frameworks/
 
 ### Key Files
 - `main.py` - Agent execution and response protocol handler
-- `agent_creation.py` - Foundry agent registration
 - `requirements-strands.txt` - Framework-specific dependencies
 - `Dockerfile` - Container image with `FROM python:3.12-slim`
 
@@ -125,7 +122,6 @@ frameworks/
 
 ### Key Files
 - `main.py` - Pydantic-based agent with validation
-- `agent_creation.py` - Foundry agent registration
 - `requirements-pydantic.txt` - Pydantic and related dependencies
 - `Dockerfile` - Container image with `FROM python:3.12-slim`
 
@@ -191,7 +187,6 @@ To add another framework (e.g., CrewAI, AutoGen):
 2. **Copy template files**:
    - Copy `Dockerfile` from existing framework
    - Create `main.py` with your framework initialization
-   - Create `agent_creation.py` with Foundry registration
    - Create `requirements-crew-ai.txt` with framework dependencies
    - Create `README.md` documenting the framework
 3. **Create setup notebook**: Copy `01_hosted_agent_strands_setup.ipynb` and adapt:
