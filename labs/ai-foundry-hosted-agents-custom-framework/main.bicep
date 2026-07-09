@@ -29,17 +29,11 @@ param foundryAgentAiServiceIndex int = 1
 @description('Microsoft Entra object IDs to assign Foundry User (Azure AI User) across all Foundry resources in this deployment.')
 param foundryUserObjectIds array = []
 
-@description('Enable APIM proxy API for a deployed Hosted Agent Responses endpoint.')
+@description('Enable APIM proxy API for Foundry Hosted Agent Responses. Clients specify agent via agent_reference in request body.')
 param enableHostedAgentResponsesApi bool = false
-
-@description('Hosted Agent ID to proxy via APIM (required when enableHostedAgentResponsesApi=true).')
-param hostedAgentId string = ''
 
 @description('APIM path for hosted agent responses API.')
 param hostedAgentResponsesApiPath string = 'hosted-agent-responses'
-
-@description('Hosted Agent Responses API version appended by APIM policy.')
-param hostedAgentResponsesApiVersion string = '2025-05-15-preview'
 
 // ------------------
 //    VARIABLES
@@ -149,12 +143,12 @@ resource agentFoundryUserRoleAssignments 'Microsoft.Authorization/roleAssignment
 }]
 
 // Reference the Foundry projects created by the module to assign ACR roles to their managed identities.
-resource modelFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2024-10-01' existing = {
+resource modelFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview' existing = {
   parent: aiFoundryAccounts[0]
   name: '${foundryProjectName}-foundry-models'
 }
 
-resource agentFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2024-10-01' existing = {
+resource agentFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview' existing = {
   parent: aiFoundryAccounts[foundryAgentAiServiceIndex]
   name: '${foundryProjectName}-foundry-agents'
 }
@@ -247,19 +241,20 @@ resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existi
   ]
 }
 
-// Proxy Hosted Agent Responses API through APIM once a hosted agent is deployed.
-resource hostedAgentResponsesApi 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = if(enableHostedAgentResponsesApi && !empty(hostedAgentId)) {
+// Proxy Foundry Responses API through APIM for any deployed hosted agent.
+// Clients specify the target agent via the agent name in the URL path: /agents/{agentName}/endpoint/protocols/openai/responses
+resource hostedAgentResponsesApi 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = if(enableHostedAgentResponsesApi) {
   name: 'hosted-agent-responses-api'
   parent: apimService
   properties: {
     apiType: 'http'
-    description: 'Proxy for Azure AI Foundry Hosted Agent Responses API'
-    displayName: 'Hosted Agent Responses API'
+    description: 'Proxy for Azure AI Foundry Responses API - routes requests to specific hosted agents by agent name in URL path'
+    displayName: 'Foundry Responses API'
     path: hostedAgentResponsesApiPath
     protocols: [
       'https'
     ]
-    serviceUrl: '${foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].foundryProjectEndpoint}/agents/${split(hostedAgentId, ':')[0]}'
+    serviceUrl: '${foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].foundryProjectEndpoint}'
     subscriptionKeyParameterNames: {
       header: 'api-key'
       query: 'api-key'
@@ -269,24 +264,33 @@ resource hostedAgentResponsesApi 'Microsoft.ApiManagement/service/apis@2024-06-0
   }
 }
 
-resource hostedAgentResponsesOperation 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' = if(enableHostedAgentResponsesApi && !empty(hostedAgentId)) {
+resource hostedAgentResponsesOperation 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' = if(enableHostedAgentResponsesApi) {
   name: 'create-response'
   parent: hostedAgentResponsesApi
   properties: {
-    displayName: 'Create Hosted Agent Response'
+    displayName: 'Create Response'
+    description: 'Create a model response using a specific hosted agent. Agent name must be specified in the URL path.'
     method: 'POST'
-    urlTemplate: '/endpoint/protocols/openai/responses'
-    templateParameters: []
+    urlTemplate: '/agents/{agentName}/endpoint/protocols/openai/responses'
+    templateParameters: [
+      {
+        name: 'agentName'
+        description: 'Name of the hosted agent to invoke'
+        type: 'string'
+        required: true
+        values: []
+      }
+    ]
     responses: [
       {
         statusCode: 200
-        description: 'Successful response'
+        description: 'Successful response from the agent'
       }
     ]
   }
 }
 
-resource hostedAgentResponsesApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = if(enableHostedAgentResponsesApi && !empty(hostedAgentId)) {
+resource hostedAgentResponsesApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = if(enableHostedAgentResponsesApi) {
   name: 'policy'
   parent: hostedAgentResponsesApi
   properties: {
@@ -310,4 +314,4 @@ output foundryAgentProjectEndpoint string = foundryModule.outputs.extendedAIServ
 output foundryAgentAiServicesEndpoint string = foundryModule.outputs.extendedAIServicesConfig[foundryAgentAiServiceIndex].endpoint
 output containerRegistryName string = containerRegistry.name
 output containerRegistryLoginServer string = containerRegistry.properties.loginServer
-output hostedAgentResponsesApimPath string = enableHostedAgentResponsesApi && !empty(hostedAgentId) ? '${apimModule.outputs.gatewayUrl}/${hostedAgentResponsesApiPath}/responses' : ''
+output hostedAgentResponsesApimPath string = enableHostedAgentResponsesApi ? '${apimModule.outputs.gatewayUrl}/${hostedAgentResponsesApiPath}/responses' : ''

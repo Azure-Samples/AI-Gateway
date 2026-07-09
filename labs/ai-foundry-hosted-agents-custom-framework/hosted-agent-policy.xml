@@ -18,11 +18,6 @@
     <set-header name="Foundry-Features" exists-action="override">
       <value>HostedAgents=V1Preview</value>
     </set-header>
-    
-    <!-- Force API version query parameter -->
-    <set-query-parameter name="api-version" exists-action="override">
-      <value>2025-05-15-preview</value>
-    </set-query-parameter>
   </inbound>
   <backend>
     <base />

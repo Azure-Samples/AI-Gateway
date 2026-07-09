@@ -67,7 +67,8 @@ Use this notebook first to deploy core infrastructure with Bicep.
 - Foundry User role assignments (`Foundry User`) for configured user object IDs across all Foundry resources
 
 **APIM Proxy Configuration** (optional, added when `enableHostedAgentResponsesApi=true`):
-- Dedicated API endpoint proxying your hosted agent's Responses API
+- Dedicated API endpoint proxying Foundry's Responses API
+- **Dynamic Agent Routing**: Clients specify the target agent via `agent_reference` in the request body (not the URL)
 - Managed identity token injection (Foundry authentication)
 - Automatic header injection:
   - `Content-Type: application/json`
@@ -75,6 +76,7 @@ Use this notebook first to deploy core infrastructure with Bicep.
 - Automatic query parameter enforcement:
   - `api-version: 2025-05-15-preview`
 - Uses APIM subscription key for client authentication (cleaner than managing bearer tokens on client side)
+- **Agent-Agnostic Design**: Works with any deployed agent—no need to reconfigure APIM when you add a new agent
 
 Policy definition is in [hosted-agent-policy.xml](hosted-agent-policy.xml) for easy customization.
 
@@ -110,26 +112,38 @@ The deployment template is in [main.bicep](main.bicep).
   4. Test the agent directly via Foundry's Responses API (baseline validation)
   5. Test the agent via APIM (validates the proxy gateway)
 
-**Step 3: Enable APIM Proxy (Optional but Recommended)**
-- Once your agent is deployed and running, go back to [ai-foundry-hosted-agents-custom-framework.ipynb](ai-foundry-hosted-agents-custom-framework.ipynb)
-- Set `hosted_agent_id` in the config to your agent name (e.g., `'strands-agent:1'`) and re-run the deployment
-- This provisions the APIM API proxy with automatic header/query-param injection
+**Step 3: Test via APIM (Optional)**
+- APIM is automatically configured for any deployed agent
+- In the sample agent notebooks (Section 4), clients specify the target agent via `agent_reference` in the request body
+- Request format:
+  ```json
+  POST https://apim-{suffix}.azure-api.net/hosted-agent-responses/responses
+  Headers: api-key: {subscription-key}
+  Body: {
+    "agent_reference": { "type": "agent_reference", "name": "strands-agent", "version": "1" },
+    "input": "Your prompt",
+    "model": "gpt-5-mini"
+  }
+  ```
+- Once you deploy additional agents to Foundry, simply change `agent_reference.name` in the request—no APIM reconfiguration needed
 
 ### Test Flow Explained
 
 Each sample notebook includes three test scenarios:
 
 1. **Direct Foundry Test** (Section 3)
-   - Calls the Foundry Hosted Agent Responses API directly
+   - Calls the Foundry Hosted Agent Responses API directly with agent name in URL
    - Uses your Azure CLI credential (bearer token with `https://ai.azure.com/.default` audience)
    - Validates the agent runtime and basic connectivity
    - No APIM involvement—good baseline for troubleshooting
 
 2. **APIM Test** (Section 4)
    - Routes through APIM gateway using subscription key (`api-key` header)
+   - Specifies the target agent via `agent_reference` in the request body (not the URL)
    - APIM injects managed identity token to Foundry automatically
    - APIM enforces `Content-Type`, `Foundry-Features`, and `api-version` headers
    - Tests the full production-like path (client → APIM → Foundry agent)
+   - **Key difference**: You can change `agent_reference.name` to target different agents without reconfiguring APIM
 
 ### Clean up resources
 
