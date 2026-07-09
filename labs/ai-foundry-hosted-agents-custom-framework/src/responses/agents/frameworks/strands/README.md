@@ -10,7 +10,7 @@ The agent runs in a containerized environment managed by Foundry, with full obse
 
 - **`main.py`**: Strands agent server implementing the Responses protocol with tool calling and streaming.
 - **`Dockerfile`**: Container image definition for Foundry Hosted Agents (builds for Linux amd64).
-- **`requirements.txt`**: Python dependencies (strands, FastAPI, etc.).
+- **`requirements-strands.txt`**: Python dependencies (Strands, FastAPI, etc.).
 - **`01_hosted_agent_strands_setup.ipynb`**: End-to-end setup and testing notebook with 4 sections:
   1. Build and push container to ACR
   2. Create hosted agent version in Foundry
@@ -95,7 +95,7 @@ Run **Section 4** ("Test via APIM"):
 - APIM automatically:
   - Injects managed identity bearer token
   - Enforces `Content-Type: application/json`
-  - Enforces `api-version: 2025-05-15-preview`
+  - Uses Responses API `api-version=v1`
   - Injects `Foundry-Features: HostedAgents=V1Preview` (required for preview)
 - Validates end-to-end production path
 
@@ -114,7 +114,7 @@ Policy configuration is in `../../hosted-agent-policy.xml` for customization.
 
 ## Key Configuration Notes
 
-- **Agent name**: Should match `hosted_agent_id` parameter from the infrastructure deployment (without version suffix).
+- **Agent name**: Use the same value configured as `AGENT_NAME` in the setup notebook.
 - **Model endpoint**: Your agent calls the APIM **inference** API, not the hosted-agent API.
 - **Token audience**: 
   - Direct tests use `https://ai.azure.com/.default`
