@@ -2,6 +2,18 @@
 
 This sample shows how to build, deploy, and test a Pydantic AI-based custom agent on Microsoft Foundry Hosted Agents using the Responses protocol v1.0.0.
 
+## Framework Overview (Pydantic AI)
+
+According to the official Pydantic AI agent docs, an agent is the primary abstraction and can be treated as a container for instructions, tools/toolsets, structured output typing, dependency typing, model settings, and reusable capabilities.
+
+Why that matters for this sample:
+- Good fit when output shape and validation matter to downstream systems.
+- Good fit when you want typed dependencies and strong IDE/static-checker feedback.
+- Good fit when you want to compose reusable behavior via capabilities.
+
+Official reference:
+- https://pydantic.dev/docs/ai/core-concepts/agent/
+
 ![Pydantic AI Hosted Agent Sample](image.png)
 
 ## What Is Included

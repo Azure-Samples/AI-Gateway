@@ -2,6 +2,18 @@
 
 This sample shows how to build, deploy, and test a **Strands-based custom agent** on Microsoft Foundry Hosted Agents using the **Responses protocol v1.0.0**.
 
+## Framework Overview (Strands)
+
+From the official Strands site, Strands is an open-source toolkit focused on building production agents with model/provider flexibility, built-in context management, execution limits, observability, and hook-based runtime control.
+
+Why that matters for this sample:
+- Good fit for tool-heavy workflow automation.
+- Good fit when you want to intercept/steer runtime behavior with hooks.
+- Good fit when operational visibility and control of the agent loop are top priorities.
+
+Official reference:
+- https://strandsagents.com/
+
 The agent runs in a containerized environment managed by Foundry, with full observability, RBAC identity, and optional APIM gateway integration.
 
 ![Strands Hosted Agent Sample](image.png)
