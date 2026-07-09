@@ -9,8 +9,8 @@ This directory contains multiple framework implementations for deploying custom 
    - Save the deployment outputs (APIM suffix, subscription key, Foundry endpoint)
 
 2. **Choose your framework**:
-   - [**Strands Framework**](#strands-framework) - Custom framework for structured agent responses
-   - [**Pydantic AI Framework**](#pydantic-ai-framework) - LLM framework with built-in validation
+   - [**Strands Framework**](#strands-framework)
+   - [**Pydantic AI Framework**](#pydantic-ai-framework)
 
 3. **Run the corresponding setup notebook**:
    - For Strands: `01_hosted_agent_strands_setup.ipynb`
