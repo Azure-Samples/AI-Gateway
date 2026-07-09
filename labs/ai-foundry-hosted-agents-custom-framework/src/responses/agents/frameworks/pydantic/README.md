@@ -28,5 +28,7 @@ This sample code shows you how to run a Pydantic AI agent in Foundry Hosted Agen
 
 ## Notes
 
-- Use Microsoft Entra ID / managed identity where possible, and avoid hard-coded API keys.
+- This sample routes model calls through APIM inference chat-completions.
+- Configure AZURE_OPENAI_ENDPOINT to your APIM inference URL and set APIM_SUBSCRIPTION_KEY.
+- The runtime sends the APIM subscription key in the api-key header for model calls.
 - Use the notebook placeholders to provide your own project, registry, and deployment values.

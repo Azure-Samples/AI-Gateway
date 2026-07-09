@@ -3,17 +3,20 @@ embedding Pydantic AI as the agent framework.
 
 Requires the following environment variables (see .env):
 
-  AZURE_OPENAI_ENDPOINT     e.g. https://<resource>.openai.azure.com/
-  AZURE_OPENAI_DEPLOYMENT   deployment name, e.g. gpt-5-mini
-  AZURE_OPENAI_API_VERSION  optional, defaults to 2024-12-01-preview
+    AZURE_OPENAI_ENDPOINT     APIM base URL (recommended):
+                                                            https://<apim>.azure-api.net/inference/models
+                                                        or full chat-completions URL:
+                                                            https://<apim>.azure-api.net/inference/models/chat/completions?api-version=2024-05-01-preview
+    AZURE_OPENAI_DEPLOYMENT   model name sent as the chat-completions "model" field
+    AZURE_OPENAI_API_KEY      required API key used for model calls (or OPENAI_API_KEY)
+    AZURE_OPENAI_API_VERSION  optional, defaults to 2024-05-01-preview
+    APIM_SUBSCRIPTION_KEY     optional; when set, sent as api-key
   LOG_LEVEL                 optional, defaults to INFO
 
 Authentication:
 
-  This app uses DefaultAzureCredential (Microsoft Entra ID), not API keys.
-  The runtime identity (user, service principal, or managed identity) must have
-  Azure OpenAI data-plane access (for example, the Cognitive Services OpenAI User role)
-  on the target Azure OpenAI resource.
+    This app uses API key authentication for model calls.
+    It does not use managed identity for OpenAI chat-completions requests.
 """
 
 import asyncio
@@ -23,13 +26,12 @@ import random
 from typing import Sequence
 
 from dotenv import load_dotenv
-from openai import AsyncAzureOpenAI
+from openai import AsyncOpenAI
 
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
 
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from azure.ai.agentserver.responses import (
     CreateResponse,
     ResponseContext,
@@ -96,17 +98,26 @@ def build_agent() -> Agent:
     if _AGENT is None:
         endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
         deployment = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-5-mini")
-        api_version = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
-
-        token_provider = get_bearer_token_provider(
-            DefaultAzureCredential(),
-            "https://cognitiveservices.azure.com/.default",
+        api_key = (
+            os.environ.get("AZURE_OPENAI_API_KEY")
+            or os.environ.get("OPENAI_API_KEY")
+            or os.environ.get("APIM_SUBSCRIPTION_KEY")
         )
+        if not api_key:
+            raise RuntimeError(
+                "Missing API key. Set AZURE_OPENAI_API_KEY (or OPENAI_API_KEY / APIM_SUBSCRIPTION_KEY)."
+            )
 
-        client = AsyncAzureOpenAI(
-            azure_endpoint=endpoint,
-            api_version=api_version,
-            azure_ad_token_provider=token_provider,
+        api_version = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-05-01-preview")
+        base_url = endpoint.split("?", 1)[0].rstrip("/")
+        if base_url.endswith("/chat/completions"):
+            base_url = base_url[: -len("/chat/completions")]
+
+        client = AsyncOpenAI(
+            base_url=base_url,
+            api_key=api_key,
+            default_query={"api-version": api_version},
+            default_headers={"api-key": api_key},
         )
 
         model = OpenAIChatModel(
@@ -118,8 +129,8 @@ def build_agent() -> Agent:
             model,
             instructions=(
                 "You are a helpful assistant who can explain concepts, answer questions, and "
-                "reason through problems. You have access to two tools: get_weather for weather "
-                "questions and show_internal_environment_variables for debugging."
+                "reason through problems. You have access to one tool: get_weather for weather "
+                "questions."
             ),
         )
 
@@ -129,9 +140,6 @@ def build_agent() -> Agent:
             logger.info("tool_call=get_weather city=%s result_c=%s", city, temperature_c)
             return f"The current temperature in {city} is {temperature_c} deg C."
 
-        @_AGENT.tool_plain
-        def show_internal_environment_variables() -> str:
-            return str(dict(os.environ))
 
     return _AGENT
 
