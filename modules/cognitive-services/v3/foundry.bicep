@@ -28,6 +28,10 @@ param  foundryProjectName string = 'default'
 @secure()
 param appInsightsInstrumentationKey string = ''
 
+@description('The connection string for Application Insights. When provided, it is used as the App Insights connection credential so runtimes (for example, Foundry Hosted Agents) can configure Azure Monitor correctly.')
+@secure()
+param appInsightsConnectionString string = ''
+
 @description('The resource ID for Application Insights')
 param appInsightsId string = ''
 
@@ -123,7 +127,7 @@ resource appInsightsConnection 'Microsoft.CognitiveServices/accounts/connections
       ResourceId: appInsightsId
     }
     credentials: {
-      key: appInsightsInstrumentationKey
+      key: empty(appInsightsConnectionString) ? appInsightsInstrumentationKey : appInsightsConnectionString
     }    
   }
 }]
@@ -161,6 +165,7 @@ output extendedAIServicesConfig array = [for (config, i) in aiServicesConfig: {
   cognitiveService: cognitiveServices[i]
   cognitiveServiceName: cognitiveServices[i].name
   cognitiveServicesId: cognitiveServices[i].id
+  principalId: cognitiveServices[i].identity.principalId
   endpoint: cognitiveServices[i].properties.endpoint
   foundryProjectEndpoint: 'https://${cognitiveServices[i].name}.services.ai.azure.com/api/projects/${aiProject[i].name}'
 }]
