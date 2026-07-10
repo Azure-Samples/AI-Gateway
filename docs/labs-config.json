@@ -86,6 +86,28 @@
     "lastCommitDate": "2026-03-02T11:38:30.603Z"
   },
   {
+    "id": "ai-foundry-hosted-agents-custom-framework",
+    "name": "AI Foundry Hosted Agents (Custom Frameworks)",
+    "architectureDiagram": "images/ai-foundry-hosted-agents.gif",
+    "categories": [
+      "AI Agents"
+    ],
+    "services": [
+      "Microsoft Foundry",
+      "Hosted Agents",
+      "Azure API Management",
+      "Container Registry"
+    ],
+    "shortDescription": "Deploy AI Foundry Hosted Agents built with custom frameworks, including Pydantic AI and Strands.",
+    "detailedDescription": "This lab provides custom framework examples for AI Foundry Hosted Agents, showing how to package and deploy hosted agents built with Pydantic AI and Strands. It includes a Bicep deployment for Azure API Management, Azure AI Foundry resources, and a GPT-5-Mini model deployment, plus a single end-to-end notebook and Dockerfiles.",
+    "authors": [
+      "georgeollis"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-hosted-agents-custom-framework",
+    "lastCommitDate": "2026-07-10T17:20:32.613Z"
+  },
+  {
     "id": "ai-foundry-model-gateway",
     "name": "AI Foundry Model Gateway",
     "architectureDiagram": "images/foundry-model-gateway.gif",
