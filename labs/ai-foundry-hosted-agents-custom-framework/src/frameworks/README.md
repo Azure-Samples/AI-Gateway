@@ -4,17 +4,11 @@ This directory contains multiple framework implementations for deploying custom 
 
 ## Quick Start
 
-1. **Setup infrastructure first** (if you haven't already):
-   - Run the **infrastructure deployment notebook** to create Foundry services, APIM, and ACR
-   - Save the deployment outputs (APIM suffix, subscription key, Foundry endpoint)
-
-2. **Choose your framework**:
+1. **Choose your framework** in the lab notebook by setting the `framework` variable to `strands` or `pydantic`:
    - [**Strands Framework**](#strands-framework)
    - [**Pydantic AI Framework**](#pydantic-ai-framework)
 
-3. **Run the corresponding setup notebook**:
-   - For Strands: `01_hosted_agent_strands_setup.ipynb`
-   - For Pydantic AI: `02_hosted_agent_pydantic_setup.ipynb`
+2. **Run the lab notebook** [ai-foundry-hosted-agents-custom-framework.ipynb](../../../../ai-foundry-hosted-agents-custom-framework.ipynb) top-to-bottom. It deploys the infrastructure, builds the selected framework's image, registers the hosted agent, and tests it directly and through APIM.
 
 ## Framework Overview
 
@@ -30,14 +24,12 @@ https://pydantic.dev/docs/ai/core-concepts/agent/
 
 ```
 frameworks/
-├── 01_hosted_agent_strands_setup.ipynb      # Deploy Strands-based agent
-├── 02_hosted_agent_pydantic_setup.ipynb     # Deploy Pydantic AI agent
 ├── strands/                                  # Strands framework implementation
 │   ├── main.py                               # Agent entry point
 │   ├── Dockerfile                            # Container image definition
 │   ├── requirements-strands.txt              # Strands framework dependencies
 │   ├── README.md                             # Strands-specific documentation
-│   ├── .env                                  # Environment variables template
+│   ├── example.env                           # Environment variables template
 │   ├── .gitignore
 │   └── .dockerignore
 │
@@ -46,7 +38,7 @@ frameworks/
     ├── Dockerfile                            # Container image definition
     ├── requirements-pydantic.txt             # Pydantic dependencies
     ├── README.md                             # Pydantic-specific documentation
-    ├── .env                                  # Environment variables template
+    ├── example.env                           # Environment variables template
     ├── .gitignore
     └── .dockerignore
 ```
@@ -60,9 +52,9 @@ frameworks/
 - Direct control over agent behavior and response formatting
 - Ideal for domain-specific agent implementations
 
-### How it works (in `01_hosted_agent_strands_setup.ipynb`)
-1. **Builds Docker image** from `strands/` directory
-2. **Deploys to Foundry** using image from ACR
+### How it works (in the lab notebook, `framework = 'strands'`)
+1. **Builds the image in ACR** from the `strands/` directory with `az acr build`
+2. **Deploys to Foundry** using the image from ACR
 3. **Tests direct API** - calls Foundry Responses API with bearer token
 4. **Tests via APIM** - routes through API Management gateway with subscription key
 
@@ -89,9 +81,9 @@ frameworks/
 - Automatic request/response validation via Pydantic models
 - Streamlined agent development with minimal boilerplate
 
-### How it works (in `02_hosted_agent_pydantic_setup.ipynb`)
-1. **Builds Docker image** from `pydantic/` directory
-2. **Deploys to Foundry** using image from ACR
+### How it works (in the lab notebook, `framework = 'pydantic'`)
+1. **Builds the image in ACR** from the `pydantic/` directory with `az acr build`
+2. **Deploys to Foundry** using the image from ACR
 3. **Tests direct API** - calls Foundry Responses API with bearer token
 4. **Tests via APIM** - routes through API Management gateway with subscription key
 
@@ -140,14 +132,14 @@ Both frameworks expect these environment variables (set in Foundry agent definit
 
 ## Workflow: Direct vs APIM
 
-### Direct Call (Section 3 in notebooks)
+### Direct Call
 - **URL**: `https://foundry-agents-{suffix}.services.ai.azure.com/api/projects/default-foundry-agents/agents/{AGENT_NAME}/endpoint/protocols/openai/responses?api-version=v1`
 - **Auth**: Bearer token (from `az login` → `https://ai.azure.com/.default`)
 - **Use case**: Development, validation that agent is running correctly
 - **Pros**: Direct connection, best for debugging
 - **Cons**: Requires Azure credentials on client
 
-### APIM Gateway (Section 4 in notebooks)
+### APIM Gateway
 - **URL**: `https://apim-{APIM_SUFFIX}.azure-api.net/hosted-agent-responses/agents/{AGENT_NAME}/endpoint/protocols/openai/responses?api-version=v1`
 - **Auth**: API key header (`api-key: <subscription-key>`)
 - **Use case**: Production, client applications, rate limiting, monitoring
@@ -164,12 +156,8 @@ To add another framework (e.g., CrewAI, AutoGen):
    - Create `main.py` with your framework initialization
    - Create `requirements-crew-ai.txt` with framework dependencies
    - Create `README.md` documenting the framework
-3. **Create setup notebook**: Copy `01_hosted_agent_strands_setup.ipynb` and adapt:
-   - Change `strands_dir = "strands"` to `strands_dir = "crew-ai"`
-   - Change `IMAGE_NAME` to `crew-ai-agent`
-   - Update documentation to reference CrewAI
-   - Update section 2 agent creation code for CrewAI specifics
-4. **Update deployment**: If deploying both, register agents with different names
+3. **Register the framework in the lab notebook**: add an entry to the `frameworks` map in the initialization cell, for example `'crew-ai': {'agent_name': 'crew-ai-agent', 'image': 'crew-ai-agent'}`, then set `framework = 'crew-ai'` and re-run the build, deploy, and test cells.
+4. **Update deployment**: If deploying multiple agents, register them with different names.
 
 ## Testing Your Agent
 
@@ -214,7 +202,7 @@ Successful response structure:
 - Check APIM managed identity has `Contributor` or `Cognitive Services User` role
 
 ### Agent not receiving requests
-- Check Docker image builds successfully: `docker build -t test:1.0 .`
+- Check the image builds successfully in ACR: `az acr build --registry {registry} --image test:1.0 .`
 - Verify APIM policy correctly injects authentication headers
 - Check ACR image is pullable by Foundry (check image pull errors in Foundry portal)
 

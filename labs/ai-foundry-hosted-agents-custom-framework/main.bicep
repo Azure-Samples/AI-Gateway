@@ -83,6 +83,7 @@ module foundryModule '../../modules/cognitive-services/v3/foundry.bicep' = {
     foundryProjectName: foundryProjectName
     appInsightsId: appInsightsModule.outputs.id
     appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
+    appInsightsConnectionString: appInsightsModule.outputs.connectionString
   }
 }
 
@@ -305,7 +306,7 @@ resource hostedAgentResponsesApiPolicy 'Microsoft.ApiManagement/service/apis/pol
 
 output logAnalyticsWorkspaceId string = lawModule.outputs.customerId
 output apimServiceId string = apimModule.outputs.id
-output apimGatewayUrl string = apimModule.outputs.gatewayUrl
+output apimResourceGatewayURL string = apimModule.outputs.gatewayUrl
 output apimSubscriptions array = apimModule.outputs.apimSubscriptions
 output aiGatewayUrl string = '${apimModule.outputs.gatewayUrl}/${inferenceAPIPath}'
 output foundryProjectEndpoint string = foundryModule.outputs.extendedAIServicesConfig[0].foundryProjectEndpoint

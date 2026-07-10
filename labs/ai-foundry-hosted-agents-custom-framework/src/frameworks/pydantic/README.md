@@ -21,15 +21,15 @@ Official reference:
 - `main.py`: Pydantic AI agent server implementation (Responses protocol + tool calling + streaming).
 - `Dockerfile`: Container definition for hosting the agent in Foundry Hosted Agents.
 - `requirements-pydantic.txt`: Python dependencies for this runtime.
-- `../02_hosted_agent_pydantic_setup.ipynb`: End-to-end setup and validation notebook.
+- `../../../../ai-foundry-hosted-agents-custom-framework.ipynb`: End-to-end lab notebook (set `framework = 'pydantic'`).
 
 ## Get Started
 
-1. Deploy infrastructure first with `../../../ai-foundry-hosted-agents-custom-framework.ipynb`.
-2. Open and run `../02_hosted_agent_pydantic_setup.ipynb` from top to bottom.
-3. Build and push the container image to Azure Container Registry.
-4. Create a hosted agent version in your Foundry project.
-5. Validate the agent through:
+1. Open the lab notebook `../../../../ai-foundry-hosted-agents-custom-framework.ipynb` and set `framework = 'pydantic'` in the initialization cell.
+2. Run the notebook from top to bottom.
+3. It builds and pushes the container image to Azure Container Registry with `az acr build`.
+4. It creates a hosted agent version in your Foundry project.
+5. It validates the agent through:
 	- Direct Foundry call (baseline)
 	- APIM call (production-like path)
 
@@ -39,7 +39,6 @@ Official reference:
 - Permission to push images to the target ACR repository.
 - Permission to create hosted agent versions in Foundry.
 - Azure CLI installed and authenticated (`az login`).
-- Docker Desktop installed and running.
 - Python environment with dependencies required by this sample.
 
 ## Invocation and Routing

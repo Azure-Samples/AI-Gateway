@@ -2,5 +2,4 @@
 __pycache__/
 *.pyc
 .env
-main.parameters.generated.json
-foundry-user-object-ids.json
+params.json

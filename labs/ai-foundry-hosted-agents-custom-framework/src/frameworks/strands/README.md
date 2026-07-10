@@ -23,7 +23,7 @@ The agent runs in a containerized environment managed by Foundry, with full obse
 - **`main.py`**: Strands agent server implementing the Responses protocol with tool calling and streaming.
 - **`Dockerfile`**: Container image definition for Foundry Hosted Agents (builds for Linux amd64).
 - **`requirements-strands.txt`**: Python dependencies (Strands, FastAPI, etc.).
-- **`01_hosted_agent_strands_setup.ipynb`**: End-to-end setup and testing notebook with 4 sections:
+- **`../../../../ai-foundry-hosted-agents-custom-framework.ipynb`**: End-to-end lab notebook (set `framework = 'strands'`) covering:
   1. Build and push container to ACR
   2. Create hosted agent version in Foundry
   3. Test agent directly via Foundry Responses API (baseline validation)
@@ -62,28 +62,19 @@ OpenAI (GPT-5-Mini)
 
 ## Get Started
 
-### Step 1: Configure Your Setup
+### Step 1: Configure the lab notebook
 
-Open `01_hosted_agent_strands_setup.ipynb` and fill in the configuration variables at the top:
-- `ACR_NAME`: Your Azure Container Registry name
-- `IMAGE_NAME`: Container image name (usually `strands-agent`)
-- `IMAGE_TAG`: Semantic version (e.g., `1.0.0`)
-- `PROJECT_ENDPOINT`: Foundry project endpoint (from infrastructure deployment)
-- `AZURE_OPENAI_ENDPOINT`: APIM inference API endpoint
-- `APIM_SUBSCRIPTION_KEY`: APIM subscription key
-- `APIM_SUFFIX`: Your APIM instance suffix
+Open `../../../../ai-foundry-hosted-agents-custom-framework.ipynb`, set `framework = 'strands'` in the initialization cell, and run the deployment cells. The APIM gateway URL, Container Registry name, Foundry agent project endpoint, and subscription key are read automatically from the deployment outputs.
 
 ### Step 2: Build & Push Container
 
-Run **Section 1** of the notebook:
-- Builds a Docker image: `docker build -t {ACR_URI} --platform linux/amd64 .`
-- Pushes to ACR: `docker push {ACR_URI}`
-
-The `--platform linux/amd64` flag ensures compatibility with Foundry's Linux hosting.
+Run the build cell:
+- Builds the image in Azure Container Registry: `az acr build --registry {registry} --image strands-agent:1.0.0 src/responses/agents/frameworks/strands`
+- No local Docker is required; ACR builds a Linux amd64 image compatible with Foundry hosting.
 
 ### Step 3: Create Hosted Agent
 
-Run **Section 2** of the notebook:
+Run the deploy cell:
 - Creates a HostedAgentDefinition with your container image
 - Specifies resource allocation (1 CPU, 2Gi memory)
 - Sets environment variables for your agent to reach models
@@ -91,9 +82,9 @@ Run **Section 2** of the notebook:
 
 Once the agent transitions to "Running" state, it's ready for testing.
 
-### Step 4: Validate Agent Locally
+### Step 4: Validate Agent Directly
 
-Run **Section 3** ("Test Direct"):
+Run the direct test cell:
 - Calls Foundry's Responses API directly using your Azure CLI credential
 - No APIM involvement—validates agent and basic connectivity
 - Helpful for troubleshooting deployment issues
@@ -102,7 +93,7 @@ If this test fails, check agent status in Foundry or review container logs.
 
 ### Step 5: Test via APIM Gateway (Production Path)
 
-Run **Section 4** ("Test via APIM"):
+Run the APIM test cell:
 - Routes through APIM gateway using `api-key` header
 - APIM automatically:
   - Injects managed identity bearer token
@@ -115,10 +106,9 @@ Policy configuration is in `../../hosted-agent-policy.xml` for customization.
 
 ## Prerequisites
 
-- Microsoft Foundry resources deployed (see parent [infrastructure notebook](../../ai-foundry-hosted-agents-custom-framework.ipynb))
+- Microsoft Foundry resources deployed (see the parent [lab notebook](../../../../ai-foundry-hosted-agents-custom-framework.ipynb))
 - Azure CLI installed and authenticated (`az login`)
-- Docker Desktop installed and running
-- Python 3.12+ with dependencies: `pip install azure-ai-projects azure-identity requests`
+- Python 3.12+ with dependencies from the repo root (`uv sync`)
 - Azure subscription with permissions to:
   - Push images to ACR
   - Create agent versions in Foundry
@@ -126,7 +116,7 @@ Policy configuration is in `../../hosted-agent-policy.xml` for customization.
 
 ## Key Configuration Notes
 
-- **Agent name**: Use the same value configured as `AGENT_NAME` in the setup notebook.
+- **Agent name**: Use the same value configured as `agent_name` in the lab notebook.
 - **Model endpoint**: Your agent calls the APIM **inference** API, not the hosted-agent API.
 - **Token audience**: 
   - Direct tests use `https://ai.azure.com/.default`
