@@ -9,7 +9,7 @@ services:
   - Azure API Management
   - Container Registry
 shortDescription: Deploy AI Foundry Hosted Agents built with custom frameworks, including Pydantic AI and Strands.
-detailedDescription: This lab provides custom framework examples for AI Foundry Hosted Agents, showing how to package and deploy hosted agents built with Pydantic AI and Strands. It includes a Bicep deployment for Azure API Management, Azure AI Foundry resources, and a GPT-5-Mini model deployment, plus end-to-end setup notebooks and Dockerfiles.
+detailedDescription: This lab provides custom framework examples for AI Foundry Hosted Agents, showing how to package and deploy hosted agents built with Pydantic AI and Strands. It includes a Bicep deployment for Azure API Management, Azure AI Foundry resources, and a GPT-5-Mini model deployment, plus a single end-to-end notebook and Dockerfiles.
 authors:
   - georgeollis
 tags: []
@@ -47,11 +47,13 @@ Agents are managed as platform assets in the Foundry control plane, with operati
 - You want framework flexibility without giving up Foundry governance and enterprise operations.
 - You need to standardize deployment and operations across multiple agent implementations.
 
-## Infrastructure Deployment Notebook
+## Lab Notebook
 
-Use this notebook first to deploy core infrastructure with Bicep:
+The lab runs end-to-end from a single notebook. Set the `framework` variable (`strands` or `pydantic`) in the initialization cell to choose which custom-framework agent to build and deploy:
 
 - [ai-foundry-hosted-agents-custom-framework.ipynb](ai-foundry-hosted-agents-custom-framework.ipynb)
+
+It deploys the infrastructure with Bicep, builds and pushes the agent image, registers the hosted agent in Foundry, and tests it both directly and through APIM.
 
 ### What gets deployed
 
@@ -89,32 +91,28 @@ The deployment template is in [main.bicep](main.bicep).
 
 ## Prerequisites
 
-- [Python 3.12 or later](https://www.python.org/)
-- [VS Code](https://code.visualstudio.com/) with the [Jupyter extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
-- Python dependencies: install with pip install azure-ai-projects azure-identity requests (or run dependency cells in notebooks)
-- [Azure subscription](https://azure.microsoft.com/free/) with Contributor + RBAC Administrator roles, or Owner role
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and authenticated
-- [Docker](https://www.docker.com/get-started/) installed and running
+- [Python 3.12 or later version](https://www.python.org/) installed
+- [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
+- [uv](https://docs.astral.sh/uv/) — run `uv sync` from the repo root to install dependencies
+- [An Azure Subscription](https://azure.microsoft.com/free/) with [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor) + [RBAC Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator) or [Owner](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#owner) roles
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and [Signed into your Azure subscription](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
+
+> The agent container image is built in Azure Container Registry with `az acr build`, so a local Docker installation is not required.
 
 ## Get Started
 
-Step 1: Deploy infrastructure
-- Run all cells in [ai-foundry-hosted-agents-custom-framework.ipynb](ai-foundry-hosted-agents-custom-framework.ipynb)
-- This provisions Foundry resources, APIM, ACR, and monitoring
-- Capture outputs (project endpoint, ACR login server, APIM suffix, subscription key)
+Proceed by opening the [Jupyter notebook](ai-foundry-hosted-agents-custom-framework.ipynb) and follow the steps provided.
 
-Step 2: Choose and deploy your agent
-- Open one setup notebook and run top-to-bottom:
-  - [src/responses/agents/frameworks/01_hosted_agent_strands_setup.ipynb](src/responses/agents/frameworks/01_hosted_agent_strands_setup.ipynb)
-  - [src/responses/agents/frameworks/02_hosted_agent_pydantic_setup.ipynb](src/responses/agents/frameworks/02_hosted_agent_pydantic_setup.ipynb)
-- Each notebook performs:
-  - Docker build and push to ACR
-  - Hosted agent version creation in Foundry
-  - Direct test to Foundry (baseline)
-  - APIM test (production-like path)
+The notebook runs top-to-bottom and:
 
-Step 3: Invoke through APIM
-- Use agent-specific URL path routing:
+1. Deploys the infrastructure with Bicep (Foundry resources, APIM, ACR, monitoring).
+2. Builds and pushes the selected framework's agent image to ACR with `az acr build`.
+3. Registers the container image as a Foundry Hosted Agent.
+4. Tests the agent directly against Foundry and through APIM.
+
+Set the `framework` variable in the initialization cell to `strands` or `pydantic` to switch frameworks, then re-run the build, deploy, and test cells.
+
+Invoke a deployed agent through APIM using agent-specific URL path routing:
 
 ```http
 POST https://apim-{suffix}.azure-api.net/hosted-agent-responses/agents/{agentName}/endpoint/protocols/openai/responses?api-version=v1
@@ -136,15 +134,15 @@ Example body:
 
 ## Test Flow Explained
 
-Direct test (Section 3 in framework notebooks):
-- Calls Foundry Hosted Agent Responses API directly
-- Uses bearer token from Azure CLI credential with audience https://ai.azure.com/.default
+Direct test:
+- Calls the Foundry Hosted Agent Responses API directly
+- Uses a bearer token from the Azure CLI credential with audience https://ai.azure.com/.default
 - Best baseline for runtime/connectivity troubleshooting
 
-APIM test (Section 4 in framework notebooks):
-- Routes through APIM using api-key
-- APIM injects managed identity token and required headers
-- Validates production-like client -> APIM -> Foundry path
+APIM test:
+- Routes through APIM using the subscription key (api-key)
+- APIM injects the managed identity token and required headers
+- Validates the production-like client -> APIM -> Foundry path
 
 ## Clean Up Resources
 
