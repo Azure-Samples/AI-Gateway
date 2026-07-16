@@ -11,7 +11,7 @@ shortDescription: Secure and govern a Foundry Toolbox MCP endpoint with Azure AP
 detailedDescription: A Foundry Toolbox bundles tools (MCP servers, Web Search, Azure AI Search, and more) into a single MCP-compatible endpoint. This lab shows how to place Azure API Management in front of that endpoint. APIM accepts subscription key auth from agents and transparently injects a managed-identity Entra token when forwarding requests to the Toolbox, so consumers never handle Foundry credentials directly. APIM also adds rate limiting, per-subscription monitoring, and policy-based governance over every tool call.
 tags: []
 authors:
-  - vieiraae
+  - georgeollis
 ---
 
 # APIM ❤️ AI Foundry
