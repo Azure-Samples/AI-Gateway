@@ -25,18 +25,18 @@ A [Foundry Toolbox](https://learn.microsoft.com/azure/foundry/agents/how-to/tool
 Key scenarios covered:
 
 - Deploy APIM and Azure AI Foundry using Bicep
-- Deploy a weather MCP server as a Container App (the backend tool server)
+- Deploy the vet-toolbox MCP server as an Azure Functions Flex Consumption app (no container needed)
 - Create a Foundry Toolbox with an MCP tool via the azure-ai-projects SDK
-- Configure APIM to proxy the Toolbox MCP endpoint (subscription key → managed-identity Entra token)
+- Configure APIM native MCP proxy to the Toolbox MCP endpoint (subscription key → managed-identity Entra token)
 - Verify tool discovery and run chat completions with Toolbox tools routed through APIM
 
 ### Prerequisites
 
-- [Python 3.12 or later version](https://www.python.org/) installed
+- [Python 3.12 or later](https://www.python.org/) installed
 - [VS Code](https://code.visualstudio.com/) installed with the [Jupyter notebook extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) enabled
 - [uv](https://docs.astral.sh/uv/) — run `uv sync` from the repo root to install dependencies
 - [An Azure Subscription](https://azure.microsoft.com/free/) with [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#contributor) + [RBAC Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator) or [Owner](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/privileged#owner) roles
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and [Signed into your Azure subscription](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) installed and [signed in to your Azure subscription](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)
 
 ### 🚀 Get started
 
