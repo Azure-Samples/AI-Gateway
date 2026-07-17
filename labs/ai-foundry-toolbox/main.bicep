@@ -67,6 +67,8 @@ module inferenceAPIModule '../../modules/apim/v3/inference-api.bicep' = {
   params: {
     policyXml: loadTextContent('policy.xml')
     apimLoggerId: apimModule.outputs.loggerId
+    appInsightsId: appInsightsModule.outputs.id
+    appInsightsInstrumentationKey: appInsightsModule.outputs.instrumentationKey
     aiServicesConfig: foundryModule.outputs.extendedAIServicesConfig
     inferenceAPIType: inferenceAPIType
     inferenceAPIPath: inferenceAPIPath
@@ -211,6 +213,19 @@ var foundryAccountName = foundryModule.outputs.extendedAIServicesConfig[0].cogni
 var foundryProjectPath = '${foundryProjectName}-${aiServicesConfig[0].name}'
 var toolboxMcpBackendUrl = 'https://${foundryAccountName}.services.ai.azure.com/api/projects/${foundryProjectPath}/toolboxes/${toolboxName}/mcp'
 var toolboxNativeMcpPath = 'toolbox/mcp-native'
+var appInsightsLoggerId = resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apiManagementName, 'appinsights-logger')
+var apimAppInsightsLogSettings = {
+  headers: [
+    'Content-type'
+    'User-agent'
+    'x-ms-region'
+    'x-ratelimit-remaining-tokens'
+    'x-ratelimit-remaining-requests'
+  ]
+  body: {
+    bytes: 8192
+  }
+}
 
 // Reference existing APIM service (created by apimModule)
 resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
@@ -254,6 +269,31 @@ resource toolboxMcpApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021
   }
 }
 
+resource toolboxMcpApiAppInsightsDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
+  parent: toolboxMcpApi
+  name: 'applicationinsights'
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: appInsightsLoggerId
+    metrics: true
+    verbosity: 'verbose'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+    frontend: {
+      request: apimAppInsightsLogSettings
+      response: apimAppInsightsLogSettings
+    }
+    backend: {
+      request: apimAppInsightsLogSettings
+      response: apimAppInsightsLogSettings
+    }
+  }
+}
+
 // 12. APIM native MCP Server (appears in APIM "MCP Servers" blade)
 resource toolboxNativeMcpServer 'Microsoft.ApiManagement/service/apis@2025-09-01-preview' = {
   parent: apimService
@@ -282,6 +322,31 @@ resource toolboxNativeMcpServerPolicy 'Microsoft.ApiManagement/service/apis/poli
   properties: {
     value: loadTextContent('toolbox-policy.xml')
     format: 'rawxml'
+  }
+}
+
+resource toolboxNativeMcpApiAppInsightsDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
+  parent: toolboxNativeMcpServer
+  name: 'applicationinsights'
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: appInsightsLoggerId
+    metrics: true
+    verbosity: 'verbose'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+    frontend: {
+      request: apimAppInsightsLogSettings
+      response: apimAppInsightsLogSettings
+    }
+    backend: {
+      request: apimAppInsightsLogSettings
+      response: apimAppInsightsLogSettings
+    }
   }
 }
 
