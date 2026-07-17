@@ -9,7 +9,7 @@ param apimSubscriptionsConfig array = []
 param inferenceAPIType string = 'AzureOpenAI'
 param inferenceAPIPath string = 'inference'
 param foundryProjectName string = 'default'
-param toolboxName string = 'vet-toolbox'
+param toolboxName string = 'pet-care-toolbox'
 
 // ------------------
 //    VARIABLES
@@ -97,6 +97,12 @@ resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/con
   properties: { publicAccess: 'None' }
 }
 
+resource petInsuranceDeploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'insurance-deployments'
+  properties: { publicAccess: 'None' }
+}
+
 // 7. Flex Consumption App Service Plan
 resource flexConsumptionPlan 'Microsoft.Web/serverfarms@2024-04-01' = {
   name: 'flex-plan-${resourceSuffix}'
@@ -145,7 +151,41 @@ resource vetToolboxFunctionApp 'Microsoft.Web/sites@2023-12-01' = {
   dependsOn: [deploymentContainer]
 }
 
-// 9. Grant Function App managed identity Storage Blob Data Owner on the storage account
+// 9. Pet Insurance Toolbox Function App (Flex Consumption, Python 3.12)
+resource petInsuranceToolboxFunctionApp 'Microsoft.Web/sites@2023-12-01' = {
+  name: 'func-ins-${resourceSuffix}'
+  location: resourceGroup().location
+  kind: 'functionapp,linux'
+  identity: { type: 'SystemAssigned' }
+  properties: {
+    serverFarmId: flexConsumptionPlan.id
+    httpsOnly: true
+    functionAppConfig: {
+      deployment: {
+        storage: {
+          type: 'blobContainer'
+          value: '${storageAccount.properties.primaryEndpoints.blob}insurance-deployments'
+          authentication: { type: 'SystemAssignedIdentity' }
+        }
+      }
+      scaleAndConcurrency: {
+        maximumInstanceCount: 40
+        instanceMemoryMB: 2048
+      }
+      runtime: { name: 'python', version: '3.12' }
+    }
+    siteConfig: {
+      appSettings: [
+        { name: 'AzureWebJobsStorage__accountName', value: storageAccount.name }
+        { name: 'AzureWebJobsStorage__credential', value: 'managedidentity' }
+        { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsightsModule.outputs.connectionString }
+      ]
+    }
+  }
+  dependsOn: [petInsuranceDeploymentContainer]
+}
+
+// 10. Grant Function App managed identity Storage Blob Data Owner on the storage account
 resource storageBlobDataOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: storageAccount
   name: guid(subscription().id, resourceGroup().id, vetToolboxFunctionApp.id, 'StorageBlobDataOwner')
@@ -156,7 +196,17 @@ resource storageBlobDataOwnerRole 'Microsoft.Authorization/roleAssignments@2022-
   }
 }
 
-// 10. APIM: Toolbox MCP proxy — backend pointing to Foundry Toolbox MCP endpoint
+resource petInsuranceStorageBlobDataOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: storageAccount
+  name: guid(subscription().id, resourceGroup().id, petInsuranceToolboxFunctionApp.id, 'StorageBlobDataOwner')
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b') // Storage Blob Data Owner
+    principalId: petInsuranceToolboxFunctionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// 11. APIM: Toolbox MCP proxy — backend pointing to Foundry Toolbox MCP endpoint
 var foundryAccountName = foundryModule.outputs.extendedAIServicesConfig[0].cognitiveServiceName
 var foundryProjectPath = '${foundryProjectName}-${aiServicesConfig[0].name}'
 var toolboxMcpBackendUrl = 'https://${foundryAccountName}.services.ai.azure.com/api/projects/${foundryProjectPath}/toolboxes/${toolboxName}/mcp'
@@ -204,7 +254,7 @@ resource toolboxMcpApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021
   }
 }
 
-// 11. APIM native MCP Server (appears in APIM "MCP Servers" blade)
+// 12. APIM native MCP Server (appears in APIM "MCP Servers" blade)
 resource toolboxNativeMcpServer 'Microsoft.ApiManagement/service/apis@2025-09-01-preview' = {
   parent: apimService
   name: 'foundry-toolbox-mcp-native'
@@ -246,3 +296,5 @@ output apimSubscriptions array = apimModule.outputs.apimSubscriptions
 output foundryProjectEndpoint string = 'https://${foundryAccountName}.services.ai.azure.com/api/projects/${foundryProjectPath}'
 output functionAppName string = vetToolboxFunctionApp.name
 output functionAppUrl string = 'https://${vetToolboxFunctionApp.properties.defaultHostName}'
+output petInsuranceFunctionAppName string = petInsuranceToolboxFunctionApp.name
+output petInsuranceFunctionAppUrl string = 'https://${petInsuranceToolboxFunctionApp.properties.defaultHostName}'

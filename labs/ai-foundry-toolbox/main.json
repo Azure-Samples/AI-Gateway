@@ -39,7 +39,7 @@
     },
     "toolboxName": {
       "type": "string",
-      "defaultValue": "vet-toolbox"
+      "defaultValue": "pet-care-toolbox"
     }
   },
   "variables": {

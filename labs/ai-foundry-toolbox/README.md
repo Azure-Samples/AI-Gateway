@@ -25,8 +25,8 @@ A [Foundry Toolbox](https://learn.microsoft.com/azure/foundry/agents/how-to/tool
 Key scenarios covered:
 
 - Deploy APIM and Azure AI Foundry using Bicep
-- Deploy the vet-toolbox MCP server as an Azure Functions Flex Consumption app (no container needed)
-- Create a Foundry Toolbox with an MCP tool via the azure-ai-projects SDK
+- Deploy the vet-clinic and pet-insurance MCP servers as Azure Functions Flex Consumption apps (no container needed)
+- Create a Foundry Toolbox with both MCP servers via the azure-ai-projects SDK
 - Configure APIM native MCP proxy to the Toolbox MCP endpoint (subscription key → managed-identity Entra token)
 - Verify tool discovery and run chat completions with Toolbox tools routed through APIM
 
