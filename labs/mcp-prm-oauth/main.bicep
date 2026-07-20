@@ -215,6 +215,18 @@ resource mcpServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' 
 }
 
 // 9. Entra ID Application Registration for MCP endpoint
+// NOTE: The Microsoft Graph Bicep extension is experimental and may not be available in all environments.
+// If the deployment fails due to Graph extension issues, you have two options:
+//   1. Create the Entra App manually and provide the mcpClientId parameter
+//   2. Use Azure CLI or PowerShell scripts to create the app registration
+// 
+// To create manually:
+//   - Create an App Registration in Entra ID
+//   - Add API permission: user_impersonate (delegated)
+//   - Add ApplicationID URI: https://<apimfqdn>/${mcpApiPath}/mcp
+//   - Add redirect URI: https://{containerAppFQDN}/auth/callback
+//   - Create a federated credential trusting the managed identity
+//   - Pass the App ID as mcpClientId parameter
 module mcpEntraAppModule 'src/bicep/identity/mcp-entra-app.bicep' = if (empty(mcpClientId)) {
   name: 'mcpEntraAppModule'
   params: {
