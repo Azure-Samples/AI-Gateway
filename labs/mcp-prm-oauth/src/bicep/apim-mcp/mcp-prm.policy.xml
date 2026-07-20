@@ -17,7 +17,7 @@
             </set-header>
             <set-body>@{
                 return JsonConvert.SerializeObject(new {
-                    resource = "{{APIMGatewayURL}}/{{McpApiPath}}",
+                    resource = "{{APIMGatewayURL}}/{{McpApiPath}}/mcp",
                     authorization_servers = new[] {
                         $"https://login.microsoftonline.com/{{McpTenantId}}/v2.0"
                     },
@@ -25,7 +25,7 @@
                         "header"
                     },
                     scopes_supported = new[] {
-                        "{{APIMGatewayURL}}/{{McpApiPath}}/user_impersonate"
+                        "{{APIMGatewayURL}}/{{McpApiPath}}/mcp/user_impersonate"
                     }
                 });
             }</set-body>
