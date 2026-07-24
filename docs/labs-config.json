@@ -181,6 +181,27 @@
     "lastCommitDate": "2026-06-23T13:28:02.174Z"
   },
   {
+    "id": "ai-foundry-toolbox",
+    "name": "AI Foundry Toolbox",
+    "architectureDiagram": "images/ai-foundry-toolbox.gif",
+    "categories": [
+      "AI Agents & MCP",
+      "Knowledge & Tools"
+    ],
+    "services": [
+      "Azure AI Foundry",
+      "Azure API Management"
+    ],
+    "shortDescription": "Secure and govern a Foundry Toolbox MCP endpoint with Azure API Management.",
+    "detailedDescription": "A Foundry Toolbox bundles tools (MCP servers, Web Search, Azure AI Search, and more) into a single MCP-compatible endpoint. This lab shows how to place Azure API Management in front of that endpoint. APIM accepts subscription key auth from agents and transparently injects a managed-identity Entra token when forwarding requests to the Toolbox, so consumers never handle Foundry credentials directly. APIM also adds rate limiting, per-subscription monitoring, and policy-based governance over every tool call.",
+    "authors": [
+      "georgeollis"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/ai-foundry-toolbox",
+    "lastCommitDate": "2026-07-24T10:50:22.024Z"
+  },
+  {
     "id": "aws-bedrock",
     "name": "AWS Bedrock Integration",
     "architectureDiagram": "images/aws-bedrock.gif",
