@@ -1,0 +1,29 @@
+<policies>
+    <inbound>
+        <base />
+        <!-- Exchange the client's APIM subscription key for a managed-identity Entra token.
+             The token scope https://ai.azure.com is required by Foundry Toolbox endpoints.
+             APIM's managed identity must have the Azure AI User (Foundry User) role on the
+             Foundry project so it can call the Toolbox MCP endpoint. -->
+        <authentication-managed-identity resource="https://ai.azure.com" output-token-variable-name="foundry-token" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["foundry-token"])</value>
+        </set-header>
+        <set-header name="Foundry-Features" exists-action="override">
+            <value>Toolboxes=V1Preview</value>
+        </set-header>
+        <!-- Add api-version only if not already present in the request -->
+        <set-query-parameter name="api-version" exists-action="skip">
+            <value>v1</value>
+        </set-query-parameter>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

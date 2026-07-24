@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.python_packages/
+local.settings.json
+bin/
+obj/
+.vscode/
+vet-clinic.zip
+vet-toolbox.zip

@@ -1,0 +1,16 @@
+[project]
+name = "ai-foundry-toolbox-lab"
+version = "0.1.0"
+description = "Dependencies for the ai-foundry-toolbox lab notebook."
+requires-python = ">=3.12"
+dependencies = [
+    "azure-ai-projects==2.3.0",
+    "azure-identity",
+    "mcp[cli]",
+    "nest-asyncio",
+    "openai",
+    "requests",
+]
+
+[tool.uv]
+package = false
