@@ -14,11 +14,11 @@ param mcpAppTenantId string
 param mcpApiPath string = 'mcp'
 
 // Get reference to the existing APIM service
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+resource apimService 'Microsoft.ApiManagement/service@2025-09-01-preview' existing = {
   name: apimServiceName
 }
 
-resource dynamicDiscovery 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' existing = {
+resource dynamicDiscovery 'Microsoft.ApiManagement/service/apis@2025-09-01-preview' existing = {
   parent: apimService
   name: 'mcp-prm-dynamic-discovery'
 }
@@ -71,36 +71,38 @@ resource mcpApiPathNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-
   }
 }
 
-// Create mcp backend pointing to the Container App
-resource mcpBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' ={
+resource mcpBackendServerUrl 'Microsoft.ApiManagement/service/backends@2025-09-01-preview' = {
   parent: apimService
   name: '${webAppName}-mcp-backend'
   properties: {
+    url: 'https://${containerApp.properties.configuration.ingress.fqdn}'
     protocol: 'http'
-    url: 'https://${containerApp.properties.configuration.ingress.fqdn}/mcp'
     tls: {
       validateCertificateChain: true
       validateCertificateName: true
     }
     type: 'Single'
-  }  
+  }
 }
 
-// Create the MCP API definition in APIM
-resource mcpApi 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
+// Create the MCP Passthrough definition in APIM
+resource mcpApi 'Microsoft.ApiManagement/service/apis@2025-09-01-preview' = {
   parent: apimService
-  name: '${webAppName}-mcp-tools'
+  name: '${webAppName}-mcp-server'
   properties: {
-    displayName: '${webAppName} MCP Tools'
+    displayName: '${webAppName} MCP Server'
     type: 'mcp'
     subscriptionRequired: false
-    backendId: mcpBackend.name
-    path: '/${mcpApiPath}'
-    protocols: [
-      'https'
-    ]
-    mcpProperties:{
-      transportType: 'streamable'
+    backendId: mcpBackendServerUrl.name
+    description: 'MCP API for ${webAppName} retrieving authenticated account Graph info'
+    path: mcpApiPath    
+    protocols: ['https']
+    mcpProperties: {
+      endpoints : {
+        mcp: {
+          uriTemplate: '/mcp'
+        }
+      }
     }
     authenticationSettings: {
       oAuth2AuthenticationSettings: []
@@ -111,7 +113,7 @@ resource mcpApi 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
 }
 
 // Apply policy at the API level for all operations
-resource mcpApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = {
+resource mcpApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2025-09-01-preview' = {
   parent: mcpApi
   name: 'policy'
   properties: {
@@ -125,47 +127,20 @@ resource mcpApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-
   ]
 }
 
-// Create the PRM (Protected Resource Metadata) endpoint within MCP server
-resource mcpPrmOperation 'Microsoft.ApiManagement/service/apis/operations@2023-05-01-preview' = {
-  parent: mcpApi
-  name: 'mcp-prm-operation'
-  properties: {
-    displayName: 'Protected Resource Metadata'
-    method: 'GET'
-    urlTemplate: '/.well-known/oauth-protected-resource'
-    description: 'Protected Resource Metadata endpoint (RFC 9728)'
-  }
-}
-
-// Apply specific policy for the PRM endpoint (anonymous access)
-resource mcpPrmOperationPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2023-05-01-preview' = {
-  parent: mcpPrmOperation
-  name: 'policy'
-  properties: {
-    format: 'rawxml'
-    value: loadTextContent('mcp-prm.policy.xml')
-  }
-  dependsOn: [
-    APIMGatewayURLNamedValue
-    mcpTenantIdNamedValue
-    mcpClientIdNamedValue
-  ]
-}
-
 // Create the PRM (Protected Resource Metadata in the global discovery) endpoint - RFC 9728
-resource mcpPrmDiscoveryOperation 'Microsoft.ApiManagement/service/apis/operations@2023-05-01-preview' = {
+resource mcpPrmDiscoveryOperation 'Microsoft.ApiManagement/service/apis/operations@2025-09-01-preview' = {
   parent: dynamicDiscovery
   name: 'mcp-prm-discovery-operation'
   properties: {
     displayName: 'Protected Resource Metadata'
     method: 'GET'
-    urlTemplate: '/${mcpApiPath}'
+    urlTemplate: '/${mcpApiPath}/mcp'
     description: 'Protected Resource Metadata endpoint (RFC 9728)'
   }
 }
 
 // Apply specific policy for the PRM endpoint (anonymous access)
-resource mcpPrmGlobalPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2023-05-01-preview' = {
+resource mcpPrmGlobalPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2025-09-01-preview' = {
   parent: mcpPrmDiscoveryOperation
   name: 'policy'
   properties: {

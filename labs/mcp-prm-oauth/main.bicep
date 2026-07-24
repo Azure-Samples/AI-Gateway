@@ -32,7 +32,7 @@ param tags object = {}
 
 param location string = resourceGroup().location
 
-param mcpPrmPath string = 'mcp'
+param mcpApiPath string = 'mcp'
 
 // ------------------
 //    VARIABLES
@@ -60,7 +60,7 @@ module appInsightsModule '../../modules/monitor/v1/appinsights.bicep' = {
 }
 
 // 3. API Management
-module apimModule '../../modules/apim/v2/apim.bicep' = {
+module apimModule '../../modules/apim/v4/apim.bicep' = {
   name: 'apimModule'
   params: {
     apimSku: apimSku
@@ -71,7 +71,7 @@ module apimModule '../../modules/apim/v2/apim.bicep' = {
   }
 }
 
-resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
+resource apimService 'Microsoft.ApiManagement/service@2025-09-01-preview' existing = {
   name: 'apim-${resourceSuffix}'
   dependsOn: [
     apimModule
@@ -214,7 +214,7 @@ resource mcpServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' 
   ]
 }
 
-// 9. Entra ID Application Registration for MCP
+// 9. Entra ID Application Registration for MCP endpoint
 // NOTE: The Microsoft Graph Bicep extension is experimental and may not be available in all environments.
 // If the deployment fails due to Graph extension issues, you have two options:
 //   1. Create the Entra App manually and provide the mcpClientId parameter
@@ -223,6 +223,7 @@ resource mcpServerContainerApp 'Microsoft.App/containerApps@2023-11-02-preview' 
 // To create manually:
 //   - Create an App Registration in Entra ID
 //   - Add API permission: user_impersonate (delegated)
+//   - Add ApplicationID URI: https://<apimfqdn>/${mcpApiPath}/mcp
 //   - Add redirect URI: https://{containerAppFQDN}/auth/callback
 //   - Create a federated credential trusting the managed identity
 //   - Pass the App ID as mcpClientId parameter
@@ -232,8 +233,9 @@ module mcpEntraAppModule 'src/bicep/identity/mcp-entra-app.bicep' = if (empty(mc
     mcpAppUniqueName: mcpEntraAppName
     mcpAppDisplayName: mcpEntraAppName
     tenantId: subscription().tenantId
-    userAssignedIdentityPrincipleId: managedIdentityModule.outputs.identityPrincipalId
     webAppName: mcpServerContainerApp.name
+    userAssignedIdentityPrincipleId: managedIdentityModule.outputs.identityPrincipalId
+    applicationIdUri: '${apimModule.outputs.gatewayUrl}/${mcpApiPath}/mcp'
   }
 }
 
@@ -245,7 +247,7 @@ module mcpApiModule 'src/bicep/apim-mcp/mcp-api.bicep' = {
     webAppName: mcpServerContainerApp.name
     mcpAppId: !empty(mcpClientId) ? mcpClientId : (mcpEntraAppModule.?outputs.mcpAppId ?? '')
     mcpAppTenantId: subscription().tenantId
-    mcpApiPath: mcpPrmPath
+    mcpApiPath: mcpApiPath
   }
 }
 
@@ -297,5 +299,5 @@ output mcpServerURL string = 'https://${mcpServerContainerApp.properties.configu
 // MCP Configuration
 output mcpAppId string = !empty(mcpClientId) ? mcpClientId : (mcpEntraAppModule.?outputs.mcpAppId ?? 'Not created - provide mcpClientId parameter')
 output mcpAppTenantId string = subscription().tenantId
-output mcpApiEndpoint string = '${apimModule.outputs.gatewayUrl}/${mcpPrmPath}'
-output mcpPrmEndpoint string = '${apimModule.outputs.gatewayUrl}/${mcpPrmPath}/.well-known/oauth-protected-resource'
+output mcpApiEndpoint string = '${apimModule.outputs.gatewayUrl}/${mcpApiPath}/mcp'
+output mcpPrmEndpoint string = '${apimModule.outputs.gatewayUrl}/.well-known/oauth-protected-resource/${mcpApiPath}/mcp'
