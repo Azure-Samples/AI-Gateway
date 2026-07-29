@@ -31,7 +31,7 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   properties: any({
     retentionInDays: 30
     features: {
-      searchVersion: 1
+      enableLogAccessUsingOnlyResourcePermissions: true
     }
     sku: {
       name: 'PerGB2018'

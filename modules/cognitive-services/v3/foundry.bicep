@@ -19,7 +19,7 @@ param modelsConfig array = []
 param lawId string = ''
 
 @description('APIM Pricipal Id')
-param  apimPrincipalId string
+param  apimPrincipalId string = ''
 
 @description('AI Foundry project name')
 param  foundryProjectName string = 'default'
@@ -113,6 +113,9 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
 resource appInsightsConnection 'Microsoft.CognitiveServices/accounts/connections@2025-06-01' = [for (config, i) in aiServicesConfig: if (length(appInsightsId) > 0 && length(appInsightsInstrumentationKey) > 0) {
   parent: cognitiveServices[i]
   name: '${cognitiveServices[i].name}-appInsights-connection'
+  dependsOn: [
+    aiProject[i]
+  ]
   properties: {
     authType: 'ApiKey'
     category: 'AppInsights'
@@ -132,7 +135,7 @@ resource appInsightsConnection 'Microsoft.CognitiveServices/accounts/connections
   }
 }]
 
-resource roleAssignmentCognitiveServicesUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in aiServicesConfig: {
+resource roleAssignmentCognitiveServicesUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (config, i) in aiServicesConfig: if (length(apimPrincipalId) > 0) {
   scope: cognitiveServices[i]
   name: guid(subscription().id, resourceGroup().id, config.name, cognitiveServicesUserRoleDefinitionID)
     properties: {
@@ -148,6 +151,10 @@ module modelDeployments 'deployments.bicep' = [for (config, i) in aiServicesConf
     cognitiveServiceName: cognitiveServices[i].name
     modelsConfig: modelsConfig
   }
+  dependsOn: [
+    aiProject[i]
+    appInsightsConnection[i]
+  ]
 }]
 
 
@@ -168,4 +175,5 @@ output extendedAIServicesConfig array = [for (config, i) in aiServicesConfig: {
   principalId: cognitiveServices[i].identity.principalId
   endpoint: cognitiveServices[i].properties.endpoint
   foundryProjectEndpoint: 'https://${cognitiveServices[i].name}.services.ai.azure.com/api/projects/${aiProject[i].name}'
+  modelDeployments: modelDeployments[i].outputs.modelDeployments
 }]

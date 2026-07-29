@@ -19,10 +19,24 @@ resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-
   }
   properties: {
     model: {
-      format: model.publisher
+      format: model.?publisher ?? model.?format
       name: model.name
       version: model.version
     }
     raiPolicyName: 'Microsoft.DefaultV2'
   }
+}]
+
+output modelDeployments array = [for (model, i) in modelsConfig: {
+  name: modelDeployment[i].name
+  resourceId: modelDeployment[i].id
+  modelName: modelDeployment[i].properties.model.name
+  modelVersion: modelDeployment[i].properties.model.version
+  modelFormat: modelDeployment[i].properties.model.format
+  description: modelsConfig[i].?description ?? null
+  supportedEndpoints: concat(
+    (modelDeployment[i].properties.?capabilities.?chatCompletion ?? 'false') == 'true' ? ['/openai/v1/chat/completions'] : [],
+    (modelDeployment[i].properties.?capabilities.?responses ?? 'false') == 'true' ? ['/openai/v1/responses'] : []
+  )
+  policies: modelsConfig[i].?policies ?? []
 }]
