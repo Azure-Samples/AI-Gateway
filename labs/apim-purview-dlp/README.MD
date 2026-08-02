@@ -1,6 +1,6 @@
 ---
 name: Microsoft Purview DLP at the AI Gateway
-architectureDiagram: images/apim-purview-dlp.svg
+architectureDiagram: images/apim-purview-dlp.png
 categories:
   - Governance & Responsible AI
   - Multi-Cloud AI
@@ -20,7 +20,7 @@ authors:
 
 ## [Microsoft Purview DLP at the AI Gateway lab](apim-purview-dlp.ipynb)
 
-[![flow](../../images/apim-purview-dlp.svg)](apim-purview-dlp.ipynb)
+[![flow](../../images/apim-purview-dlp.png)](apim-purview-dlp.ipynb)
 
 Playground to enforce [Microsoft Purview](https://learn.microsoft.com/purview/purview) Data Loss Prevention on prompts and responses at the AI gateway using the [Purview `processContent` API](https://learn.microsoft.com/graph/api/userprotectionscopecontainer-computeinheritance). The gateway calls Purview twice per turn — once on the inbound prompt (Gate 1, `uploadText`) and once on the outbound response (Gate 3, `downloadText`) — via a shared APIM policy fragment applied identically to two backends: **Microsoft Foundry** (gpt-4.1) and **Amazon Bedrock** (Nova 2 Lite, signed with SigV4 in the APIM policy, no Lambda). Both routes emit prompt/response audit rows to a Log Analytics custom table (`AIGatewayContent_CL`) protected by granular RBAC, and a KQL query stitches model PAYG spend and Purview PAYG spend into one per-user, per-model, per-backend row.
 
