@@ -3,6 +3,7 @@ name: Microsoft Purview DLP at the AI Gateway
 architectureDiagram: images/apim-purview-dlp.png
 categories:
   - Governance & Responsible AI
+  - Multi-Cloud AI
 services:
   - Microsoft Purview
   - Azure API Management
