@@ -1,0 +1,103 @@
+<!--
+    emit-content-log.xml — reusable APIM policy fragment
+
+    POSTs a single prompt-or-response record into the custom Log Analytics
+    table `AIGatewayContent_CL` via the Azure Monitor Logs Ingestion API.
+
+    Called TWICE per turn from each API policy — once with the prompt
+    (Direction=Prompt) and once with the model's response (Direction=
+    Response). Both rows share a CorrelationId so Prompt / Response can be
+    joined in KQL.
+
+    - - -
+    CALLER CONTRACT — set these context variables before <include-fragment>:
+    - - -
+        content-direction              "Prompt" | "Response"
+        content-backend                "Foundry" | "Bedrock"
+        content-model                  e.g. "gpt-4.1"
+        content-user                   UPN parsed from X-User-Token
+        content-correlation-id         GUID linking prompt + response rows
+        content-text                   the raw prompt or response text
+        content-purview-blocked        "true" | "false"
+        content-purview-block-reason   "PURVIEW_DLP_PROMPT" | "PURVIEW_DLP_RESPONSE" | "none"
+        content-input-tokens           string int (default "0")
+        content-output-tokens          string int (default "0")
+
+    - - -
+    NAMED VALUES referenced (created by Bicep in infra/platform.bicep):
+    - - -
+        logs-content-ingest-url   full DCE + DCR + stream URL, e.g.
+                                  https://<dce>.<region>-1.ingest.monitor.azure.com/
+                                  dataCollectionRules/<immutableId>/streams/
+                                  Custom-AIGatewayContent_CL?api-version=2023-01-01
+
+    - - -
+    PREREQUISITE — the APIM system-assigned managed identity must hold the
+    "Monitoring Metrics Publisher" role (3913510d-42f4-4e42-8a64-420c390055eb)
+    on the target Data Collection Rule. Bicep provisions this.
+
+    - - -
+    FAILURE MODE — `ignore-error="true"` on the send-request. Content
+    logging is best-effort: an outage on the ingestion endpoint MUST NOT
+    fail the model call itself.
+-->
+<fragment>
+    <!-- 1) Acquire a Bearer for https://monitor.azure.com, cached 45 min -->
+    <cache-lookup-value key="aigw-monitor-ingest-token" variable-name="monitor-ingest-token" />
+    <choose>
+        <when condition="@(!context.Variables.ContainsKey("monitor-ingest-token"))">
+            <authentication-managed-identity resource="https://monitor.azure.com/"
+                                             output-token-variable-name="monitor-ingest-token"
+                                             ignore-error="true" />
+            <choose>
+                <when condition="@(context.Variables.ContainsKey("monitor-ingest-token"))">
+                    <cache-store-value key="aigw-monitor-ingest-token"
+                                       value="@((string)context.Variables["monitor-ingest-token"])"
+                                       duration="2700" />
+                </when>
+            </choose>
+        </when>
+    </choose>
+
+    <!-- 2) Only ingest if we actually have a token (silent no-op otherwise) -->
+    <choose>
+        <when condition="@(context.Variables.ContainsKey("monitor-ingest-token"))">
+            <send-request mode="new" response-variable-name="logIngestResponse" timeout="10" ignore-error="true">
+                <set-url>{{logs-content-ingest-url}}</set-url>
+                <set-method>POST</set-method>
+                <set-header name="Authorization" exists-action="override">
+                    <value>@("Bearer " + (string)context.Variables["monitor-ingest-token"])</value>
+                </set-header>
+                <set-header name="Content-Type" exists-action="override">
+                    <value>application/json</value>
+                </set-header>
+                <set-body>@{
+                    int inTok  = 0; int outTok = 0;
+                    int.TryParse(context.Variables.GetValueOrDefault<string>("content-input-tokens",  "0"), out inTok);
+                    int.TryParse(context.Variables.GetValueOrDefault<string>("content-output-tokens", "0"), out outTok);
+
+                    var arr = new Newtonsoft.Json.Linq.JArray {
+                        new Newtonsoft.Json.Linq.JObject {
+                            ["TimeGenerated"]      = System.DateTime.UtcNow.ToString("o"),
+                            ["CorrelationId"]      = context.Variables.GetValueOrDefault<string>("content-correlation-id", ""),
+                            ["RequestId"]          = context.RequestId,
+                            ["Direction"]          = context.Variables.GetValueOrDefault<string>("content-direction", ""),
+                            ["Backend"]            = context.Variables.GetValueOrDefault<string>("content-backend", ""),
+                            ["Model"]              = context.Variables.GetValueOrDefault<string>("content-model", ""),
+                            ["ApiName"]            = context.Api == null ? "" : context.Api.Name,
+                            ["OperationName"]      = context.Operation == null ? "" : context.Operation.Name,
+                            ["User"]               = context.Variables.GetValueOrDefault<string>("content-user", "anonymous"),
+                            ["SubscriptionId"]     = context.Subscription == null ? "" : context.Subscription.Id,
+                            ["InputTokens"]        = inTok,
+                            ["OutputTokens"]       = outTok,
+                            ["PurviewBlocked"]     = context.Variables.GetValueOrDefault<string>("content-purview-blocked", "false") == "true",
+                            ["PurviewBlockReason"] = context.Variables.GetValueOrDefault<string>("content-purview-block-reason", "none"),
+                            ["Content"]            = context.Variables.GetValueOrDefault<string>("content-text", "")
+                        }
+                    };
+                    return arr.ToString();
+                }</set-body>
+            </send-request>
+        </when>
+    </choose>
+</fragment>

@@ -1,0 +1,139 @@
+// =============================================================================
+// aigw-payg-purview-forecast.kql
+//
+// FORECAST MODE — companion to aigw-payg-cost.kql
+//
+// Use this query BEFORE Microsoft Purview is wired into the APIM AI Gateway
+// to estimate what Purview would cost per user, per model, per backend, if
+// you turned it on today, based on the turn volume already flowing through
+// the gateway. Two Purview cost lines are forecast:
+//
+//   1. Purview DLP `processContent` calls (In-Transit Protection for AI
+//      Apps) — enforcement gates 1 and 3 that the APIM policy / Lambda
+//      would issue on the prompt and the response.
+//   2. Purview Collection-policy AUDIT RECORDS — the per-interaction charges
+//      that Collection policies generate for each full AI turn observed
+//      (Prompt + Response together = 1 billable audit record), regardless
+//      of DLP verdict. Billing model is defined in
+//      https://learn.microsoft.com/purview/dlp-network-data-security-learn#billing-model.
+//      This forecast assumes 1 audit record per turn; if your Collection
+//      policy only monitors one direction, this is still 1 record per turn.
+// The gateway emits per-user token metrics via the `llm-emit-token-metric`
+// APIM policy regardless of whether Purview is integrated. Because both
+// Purview lines are priced per request rather than per token, the
+// forecasts are:
+//
+//     dlpForecastCalls   = observedTurns * dlpCallsPerTurn (+ chunkingOverhead)
+//     dlpForecastCost    = dlpForecastCalls * assumedPurviewDlpPricePerCall
+//
+//     auditForecastEvents = observedTurns * auditEventsPerTurn
+//     auditForecastCost   = auditForecastEvents * assumedPurviewAuditPricePerEvent
+//
+// Slice by the same Backend / Model / User dimensions the actuals query
+// uses, so the "forecast → actuals" transition is seamless once Purview
+// is turned on.
+//
+// -----------------------------------------------------------------------------
+// COST DISCLAIMER
+// -----------------------------------------------------------------------------
+// The `assumedPurviewDlpPricePerCallUSD`, `assumedPurviewAuditPricePerEventUSD`,
+// and every dollar figure this query produces are ILLUSTRATIVE ONLY.
+// Authoritative Purview pricing must be obtained through your Microsoft
+// account team, an approved Microsoft sales channel, or the official
+// Microsoft Purview pricing page.
+//
+// Pricing changes over time and varies by region, tier, currency, and
+// negotiated agreement. Do NOT use output from this query for budgeting,
+// forecasting, customer quotes, contract discussions, or any FinOps
+// decision without validation via the channels above.
+//
+// The KQL itself is authoritative — swap in the prices your account team
+// confirms for your subscription in the `let` block below.
+// =============================================================================
+
+let assumedPurviewDlpPricePerCallUSD    = 0.00005;    // ⚠ illustrative — DLP processContent
+let assumedPurviewAuditPricePerEventUSD = 0.000015;   // ⚠ illustrative — Collection-policy audit record
+let dlpCallsPerTurn                     = 2;          // 1 uploadText + 1 downloadText
+                                                      // (change to 1 if you plan to
+                                                      //  enable only a single gate)
+let auditEventsPerTurn                  = 1;          // 1 audit record per full AI
+                                                      // interaction (Prompt + Response
+                                                      // billed together as a single
+                                                      // Collection-policy event)
+let bytesPerPurviewCall                 = 10240;     // per-contentEntry ceiling that
+                                                     // drives DLP chunking; conservative
+let forecastWindowDays                  = 30;        // horizon to project over
+let sampleWindowDays                    = 7;         // window of real traffic sampled
+                                                     // (must match ago() below)
+
+ApiManagementGatewayLogs
+| where TimeGenerated > ago(7d)
+| where ApiId in ("foundry-hrpolicy", "bedrock-expense")
+| mv-expand trace = TraceRecords
+| where tostring(trace.source) == "AIGateway"
+| extend Backend      = tostring(trace.metadata.Backend)
+| extend Model        = tostring(trace.metadata.Model)
+| extend User         = tostring(trace.metadata.User)
+| extend InputTokens  = tolong(coalesce(trace.metadata.InputTokens,  "0"))
+| extend OutputTokens = tolong(coalesce(trace.metadata.OutputTokens, "0"))
+// ~4 bytes per token is a rough English-language approximation; adjust
+// downwards for languages with wider glyphs or upwards if your prompts
+// are dominated by structured payloads. Only used to model DLP chunking.
+| extend ApproxBytes            = (InputTokens + OutputTokens) * 4
+| extend ChunkMultiplier        = toint(ceiling(todouble(ApproxBytes) / bytesPerPurviewCall))
+| extend DlpCallsForecast       = dlpCallsPerTurn + max_of(0, ChunkMultiplier - 1)
+| extend AuditEventsForecast    = auditEventsPerTurn
+| summarize
+    SampleWindowDays      = sampleWindowDays,
+    Turns                 = count(),
+    AvgDlpCallsPerTurn    = round(avg(DlpCallsForecast),    2),
+    AvgAuditEventsPerTurn = round(avg(AuditEventsForecast), 2),
+    ForecastDlpCallsSample     = sum(DlpCallsForecast),
+    ForecastAuditEventsSample  = sum(AuditEventsForecast)
+  by Backend, Model, User
+| extend
+    ForecastDlpCallsPerDay    = round(ForecastDlpCallsSample    / todouble(sampleWindowDays), 1),
+    ForecastAuditEventsPerDay = round(ForecastAuditEventsSample / todouble(sampleWindowDays), 1),
+    ForecastDlpCalls30d       = round(ForecastDlpCallsSample    * forecastWindowDays / todouble(sampleWindowDays), 0),
+    ForecastAuditEvents30d    = round(ForecastAuditEventsSample * forecastWindowDays / todouble(sampleWindowDays), 0)
+| extend
+    ForecastPurviewDlpCostUSD30d   = round(ForecastDlpCalls30d    * assumedPurviewDlpPricePerCallUSD,    4),
+    ForecastPurviewAuditCostUSD30d = round(ForecastAuditEvents30d * assumedPurviewAuditPricePerEventUSD, 4)
+| extend
+    ForecastPurviewCostUSD30d = round(ForecastPurviewDlpCostUSD30d + ForecastPurviewAuditCostUSD30d, 4)
+| project Backend, Model, User,
+          Turns, AvgDlpCallsPerTurn, AvgAuditEventsPerTurn,
+          ForecastDlpCallsPerDay,    ForecastDlpCalls30d,
+          ForecastAuditEventsPerDay, ForecastAuditEvents30d,
+          ForecastPurviewDlpCostUSD30d,
+          ForecastPurviewAuditCostUSD30d,
+          ForecastPurviewCostUSD30d
+| order by ForecastPurviewCostUSD30d desc
+
+// -----------------------------------------------------------------------------
+// LIMITS OF THIS FORECAST
+// -----------------------------------------------------------------------------
+// * Cannot predict what fraction of turns Purview DLP would BLOCK — Purview
+//   charges per evaluation regardless of outcome, so block rate does not
+//   affect the cost forecast, but it does affect user experience. Pair this
+//   query with a small live pilot before organization-wide rollout.
+//
+// * Cannot account for `computeProtectionScopes` narrowing which users are
+//   actually in scope of a DLP or Collection policy. Treat the forecast as
+//   an upper bound until you know your policy coverage percentage, then
+//   multiply.
+//
+// * Cannot account for Purview usage already accruing from Microsoft
+//   first-party surfaces (M365 Copilot, Fabric, Copilot Studio, etc.).
+//   Those calls are additive at the tenant level and outside this
+//   gateway's field of view.
+//
+// * Assumes worst-case DLP chunking. In practice most prompts and responses
+//   fit under `bytesPerPurviewCall`, in which case ChunkMultiplier is 1
+//   and the DLP forecast simplifies to `Turns * dlpCallsPerTurn`.
+//
+// * Assumes both sides (Text sent / Text received) are collected by the
+//   Collection policy but billed as 1 audit record per interaction. If
+//   Purview's billing model changes to meter Prompt and Response as
+//   separate records, set `auditEventsPerTurn = 2`.
+// =============================================================================

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "//": "Copy to main.local.parameters.json and fill in your values. main.local.parameters.json is gitignored.",
+  "parameters": {
+    "apimSku":                        { "value": "Standardv2" },
+
+    "graphTenantId":                  { "value": "00000000-0000-0000-0000-000000000000" },
+    "graphClientId":                  { "value": "00000000-0000-0000-0000-000000000000" },
+    "graphClientSecret":              { "value": "<paste-app-registration-client-secret>" },
+
+    "foundryProjectEndpoint":         { "value": "<project>.services.ai.azure.com/api/projects/<project>" },
+    "foundryAgentName":               { "value": "gpt-4.1" },
+
+    "bedrockRegion":                  { "value": "us-east-1" },
+    "bedrockModelId":                 { "value": "us.amazon.nova-2-lite-v1:0" },
+    "awsBedrockAccessKey":            { "value": "<aws-access-key-id>" },
+    "awsBedrockSecretKey":            { "value": "<aws-secret-access-key>" },
+
+    "enableRbacAssignments":          { "value": true },
+    "contentLogReaderPrincipalId":    { "value": "<your-user-object-id-for-LAW-read>" },
+    "contentLogReaderPrincipalType":  { "value": "User" }
+  }
+}

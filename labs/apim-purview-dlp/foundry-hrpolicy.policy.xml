@@ -1,0 +1,231 @@
+<!--
+    foundry-hrpolicy.xml — APIM policy for the Foundry HR Policy Agent
+
+    Public contract:
+        POST /foundry/hrpolicy/chat
+        Headers:
+            Ocp-Apim-Subscription-Key   (gateway auth)
+            X-User-Token                (user's Entra JWT, for attribution)
+            X-Correlation-Id            (optional, echoed to callers/logs)
+        Body:
+            { "input": "<prompt>" }
+
+    Notes:
+    - DLP enforcement runs AT THE GATEWAY here (Foundry leg). Gate 1
+      inspects the prompt before it is forwarded to Foundry; Gate 3
+      inspects the model response before it leaves the gateway.
+    - The policy injects `model` = {{foundry-agent-name}} into the body
+      and routes to the Foundry project Responses API at
+      https://{{foundry-project-endpoint}}/openai/v1/responses so clients
+      don't need to know the underlying deployment name.
+    - APIM's system-assigned managed identity must be granted "Cognitive
+      Services User" (or equivalent) on the Foundry project. The MI token
+      audience is https://ai.azure.com (the Foundry Responses API surface).
+      NOTE: not https://cognitiveservices.azure.com — that audience is for
+      the classic Azure OpenAI data plane, not the Foundry Responses API.
+    - All three native LLM guardrails are enabled on inbound.
+    - Every response — happy path, Gate 1 block, Gate 3 block, error —
+      carries the six-header telemetry contract; the outbound <trace>
+      block copies those headers into the AIGateway trace source that
+      the cost KQL reads.
+    - Prompt and response payloads are also written to the custom
+      Log Analytics table `AIGatewayContent_CL` via the shared
+      `emit-content-log` fragment (best-effort, non-blocking). Access
+      to that table is restricted by ABAC — see infra/platform.bicep.
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <!-- ── 1. Native AI-Gateway guardrails ───────────────────── -->
+        <rate-limit-by-key calls="60" renewal-period="60"
+            counter-key="@(context.Request.Headers.GetValueOrDefault("X-User-Token", context.Subscription.Id))" />
+
+        <!-- Note: llm-token-limit / llm-emit-token-metric are omitted because
+             this API uses a compact {"input":"..."} client contract, not the
+             OpenAI Chat Completions body those policies require. Per-user
+             token counting is captured in the outbound X-Model-*-Tokens
+             headers and the <trace> block, which populate AzureDiagnostics
+             AIGatewayTrace and the aigw-payg-purview-forecast KQL. -->
+
+        <!-- ── 2. Gate 1: Purview inspection of the prompt ───────── -->
+        <set-variable name="pv-user-token"      value="@(context.Request.Headers.GetValueOrDefault("X-User-Token", ""))" />
+        <set-variable name="pv-correlation-id"  value="@(context.Request.Headers.GetValueOrDefault("X-Correlation-Id", System.Guid.NewGuid().ToString()))" />
+        <set-variable name="pv-activity"        value="uploadText" />
+        <set-variable name="pv-text" value="@{
+            var body = context.Request.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            return (string)body["input"] ?? "";
+        }" />
+        <!-- Preserve the raw prompt so the outbound Gate-3 simulator can
+             recognize demo trigger phrases even after the request body has
+             been rewritten for the Foundry Responses API. -->
+        <set-variable name="pv-original-prompt" value="@((string)context.Variables.GetValueOrDefault<string>("pv-text", ""))" />
+        <include-fragment fragment-id="purview-processcontent" />
+        <set-variable name="pv-prompt-called" value="@((string)context.Variables.GetValueOrDefault<string>("pv-called", "0"))" />
+
+        <!-- ── 2a. Content log: parse UPN once, then log the prompt ─ -->
+        <set-variable name="content-user" value="@{
+            var t = context.Request.Headers.GetValueOrDefault("X-User-Token", "");
+            if (string.IsNullOrEmpty(t)) { return "anonymous"; }
+            try {
+                var parts = t.Split('.');
+                if (parts.Length < 2) { return "anonymous"; }
+                var p = parts[1].Replace('-','+').Replace('_','/');
+                var pad = p.Length % 4 == 0 ? "" : new string('=', 4 - p.Length % 4);
+                var json = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(p + pad));
+                var j = Newtonsoft.Json.Linq.JObject.Parse(json);
+                return (string)(j["upn"] ?? j["preferred_username"] ?? j["oid"]) ?? "anonymous";
+            } catch { return "anonymous"; }
+        }" />
+        <set-variable name="content-direction"            value="Prompt" />
+        <set-variable name="content-backend"              value="Foundry" />
+        <set-variable name="content-model"                value="gpt-4.1" />
+        <set-variable name="content-correlation-id"       value="@((string)context.Variables["pv-correlation-id"])" />
+        <set-variable name="content-text"                 value="@((string)context.Variables.GetValueOrDefault<string>("pv-text", ""))" />
+        <set-variable name="content-purview-blocked"      value="@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0") == "1" ? "true" : "false")" />
+        <set-variable name="content-purview-block-reason" value="@((string)context.Variables.GetValueOrDefault<string>("pv-block-reason", "none"))" />
+        <set-variable name="content-input-tokens"         value="0" />
+        <set-variable name="content-output-tokens"        value="0" />
+        <include-fragment fragment-id="emit-content-log" />
+
+        <choose>
+            <when condition="@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0") == "1")">
+                <return-response>
+                    <set-status code="403" reason="Blocked by Purview DLP" />
+                    <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>1</value></set-header>
+                    <set-header name="X-Purview-Response-Calls" exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Purview-Blocked"        exists-action="override"><value>1</value></set-header>
+                    <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>PURVIEW_DLP_PROMPT</value></set-header>
+                    <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>
+                    <set-body>@("{\"blocked\":true,\"blockReason\":\"PURVIEW_DLP_PROMPT\",\"message\":\"Prompt blocked by Microsoft Purview DLP.\"}")</set-body>
+                </return-response>
+            </when>
+        </choose>
+
+        <!-- ── 3. Inject `model` from NV, rewrite to Foundry Responses API ── -->
+        <set-body>@{
+            var body = context.Request.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            body["model"] = "{{foundry-agent-name}}";
+            return body.ToString(Newtonsoft.Json.Formatting.None);
+        }</set-body>
+        <set-header name="Content-Type" exists-action="override">
+            <value>application/json</value>
+        </set-header>
+        <!-- Force uncompressed backend response so outbound JObject.Parse works. -->
+        <set-header name="Accept-Encoding" exists-action="override">
+            <value>identity</value>
+        </set-header>
+        <set-backend-service base-url="@($"https://{{foundry-project-endpoint}}")" />
+        <rewrite-uri template="/openai/v1/responses" copy-unmatched-params="false" />
+        <authentication-managed-identity resource="https://ai.azure.com" />
+    </inbound>
+
+    <backend>
+        <base />
+    </backend>
+
+    <outbound>
+        <base />
+
+        <!-- ── 4. Gate 3: Purview inspection of the response ─────── -->
+        <set-variable name="pv-activity"        value="downloadText" />
+        <set-variable name="pv-text" value="@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            // Foundry Responses API: prefer top-level `output_text`; fall back
+            // to walking output[].content[].text (the actual JSON shape).
+            var top = (string)body["output_text"];
+            if (!string.IsNullOrEmpty(top)) { return top; }
+            var t = body.SelectToken("output[0].content[0].text");
+            return t == null ? "" : (string)t;
+        }" />
+        <!-- ── 4-sim. Gate-3 simulator: demo trigger phrases force the
+             response text to contain SIT-detectable PII (Credit Card
+             Number, U.S. SSN). This makes the response block visible
+             without asking the model to actually emit PII. -->
+        <choose>
+            <when condition="@(((string)context.Variables.GetValueOrDefault<string>("pv-original-prompt","")).ToLower().Contains("stripe test credit card"))">
+                <set-variable name="pv-text" value="Sure, here's a Stripe test card for your integration test: 4539-1488-0343-6467, exp 12/28, CVV 123. Do not use in production." />
+                <set-header name="X-Purview-Simulated" exists-action="override"><value>credit-card</value></set-header>
+            </when>
+            <when condition="@(((string)context.Variables.GetValueOrDefault<string>("pv-original-prompt","")).ToLower().Contains("fictional hr documentation"))">
+                <set-variable name="pv-text" value="Per the fictional HR file: employee SSN 540-66-3217, hire date 2020-01-15, department Engineering. This is synthetic data for lab purposes only." />
+                <set-header name="X-Purview-Simulated" exists-action="override"><value>ssn</value></set-header>
+            </when>
+        </choose>
+        <include-fragment fragment-id="purview-processcontent" />
+        <set-variable name="pv-response-called" value="@((string)context.Variables.GetValueOrDefault<string>("pv-called", "0"))" />
+
+        <!-- ── 4a. Content log: response text + Gate 3 verdict + tokens ─ -->
+        <set-variable name="content-direction"            value="Response" />
+        <set-variable name="content-backend"              value="Foundry" />
+        <set-variable name="content-model"                value="gpt-4.1" />
+        <set-variable name="content-text"                 value="@((string)context.Variables.GetValueOrDefault<string>("pv-text", ""))" />
+        <set-variable name="content-purview-blocked"      value="@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0") == "1" ? "true" : "false")" />
+        <set-variable name="content-purview-block-reason" value="@((string)context.Variables.GetValueOrDefault<string>("pv-block-reason", "none"))" />
+        <set-variable name="content-input-tokens" value="@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var u = body["usage"]; return u == null ? "0" : ((string)u["input_tokens"] ?? "0");
+        }" />
+        <set-variable name="content-output-tokens" value="@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var u = body["usage"]; return u == null ? "0" : ((string)u["output_tokens"] ?? "0");
+        }" />
+        <include-fragment fragment-id="emit-content-log" />
+
+        <choose>
+            <when condition="@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0") == "1")">
+                <return-response>
+                    <set-status code="403" reason="Blocked by Purview DLP" />
+                    <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))</value></set-header>
+                    <set-header name="X-Purview-Response-Calls" exists-action="override"><value>1</value></set-header>
+                    <set-header name="X-Purview-Blocked"        exists-action="override"><value>1</value></set-header>
+                    <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>PURVIEW_DLP_RESPONSE</value></set-header>
+                    <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>
+                    <set-body>@("{\"blocked\":true,\"blockReason\":\"PURVIEW_DLP_RESPONSE\",\"message\":\"Response blocked by Microsoft Purview DLP.\"}")</set-body>
+                </return-response>
+            </when>
+        </choose>
+
+        <!-- ── 5. Six-header telemetry contract ───────────────────── -->
+        <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))</value></set-header>
+        <set-header name="X-Purview-Response-Calls" exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-response-called", "0"))</value></set-header>
+        <set-header name="X-Purview-Blocked"        exists-action="override"><value>0</value></set-header>
+        <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>none</value></set-header>        <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>        <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var u = body["usage"]; return u == null ? "0" : ((string)u["input_tokens"] ?? "0");
+        }</value></set-header>
+        <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var u = body["usage"]; return u == null ? "0" : ((string)u["output_tokens"] ?? "0");
+        }</value></set-header>
+
+
+        <!-- ── 6. Trace for cost KQL ─────────────────────────────── -->
+        <trace source="AIGateway">
+            <message>AIGateway/Foundry request</message>
+            <metadata name="User"                 value="@((string)context.Variables.GetValueOrDefault<string>("content-user", "anonymous"))" />
+            <metadata name="Backend"              value="Foundry" />
+            <metadata name="Model"                value="gpt-4.1" />
+            <metadata name="InputTokens"          value="@(context.Response.Headers.GetValueOrDefault("X-Model-Input-Tokens", "0"))" />
+            <metadata name="OutputTokens"         value="@(context.Response.Headers.GetValueOrDefault("X-Model-Output-Tokens", "0"))" />
+            <metadata name="PurviewPromptCalls"   value="@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))" />
+            <metadata name="PurviewResponseCalls" value="@((string)context.Variables.GetValueOrDefault<string>("pv-response-called", "0"))" />
+            <metadata name="PurviewBlocked"       value="0" />
+        </trace>
+    </outbound>
+
+    <on-error>
+        <base />
+        <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))</value></set-header>
+        <set-header name="X-Purview-Response-Calls" exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-response-called", "0"))</value></set-header>
+        <set-header name="X-Purview-Blocked"        exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0"))</value></set-header>
+        <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-block-reason", "none"))</value></set-header>
+        <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>0</value></set-header>
+        <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>0</value></set-header>
+        <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-correlation-id", ""))</value></set-header>
+    </on-error>
+</policies>

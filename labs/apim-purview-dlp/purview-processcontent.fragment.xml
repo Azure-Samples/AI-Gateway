@@ -1,0 +1,139 @@
+<!--
+    purview-processcontent.xml — reusable APIM policy fragment
+
+    Wraps one Microsoft Purview `processContent` call plus the On-Behalf-Of
+    (OBO) token exchange that precedes it. This fragment is invoked from
+    both the Foundry and Bedrock API policies so the DLP call is written
+    once and versioned in one place.
+
+    CALLER CONTRACT — the calling policy MUST set these context variables
+    before invoking <include-fragment>:
+
+        pv-activity          "uploadText"   (Gate 1) | "downloadText" (Gate 3)
+        pv-text              the prompt or model response to inspect
+        pv-user-token        the user's Entra ID access token (used for OBO)
+        pv-correlation-id    GUID linking prompt + response audit rows
+        pv-sequence-number   ordering hint for Purview (0 for prompt, 1 for response)
+
+    OUTPUTS — this fragment writes the following context variables that
+    the calling policy is expected to project onto response headers:
+
+        pv-called            "1" whenever this fragment runs to completion
+        pv-blocked           "1" if verdict is BLOCKED, else "0"
+        pv-block-reason      "PURVIEW_DLP_PROMPT" | "PURVIEW_DLP_RESPONSE" | "none"
+
+    NAMED VALUES REFERENCED (create these on the APIM instance first):
+
+        graph-tenant-id            plain
+        graph-client-id            plain
+        graph-client-secret        key-vault-reference (NEVER plain)
+
+    All cost / pricing values referenced in comments or downstream KQL are
+    illustrative only — see the sample-level README for the pricing
+    disclaimer and approved channels.
+-->
+<fragment>
+    <!-- 1) OBO exchange: user token -> Graph token (cached 55 min) -->
+    <cache-lookup-value key="@("obo-v2-" + context.Variables.GetValueOrDefault<string>("pv-user-token", "").GetHashCode().ToString())"
+                        variable-name="pv-graph-token" />
+    <choose>
+        <when condition="@(!context.Variables.ContainsKey("pv-graph-token"))">
+            <send-request mode="new" response-variable-name="oboResponse" timeout="20" ignore-error="false">
+                <set-url>@($"https://login.microsoftonline.com/{{graph-tenant-id}}/oauth2/v2.0/token")</set-url>
+                <set-method>POST</set-method>
+                <set-header name="Content-Type" exists-action="override">
+                    <value>application/x-www-form-urlencoded</value>
+                </set-header>
+                <set-body>@{
+                    var userToken = context.Variables.GetValueOrDefault<string>("pv-user-token", "");
+                    var form = new System.Collections.Generic.Dictionary<string,string> {
+                        { "grant_type",           "urn:ietf:params:oauth:grant-type:jwt-bearer" },
+                        { "client_id",            "{{graph-client-id}}" },
+                        { "client_secret",        "{{graph-client-secret}}" },
+                        { "assertion",            userToken },
+                        { "scope",                "https://{{purview-graph-host}}/Content.Process.User https://{{purview-graph-host}}/ProtectionScopes.Compute.User https://{{purview-graph-host}}/ContentActivity.Write" },
+                        { "requested_token_use",  "on_behalf_of" }
+                    };
+                    return string.Join("&", form.Select(kv => System.Uri.EscapeDataString(kv.Key) + "=" + System.Uri.EscapeDataString(kv.Value)));
+                }</set-body>
+            </send-request>
+            <set-variable name="pv-graph-token"
+                          value="@(((Newtonsoft.Json.Linq.JObject)((IResponse)context.Variables["oboResponse"]).Body.As<Newtonsoft.Json.Linq.JObject>())["access_token"].ToString())" />
+            <cache-store-value key="@("obo-v2-" + context.Variables.GetValueOrDefault<string>("pv-user-token", "").GetHashCode().ToString())"
+                               value="@((string)context.Variables["pv-graph-token"])"
+                               duration="3300" />
+        </when>
+    </choose>
+
+    <!-- 2) processContent: call Purview to inspect the text -->
+    <send-request mode="new" response-variable-name="pvResponse" timeout="20" ignore-error="false">
+        <set-url>@($"https://{{purview-graph-host}}/beta/me/dataSecurityAndGovernance/processContent")</set-url>
+        <set-method>POST</set-method>
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["pv-graph-token"])</value>
+        </set-header>
+        <set-header name="Content-Type" exists-action="override">
+            <value>application/json</value>
+        </set-header>
+        <set-body>@{
+            var activity        = context.Variables.GetValueOrDefault<string>("pv-activity", "uploadText");
+            var text            = context.Variables.GetValueOrDefault<string>("pv-text", "");
+            var correlationId   = context.Variables.GetValueOrDefault<string>("pv-correlation-id", System.Guid.NewGuid().ToString());
+            var sequenceNumber  = (activity == "downloadText") ? 1 : 0;
+            var nowIso          = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
+            var body = new Newtonsoft.Json.Linq.JObject {
+                ["contentToProcess"] = new Newtonsoft.Json.Linq.JObject {
+                    ["contentEntries"] = new Newtonsoft.Json.Linq.JArray {
+                        new Newtonsoft.Json.Linq.JObject {
+                            ["@odata.type"]      = "#microsoft.graph.processConversationMetadata",
+                            ["identifier"]       = correlationId,
+                            ["content"]          = new Newtonsoft.Json.Linq.JObject {
+                                ["@odata.type"] = "#microsoft.graph.textContent",
+                                ["data"]        = text
+                            },
+                            ["name"]             = "APIM AI Gateway message",
+                            ["correlationId"]    = correlationId,
+                            ["sequenceNumber"]   = sequenceNumber,
+                            ["isTruncated"]      = false,
+                            ["createdDateTime"]  = nowIso,
+                            ["modifiedDateTime"] = nowIso
+                        }
+                    },
+                    ["activityMetadata"] = new Newtonsoft.Json.Linq.JObject {
+                        ["activity"] = activity
+                    },
+                    ["protectedAppMetadata"] = new Newtonsoft.Json.Linq.JObject {
+                        ["name"]    = "APIM AI Gateway",
+                        ["version"] = "1.0",
+                        ["applicationLocation"] = new Newtonsoft.Json.Linq.JObject {
+                            ["@odata.type"] = "#microsoft.graph.policyLocationApplication",
+                            ["value"]       = "{{graph-client-id}}"
+                        }
+                    },
+                    ["integratedAppMetadata"] = new Newtonsoft.Json.Linq.JObject {
+                        ["name"]    = "APIM AI Gateway",
+                        ["version"] = "1.0"
+                    }
+                }
+            };
+            return body.ToString();
+        }</set-body>
+    </send-request>
+
+    <!-- 3) Verdict projection: set outputs the caller wraps into response headers -->
+    <set-variable name="pv-called" value="1" />
+    <set-variable name="pv-verdict" value="@{
+        try {
+            var pv = ((IResponse)context.Variables["pvResponse"]).Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var actions = pv.SelectTokens("$.policyActions[*].action").Select(t => t.ToString()).ToList();
+            return actions.Any(a => a.Equals("Block", System.StringComparison.OrdinalIgnoreCase) || a.Equals("restrictAccess", System.StringComparison.OrdinalIgnoreCase) || a.Equals("blockAccess", System.StringComparison.OrdinalIgnoreCase)) ? "BLOCKED" : "ALLOWED";
+        } catch { return "ALLOWED"; }
+    }" />
+    <set-variable name="pv-blocked" value="@((string)context.Variables["pv-verdict"] == "BLOCKED" ? "1" : "0")" />
+    <set-variable name="pv-block-reason" value="@{
+        var v = (string)context.Variables["pv-verdict"];
+        var a = context.Variables.GetValueOrDefault<string>("pv-activity", "uploadText");
+        if (v != "BLOCKED") { return "none"; }
+        return a == "uploadText" ? "PURVIEW_DLP_PROMPT" : "PURVIEW_DLP_RESPONSE";
+    }" />
+</fragment>

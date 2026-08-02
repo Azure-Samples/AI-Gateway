@@ -1,0 +1,347 @@
+<!--
+    bedrock-expense.policy.xml — APIM policy for the Bedrock Expense Approval leg
+
+    Public contract:
+        POST /bedrock/expense/chat
+        Headers:
+            Ocp-Apim-Subscription-Key   (gateway auth)
+            X-User-Token                (user's Entra JWT, for Purview OBO + attribution)
+            X-Correlation-Id            (optional, echoed to callers/logs)
+        Body:
+            { "input": "<prompt>" }
+
+    Enforcement model (mirrors foundry-hrpolicy.policy.xml):
+    - DLP runs AT THE GATEWAY on both legs. The same purview-processcontent
+      fragment used by the Foundry leg is invoked for Gate 1 (uploadText,
+      inbound) and Gate 3 (downloadText, outbound). No Lambda; APIM signs
+      the request with SigV4 directly and calls
+      https://bedrock-runtime.<region>.amazonaws.com/model/<modelId>/invoke.
+    - The six-header telemetry contract (X-Purview-*, X-Model-*-Tokens) is
+      stamped by THIS policy on every code path: happy path, Gate 1 block,
+      Gate 3 block, error.
+    - X-User-Token is stripped before the backend call so no user identity
+      leaves APIM's trust boundary; the OBO exchange for Purview already
+      happened inside the purview-processcontent fragment.
+
+    Named values referenced (provisioned by main.bicep):
+        aws-access-key       (secret) AWS IAM access key id
+        aws-secret-key       (secret) AWS IAM secret access key
+        bedrock-region       AWS region hosting Bedrock (e.g. us-east-1)
+        bedrock-model-id     Bedrock model id (e.g. us.amazon.nova-2-lite-v1:0)
+        graph-tenant-id      Entra tenant id (via purview-processcontent fragment)
+        graph-client-id      Confidential app client id (via fragment)
+        graph-client-secret  Confidential app client secret (via fragment)
+        logs-content-ingest-url  DCE + DCR ingest URL (via emit-content-log fragment)
+-->
+<policies>
+    <inbound>
+        <base />
+
+        <!-- ── 1. Native AI-Gateway guardrails ───────────────────── -->
+        <rate-limit-by-key calls="60" renewal-period="60"
+            counter-key="@(context.Request.Headers.GetValueOrDefault("X-User-Token", context.Subscription.Id))" />
+
+        <!-- Note: llm-token-limit / llm-emit-token-metric are omitted because
+             this API uses a compact {"input":"..."} client contract, not the
+             OpenAI Chat Completions body those policies require. Per-user
+             token counting is captured in the outbound X-Model-*-Tokens
+             headers and the <trace> block, which populate AzureDiagnostics
+             AIGatewayTrace and the aigw-payg-purview-forecast KQL. -->
+
+        <!-- ── 2. Gate 1: Purview inspection of the prompt (uploadText) ─── -->
+        <set-variable name="pv-user-token"      value="@(context.Request.Headers.GetValueOrDefault("X-User-Token", ""))" />
+        <set-variable name="pv-correlation-id"  value="@(context.Request.Headers.GetValueOrDefault("X-Correlation-Id", System.Guid.NewGuid().ToString()))" />
+        <set-variable name="pv-activity"        value="uploadText" />
+        <set-variable name="pv-text" value="@{
+            var body = context.Request.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            return (string)body["input"] ?? "";
+        }" />
+        <!-- Preserve the raw prompt so the outbound Gate-3 simulator can
+             recognize demo trigger phrases even after the request body has
+             been rewritten for the Bedrock InvokeModel API. -->
+        <set-variable name="pv-original-prompt" value="@((string)context.Variables.GetValueOrDefault<string>("pv-text", ""))" />
+        <include-fragment fragment-id="purview-processcontent" />
+        <set-variable name="pv-prompt-called" value="@((string)context.Variables.GetValueOrDefault<string>("pv-called", "0"))" />
+
+        <!-- ── 2a. Content log: parse UPN once, then log the prompt ── -->
+        <set-variable name="content-user" value="@{
+            var t = context.Request.Headers.GetValueOrDefault("X-User-Token", "");
+            if (string.IsNullOrEmpty(t)) { return "anonymous"; }
+            try {
+                var parts = t.Split('.');
+                if (parts.Length < 2) { return "anonymous"; }
+                var p = parts[1].Replace('-','+').Replace('_','/');
+                var pad = p.Length % 4 == 0 ? "" : new string('=', 4 - p.Length % 4);
+                var json = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(p + pad));
+                var j = Newtonsoft.Json.Linq.JObject.Parse(json);
+                return (string)(j["upn"] ?? j["preferred_username"] ?? j["oid"]) ?? "anonymous";
+            } catch { return "anonymous"; }
+        }" />
+        <set-variable name="content-direction"            value="Prompt" />
+        <set-variable name="content-backend"              value="Bedrock" />
+        <set-variable name="content-model"                value="{{bedrock-model-id}}" />
+        <set-variable name="content-correlation-id"       value="@((string)context.Variables["pv-correlation-id"])" />
+        <set-variable name="content-text"                 value="@((string)context.Variables.GetValueOrDefault<string>("pv-text", ""))" />
+        <set-variable name="content-purview-blocked"      value="@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0") == "1" ? "true" : "false")" />
+        <set-variable name="content-purview-block-reason" value="@((string)context.Variables.GetValueOrDefault<string>("pv-block-reason", "none"))" />
+        <set-variable name="content-input-tokens"         value="0" />
+        <set-variable name="content-output-tokens"        value="0" />
+        <include-fragment fragment-id="emit-content-log" />
+
+        <choose>
+            <when condition="@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0") == "1")">
+                <return-response>
+                    <set-status code="403" reason="Blocked by Purview DLP" />
+                    <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>1</value></set-header>
+                    <set-header name="X-Purview-Response-Calls" exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Purview-Blocked"        exists-action="override"><value>1</value></set-header>
+                    <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>PURVIEW_DLP_PROMPT</value></set-header>
+                    <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>
+                    <set-body>@("{\"blocked\":true,\"blockReason\":\"PURVIEW_DLP_PROMPT\",\"message\":\"Prompt blocked by Microsoft Purview DLP.\"}")</set-body>
+                </return-response>
+            </when>
+        </choose>
+
+        <!-- ── 3. Reshape client body to Nova InvokeModel envelope ─── -->
+        <!--
+            Nova (Amazon) InvokeModel request shape:
+                { "inferenceConfig": { "max_new_tokens": 512 },
+                  "messages": [ { "role":"user",
+                                  "content":[ { "text":"<prompt>" } ] } ] }
+            Do this BEFORE SigV4 so the signature covers the transformed body.
+        -->
+        <set-body>@{
+            var prompt = (string)context.Variables.GetValueOrDefault<string>("pv-text", "");
+            var envelope = new Newtonsoft.Json.Linq.JObject {
+                ["inferenceConfig"] = new Newtonsoft.Json.Linq.JObject { ["max_new_tokens"] = 512 },
+                ["messages"] = new Newtonsoft.Json.Linq.JArray {
+                    new Newtonsoft.Json.Linq.JObject {
+                        ["role"] = "user",
+                        ["content"] = new Newtonsoft.Json.Linq.JArray {
+                            new Newtonsoft.Json.Linq.JObject { ["text"] = prompt }
+                        }
+                    }
+                }
+            };
+            return envelope.ToString(Newtonsoft.Json.Formatting.None);
+        }</set-body>
+        <set-header name="Content-Type" exists-action="override">
+            <value>application/json</value>
+        </set-header>
+
+        <!-- ── 4. Strip user identity, route to Bedrock, rewrite path ─ -->
+        <set-header name="X-User-Token" exists-action="delete" />
+        <set-backend-service base-url="@($"https://bedrock-runtime.{{bedrock-region}}.amazonaws.com")" />
+        <!--
+            Use the raw model id (with ':') in rewrite-uri. APIM's HTTP client
+            encodes ':' once on the wire as '%3A', matching the signing canonical
+            below which also uses Uri.EscapeDataString (single-encoded).
+            Do NOT pre-encode here — that produces double-encoded '%253A' and
+            SigV4 signature mismatch.
+        -->
+        <rewrite-uri template="/model/{{bedrock-model-id}}/invoke" copy-unmatched-params="false" />
+
+        <!-- ── 5. SigV4 signing (AWS4-HMAC-SHA256) ─────────────────── -->
+        <!--
+            Adapted from labs/aws-bedrock/policy.xml. Region and modelId are
+            read from named values so this policy is portable across
+            deployments; the canonical path is built explicitly from the
+            model-id NV so it's independent of any client-facing rewrite.
+        -->
+        <set-variable name="now" value="@(DateTime.UtcNow)" />
+        <set-header name="X-Amz-Date" exists-action="override">
+            <value>@(((DateTime)context.Variables["now"]).ToString("yyyyMMddTHHmmssZ"))</value>
+        </set-header>
+        <set-header name="X-Amz-Content-Sha256" exists-action="override">
+            <value>@{
+                var body = context.Request.Body.As<string>(preserveContent: true);
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var hash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(body));
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }</value>
+        </set-header>
+        <set-header name="Host" exists-action="override">
+            <value>@($"bedrock-runtime.{{bedrock-region}}.amazonaws.com")</value>
+        </set-header>
+        <set-header name="Authorization" exists-action="override">
+            <value>@{
+                var accessKey = "{{aws-access-key}}";
+                var secretKey = "{{aws-secret-key}}";
+                var region    = "{{bedrock-region}}";
+                var service   = "bedrock";
+                var modelId   = "{{bedrock-model-id}}";
+                var host      = $"bedrock-runtime.{region}.amazonaws.com";
+                var method    = context.Request.Method;
+
+                var amzDate   = ((DateTime)context.Variables["now"]).ToString("yyyyMMddTHHmmssZ");
+                var dateStamp = ((DateTime)context.Variables["now"]).ToString("yyyyMMdd");
+
+                var canonicalPath = $"/model/{System.Uri.EscapeDataString(modelId)}/invoke";
+                var canonicalQueryString = "";
+
+                var body = context.Request.Body.As<string>(preserveContent: true);
+                string hashedPayload;
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var hash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(body));
+                    hashedPayload = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+
+                var canonicalHeaderList = new List<string[]> {
+                    new[] { "content-type", "application/json" },
+                    new[] { "host", host },
+                    new[] { "x-amz-content-sha256", hashedPayload },
+                    new[] { "x-amz-date", amzDate }
+                };
+                var canonicalHeadersOrdered = canonicalHeaderList.OrderBy(h => h[0]).ToList();
+                var canonicalHeaders = string.Join("\n", canonicalHeadersOrdered.Select(h => $"{h[0]}:{h[1].Trim()}")) + "\n";
+                var signedHeaders    = string.Join(";", canonicalHeadersOrdered.Select(h => h[0]));
+
+                var canonicalRequest = $"{method}\n{canonicalPath}\n{canonicalQueryString}\n{canonicalHeaders}\n{signedHeaders}\n{hashedPayload}";
+                string hashedCanonicalRequest;
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var hash = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(canonicalRequest));
+                    hashedCanonicalRequest = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+
+                var credentialScope = $"{dateStamp}/{region}/{service}/aws4_request";
+                var stringToSign    = $"AWS4-HMAC-SHA256\n{amzDate}\n{credentialScope}\n{hashedCanonicalRequest}";
+
+                byte[] kSecret = System.Text.Encoding.UTF8.GetBytes("AWS4" + secretKey);
+                byte[] kDate, kRegion, kService, kSigning;
+                using (var h1 = new System.Security.Cryptography.HMACSHA256(kSecret))
+                    { kDate = h1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(dateStamp)); }
+                using (var h2 = new System.Security.Cryptography.HMACSHA256(kDate))
+                    { kRegion = h2.ComputeHash(System.Text.Encoding.UTF8.GetBytes(region)); }
+                using (var h3 = new System.Security.Cryptography.HMACSHA256(kRegion))
+                    { kService = h3.ComputeHash(System.Text.Encoding.UTF8.GetBytes(service)); }
+                using (var h4 = new System.Security.Cryptography.HMACSHA256(kService))
+                    { kSigning = h4.ComputeHash(System.Text.Encoding.UTF8.GetBytes("aws4_request")); }
+
+                string signature;
+                using (var hmac = new System.Security.Cryptography.HMACSHA256(kSigning))
+                {
+                    var sigBytes = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(stringToSign));
+                    signature = BitConverter.ToString(sigBytes).Replace("-", "").ToLowerInvariant();
+                }
+
+                return $"AWS4-HMAC-SHA256 Credential={accessKey}/{credentialScope}, SignedHeaders={signedHeaders}, Signature={signature}";
+            }</value>
+        </set-header>
+    </inbound>
+
+    <backend>
+        <base />
+    </backend>
+
+    <outbound>
+        <base />
+
+        <!-- ── 6. Gate 3: Purview inspection of the response (downloadText) ─── -->
+        <!--
+            Nova InvokeModel response shape:
+                { "output": { "message": { "content": [ { "text": "..." } ], "role":"assistant" } },
+                  "stopReason": "...",
+                  "usage": { "inputTokens": N, "outputTokens": N, "totalTokens": N } }
+        -->
+        <set-variable name="pv-activity"        value="downloadText" />
+        <set-variable name="pv-text" value="@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var content = body.SelectToken("output.message.content[0].text");
+            return content == null ? "" : (string)content;
+        }" />
+        <!-- ── 6-sim. Gate-3 simulator: demo trigger phrases force the
+             response text to contain SIT-detectable PII (Credit Card
+             Number, U.S. SSN). This makes the response block visible
+             without asking the model to actually emit PII. -->
+        <choose>
+            <when condition="@(((string)context.Variables.GetValueOrDefault<string>("pv-original-prompt","")).ToLower().Contains("stripe test credit card"))">
+                <set-variable name="pv-text" value="Sure, here's a Stripe test card for your integration test: 4539-1488-0343-6467, exp 12/28, CVV 123. Do not use in production." />
+                <set-header name="X-Purview-Simulated" exists-action="override"><value>credit-card</value></set-header>
+            </when>
+            <when condition="@(((string)context.Variables.GetValueOrDefault<string>("pv-original-prompt","")).ToLower().Contains("fictional hr documentation"))">
+                <set-variable name="pv-text" value="Per the fictional HR file: employee SSN 540-66-3217, hire date 2020-01-15, department Engineering. This is synthetic data for lab purposes only." />
+                <set-header name="X-Purview-Simulated" exists-action="override"><value>ssn</value></set-header>
+            </when>
+        </choose>
+        <include-fragment fragment-id="purview-processcontent" />
+        <set-variable name="pv-response-called" value="@((string)context.Variables.GetValueOrDefault<string>("pv-called", "0"))" />
+
+        <!-- ── 6a. Content log: response text + Gate 3 verdict + Nova tokens ── -->
+        <set-variable name="content-direction"            value="Response" />
+        <set-variable name="content-backend"              value="Bedrock" />
+        <set-variable name="content-model"                value="{{bedrock-model-id}}" />
+        <set-variable name="content-text"                 value="@((string)context.Variables.GetValueOrDefault<string>("pv-text", ""))" />
+        <set-variable name="content-purview-blocked"      value="@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0") == "1" ? "true" : "false")" />
+        <set-variable name="content-purview-block-reason" value="@((string)context.Variables.GetValueOrDefault<string>("pv-block-reason", "none"))" />
+        <set-variable name="content-input-tokens" value="@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var u = body["usage"]; return u == null ? "0" : ((string)u["inputTokens"] ?? "0");
+        }" />
+        <set-variable name="content-output-tokens" value="@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var u = body["usage"]; return u == null ? "0" : ((string)u["outputTokens"] ?? "0");
+        }" />
+        <include-fragment fragment-id="emit-content-log" />
+
+        <choose>
+            <when condition="@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0") == "1")">
+                <return-response>
+                    <set-status code="403" reason="Blocked by Purview DLP" />
+                    <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))</value></set-header>
+                    <set-header name="X-Purview-Response-Calls" exists-action="override"><value>1</value></set-header>
+                    <set-header name="X-Purview-Blocked"        exists-action="override"><value>1</value></set-header>
+                    <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>PURVIEW_DLP_RESPONSE</value></set-header>
+                    <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>0</value></set-header>
+                    <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>
+                    <set-body>@("{\"blocked\":true,\"blockReason\":\"PURVIEW_DLP_RESPONSE\",\"message\":\"Response blocked by Microsoft Purview DLP.\"}")</set-body>
+                </return-response>
+            </when>
+        </choose>
+
+        <!-- ── 7. Six-header telemetry contract (happy path) ─────── -->
+        <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))</value></set-header>
+        <set-header name="X-Purview-Response-Calls" exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-response-called", "0"))</value></set-header>
+        <set-header name="X-Purview-Blocked"        exists-action="override"><value>0</value></set-header>
+        <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>none</value></set-header>
+        <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>
+        <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var u = body["usage"]; return u == null ? "0" : ((string)u["inputTokens"] ?? "0");
+        }</value></set-header>
+        <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>@{
+            var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
+            var u = body["usage"]; return u == null ? "0" : ((string)u["outputTokens"] ?? "0");
+        }</value></set-header>
+
+        <!-- ── 8. Trace for cost KQL — same shape as Foundry leg ── -->
+        <trace source="AIGateway">
+            <message>AIGateway/Bedrock request</message>
+            <metadata name="User"                 value="@((string)context.Variables.GetValueOrDefault<string>("content-user", "anonymous"))" />
+            <metadata name="Backend"              value="Bedrock" />
+            <metadata name="Model"                value="{{bedrock-model-id}}" />
+            <metadata name="InputTokens"          value="@(context.Response.Headers.GetValueOrDefault("X-Model-Input-Tokens", "0"))" />
+            <metadata name="OutputTokens"         value="@(context.Response.Headers.GetValueOrDefault("X-Model-Output-Tokens", "0"))" />
+            <metadata name="PurviewPromptCalls"   value="@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))" />
+            <metadata name="PurviewResponseCalls" value="@((string)context.Variables.GetValueOrDefault<string>("pv-response-called", "0"))" />
+            <metadata name="PurviewBlocked"       value="0" />
+        </trace>
+    </outbound>
+
+    <on-error>
+        <base />
+        <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))</value></set-header>
+        <set-header name="X-Purview-Response-Calls" exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-response-called", "0"))</value></set-header>
+        <set-header name="X-Purview-Blocked"        exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-blocked", "0"))</value></set-header>
+        <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-block-reason", "none"))</value></set-header>
+        <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>0</value></set-header>
+        <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>0</value></set-header>
+        <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-correlation-id", ""))</value></set-header>
+    </on-error>
+</policies>
