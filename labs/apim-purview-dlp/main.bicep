@@ -45,7 +45,7 @@ param bedrockApiPath string = 'bedrock/expense'
 param logRetentionDays int = 30
 
 // ── Foundry backend ──────────────────────────────────────────────────────────
-@description('Foundry project endpoint, e.g. "<project>.services.ai.azure.com".')
+@description('Foundry project endpoint host + path, e.g. "<foundryResource>.services.ai.azure.com/api/projects/<projectName>". No scheme, no trailing slash.')
 param foundryProjectEndpoint string
 
 @description('Foundry deployed agent name (or model deployment name).')
