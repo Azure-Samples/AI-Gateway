@@ -1,16 +1,18 @@
 // =============================================================================
 // aigw-payg-purview-forecast.kql
 //
-// FORECAST MODE — companion to aigw-payg-cost.kql
+// FORECAST MODE — Purview cost projection for turns already flowing through
+// this lab's APIM AI Gateway (Purview IS wired: enforcement gates 1 and 3
+// are live in foundry-hrpolicy.policy.xml and bedrock-expense.policy.xml).
 //
-// Use this query BEFORE Microsoft Purview is wired into the APIM AI Gateway
-// to estimate what Purview would cost per user, per model, per backend, if
-// you turned it on today, based on the turn volume already flowing through
-// the gateway. Two Purview cost lines are forecast:
+// This query estimates what Purview costs per user, per model, per backend,
+// based on the actual turn volume the gateway has seen. Two Purview cost
+// lines are forecast:
 //
 //   1. Purview DLP `processContent` calls (In-Transit Protection for AI
-//      Apps) — enforcement gates 1 and 3 that the APIM policy / Lambda
-//      would issue on the prompt and the response.
+//      Apps) — enforcement gates 1 (uploadText) and 3 (downloadText)
+//      that the APIM policy issues on the prompt and the response. Both
+//      gates run in-policy in APIM; no Lambda / no external compute.
 //   2. Purview Collection-policy AUDIT RECORDS — the per-interaction charges
 //      that Collection policies generate for each full AI turn observed
 //      (Prompt + Response together = 1 billable audit record), regardless
@@ -18,10 +20,15 @@
 //      https://learn.microsoft.com/purview/dlp-network-data-security-learn#billing-model.
 //      This forecast assumes 1 audit record per turn; if your Collection
 //      policy only monitors one direction, this is still 1 record per turn.
-// The gateway emits per-user token metrics via the `llm-emit-token-metric`
-// APIM policy regardless of whether Purview is integrated. Because both
-// Purview lines are priced per request rather than per token, the
-// forecasts are:
+//
+// Token counts come from the outbound `X-Model-Input-Tokens` /
+// `X-Model-Output-Tokens` headers and the APIM `<trace>` block that both
+// policies emit — the OpenAI-style `llm-emit-token-metric` policy is
+// deliberately NOT used here because this lab exposes a compact
+// `{"input":"..."}` client contract, not Chat Completions.
+//
+// Because both Purview lines are priced per request rather than per token,
+// the forecasts are:
 //
 //     dlpForecastCalls   = observedTurns * dlpCallsPerTurn (+ chunkingOverhead)
 //     dlpForecastCost    = dlpForecastCalls * assumedPurviewDlpPricePerCall

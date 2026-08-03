@@ -19,22 +19,44 @@
     the calling policy is expected to project onto response headers:
 
         pv-called            "1" whenever this fragment runs to completion
-        pv-blocked           "1" if verdict is BLOCKED, else "0"
-        pv-block-reason      "PURVIEW_DLP_PROMPT" | "PURVIEW_DLP_RESPONSE" | "none"
+        pv-blocked           "1" if verdict is BLOCKED or UNKNOWN, else "0"
+        pv-block-reason      one of:
+                              "PURVIEW_DLP_PROMPT"              (Gate 1, SIT matched)
+                              "PURVIEW_DLP_RESPONSE"            (Gate 3, SIT matched)
+                              "PURVIEW_DLP_PROMPT_UNKNOWN"      (Gate 1, verdict fail-closed)
+                              "PURVIEW_DLP_RESPONSE_UNKNOWN"    (Gate 3, verdict fail-closed)
+                              "none"                             (allowed)
 
     NAMED VALUES REFERENCED (create these on the APIM instance first):
 
         graph-tenant-id            plain
         graph-client-id            plain
         graph-client-secret        key-vault-reference (NEVER plain)
+        purview-graph-host         plain (e.g. graph.microsoft.com)
 
     All cost / pricing values referenced in comments or downstream KQL are
     illustrative only — see the sample-level README for the pricing
     disclaimer and approved channels.
 -->
 <fragment>
-    <!-- 1) OBO exchange: user token -> Graph token (cached 55 min) -->
-    <cache-lookup-value key="@("obo-v2-" + context.Variables.GetValueOrDefault<string>("pv-user-token", "").GetHashCode().ToString())"
+    <!-- 1) OBO exchange: user token -> Graph token (cached 55 min)
+
+         Cache key is a SHA-256 of the raw user token (rather than
+         String.GetHashCode()). String.GetHashCode() is a 32-bit,
+         non-cryptographic hash whose seed is randomized per .NET Core
+         process, so it (a) has enough collision probability to cross-serve
+         one user's OBO token to another under load, and (b) produces
+         different keys on different APIM gateway nodes / after a restart,
+         defeating the cache. SHA-256 fixes both. -->
+    <set-variable name="pv-obo-cache-key" value="@{
+        var t = context.Variables.GetValueOrDefault<string>("pv-user-token", "");
+        using (var sha = System.Security.Cryptography.SHA256.Create())
+        {
+            var h = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(t));
+            return "obo-v3-" + BitConverter.ToString(h).Replace("-", "").ToLowerInvariant();
+        }
+    }" />
+    <cache-lookup-value key="@((string)context.Variables["pv-obo-cache-key"])"
                         variable-name="pv-graph-token" />
     <choose>
         <when condition="@(!context.Variables.ContainsKey("pv-graph-token"))">
@@ -59,7 +81,7 @@
             </send-request>
             <set-variable name="pv-graph-token"
                           value="@(((Newtonsoft.Json.Linq.JObject)((IResponse)context.Variables["oboResponse"]).Body.As<Newtonsoft.Json.Linq.JObject>())["access_token"].ToString())" />
-            <cache-store-value key="@("obo-v2-" + context.Variables.GetValueOrDefault<string>("pv-user-token", "").GetHashCode().ToString())"
+            <cache-store-value key="@((string)context.Variables["pv-obo-cache-key"])"
                                value="@((string)context.Variables["pv-graph-token"])"
                                duration="3300" />
         </when>
@@ -120,20 +142,30 @@
         }</set-body>
     </send-request>
 
-    <!-- 3) Verdict projection: set outputs the caller wraps into response headers -->
+    <!-- 3) Verdict projection: set outputs the caller wraps into response headers.
+
+         FAIL-CLOSED. Any exception here (malformed Graph response,
+         unexpected schema, future changes to policyActions, etc.) is
+         treated as UNKNOWN and blocks the turn — a DLP control that
+         silently allows on error is worse than useless. The distinct
+         UNKNOWN state is surfaced on X-Purview-Block-Reason so
+         operators can alert on it (rather than seeing a plain
+         PURVIEW_DLP_* signal that implies Purview actually matched a
+         SIT). -->
     <set-variable name="pv-called" value="1" />
     <set-variable name="pv-verdict" value="@{
         try {
             var pv = ((IResponse)context.Variables["pvResponse"]).Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
             var actions = pv.SelectTokens("$.policyActions[*].action").Select(t => t.ToString()).ToList();
             return actions.Any(a => a.Equals("Block", System.StringComparison.OrdinalIgnoreCase) || a.Equals("restrictAccess", System.StringComparison.OrdinalIgnoreCase) || a.Equals("blockAccess", System.StringComparison.OrdinalIgnoreCase)) ? "BLOCKED" : "ALLOWED";
-        } catch { return "ALLOWED"; }
+        } catch { return "UNKNOWN"; }
     }" />
-    <set-variable name="pv-blocked" value="@((string)context.Variables["pv-verdict"] == "BLOCKED" ? "1" : "0")" />
+    <set-variable name="pv-blocked" value="@((string)context.Variables["pv-verdict"] == "ALLOWED" ? "0" : "1")" />
     <set-variable name="pv-block-reason" value="@{
         var v = (string)context.Variables["pv-verdict"];
         var a = context.Variables.GetValueOrDefault<string>("pv-activity", "uploadText");
-        if (v != "BLOCKED") { return "none"; }
+        if (v == "ALLOWED") { return "none"; }
+        if (v == "UNKNOWN") { return a == "uploadText" ? "PURVIEW_DLP_PROMPT_UNKNOWN" : "PURVIEW_DLP_RESPONSE_UNKNOWN"; }
         return a == "uploadText" ? "PURVIEW_DLP_PROMPT" : "PURVIEW_DLP_RESPONSE";
     }" />
 </fragment>

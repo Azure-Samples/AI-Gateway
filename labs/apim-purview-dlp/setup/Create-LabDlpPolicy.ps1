@@ -4,8 +4,8 @@
 
 .DESCRIPTION
     Scopes a DLP policy to the lab's Entra "AI Gateway" app registration and
-    blocks Credit Card + SSN + IBAN in either UploadText (Gate 1) or
-    DownloadText (Gate 3) `processContent` activities. This is what makes
+    blocks Credit Card + U.S. Social Security Number in either UploadText (Gate 1)
+    or DownloadText (Gate 3) `processContent` activities. This is what makes
     `X-Purview-Blocked=1` fire on the two demo prompts.
 
     This is a lab-configured wrapper around the shared sample
@@ -23,7 +23,7 @@ $ErrorActionPreference = 'Stop'
 # Replace these placeholders with values from your own tenant.  The AppId must
 # match the Entra app registration you created for the lab (README section 2).
 $DlpPolicyName = 'APIM AI Gateway lab - Block sensitive data'
-$DlpRuleName   = 'Block CC/SSN/IBAN in prompts and responses'
+$DlpRuleName   = 'Block CC/SSN in prompts and responses'
 $PolicyMode    = 'Enable'
 $RestrictAction = 'Block'   # Block | Audit
 
@@ -69,7 +69,7 @@ $existingPolicy = Get-DlpCompliancePolicy -Identity $DlpPolicyName -ErrorAction 
 if (-not $existingPolicy) {
     New-DlpCompliancePolicy `
         -Name              $DlpPolicyName `
-        -Comment           'apim-purview-dlp lab: blocks CC/SSN/IBAN in prompts and responses.' `
+        -Comment           'apim-purview-dlp lab: blocks CC/SSN in prompts and responses.' `
         -Locations         $LocationsJson `
         -EnforcementPlanes @('Application') `
         -Mode              $PolicyMode | Out-Null

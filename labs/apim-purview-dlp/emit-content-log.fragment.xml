@@ -24,7 +24,7 @@
         content-output-tokens          string int (default "0")
 
     - - -
-    NAMED VALUES referenced (created by Bicep in infra/platform.bicep):
+    NAMED VALUES referenced (created by Bicep in main.bicep):
     - - -
         logs-content-ingest-url   full DCE + DCR + stream URL, e.g.
                                   https://<dce>.<region>-1.ingest.monitor.azure.com/
@@ -42,7 +42,7 @@
     fail the model call itself.
 -->
 <fragment>
-    <!-- 1) Acquire a Bearer for https://monitor.azure.com, cached 45 min -->
+    <!-- 1) Acquire a managed-identity token for https://monitor.azure.com, cached 45 min -->
     <cache-lookup-value key="aigw-monitor-ingest-token" variable-name="monitor-ingest-token" />
     <choose>
         <when condition="@(!context.Variables.ContainsKey("monitor-ingest-token"))">

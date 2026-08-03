@@ -3,11 +3,11 @@
 //
 // Prompt / response audit query for the AIGatewayContent_CL custom table.
 // Runs against the Log Analytics workspace provisioned by
-// `infra/platform.bicep` (workspace name is configured via the
+// `main.bicep` (workspace name is configured via the
 // `namePrefix` parameter — replace with your own value).
 //
 // Only principals with the granular RBAC role assignment provisioned by
-// infra/platform.bicep (Log Analytics Data Reader on the workspace, with
+// main.bicep (Log Analytics Data Reader on the workspace, with
 // an ABAC condition restricting reads to AIGatewayContent_CL) can see
 // results. Everyone else gets an empty result set.
 // See: https://learn.microsoft.com/azure/azure-monitor/logs/granular-rbac-log-analytics

@@ -23,7 +23,10 @@
       audience is https://ai.azure.com (the Foundry Responses API surface).
       NOTE: not https://cognitiveservices.azure.com — that audience is for
       the classic Azure OpenAI data plane, not the Foundry Responses API.
-    - All three native LLM guardrails are enabled on inbound.
+    - The only native LLM guardrail applied inbound is
+      `rate-limit-by-key` (keyed on the validated `oid` claim).
+      `llm-token-limit` and `llm-emit-token-metric` are deliberately
+      omitted — see the note above the rate-limit block for why.
     - Every response — happy path, Gate 1 block, Gate 3 block, error —
       carries the six-header telemetry contract; the outbound <trace>
       block copies those headers into the AIGateway trace source that
@@ -31,22 +34,50 @@
     - Prompt and response payloads are also written to the custom
       Log Analytics table `AIGatewayContent_CL` via the shared
       `emit-content-log` fragment (best-effort, non-blocking). Access
-      to that table is restricted by ABAC — see infra/platform.bicep.
+      to that table is restricted by ABAC — see main.bicep. Note that
+      when Purview blocks a turn, the exact matched content is still
+      written to `AIGatewayContent_CL` alongside `PurviewBlocked=true`
+      — that is by design (it is the audit trail) but it means the
+      table itself contains PII and its ABAC scope must be treated as
+      such. See the README for the redaction guidance.
+    - X-User-Token is stripped before the backend call so the user's
+      Entra JWT never reaches Foundry; the OBO exchange for Purview
+      already happened inside the purview-processcontent fragment.
+      Ocp-Apim-Subscription-Key is stripped too — it is a gateway
+      credential and has no meaning downstream.
 -->
 <policies>
     <inbound>
         <base />
 
-        <!-- ── 1. Native AI-Gateway guardrails ───────────────────── -->
-        <rate-limit-by-key calls="60" renewal-period="60"
-            counter-key="@(context.Request.Headers.GetValueOrDefault("X-User-Token", context.Subscription.Id))" />
-
-        <!-- Note: llm-token-limit / llm-emit-token-metric are omitted because
-             this API uses a compact {"input":"..."} client contract, not the
+        <!-- ── 1. Native AI-Gateway guardrails ─────────────────────
+             Only rate-limit-by-key is enabled here. llm-token-limit and
+             llm-emit-token-metric are deliberately omitted because this
+             API uses a compact {"input":"..."} client contract, not the
              OpenAI Chat Completions body those policies require. Per-user
              token counting is captured in the outbound X-Model-*-Tokens
              headers and the <trace> block, which populate AzureDiagnostics
              AIGatewayTrace and the aigw-payg-purview-forecast KQL. -->
+
+        <!-- Validate X-User-Token before any variable derived from it is used
+             for logging, rate-limiting, or OBO. Without this validation the
+             counter key below is a client-controlled string (trivially reset
+             per-request) and the audit `User` field is spoofable. Audience
+             matches the gateway app registration the notebook acquires this
+             token against (`api://<graph-client-id>`). -->
+        <validate-jwt header-name="X-User-Token"
+                      failed-validation-httpcode="401"
+                      failed-validation-error-message="Unauthorized. X-User-Token is missing or invalid."
+                      output-token-variable-name="jwt-user">
+            <openid-config url="https://login.microsoftonline.com/{{graph-tenant-id}}/v2.0/.well-known/openid-configuration" />
+            <audiences>
+                <audience>{{graph-client-id}}</audience>
+                <audience>api://{{graph-client-id}}</audience>
+            </audiences>
+        </validate-jwt>
+
+        <rate-limit-by-key calls="60" renewal-period="60"
+            counter-key="@(((Jwt)context.Variables["jwt-user"]).Claims.GetValueOrDefault("oid", context.Subscription.Id))" />
 
         <!-- ── 2. Gate 1: Purview inspection of the prompt ───────── -->
         <set-variable name="pv-user-token"      value="@(context.Request.Headers.GetValueOrDefault("X-User-Token", ""))" />
@@ -63,19 +94,15 @@
         <include-fragment fragment-id="purview-processcontent" />
         <set-variable name="pv-prompt-called" value="@((string)context.Variables.GetValueOrDefault<string>("pv-called", "0"))" />
 
-        <!-- ── 2a. Content log: parse UPN once, then log the prompt ─ -->
+        <!-- ── 2a. Content log: read signed claims from validated JWT.
+             Uses claims from the validated `jwt-user` variable rather than
+             base64-decoding the raw token payload, so a client cannot forge
+             `upn` (which flows into the audit table and the cost KQL). -->
         <set-variable name="content-user" value="@{
-            var t = context.Request.Headers.GetValueOrDefault("X-User-Token", "");
-            if (string.IsNullOrEmpty(t)) { return "anonymous"; }
-            try {
-                var parts = t.Split('.');
-                if (parts.Length < 2) { return "anonymous"; }
-                var p = parts[1].Replace('-','+').Replace('_','/');
-                var pad = p.Length % 4 == 0 ? "" : new string('=', 4 - p.Length % 4);
-                var json = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(p + pad));
-                var j = Newtonsoft.Json.Linq.JObject.Parse(json);
-                return (string)(j["upn"] ?? j["preferred_username"] ?? j["oid"]) ?? "anonymous";
-            } catch { return "anonymous"; }
+            var jwt = (Jwt)context.Variables["jwt-user"];
+            return jwt.Claims.GetValueOrDefault("upn",
+                   jwt.Claims.GetValueOrDefault("preferred_username",
+                   jwt.Claims.GetValueOrDefault("oid", "anonymous")));
         }" />
         <set-variable name="content-direction"            value="Prompt" />
         <set-variable name="content-backend"              value="Foundry" />
@@ -95,11 +122,17 @@
                     <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>1</value></set-header>
                     <set-header name="X-Purview-Response-Calls" exists-action="override"><value>0</value></set-header>
                     <set-header name="X-Purview-Blocked"        exists-action="override"><value>1</value></set-header>
-                    <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>PURVIEW_DLP_PROMPT</value></set-header>
+                    <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-block-reason", "PURVIEW_DLP_PROMPT"))</value></set-header>
                     <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>0</value></set-header>
                     <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>0</value></set-header>
                     <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>
-                    <set-body>@("{\"blocked\":true,\"blockReason\":\"PURVIEW_DLP_PROMPT\",\"message\":\"Prompt blocked by Microsoft Purview DLP.\"}")</set-body>
+                    <set-body>@{
+                        var reason = context.Variables.GetValueOrDefault<string>("pv-block-reason", "PURVIEW_DLP_PROMPT");
+                        var msg = reason.EndsWith("_UNKNOWN")
+                            ? "Prompt could not be evaluated by Microsoft Purview DLP; failing closed."
+                            : "Prompt blocked by Microsoft Purview DLP.";
+                        return "{\"blocked\":true,\"blockReason\":\"" + reason + "\",\"message\":\"" + msg + "\"}";
+                    }</set-body>
                 </return-response>
             </when>
         </choose>
@@ -117,6 +150,11 @@
         <set-header name="Accept-Encoding" exists-action="override">
             <value>identity</value>
         </set-header>
+        <!-- Strip caller credentials before crossing the trust boundary.
+             The Foundry backend must not see the user's Entra JWT or the
+             gateway's own subscription key. -->
+        <set-header name="X-User-Token"              exists-action="delete" />
+        <set-header name="Ocp-Apim-Subscription-Key" exists-action="delete" />
         <set-backend-service base-url="@($"https://{{foundry-project-endpoint}}")" />
         <rewrite-uri template="/openai/v1/responses" copy-unmatched-params="false" />
         <authentication-managed-identity resource="https://ai.azure.com" />
@@ -181,11 +219,17 @@
                     <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))</value></set-header>
                     <set-header name="X-Purview-Response-Calls" exists-action="override"><value>1</value></set-header>
                     <set-header name="X-Purview-Blocked"        exists-action="override"><value>1</value></set-header>
-                    <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>PURVIEW_DLP_RESPONSE</value></set-header>
+                    <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-block-reason", "PURVIEW_DLP_RESPONSE"))</value></set-header>
                     <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>0</value></set-header>
                     <set-header name="X-Model-Output-Tokens"    exists-action="override"><value>0</value></set-header>
                     <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>
-                    <set-body>@("{\"blocked\":true,\"blockReason\":\"PURVIEW_DLP_RESPONSE\",\"message\":\"Response blocked by Microsoft Purview DLP.\"}")</set-body>
+                    <set-body>@{
+                        var reason = context.Variables.GetValueOrDefault<string>("pv-block-reason", "PURVIEW_DLP_RESPONSE");
+                        var msg = reason.EndsWith("_UNKNOWN")
+                            ? "Response could not be evaluated by Microsoft Purview DLP; failing closed."
+                            : "Response blocked by Microsoft Purview DLP.";
+                        return "{\"blocked\":true,\"blockReason\":\"" + reason + "\",\"message\":\"" + msg + "\"}";
+                    }</set-body>
                 </return-response>
             </when>
         </choose>
@@ -194,7 +238,9 @@
         <set-header name="X-Purview-Prompt-Calls"   exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-prompt-called", "0"))</value></set-header>
         <set-header name="X-Purview-Response-Calls" exists-action="override"><value>@((string)context.Variables.GetValueOrDefault<string>("pv-response-called", "0"))</value></set-header>
         <set-header name="X-Purview-Blocked"        exists-action="override"><value>0</value></set-header>
-        <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>none</value></set-header>        <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>        <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>@{
+        <set-header name="X-Purview-Block-Reason"   exists-action="override"><value>none</value></set-header>
+        <set-header name="X-Correlation-Id"         exists-action="override"><value>@((string)context.Variables["pv-correlation-id"])</value></set-header>
+        <set-header name="X-Model-Input-Tokens"     exists-action="override"><value>@{
             var body = context.Response.Body.As<Newtonsoft.Json.Linq.JObject>(preserveContent: true);
             var u = body["usage"]; return u == null ? "0" : ((string)u["input_tokens"] ?? "0");
         }</value></set-header>

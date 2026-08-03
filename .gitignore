@@ -207,7 +207,3 @@ labs/ai-foundry-sdk/params.json
 # Ignore local environment files
 .env
 .env.local
-# Lab local parameter files with secrets (never commit)
-labs/**/*.local.json
-labs/**/*.parameters.local.json
-labs/**/*.local.parameters.json

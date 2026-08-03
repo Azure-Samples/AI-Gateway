@@ -108,6 +108,24 @@ az ad app credential reset --id $appId --display-name "notebook" --years 1
 
 Proceed by opening the [Jupyter notebook](apim-purview-dlp.ipynb), and follow the steps provided.
 
+### ⚠ Audit-trail data protection
+
+The `emit-content-log` fragment writes the full prompt and full response to
+the custom Log Analytics table `AIGatewayContent_CL` **before** the 403
+short-circuit fires. That is intentional — a DLP audit trail that only
+records the turns Purview *let through* has no forensic value — but it
+means `AIGatewayContent_CL` will contain the exact CC / SSN strings that
+Purview blocked. Consequences:
+
+- The table is provisioned with ABAC-scoped Log Analytics reader access
+  in [main.bicep](main.bicep); treat that RBAC scope like the sensitive-data table it is.
+- If your compliance posture forbids storing raw matched content at all,
+  add a redact step in `emit-content-log.fragment.xml` that replaces
+  `content-text` with a hash or a `[REDACTED:<reason>]` marker when
+  `content-purview-blocked == "true"`. The token counts, verdict, user,
+  and correlation-id still populate the row so cost / usage KQL keeps
+  working.
+
 ### 💰 Estimated infrastructure cost
 
 Running-cost estimate for the lab resources deployed by the Bicep, in `eastus`, idle (no traffic), as of the deploy date. Public list prices; verify against the [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator/) for your region and currency.
