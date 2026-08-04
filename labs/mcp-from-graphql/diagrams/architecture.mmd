@@ -1,0 +1,20 @@
+flowchart LR
+    User[Notebook user] --> Agent[Microsoft Agent Framework agent]
+
+    Agent -->|Model request| Inference[APIM OpenAI v1 inference API]
+    Inference -->|Managed identity| Model[Microsoft Foundry model]
+
+    Agent -->|Streamable HTTP| McpGateway[APIM Countries MCP server]
+    McpGateway -->|MCP /mcp| Translator[graphql-mcp on Container Apps]
+    Translator -->|GraphQL introspection and queries| GraphqlGateway[APIM Countries GraphQL API]
+    GraphqlGateway --> Countries[Countries GraphQL API]
+
+    Registry[Azure Container Registry] -.->|Container image| Translator
+    ApiCenter[Azure API Center] -.->|Registers MCP deployment| McpGateway
+    ApiCenter -.->|Registers GraphQL deployment| GraphqlGateway
+    Monitor[Application Insights and Log Analytics] -.-> Inference
+    Monitor -.-> McpGateway
+    Monitor -.-> GraphqlGateway
+
+    classDef apim fill:#fff4ce,stroke:#8a6d00,stroke-width:2px,color:#242424
+    class Inference,McpGateway,GraphqlGateway apim

@@ -22,7 +22,7 @@ dependencies = [
     "opentelemetry-sdk",
     "azure-monitor-opentelemetry",
     "azure-monitor-ingestion",
-    "azure-ai-projects",
+    "azure-ai-projects>=2.2.0",
     "azure-ai-agents",
     "azure-ai-inference[prompts]",
     "azure-search-documents",
