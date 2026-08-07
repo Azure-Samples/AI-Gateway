@@ -5,7 +5,7 @@ description = "A2A Autogen MCP agent server."
 requires-python = ">=3.13"  # a2a-sdk 0.2.3 requires Python 3.13+
 dependencies = [
     # MCP Labs
-    "mcp==1.9.0",
+    "mcp==1.28.1",
     "autogen-core==0.6.4",
     "autogen-ext[openai,azure,mcp]==0.6.4",
     "autogen-agentchat==0.6.4",
