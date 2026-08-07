@@ -224,6 +224,28 @@
     "lastCommitDate": "2026-07-29T14:13:17.339Z"
   },
   {
+    "id": "apim-purview-dlp",
+    "name": "Microsoft Purview DLP at the AI Gateway",
+    "architectureDiagram": "images/apim-purview-dlp.png",
+    "categories": [
+      "Governance & Responsible AI"
+    ],
+    "services": [
+      "Microsoft Purview",
+      "Azure API Management",
+      "Microsoft Foundry",
+      "Amazon Bedrock"
+    ],
+    "shortDescription": "Enforce Microsoft Purview DLP at the AI gateway for both a Microsoft Foundry backend and an Amazon Bedrock backend.",
+    "detailedDescription": "This lab puts Azure API Management in front of two AI backends — one on Microsoft Foundry (gpt-4.1) and one on Amazon Bedrock (Nova 2 Lite via bedrock-runtime.InvokeModel) — and calls Microsoft Purview processContent from inside the APIM policy on both legs via a shared policy fragment. The prompt is evaluated by Purview upstream of the model (Gate 1) and the response is evaluated downstream (Gate 3). A single Log Analytics KQL query rolls up model PAYG spend and Purview PAYG spend per user, per model, per backend across both clouds. On-behalf-of the signed-in user, the gateway performs a Microsoft Graph OBO exchange once per turn and reuses the cached Graph token for both Purview gates. The backends never see the user token.",
+    "authors": [
+      "inwafula"
+    ],
+    "tags": [],
+    "githubPath": "https://github.com/Azure-Samples/AI-Gateway/tree/main/labs/apim-purview-dlp",
+    "lastCommitDate": "2026-08-07T10:31:30.874Z"
+  },
+  {
     "id": "aws-bedrock",
     "name": "AWS Bedrock Integration",
     "architectureDiagram": "images/aws-bedrock.gif",
