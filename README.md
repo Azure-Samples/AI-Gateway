@@ -3,6 +3,8 @@
 <div align="center">
 
 # ✨ AI Gateway Labs
+
+[![MCP Toplist](https://mcptoplist.com/badge/mcp.so%2FAI-Gateway%2FAzure-Samples.svg)](https://mcptoplist.com/server/mcp.so%2FAI-Gateway%2FAzure-Samples)
 [![Open Source](https://img.shields.io/badge/Open%20Source-❤️-blue)](https://github.com/Azure-Samples/AI-Gateway)
 [![GitHub Stars](https://img.shields.io/github/stars/Azure-Samples/AI-Gateway?style=social)](https://github.com/Azure-Samples/AI-Gateway/stargazers)
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-Codespaces-orange?logo=github)](https://codespaces.new/Azure-Samples/AI-Gateway)
