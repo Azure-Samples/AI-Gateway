@@ -146,7 +146,7 @@ partd==1.4.2
 pathspec==0.12.1
 patsy==1.0.1
 pexpect==4.9.0
-pillow==11.2.1
+pillow==12.3.0
 pkginfo==1.12.1.2
 platformdirs==4.3.7
 pmdarima==1.8.5
