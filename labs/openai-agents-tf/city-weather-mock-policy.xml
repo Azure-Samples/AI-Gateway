@@ -1,0 +1,44 @@
+<policies>
+    <inbound>
+        <base />
+        <return-response>
+            <set-status code="200" />
+            <set-body>@{
+                    var random = new Random();
+                    double temperature;
+                    var format = "Celsius";
+                    var descriptions = new[] { "Clear skies", "Partly cloudy", "Overcast", "Rainy" };
+                    var city = context.Request.MatchedParameters["city"];                    
+                    switch (city.ToLower())
+                    {
+                        case "seattle":
+                        case "new york city":
+                        case "los angeles":
+                            format = "Fahrenheit";
+                            temperature = random.Next(14, 95) + random.NextDouble();
+                            break;
+                        default:
+                            temperature = random.Next(-5, 35) + random.NextDouble();
+                            break;
+                    }                    
+                    return new JObject(
+                        new JProperty("city", city),
+                        new JProperty("temperature", Math.Round(temperature, 1)),
+                        new JProperty("temperature_format", format),
+                        new JProperty("description", descriptions[random.Next(descriptions.Length)]),
+                        new JProperty("humidity", random.Next(20, 100)),
+                        new JProperty("wind_speed", Math.Round(random.NextDouble() * 10, 1))
+                        ).ToString();
+                    }</set-body>
+        </return-response>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

@@ -1,0 +1,25 @@
+<policies>
+    <inbound>
+        <base />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="managed-id-access-token" ignore-error="false" /> 
+        <set-header name="Authorization" exists-action="override">  
+            <value>@("Bearer " + (string)context.Variables["managed-id-access-token"])</value>  
+        </set-header>
+        <set-backend-service backend-id="{backend-id}" />
+        <azure-openai-emit-token-metric namespace="openai">
+            <dimension name="Subscription ID" value="@(context.Subscription.Id)" />
+            <dimension name="Client IP" value="@(context.Request.IpAddress)" />
+            <dimension name="API ID" value="@(context.Api.Id)" />
+            <dimension name="User ID" value="@(context.Request.Headers.GetValueOrDefault("x-user-id", "N/A"))" />
+        </azure-openai-emit-token-metric>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
