@@ -688,7 +688,7 @@ resource actionGroupUpdateSub 'microsoft.insights/actionGroups@2024-10-01-previe
 
 resource ruleSuspendSub 'microsoft.insights/scheduledqueryrules@2025-01-01-preview' = {
   name: 'alert-suspend-sub-${resourceSuffix}'
-  location: 'westeurope'
+  location: resourceGroup().location
   kind: 'LogAlert'
   properties: {
     displayName: 'alert-suspend-subscriptions'
@@ -739,7 +739,7 @@ resource ruleSuspendSub 'microsoft.insights/scheduledqueryrules@2025-01-01-previ
 
 resource ruleActivateSub 'microsoft.insights/scheduledqueryrules@2025-01-01-preview' = {
   name: 'alert-activate-sub-${resourceSuffix}'
-  location: 'westeurope'
+  location: resourceGroup().location
   kind: 'LogAlert'
   properties: {
     displayName: 'alert-activate-subscriptions'
