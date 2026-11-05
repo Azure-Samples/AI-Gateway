@@ -1,0 +1,325 @@
+<fragment>
+    <!-- This fragment runs before any upstream response body is released. -->
+    <set-variable name="web-iq-safety-start" value="@(DateTime.UtcNow)" />
+    <set-variable name="web-iq-safety-status" value="error" />
+    <set-variable name="web-iq-safety-chunks" value="@(0)" />
+    <set-variable name="web-iq-safety-offset" value="@(0)" />
+    <set-variable name="web-iq-safety-scores" value="{}" />
+    <set-variable name="web-iq-safety-text" value="@{
+        var body = context.Response.Body == null ? string.Empty : context.Response.Body.As&lt;string&gt;(preserveContent: true);
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            return string.Empty;
+        }
+
+        var messages = new List&lt;string&gt;();
+        var contentType = context.Response.Headers.GetValueOrDefault(&quot;Content-Type&quot;, &quot;&quot;);
+        if (contentType.StartsWith(&quot;text/event-stream&quot;, StringComparison.OrdinalIgnoreCase))
+        {
+            /* Decode SSE data frames, including multiline data, before extracting JSON text. */
+            var data = new List&lt;string&gt;();
+            foreach (var line in (body.Replace(&quot;\r\n&quot;, &quot;\n&quot;).Replace(&quot;\r&quot;, &quot;\n&quot;) + &quot;\n\n&quot;).Split('\n'))
+            {
+                if (line.Length == 0)
+                {
+                    if (data.Count != 0)
+                    {
+                        var message = string.Join(&quot;\n&quot;, data);
+                        if (message != &quot;[DONE]&quot;)
+                        {
+                            messages.Add(message);
+                        }
+                        data.Clear();
+                    }
+                }
+                else if (line.StartsWith(&quot;data:&quot;, StringComparison.Ordinal))
+                {
+                    var value = line.Substring(5);
+                    data.Add(value.StartsWith(&quot; &quot;) ? value.Substring(1) : value);
+                }
+            }
+        }
+        else
+        {
+            messages.Add(body);
+        }
+
+        var pending = new List&lt;JToken&gt;();
+        foreach (var message in messages)
+        {
+            try { pending.Add(JToken.Parse(message)); }
+            catch { pending.Add(new JValue(message)); }
+        }
+        var text = new List&lt;string&gt;();
+        /* Also decode JSON embedded in MCP text content, so escaped text is moderated. */
+        for (var index = 0; index &lt; pending.Count; index++)
+        {
+            var token = pending[index];
+            if (token.Type == JTokenType.Object)
+            {
+                foreach (var property in ((JObject)token).Properties())
+                {
+                    pending.Add(property.Value);
+                }
+            }
+            else if (token.Type == JTokenType.Array)
+            {
+                foreach (var child in (JArray)token) { pending.Add(child); }
+            }
+            else if (token.Type == JTokenType.String)
+            {
+                var value = (string)token;
+                var trimmed = value.TrimStart();
+                if (trimmed.StartsWith(&quot;{&quot;) || trimmed.StartsWith(&quot;[&quot;))
+                {
+                    try
+                    {
+                        pending.Add(JToken.Parse(value));
+                        continue;
+                    }
+                    catch { }
+                }
+                text.Add(value);
+            }
+        }
+        return string.Join(&quot;\n&quot;, text);
+    }" />
+    <choose>
+        <when condition="@(!string.IsNullOrEmpty(context.Response.Headers.GetValueOrDefault(&quot;Content-Encoding&quot;, &quot;&quot;)) &amp;&amp; !string.Equals(context.Response.Headers.GetValueOrDefault(&quot;Content-Encoding&quot;, &quot;&quot;), &quot;identity&quot;, StringComparison.OrdinalIgnoreCase))">
+            <!-- Do not interpret compressed bytes as successfully moderated text. -->
+            <set-variable name="web-iq-safety-status" value="unsupported-encoding" />
+        </when>
+        <when condition="@(string.IsNullOrWhiteSpace((string)context.Variables[&quot;web-iq-safety-text&quot;]))">
+            <set-variable name="web-iq-safety-status" value="no-text" />
+        </when>
+        <when condition="@(((string)context.Variables[&quot;web-iq-safety-text&quot;]).Length &gt; 100000)">
+            <!-- Reject oversized responses instead of silently analyzing a truncated prefix. -->
+            <set-variable name="web-iq-safety-status" value="response-too-large" />
+        </when>
+        <otherwise>
+            <set-variable name="web-iq-safety-status" value="analyzing" />
+            <!-- One initial call plus at most ten more covers 100,000 UTF-16 units.
+                 Adjacent chunks overlap by 200 units to retain boundary context. -->
+            <retry count="10" interval="0" first-fast-retry="true" condition="@((string)context.Variables[&quot;web-iq-safety-status&quot;] == &quot;analyzing&quot; &amp;&amp; (int)context.Variables[&quot;web-iq-safety-offset&quot;] &lt; ((string)context.Variables[&quot;web-iq-safety-text&quot;]).Length)">
+                <set-variable name="web-iq-safety-chunk" value="@{
+                    var text = (string)context.Variables[&quot;web-iq-safety-text&quot;];
+                    var offset = (int)context.Variables[&quot;web-iq-safety-offset&quot;];
+                    var length = Math.Min(10000, text.Length - offset);
+                    if (offset + length &lt; text.Length &amp;&amp; char.IsHighSurrogate(text[offset + length - 1])) { length--; }
+                    return text.Substring(offset, length);
+                }" />
+                <send-request mode="new" response-variable-name="web-iq-safety-response" timeout="15" ignore-error="true">
+                    <set-url>@("{content-safety-endpoint}".TrimEnd('/') + "/contentsafety/text:analyze?api-version=2024-09-01")</set-url>
+                    <set-method>POST</set-method>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+                        return new JObject(
+                            new JProperty("text", (string)context.Variables["web-iq-safety-chunk"]),
+                            new JProperty("categories", new JArray("Hate", "Sexual", "Violence", "SelfHarm")),
+                            new JProperty("outputType", "FourSeverityLevels")
+                        ).ToString(Newtonsoft.Json.Formatting.None);
+                    }</set-body>
+                    <authentication-managed-identity resource="https://cognitiveservices.azure.com" />
+                </send-request>
+                <set-variable name="web-iq-safety-chunks" value="@((int)context.Variables[&quot;web-iq-safety-chunks&quot;] + 1)" />
+                <set-variable name="web-iq-safety-scores" value="@{
+                    var response = (IResponse)context.Variables[&quot;web-iq-safety-response&quot;];
+                    if (response == null || response.StatusCode != 200) { return string.Empty; }
+                    try
+                    {
+                        var analysis = response.Body.As&lt;JObject&gt;()[&quot;categoriesAnalysis&quot;] as JArray;
+                        var scores = JObject.Parse((string)context.Variables[&quot;web-iq-safety-scores&quot;]);
+                        foreach (var category in new [] { &quot;Hate&quot;, &quot;Sexual&quot;, &quot;Violence&quot;, &quot;SelfHarm&quot; })
+                        {
+                            var item = analysis == null ? null : analysis.FirstOrDefault(x =&gt; (string)x[&quot;category&quot;] == category);
+                            if (item == null || item[&quot;severity&quot;] == null || item[&quot;severity&quot;].Type != JTokenType.Integer) { return string.Empty; }
+                            var severity = (int)item[&quot;severity&quot;];
+                            if (severity != 0 &amp;&amp; severity != 2 &amp;&amp; severity != 4 &amp;&amp; severity != 6) { return string.Empty; }
+                            scores[category] = Math.Max((int?)scores[category] ?? 0, severity);
+                        }
+                        return scores.ToString(Newtonsoft.Json.Formatting.None);
+                    }
+                    catch { return string.Empty; }
+                }" />
+                <choose>
+                    <when condition="@(string.IsNullOrEmpty((string)context.Variables[&quot;web-iq-safety-scores&quot;]))">
+                        <set-variable name="web-iq-safety-status" value="error" />
+                    </when>
+                    <otherwise>
+                        <set-variable name="web-iq-safety-offset" value="@{
+                            var text = (string)context.Variables[&quot;web-iq-safety-text&quot;];
+                            var end = (int)context.Variables[&quot;web-iq-safety-offset&quot;] + ((string)context.Variables[&quot;web-iq-safety-chunk&quot;]).Length;
+                            if (end == text.Length) { return end; }
+                            var next = end - 200;
+                            if (char.IsLowSurrogate(text[next])) { next--; }
+                            return next;
+                        }" />
+                    </otherwise>
+                </choose>
+            </retry>
+            <choose>
+                <when condition="@((string)context.Variables[&quot;web-iq-safety-status&quot;] == &quot;analyzing&quot; &amp;&amp; (int)context.Variables[&quot;web-iq-safety-offset&quot;] == ((string)context.Variables[&quot;web-iq-safety-text&quot;]).Length)">
+                    <set-variable name="web-iq-safety-status" value="analyzed" />
+                </when>
+                <otherwise>
+                    <set-variable name="web-iq-safety-status" value="error" />
+                </otherwise>
+            </choose>
+        </otherwise>
+    </choose>
+    <set-variable name="web-iq-safety-latency" value="@(Math.Round((DateTime.UtcNow - (DateTime)context.Variables[&quot;web-iq-safety-start&quot;]).TotalMilliseconds))" />
+    <emit-metric name="Web IQ Content Safety Responses" value="1" namespace="web-iq">
+        <dimension name="Subscription ID" />
+        <dimension name="Operation ID" />
+        <dimension name="MCP Tool" value="@((string)context.Variables[&quot;web-iq-mcp-tool&quot;])" />
+        <dimension name="Content Safety Status" value="@((string)context.Variables[&quot;web-iq-safety-status&quot;])" />
+    </emit-metric>
+    <emit-metric name="Web IQ Content Safety Latency" value="@((double)context.Variables[&quot;web-iq-safety-latency&quot;])" namespace="web-iq">
+        <dimension name="Subscription ID" />
+        <dimension name="Operation ID" />
+        <dimension name="Content Safety Status" value="@((string)context.Variables[&quot;web-iq-safety-status&quot;])" />
+    </emit-metric>
+    <set-header name="x-content-safety-status" exists-action="override">
+        <value>@((string)context.Variables["web-iq-safety-status"])</value>
+    </set-header>
+    <set-header name="x-content-safety-chunks" exists-action="override">
+        <value>@(((int)context.Variables["web-iq-safety-chunks"]).ToString())</value>
+    </set-header>
+    <set-header name="x-content-safety-latency-ms" exists-action="override">
+        <value>@(((double)context.Variables["web-iq-safety-latency"]).ToString("0"))</value>
+    </set-header>
+    <!-- Never forward a backend-supplied score as APIM moderation telemetry. -->
+    <set-header name="x-content-safety-scores" exists-action="delete" />
+    <choose>
+        <when condition="@((string)context.Variables[&quot;web-iq-safety-status&quot;] == &quot;analyzed&quot;)">
+            <set-header name="x-content-safety-scores" exists-action="override">
+                <value>@((string)context.Variables["web-iq-safety-scores"])</value>
+            </set-header>
+        </when>
+        <when condition="@((string)context.Variables[&quot;web-iq-safety-status&quot;] != &quot;no-text&quot;)">
+            <!-- A failed/incomplete scan must not release unmoderated upstream content. -->
+            <set-status code="502" reason="Bad Gateway" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-header name="Content-Encoding" exists-action="delete" />
+            <set-body>{"errorCode":"ContentSafetyAnalysisFailed","userMessage":"The gateway could not complete response text moderation. Retry the request or reduce the result size."}</set-body>
+        </when>
+    </choose>
+    <!-- Keep telemetry in the result body as well as HTTP headers. MCP clients such as
+         the Responses API expose tool content but may not expose transport headers. -->
+    <set-body>@{
+        var body = context.Response.Body == null ? string.Empty : context.Response.Body.As&lt;string&gt;(preserveContent: true);
+        if (string.IsNullOrWhiteSpace(body)) { return body; }
+        var status = (string)context.Variables["web-iq-safety-status"];
+        var telemetry = new JObject(
+            new JProperty("status", status),
+            new JProperty("scores", status == "analyzed" ? JObject.Parse((string)context.Variables["web-iq-safety-scores"]) : new JObject()),
+            new JProperty("chunks", (int)context.Variables["web-iq-safety-chunks"]),
+            new JProperty("latencyMs", (double)context.Variables["web-iq-safety-latency"]),
+            new JProperty("requestId", context.RequestId.ToString())
+        );
+        var isSse = context.Response.Headers.GetValueOrDefault("Content-Type", "").StartsWith("text/event-stream", StringComparison.OrdinalIgnoreCase);
+        var frames = isSse ? body.Replace("\r\n", "\n").Replace("\r", "\n").Split(new [] { "\n\n" }, StringSplitOptions.None) : new [] { body };
+        for (var frameIndex = 0; frameIndex &lt; frames.Length; frameIndex++)
+        {
+            var lines = frames[frameIndex].Split('\n');
+            var payload = frames[frameIndex];
+            if (isSse)
+            {
+                var data = new List&lt;string&gt;();
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("data:", StringComparison.Ordinal))
+                    {
+                        var value = line.Substring(5);
+                        data.Add(value.StartsWith(" ") ? value.Substring(1) : value);
+                    }
+                }
+                if (data.Count == 0) { continue; }
+                payload = string.Join("\n", data);
+            }
+
+            JToken document;
+            try { document = JToken.Parse(payload); }
+            catch { continue; }
+            var objects = document.Type == JTokenType.Array ? ((JArray)document).OfType&lt;JObject&gt;().ToList() : new List&lt;JObject&gt;();
+            if (document.Type == JTokenType.Object) { objects.Add((JObject)document); }
+            var changed = false;
+            foreach (var item in objects)
+            {
+                if (context.Operation.Id.StartsWith("mcp-", StringComparison.Ordinal) &amp;&amp; (string)item["jsonrpc"] == "2.0")
+                {
+                    var result = item["result"] as JObject;
+                    if (result != null)
+                    {
+                        var meta = result["_meta"] as JObject ?? new JObject();
+                        meta["contentSafety"] = telemetry.DeepClone();
+                        result["_meta"] = meta;
+                        var structured = result["structuredContent"] as JObject;
+                        if (structured != null) { structured["contentSafety"] = telemetry.DeepClone(); }
+                        var content = result["content"] as JArray;
+                        if (content != null)
+                        {
+                            var summary = new JObject(new JProperty("contentSafety", telemetry.DeepClone())).ToString(Newtonsoft.Json.Formatting.None);
+                            var firstText = content.FirstOrDefault(x =&gt; (string)x["type"] == "text") as JObject;
+                            if (firstText == null)
+                            {
+                                content.Add(new JObject(new JProperty("type", "text"), new JProperty("text", summary)));
+                            }
+                            else
+                            {
+                                var text = (string)firstText["text"] ?? string.Empty;
+                                try
+                                {
+                                    var json = JObject.Parse(text);
+                                    json["contentSafety"] = telemetry.DeepClone();
+                                    firstText["text"] = json.ToString(Newtonsoft.Json.Formatting.None);
+                                }
+                                catch { firstText["text"] = text + "\n\n" + summary; }
+                            }
+                        }
+                        changed = true;
+                    }
+                    var error = item["error"] as JObject;
+                    if (error != null)
+                    {
+                        var data = error["data"] as JObject ?? new JObject();
+                        if (error["data"] != null &amp;&amp; error["data"].Type != JTokenType.Object)
+                        {
+                            data["upstreamData"] = error["data"].DeepClone();
+                        }
+                        data["contentSafety"] = telemetry.DeepClone();
+                        error["data"] = data;
+                        changed = true;
+                    }
+                }
+                else
+                {
+                    item["contentSafety"] = telemetry.DeepClone();
+                    changed = true;
+                }
+            }
+            if (!changed) { continue; }
+            var updated = document.ToString(Newtonsoft.Json.Formatting.None);
+            if (isSse)
+            {
+                var output = new List&lt;string&gt;();
+                var inserted = false;
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("data:", StringComparison.Ordinal))
+                    {
+                        if (!inserted) { output.Add("data: " + updated); inserted = true; }
+                    }
+                    else { output.Add(line); }
+                }
+                frames[frameIndex] = string.Join("\n", output);
+            }
+            else { frames[frameIndex] = updated; }
+        }
+        return string.Join(isSse ? "\n\n" : string.Empty, frames);
+    }</set-body>
+</fragment>

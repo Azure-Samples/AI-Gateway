@@ -1,0 +1,529 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Microsoft Web IQ",
+    "description": "Microsoft Web IQ endpoints exposed through Azure API Management.",
+    "version": "v3"
+  },
+  "paths": {
+    "/search/web": {
+      "post": {
+        "summary": "Search the web",
+        "description": "Returns ranked, citation-ready web results.",
+        "operationId": "search-web",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "maxResults": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50
+                  },
+                  "language": {
+                    "type": "string"
+                  },
+                  "region": {
+                    "type": "string"
+                  },
+                  "maxLength": {
+                    "type": "integer"
+                  },
+                  "contentFormat": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful search response",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contentSafety": {
+                      "$ref": "#/components/schemas/ContentSafetyTelemetry"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Web IQ error response",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contentSafety": {
+                      "$ref": "#/components/schemas/ContentSafetyTelemetry"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Content Safety analysis could not complete; upstream content is withheld.",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contentSafety": {
+                      "$ref": "#/components/schemas/ContentSafetyTelemetry"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/browse": {
+      "post": {
+        "summary": "Browse a URL",
+        "description": "Published to demonstrate an APIM policy that blocks the operation before it reaches Web IQ.",
+        "operationId": "browse-url",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "url"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "contentFormat": {
+                    "type": "string"
+                  },
+                  "maxLength": {
+                    "type": "integer"
+                  },
+                  "liveCrawl": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful browse response",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted for live crawl",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "default": {
+            "description": "Web IQ error response",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mcp": {
+      "post": {
+        "summary": "Send an MCP message",
+        "description": "Proxies streamable HTTP Model Context Protocol messages to the Microsoft Web IQ MCP server.",
+        "operationId": "mcp-post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MCP JSON or SSE response. Results include _meta.contentSafety; tool results also include contentSafety in structured content and the first text block.",
+            "content": {
+              "application/json": {},
+              "text/event-stream": {}
+            },
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "202": {
+            "description": "MCP notification accepted",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "default": {
+            "description": "MCP transport or Web IQ error response",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "502": {
+            "description": "Content Safety analysis could not complete; upstream content is withheld.",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Open an MCP server event stream",
+        "description": "The optional long-lived event stream is disabled by APIM so responses can be fully moderated. Use MCP POST requests.",
+        "operationId": "mcp-get",
+        "responses": {
+          "405": {
+            "description": "Long-lived event stream disabled; use POST or DELETE.",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "default": {
+            "description": "Gateway authentication or transport error.",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Close an MCP session",
+        "description": "Terminates a streamable HTTP MCP session when the upstream server assigned one.",
+        "operationId": "mcp-delete",
+        "responses": {
+          "200": {
+            "description": "MCP session closed",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "204": {
+            "description": "MCP session closed with no response body",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "default": {
+            "description": "MCP transport or Web IQ error response",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          },
+          "502": {
+            "description": "Content Safety analysis could not complete; upstream content is withheld.",
+            "headers": {
+              "x-content-safety-status": {
+                "$ref": "#/components/headers/x-content-safety-status"
+              },
+              "x-content-safety-scores": {
+                "$ref": "#/components/headers/x-content-safety-scores"
+              },
+              "x-content-safety-chunks": {
+                "$ref": "#/components/headers/x-content-safety-chunks"
+              },
+              "x-content-safety-latency-ms": {
+                "$ref": "#/components/headers/x-content-safety-latency-ms"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "headers": {
+      "x-content-safety-status": {
+        "description": "Gateway text moderation outcome. Successful analysis reports analyzed; empty responses report no-text.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "x-content-safety-scores": {
+        "description": "JSON object containing maximum Hate, Sexual, Violence, and SelfHarm severities (0, 2, 4, 6). Present only after complete analysis.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "x-content-safety-chunks": {
+        "description": "Number of Content Safety requests attempted.",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "x-content-safety-latency-ms": {
+        "description": "Response text extraction and moderation duration in milliseconds.",
+        "schema": {
+          "type": "number"
+        }
+      }
+    },
+    "schemas": {
+      "ContentSafetyTelemetry": {
+        "type": "object",
+        "description": "Gateway moderation results for the complete upstream response text.",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "scores": {
+            "type": "object",
+            "description": "Maximum scores per category. Empty when no complete analysis is available.",
+            "properties": {
+              "Hate": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  2,
+                  4,
+                  6
+                ]
+              },
+              "Sexual": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  2,
+                  4,
+                  6
+                ]
+              },
+              "Violence": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  2,
+                  4,
+                  6
+                ]
+              },
+              "SelfHarm": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  2,
+                  4,
+                  6
+                ]
+              }
+            }
+          },
+          "chunks": {
+            "type": "integer"
+          },
+          "latencyMs": {
+            "type": "number"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

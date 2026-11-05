@@ -1,0 +1,23 @@
+// APIM > Logs or the connected Log Analytics workspace > Logs.
+// Team is the APIM subscription ID; defaults are research-team and support-team.
+ApiManagementGatewayLogs
+| where TimeGenerated > ago(30d)
+| where ApiId == 'web-iq-api'
+// Requests without a validated subscription cannot be allocated to a team.
+| where isnotempty(ApimSubscriptionId)
+| extend Team = ApimSubscriptionId,
+         ApimService = tostring(split(_ResourceId, '/')[-1])
+// A recorded backend response does not establish provider-billed usage.
+| extend HasBackendResponse = BackendResponseCode between (100 .. 599)
+| summarize GatewayRequests = count(),
+            SuccessfulRequests = countif(IsRequestSuccess == true),
+            FailedRequests = countif(IsRequestSuccess == false),
+            Responses401 = countif(ResponseCode == 401),
+            Responses403 = countif(ResponseCode == 403),
+            Responses429 = countif(ResponseCode == 429),
+            BackendResponses = countif(HasBackendResponse),
+            AverageLatencyMs = round(avg(TotalTime), 1),
+            P95LatencyMs = percentile(TotalTime, 95),
+            AverageBackendLatencyMs = round(avgif(BackendTime, HasBackendResponse), 1)
+    by Team, OperationId, ApimService
+| order by Team asc, GatewayRequests desc, ApimService asc, OperationId asc

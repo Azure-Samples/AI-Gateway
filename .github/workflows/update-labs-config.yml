@@ -213,12 +213,14 @@ jobs:
             echo "gh-pages branch does not exist, skipping update"
           fi
 
-      - name: Report results (PR comment)
+      - name: Report results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          CHANGED_LABS: ${{ steps.changed-labs.outputs.labs }}
         with:
           script: |
-            const changedLabs = '${{ steps.changed-labs.outputs.labs }}'.trim().split(/\s+/).filter(Boolean);
+            const changedLabs = (process.env.CHANGED_LABS || '').trim().split(/\s+/).filter(Boolean);
             
             if (changedLabs.length === 0) {
               return;
@@ -232,9 +234,24 @@ jobs:
             
             The config will be updated on both \`main\` and \`gh-pages\` branches.`;
             
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+            await core.summary.addRaw(body).write();
+
+            // Fork PR tokens are read-only, so publish their preview in the job summary.
+            if (context.payload.pull_request.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+              core.info('Skipping the PR comment for a fork. The labs config preview is in the job summary.');
+              return;
+            }
+
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } catch (error) {
+              if (error.status !== 403) {
+                throw error;
+              }
+              core.warning('The token cannot post a PR comment. The labs config preview is in the job summary.');
+            }
