@@ -1,0 +1,44 @@
+<policies>
+    <inbound>
+        <base />
+        <return-response>
+            <set-status code="200" />
+            <set-body>@{
+                    var random = new Random();
+                    var names = new[] { "N/A" };
+                    var skus = new[] { "SKU-1234", "SKU-5678", "SKU-4321", "SKU-8765" };
+                    var storeLocations = new[] { "Lisbon", "Seattle", "London", "Madrid" };
+                    var category = context.Request.MatchedParameters["category"];                    
+                    switch (category.ToLower())
+                    {
+                        case "electronics":
+                            names = new[] { "Smartphone", "Tablet", "Laptop", "Smartwatch" };
+                            break;
+                        case "appliances":
+                            names = new[] { "Refrigerator", "Washing Machine", "Microwave", "Dishwasher" };
+                            break;
+                        case "clothing":
+                            names = new[] { "T-shirt", "Jeans", "Jacket", "Sneakers" };
+                            break;
+                    }                    
+
+                    return new JObject(
+                        new JProperty("name", names[random.Next(names.Length)]),
+                        new JProperty("category", category),
+                        new JProperty("sku", skus[random.Next(skus.Length)]),
+                        new JProperty("stock", random.Next(1, 100)),
+                        new JProperty("store_location", storeLocations[random.Next(storeLocations.Length)])
+                        ).ToString();
+                    }</set-body>
+        </return-response>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

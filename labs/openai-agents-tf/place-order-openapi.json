@@ -1,0 +1,97 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Place Order API",
+      "description": "Place an Order to the specified sku and quantity.",
+      "version": "1.0"
+    },
+    "servers": [
+      {
+        "url": "https://replace-me.local/orderservice"
+      }
+    ],
+    "security": [
+      {
+        "apiKeyHeader": []
+      }
+    ],
+    "tags": [],
+    "paths": {
+      "/PlaceOrder/paths/invoke": {
+        "post": {
+          "summary": "PlaceOrder-invoke",
+          "description": "Place an Order to the specified sku and quantity.",
+          "operationId": "PlaceOrder-invoke",
+          "requestBody": {
+            "description": "The request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/request-PlaceOrder"
+                }
+              }
+            },
+            "required": false
+          },
+          "responses": {
+            "200": {
+              "description": "The Logic App Response.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlaceOrderPathsInvokePost200ApplicationJsonResponse"
+                  },
+                  "example": {}
+                }
+              }
+            },
+            "500": {
+              "description": "The Logic App Response.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlaceOrderPathsInvokePost500ApplicationJsonResponse"
+                  },
+                  "example": {}
+                }
+              }
+            }
+          },
+          "x-codegen-request-body-name": "request-PlaceOrder"
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "request-PlaceOrder": {
+          "type": "object",
+          "properties": {
+            "sku": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "integer"
+            }
+          },
+          "example": {
+            "sku": "string",
+            "quantity": 0
+          }
+        },
+        "PlaceOrderPathsInvokePost200ApplicationJsonResponse": {
+          "type": "object"
+        },
+        "PlaceOrderPathsInvokePost500ApplicationJsonResponse": {
+          "type": "object"
+        }
+      },
+      "securitySchemes": {
+        "apiKeyHeader": {
+          "type": "apiKey",
+          "name": "api-key",
+          "in": "header"
+        }
+      }
+    },
+    "x-original-swagger-version": "2.0"
+  }
