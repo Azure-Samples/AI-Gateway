@@ -8,7 +8,7 @@ dependencies = [
     "openai",
     "openai[realtime]",
     "azure-identity",
-    "gradio==5.23.3",
+    "gradio==6.15.0",
     "gradio_client==1.8.0",
     "fastrtc==0.0.19",
     "uvicorn==0.32.0",
